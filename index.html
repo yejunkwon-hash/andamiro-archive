@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>안다 아카이브</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 <style>
 /* ===== 기본 토큰 (wiki.html과 동일) ===== */
 :root{
@@ -159,6 +160,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <input id="li-email" type="email" autocomplete="username" placeholder="you@example.com">
     <label>비밀번호</label>
     <input id="li-pw" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div id="li-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="li-btn">로그인</button>
     <div class="login-row">
       <a id="li-reset">비밀번호를 잊으셨나요?</a>
@@ -178,6 +180,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <input id="su-name" type="text" placeholder="홍길동">
     <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
     <input id="su-handle" type="text" placeholder="gildong">
+    <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">신청하기</button>
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
     <div class="msg" id="su-msg"></div>
@@ -214,6 +217,24 @@ const SUPABASE_URL = 'https://vqocngalfxboticcmiwh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_DXLmvZx9AfuAwcSlCD1Zww_RCSl83Lx';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ===== Cloudflare Turnstile (CAPTCHA) ===== */
+const TS_SITEKEY = '0x4AAAAAADxloShb4WCYFvpB';
+let liWidget=null, suWidget=null, liToken='', suToken='';
+window.onTurnstileLoad = function(){
+  renderLoginCaptcha();
+  if(document.getElementById('signupCard').style.display!=='none') renderSignupCaptcha();
+};
+function renderLoginCaptcha(){
+  if(window.turnstile && liWidget===null)
+    liWidget=turnstile.render('#li-captcha',{sitekey:TS_SITEKEY,callback:t=>{liToken=t;},'expired-callback':()=>{liToken='';},'error-callback':()=>{liToken='';}});
+}
+function renderSignupCaptcha(){
+  if(window.turnstile && suWidget===null)
+    suWidget=turnstile.render('#su-captcha',{sitekey:TS_SITEKEY,callback:t=>{suToken=t;},'expired-callback':()=>{suToken='';},'error-callback':()=>{suToken='';}});
+}
+function resetLoginCaptcha(){ if(window.turnstile && liWidget!==null) turnstile.reset(liWidget); liToken=''; }
+function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile.reset(suWidget); suToken=''; }
+
 /* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
@@ -232,16 +253,20 @@ async function doLogin(){
   const email=$('#li-email').value.trim(), pw=$('#li-pw').value;
   const msg=$('#li-msg'); msg.className='msg';
   if(!email||!pw){ msg.className='msg err'; msg.textContent='이메일과 비밀번호를 입력하세요.'; return; }
+  if(!liToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
   $('#li-btn').disabled=true; $('#li-btn').textContent='로그인 중…';
-  const { error } = await sb.auth.signInWithPassword({ email, password:pw });
+  const { error } = await sb.auth.signInWithPassword({ email, password:pw, options:{ captchaToken: liToken } });
   $('#li-btn').disabled=false; $('#li-btn').textContent='로그인';
+  resetLoginCaptcha();
   if(error){ msg.className='msg err'; msg.textContent='로그인 실패: '+error.message; return; }
   await onLoggedIn();
 }
 async function doReset(){
   const email=$('#li-email').value.trim(), msg=$('#li-msg');
   if(!email){ msg.className='msg err'; msg.textContent='먼저 이메일을 입력한 뒤 눌러주세요.'; return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  if(!liToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href, captchaToken: liToken });
+  resetLoginCaptcha();
   msg.className = error ? 'msg err' : 'msg ok';
   msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일함을 확인하세요.';
 }
@@ -547,17 +572,19 @@ $('#li-btn').onclick=doLogin;
 $('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 $('#li-reset').onclick=doReset;
 /* 가입 신청 토글 */
-$('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; };
+$('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; renderSignupCaptcha(); };
 $('#go-login').onclick=()=>{ $('#signupCard').style.display='none'; $('#loginCard').style.display='block'; };
 $('#su-btn').onclick=doSignupRequest;
 async function doSignupRequest(){
   const email=$('#su-email').value.trim(), msg=$('#su-msg'); msg.className='msg';
   const cohort=$('#su-cohort').value, name=$('#su-name').value.trim(), handle=$('#su-handle').value.trim();
   if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
+  if(!suToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
   $('#su-btn').disabled=true; $('#su-btn').textContent='신청 중…';
   const { error } = await sb.from('signup_requests').insert({
     email, cohort:parseInt(cohort,10), name, handle });
   $('#su-btn').disabled=false; $('#su-btn').textContent='신청하기';
+  resetSignupCaptcha();
   if(error){
     msg.className='msg err';
     msg.textContent = /duplicate|unique/i.test(error.message)
@@ -568,7 +595,7 @@ async function doSignupRequest(){
   msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
   ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
 }
-$('#logoutBtn').onclick=async()=>{ await sb.auth.signOut(); state.user=null; showLogin(); };
+$('#logoutBtn').onclick=async()=>{ await sb.auth.signOut(); state.user=null; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#home'; };
 $('#addBtn').onclick=addDoc;
 $('#adminBtn').onclick=()=>{ location.hash='#admin'; };
