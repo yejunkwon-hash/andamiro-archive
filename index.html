@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>안다 아카이브</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+/* ===== 기본 토큰 (wiki.html과 동일) ===== */
+:root{
+  --accent:#C00000; --accent-soft:#d64a42; --bg:#eef1f5; --card:#ffffff;
+  --text:#202124; --text-dim:#5f6368; --border:#e3e6ea; --border-strong:#c9ced6;
+  --link:#1e6be0; --link-red:#cc2b2b; --box-bg:#f6f8fa; --infobox-head:#C00000;
+  --table-head:#eef1f7; --shadow:0 1px 3px rgba(0,0,0,.08);
+}
+body.dark{
+  --accent:#e05a52; --accent-soft:#ea7d76; --bg:#17181c; --card:#232429;
+  --text:#e4e6eb; --text-dim:#9aa0ab; --border:#33353c; --border-strong:#44464e;
+  --link:#6ba4ff; --link-red:#ff6b6b; --box-bg:#2a2c33; --infobox-head:#a83232;
+  --table-head:#2a2c33; --shadow:0 1px 3px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
+  'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;
+  background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a.new{color:var(--link-red);}
+
+.topbar{position:sticky;top:0;z-index:50;background:var(--accent);color:#fff;display:flex;align-items:center;gap:14px;padding:0 18px;height:48px;box-shadow:0 1px 4px rgba(0,0,0,.2);}
+.topbar .logo{font-weight:800;font-size:17px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:7px;cursor:pointer;}
+.topbar .logo .mark{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.18);font-size:15px;}
+.topbar .search{flex:1;max-width:420px;position:relative;}
+.topbar .search input{width:100%;height:32px;border:none;border-radius:5px;padding:0 12px;font-size:13.5px;background:rgba(255,255,255,.95);color:#111;}
+.topbar .search input:focus{outline:2px solid rgba(255,255,255,.6);}
+.topbar .spacer{flex:1;}
+.topbar button.mode,.topbar button.logout{background:rgba(255,255,255,.14);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px;}
+.topbar button.mode:hover,.topbar button.logout:hover{background:rgba(255,255,255,.26);}
+.topbar .userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#fff;}
+.role-badge{background:rgba(255,255,255,.22);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;}
+
+.layout{max-width:1180px;margin:16px auto;padding:0 14px;display:flex;gap:16px;align-items:flex-start;}
+.sidebar{width:210px;flex:none;position:sticky;top:64px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
+.sidebar h4{margin:0;padding:11px 14px;font-size:12px;color:var(--text-dim);letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--box-bg);}
+.sidebar nav a{display:block;padding:9px 14px;color:var(--text);font-size:13.5px;border-bottom:1px solid var(--border);cursor:pointer;}
+.sidebar nav a:hover{background:var(--box-bg);text-decoration:none;}
+.sidebar nav a.active{color:var(--accent);font-weight:700;border-left:3px solid var(--accent);padding-left:11px;}
+.sidebar .addbtn{display:block;width:calc(100% - 20px);margin:10px;padding:8px;border:1px dashed var(--border-strong);background:transparent;color:var(--accent);border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;}
+.sidebar .addbtn:hover{background:var(--box-bg);}
+.content{flex:1;min-width:0;}
+
+.doc{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:22px 28px 34px;}
+.doc-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:4px;}
+.doc-head h1{margin:0;font-size:26px;letter-spacing:-.5px;}
+.doc-head .tabs{margin-left:auto;display:flex;gap:4px;}
+.doc-head .tabs button{background:var(--box-bg);border:1px solid var(--border);color:var(--text-dim);font-size:12px;padding:4px 9px;border-radius:5px;cursor:pointer;}
+.doc-head .tabs button:hover{border-color:var(--border-strong);color:var(--text);}
+.doc-head .tabs button.danger{color:var(--link-red);}
+.doc-meta{font-size:12px;color:var(--text-dim);margin:6px 0 14px;}
+
+.notice{background:var(--box-bg);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:4px;padding:9px 14px;font-size:13px;color:var(--text-dim);margin:0 0 18px;}
+.notice b{color:var(--text);}
+.infobox{float:right;width:290px;margin:0 0 16px 20px;border:1px solid var(--border-strong);border-radius:6px;overflow:hidden;font-size:13px;background:var(--card);}
+.infobox .ib-title{background:var(--infobox-head);color:#fff;text-align:center;padding:10px;font-weight:800;font-size:15px;letter-spacing:-.3px;}
+.infobox .ib-sub{background:var(--infobox-head);color:rgba(255,255,255,.85);text-align:center;padding:0 10px 9px;font-size:12px;margin-top:-4px;}
+.infobox table{width:100%;border-collapse:collapse;}
+.infobox th,.infobox td{padding:7px 9px;border-top:1px solid var(--border);vertical-align:top;text-align:left;}
+.infobox th{background:var(--table-head);width:34%;color:var(--text-dim);font-weight:700;white-space:nowrap;}
+
+.toc{display:inline-block;min-width:230px;max-width:100%;background:var(--box-bg);border:1px solid var(--border);border-radius:5px;padding:10px 16px 12px;margin:6px 0 22px;}
+.toc .toc-title{font-weight:800;font-size:14px;margin-bottom:6px;}
+.toc ul{list-style:none;margin:0;padding:0;font-size:13.5px;}
+.toc li{padding:1.5px 0;} .toc li.l3{padding-left:16px;} .toc li.l4{padding-left:32px;}
+.toc a{color:var(--link);cursor:pointer;} .toc .n{color:var(--text-dim);margin-right:5px;}
+
+.doc h2,.doc h3,.doc h4{scroll-margin-top:64px;cursor:pointer;position:relative;}
+.doc h2{font-size:21px;border-bottom:1px solid var(--border-strong);padding-bottom:5px;margin:30px 0 12px;}
+.doc h3{font-size:17.5px;border-bottom:1px solid var(--border);padding-bottom:4px;margin:22px 0 10px;}
+.doc h4{font-size:15.5px;margin:18px 0 8px;}
+.doc h2 .sec-num,.doc h3 .sec-num,.doc h4 .sec-num{color:var(--accent);margin-right:7px;font-weight:800;}
+.doc h2 .fold{position:absolute;right:2px;font-size:12px;color:var(--text-dim);font-weight:400;}
+.doc .collapsed{display:none;}
+.doc p{margin:9px 0;}
+.doc ul.body-list,.doc ol.body-list{margin:9px 0;padding-left:24px;}
+.doc ul.body-list li,.doc ol.body-list li{margin:4px 0;}
+.doc strong{color:var(--text);}
+.doc table.wtable{border-collapse:collapse;width:100%;margin:12px 0;font-size:13.5px;}
+.doc table.wtable th,.doc table.wtable td{border:1px solid var(--border-strong);padding:7px 10px;vertical-align:top;}
+.doc table.wtable th{background:var(--table-head);font-weight:700;}
+.doc table.wtable td.y{white-space:nowrap;color:var(--text-dim);width:90px;}
+.callout{background:var(--box-bg);border:1px solid var(--border);border-left:4px solid var(--accent-soft);border-radius:4px;padding:11px 15px;margin:14px 0;font-size:14px;}
+.callout .ct{font-weight:800;display:block;margin-bottom:3px;color:var(--accent);}
+.imgph{background:repeating-linear-gradient(45deg,var(--box-bg),var(--box-bg) 10px,transparent 10px,transparent 20px);border:1px dashed var(--border-strong);border-radius:6px;color:var(--text-dim);display:flex;align-items:center;justify-content:center;text-align:center;min-height:120px;margin:14px 0;font-size:13px;padding:14px;}
+.fn{color:inherit;}
+.fn-mark{color:var(--link);cursor:help;font-size:11px;vertical-align:super;position:relative;}
+.fn-mark:hover::after{content:attr(data-note);position:absolute;left:50%;bottom:150%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:7px 11px;border-radius:6px;font-size:12px;line-height:1.5;width:max-content;max-width:280px;white-space:normal;z-index:20;box-shadow:0 3px 10px rgba(0,0,0,.25);vertical-align:baseline;}
+.footnotes{margin-top:34px;border-top:1px solid var(--border);padding-top:14px;font-size:12.5px;color:var(--text-dim);}
+.footnotes .fn-item{margin:5px 0;} .footnotes .fn-item b{color:var(--link);margin-right:6px;}
+.category{margin-top:26px;background:var(--box-bg);border:1px solid var(--border);border-radius:5px;padding:8px 14px;font-size:12.5px;color:var(--text-dim);}
+.category b{color:var(--text-dim);margin-right:6px;} .category a{margin-right:4px;}
+.related{list-style:none;padding:0;margin:8px 0;}
+.related li{padding:3px 0 3px 18px;position:relative;}
+.related li::before{content:"▸";position:absolute;left:0;color:var(--accent);}
+footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--text-dim);font-size:12px;text-align:center;}
+
+/* ===== 로그인 화면 ===== */
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+.login-card{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.12);width:100%;max-width:360px;padding:28px 26px;}
+.login-card h1{margin:0 0 4px;font-size:22px;letter-spacing:-.5px;}
+.login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
+.login-card label{display:block;font-size:12.5px;color:var(--text-dim);margin:12px 0 4px;font-weight:700;}
+.login-card input{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 11px;font-size:14px;background:var(--card);color:var(--text);}
+.login-card input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
+.btn{border:none;border-radius:6px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;}
+.btn.primary{background:var(--accent);color:#fff;width:100%;margin-top:18px;}
+.btn.primary:hover{filter:brightness(1.08);}
+.btn.ghost{background:var(--box-bg);border:1px solid var(--border);color:var(--text);}
+.login-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;font-size:12.5px;}
+.login-row a{cursor:pointer;}
+.msg{font-size:13px;margin-top:12px;padding:8px 11px;border-radius:6px;display:none;}
+.msg.err{display:block;background:#fdecec;color:#b3261e;border:1px solid #f5c2c0;}
+.msg.ok{display:block;background:#eaf6ec;color:#1b7a2f;border:1px solid #bfe3c6;}
+body.dark .msg.err{background:#3a2020;color:#ff9a94;border-color:#5a2a2a;}
+body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
+
+/* ===== 편집 폼 ===== */
+.editor label{display:block;font-size:12.5px;color:var(--text-dim);font-weight:700;margin:14px 0 4px;}
+.editor input,.editor textarea{width:100%;border:1px solid var(--border-strong);border-radius:6px;padding:9px 11px;font-size:14px;background:var(--card);color:var(--text);font-family:inherit;}
+.editor textarea{min-height:340px;resize:vertical;line-height:1.6;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;}
+.editor .hint{font-size:11.5px;color:var(--text-dim);font-weight:400;margin-left:6px;}
+.editor .adv summary{cursor:pointer;font-size:12.5px;color:var(--text-dim);margin-top:14px;}
+.editor-actions{display:flex;gap:8px;margin-top:18px;align-items:center;}
+
+/* ===== 역사 패널 ===== */
+.history .rev{border:1px solid var(--border);border-radius:6px;padding:10px 13px;margin:8px 0;display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.history .rev .meta{font-size:12.5px;color:var(--text-dim);}
+.history .rev .meta b{color:var(--text);}
+.history .rev button{white-space:nowrap;}
+.history .rev button:disabled{opacity:.45;cursor:not-allowed;}
+.history .expired{font-size:11.5px;color:var(--text-dim);}
+
+@media(max-width:860px){
+  .layout{flex-direction:column;}
+  .sidebar{width:100%;position:static;}
+  .infobox{float:none;width:100%;margin:0 0 16px;}
+  .doc{padding:18px 16px 28px;}
+  .topbar .search{max-width:none;}
+  .doc-head h1{font-size:22px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 로그인 화면 ===== -->
+<div id="login">
+  <div class="login-card" id="loginCard">
+    <h1>안다 아카이브</h1>
+    <div class="sub">경기북과학고등학교 물리 탐구 동아리 · 부원 로그인</div>
+    <label>이메일</label>
+    <input id="li-email" type="email" autocomplete="username" placeholder="you@example.com">
+    <label>비밀번호</label>
+    <input id="li-pw" type="password" autocomplete="current-password" placeholder="••••••••">
+    <button class="btn primary" id="li-btn">로그인</button>
+    <div class="login-row">
+      <a id="li-reset">비밀번호를 잊으셨나요?</a>
+      <a id="go-signup">가입 신청 →</a>
+    </div>
+    <div class="msg" id="li-msg"></div>
+  </div>
+
+  <div class="login-card" id="signupCard" style="display:none">
+    <h1>가입 신청</h1>
+    <div class="sub">신청 후 관리자 승인을 거쳐 가입돼요. 승인되면 이메일로 안내가 갑니다.</div>
+    <label>이메일 <span style="color:var(--text-dim);font-weight:400">(로그인 아이디)</span></label>
+    <input id="su-email" type="email" placeholder="you@example.com">
+    <label>기수 <span style="color:var(--text-dim);font-weight:400">(숫자, 예: 22)</span></label>
+    <input id="su-cohort" type="number" min="1" placeholder="22">
+    <label>이름 <span style="color:var(--text-dim);font-weight:400">(실명)</span></label>
+    <input id="su-name" type="text" placeholder="홍길동">
+    <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
+    <input id="su-handle" type="text" placeholder="gildong">
+    <button class="btn primary" id="su-btn">신청하기</button>
+    <div class="login-row"><a id="go-login">← 로그인으로</a></div>
+    <div class="msg" id="su-msg"></div>
+  </div>
+</div>
+
+<!-- ===== 앱 ===== -->
+<div id="app" style="display:none">
+  <div class="topbar">
+    <div class="logo" id="homeLink"><span class="mark">⚛</span>안다 아카이브</div>
+    <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
+    <div class="spacer"></div>
+    <div class="userbox" id="userbox"></div>
+    <button class="logout" id="adminBtn" style="display:none">회원 관리</button>
+    <button class="mode" id="modeBtn">🌙 야간</button>
+    <button class="logout" id="logoutBtn">로그아웃</button>
+  </div>
+  <div class="layout">
+    <aside class="sidebar">
+      <h4>문서 목록</h4>
+      <nav id="nav"></nav>
+      <button class="addbtn" id="addBtn" style="display:none">＋ 새 문서</button>
+    </aside>
+    <main class="content">
+      <div class="doc" id="doc"></div>
+      <footer class="site">안다 아카이브 · 로그인한 부원 전용 · 편집은 editor/admin</footer>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ================== 설정 ================== */
+const SUPABASE_URL = 'https://vqocngalfxboticcmiwh.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_DXLmvZx9AfuAwcSlCD1Zww_RCSl83Lx';
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
+const ORDER = ['home','kypt','method','stats','topics','tools'];
+
+const state = { user:null, role:'viewer', email:'', docs:[], key:null };
+const $ = s => document.querySelector(s);
+
+/* ================== 인증 ================== */
+async function init(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(session){ await onLoggedIn(); } else { showLogin(); }
+}
+function showLogin(){ $('#login').style.display='flex'; $('#app').style.display='none'; }
+function showApp(){ $('#login').style.display='none'; $('#app').style.display='block'; }
+
+async function doLogin(){
+  const email=$('#li-email').value.trim(), pw=$('#li-pw').value;
+  const msg=$('#li-msg'); msg.className='msg';
+  if(!email||!pw){ msg.className='msg err'; msg.textContent='이메일과 비밀번호를 입력하세요.'; return; }
+  $('#li-btn').disabled=true; $('#li-btn').textContent='로그인 중…';
+  const { error } = await sb.auth.signInWithPassword({ email, password:pw });
+  $('#li-btn').disabled=false; $('#li-btn').textContent='로그인';
+  if(error){ msg.className='msg err'; msg.textContent='로그인 실패: '+error.message; return; }
+  await onLoggedIn();
+}
+async function doReset(){
+  const email=$('#li-email').value.trim(), msg=$('#li-msg');
+  if(!email){ msg.className='msg err'; msg.textContent='먼저 이메일을 입력한 뒤 눌러주세요.'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href });
+  msg.className = error ? 'msg err' : 'msg ok';
+  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일함을 확인하세요.';
+}
+async function onLoggedIn(){
+  const { data:{ user } } = await sb.auth.getUser();
+  state.user = user;
+  const { data: prof } = await sb.from('profiles').select('role,email').eq('id', user.id).single();
+  state.role = prof?.role || 'viewer';
+  state.email = prof?.email || user.email;
+  renderUserbox();
+  $('#addBtn').style.display = canEdit() ? 'block' : 'none';
+  $('#adminBtn').style.display = isAdmin() ? 'inline-block' : 'none';
+  await loadDocs();
+  showApp();
+  route();
+}
+function canEdit(){ return state.role==='editor' || state.role==='admin'; }
+function isAdmin(){ return state.role==='admin'; }
+function renderUserbox(){
+  $('#userbox').innerHTML = `<span>${escapeHtml(state.email)}</span><span class="role-badge">${state.role}</span>`;
+}
+
+/* ================== 문서 목록/로드 ================== */
+async function loadDocs(){
+  const { data, error } = await sb.from('documents').select('key,title');
+  if(error){ $('#doc').innerHTML='<p>문서 목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
+  const rank = k => { const i=ORDER.indexOf(k); return i<0 ? 999 : i; };
+  state.docs = (data||[]).sort((a,b)=> rank(a.key)-rank(b.key) || a.key.localeCompare(b.key));
+  buildNav();
+}
+function buildNav(active){
+  $('#nav').innerHTML = state.docs.map(d =>
+    `<a data-key="${d.key}" class="${d.key===active?'active':''}">${escapeHtml(d.title||d.key)}</a>`).join('');
+  $('#nav').querySelectorAll('a').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+}
+
+async function renderDoc(key){
+  const { data: doc, error } = await sb.from('documents').select('*').eq('key', key).single();
+  if(error || !doc){ $('#doc').innerHTML='<h1>문서 없음</h1><p>존재하지 않는 문서입니다.</p>'; return; }
+  state.key = key;
+  const info = doc.infobox, cat = doc.category;
+  let infoboxHtml='';
+  if(info && info.rows){
+    const rows = info.rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('');
+    infoboxHtml = `<aside class="infobox"><div class="ib-title">${escapeHtml(info.title||'')}</div>`
+      + (info.sub?`<div class="ib-sub">${escapeHtml(info.sub)}</div>`:'')
+      + `<table>${rows}</table></aside>`;
+  }
+  const tabs = [];
+  if(canEdit()) tabs.push('<button id="editBtn">[편집]</button>');
+  tabs.push('<button id="histBtn">[역사]</button>');
+  if(isAdmin()) tabs.push('<button id="delBtn" class="danger">[삭제]</button>');
+
+  $('#doc').innerHTML = `
+    <div class="doc-head"><h1>${escapeHtml(doc.title||'')}</h1>
+      <div class="tabs">${tabs.join('')}</div></div>
+    <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}</div>
+    ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
+    ${infoboxHtml}
+    <div class="toc-slot"></div>
+    <div class="doc-body">${doc.body||''}</div>
+    <div class="footnotes-slot"></div>
+    ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
+  `;
+  buildToc(); buildFootnotes(); buildNav(key);
+  if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
+  $('#histBtn').onclick=()=>showHistory(key);
+  if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
+  window.scrollTo(0,0);
+}
+
+/* 목차/각주 (wiki.html과 동일 로직) */
+function buildToc(){
+  const body=$('#doc').querySelector('.doc-body'); if(!body) return;
+  const heads=body.querySelectorAll('h2,h3,h4'); let c2=0,c3=0,c4=0; const items=[];
+  heads.forEach(h=>{
+    let num='';
+    if(h.tagName==='H2'){c2++;c3=0;c4=0;num=`${c2}`;}
+    else if(h.tagName==='H3'){c3++;c4=0;num=`${c2}.${c3}`;}
+    else{c4++;num=`${c2}.${c3}.${c4}`;}
+    const id='sec-'+num.replace(/\./g,'-'); h.id=id;
+    const t=h.textContent;
+    h.innerHTML=`<span class="sec-num">${num}.</span>${t}`+(h.tagName==='H2'?`<span class="fold">［접기］</span>`:'');
+    items.push({level:h.tagName,num,id,text:t});
+  });
+  if(items.length){
+    const lis=items.map(it=>{const cls=it.level==='H3'?'l3':it.level==='H4'?'l4':'';
+      return `<li class="${cls}"><a data-target="${it.id}"><span class="n">${it.num}.</span>${it.text}</a></li>`;}).join('');
+    $('#doc').querySelector('.toc-slot').innerHTML=`<div class="toc"><div class="toc-title">목차</div><ul>${lis}</ul></div>`;
+  }
+  $('#doc').querySelectorAll('.toc a').forEach(a=>a.onclick=e=>{e.preventDefault();
+    const t=document.getElementById(a.dataset.target); if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
+  body.querySelectorAll('h2').forEach(h=>h.addEventListener('click',()=>{
+    let el=h.nextElementSibling; const col=h.classList.toggle('is-collapsed');
+    const f=h.querySelector('.fold'); if(f)f.textContent=col?'［펼치기］':'［접기］';
+    while(el&&el.tagName!=='H2'){el.classList.toggle('collapsed',col);el=el.nextElementSibling;}
+  }));
+}
+function buildFootnotes(){
+  const fns=$('#doc').querySelectorAll('.doc-body .fn'); if(!fns.length) return;
+  const list=[];
+  fns.forEach((fn,i)=>{const n=i+1,note=fn.dataset.note||'';
+    const m=document.createElement('sup');m.className='fn-mark';m.textContent=`[${n}]`;m.dataset.note=note;
+    fn.after(m); list.push(`<div class="fn-item" id="fn-${n}"><b>[${n}]</b>${note}</div>`);});
+  $('#doc').querySelector('.footnotes-slot').innerHTML=`<div class="footnotes"><b>각주</b>${list.join('')}</div>`;
+}
+
+/* ================== 편집 ================== */
+function enterEdit(doc){
+  const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
+  const catStr = doc.category ? doc.category.join(', ') : '';
+  $('#doc').innerHTML = `
+    <div class="doc-head"><h1>문서 편집</h1></div>
+    <div class="editor">
+      <label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}">
+      <label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}">
+      <label>안내상자 <span class="hint">(문서 상단 회색 박스, HTML 가능·선택)</span></label>
+      <input id="e-notice" value="${escapeAttr(doc.notice||'')}">
+      <label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}">
+      <label>본문 <span class="hint">(HTML. h2/h3로 제목, &lt;span class="fn" data-note="…"&gt;용어&lt;/span&gt;로 각주)</span></label>
+      <textarea id="e-body">${escapeHtml(doc.body||'')}</textarea>
+      <details class="adv"><summary>정보 틀(인포박스) 고급 편집 · JSON</summary>
+        <textarea id="e-info" style="min-height:160px">${escapeHtml(infoStr)}</textarea>
+      </details>
+      <div class="editor-actions">
+        <button class="btn primary" id="saveBtn" style="width:auto">저장</button>
+        <button class="btn ghost" id="cancelBtn">취소</button>
+        <span class="msg" id="e-msg" style="margin:0"></span>
+      </div>
+    </div>`;
+  $('#cancelBtn').onclick=()=>renderDoc(doc.key);
+  $('#saveBtn').onclick=()=>saveDoc(doc.key);
+  window.scrollTo(0,0);
+}
+async function saveDoc(key){
+  const msg=$('#e-msg'); msg.className='msg';
+  let infobox=null;
+  const rawInfo=$('#e-info').value.trim();
+  if(rawInfo){ try{ infobox=JSON.parse(rawInfo); }catch(e){ msg.className='msg err'; msg.textContent='정보 틀 JSON 형식 오류: '+e.message; return; } }
+  const cat=$('#e-cat').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const payload={
+    title:$('#e-title').value.trim(),
+    eng:$('#e-eng').value.trim()||null,
+    notice:$('#e-notice').value.trim()||null,
+    body:$('#e-body').value,
+    category: cat.length?cat:null,
+    infobox: infobox,
+    updated_by: state.user.id,
+    updated_at: new Date().toISOString()
+  };
+  $('#saveBtn').disabled=true;
+  const { error } = await sb.from('documents').update(payload).eq('key', key);
+  $('#saveBtn').disabled=false;
+  if(error){ msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
+  await loadDocs(); await renderDoc(key);   // 저장 시 트리거가 이전 버전을 자동 백업
+}
+async function addDoc(){
+  const key=(prompt('새 문서의 주소(영문 소문자, 예: history)')||'').trim().toLowerCase();
+  if(!key) return;
+  if(!/^[a-z0-9_-]+$/.test(key)){ alert('주소는 영문 소문자·숫자·-·_ 만 가능해요.'); return; }
+  const title=(prompt('문서 제목')||'').trim(); if(!title) return;
+  const { error } = await sb.from('documents').insert({
+    key, title, body:'<h2>개요</h2>\n<p>내용을 작성하세요.</p>', updated_by: state.user.id });
+  if(error){ alert('생성 실패: '+error.message); return; }
+  await loadDocs(); location.hash='#'+key;
+}
+async function deleteDoc(doc){
+  if(!confirm(`'${doc.title}' 문서를 삭제할까요? (이력도 함께 사라집니다)`)) return;
+  const { error } = await sb.from('documents').delete().eq('key', doc.key);
+  if(error){ alert('삭제 실패: '+error.message); return; }
+  await loadDocs(); location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home';
+}
+
+/* ================== 역사 / 롤백 ================== */
+async function showHistory(key){
+  const { data: revs, error } = await sb.from('revisions').select('*').eq('doc_key', key).order('edited_at',{ascending:false});
+  if(error){ alert('이력을 불러오지 못했습니다: '+error.message); return; }
+  const MONTH = 30*24*3600*1000;
+  const rows = (revs||[]).map(r=>{
+    const within = (Date.now()-new Date(r.edited_at).getTime()) <= MONTH;
+    const who = r.edited_by ? r.edited_by.slice(0,8) : '알 수 없음';
+    const rb = canEdit()
+      ? (within ? `<button class="btn ghost" data-id="${r.id}">이 버전으로 되돌리기</button>`
+                : `<span class="expired">30일 경과 · 롤백 불가</span>`)
+      : '';
+    return `<div class="rev"><div class="meta"><b>${fmtKST(r.edited_at)}</b> · ${escapeHtml(r.title||'')} · 편집자 ${who}</div>${rb}</div>`;
+  }).join('') || '<p>아직 편집 이력이 없습니다. (문서를 한 번 수정하면 이전 버전이 여기에 쌓입니다.)</p>';
+
+  $('#doc').innerHTML = `
+    <div class="doc-head"><h1>역사 · ${escapeHtml(key)}</h1>
+      <div class="tabs"><button id="backBtn">[문서로]</button></div></div>
+    <div class="doc-meta">30일 이내 버전만 되돌릴 수 있습니다. 되돌려도 과거 기록은 지워지지 않습니다.</div>
+    <div class="history">${rows}</div>`;
+  $('#backBtn').onclick=()=>renderDoc(key);
+  $('#doc').querySelectorAll('.history button[data-id]').forEach(b=>b.onclick=()=>doRollback(key, Number(b.dataset.id)));
+  window.scrollTo(0,0);
+}
+async function doRollback(key, revId){
+  if(!confirm('이 버전으로 되돌릴까요? 현재 내용은 이력으로 보관됩니다.')) return;
+  const { error } = await sb.rpc('rollback_document', { p_key:key, p_revision_id:revId });
+  if(error){ alert('되돌리기 실패: '+error.message); return; }
+  await loadDocs(); await renderDoc(key);
+}
+
+/* ================== 회원 관리 (admin) ================== */
+async function renderAdmin(){
+  const { data, error } = await sb.rpc('admin_list_members');
+  if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
+  let pend=0;
+  try{ const c=await sb.from('signup_requests').select('*',{count:'exact',head:true}).eq('status','pending'); pend=c.count||0; }catch(e){}
+  const rows=(data||[]).map(m=>`
+    <tr>
+      <td>${escapeHtml(m.email||'')}</td>
+      <td><input class="m-name" data-id="${m.id}" value="${escapeAttr(m.name||'')}" style="width:84px"></td>
+      <td><input class="m-handle" data-id="${m.id}" value="${escapeAttr(m.handle||'')}" style="width:84px"></td>
+      <td><input type="number" class="m-cohort" data-id="${m.id}" value="${m.cohort??''}" min="1" style="width:52px">기</td>
+      <td><span class="role-badge" style="background:var(--box-bg);color:var(--accent);border:1px solid var(--border)">${escapeHtml(m.role||'viewer')}</span></td>
+      <td class="y">${fmtKST(m.last_sign_in_at)}</td>
+      <td><button class="btn ghost" data-save="${m.id}" style="padding:5px 9px">저장</button>
+          <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:4px"></span></td>
+    </tr>`).join('');
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>회원 관리</h1>
+      <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="backBtn2">[문서로]</button></div></div>
+    <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명 · 이름/활동명/기수 입력 후 [저장]</div>
+    <div class="notice">권한(viewer/editor/admin) 변경 기능은 다음 단계에서 추가됩니다. 지금은 조회·기수·이름·활동명 관리와 가입 신청 검토가 가능합니다.</div>
+    <table class="wtable">
+      <tr><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>권한</th><th>최근 로그인</th><th>관리</th></tr>
+      ${rows}
+    </table>`;
+  $('#backBtn2').onclick=()=>{ location.hash='#home'; };
+  $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
+  $('#doc').querySelectorAll('button[data-save]').forEach(b=>b.onclick=()=>saveMember(b.dataset.save));
+  window.scrollTo(0,0);
+}
+async function saveMember(id){
+  const g=s=>$('#doc').querySelector(s+'[data-id="'+id+'"]');
+  const cohortV=g('.m-cohort').value;
+  const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
+  const { error } = await sb.rpc('admin_set_member', {
+    p_target:id,
+    p_cohort: cohortV===''?null:parseInt(cohortV,10),
+    p_name: g('.m-name').value.trim()||null,
+    p_handle: g('.m-handle').value.trim()||null
+  });
+  if(error){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; }
+  else { note.textContent='저장됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},1500); }
+}
+
+/* ================== 가입 신청 검토 (admin) ================== */
+async function renderRequests(){
+  const { data, error } = await sb.from('signup_requests').select('*').eq('status','pending').order('created_at');
+  if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>가입 신청</h1></div><p>불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
+  const rows=(data||[]).map(r=>`
+    <div class="rev">
+      <div class="meta"><b>${escapeHtml(r.email||'')}</b> · ${r.cohort??'-'}기 · ${escapeHtml(r.name||'')} (${escapeHtml(r.handle||'')})<br>
+        <span style="font-size:11.5px">신청일 ${fmtKST(r.created_at)}</span></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn ghost" data-approve="${r.id}" data-email="${escapeAttr(r.email||'')}">승인</button>
+        <button class="btn ghost" data-reject="${r.id}" style="color:var(--link-red)">거절</button>
+      </div>
+    </div>`).join('') || '<p>대기 중인 가입 신청이 없습니다.</p>';
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>가입 신청</h1>
+      <div class="tabs"><button id="backAdmin">[회원 관리]</button></div></div>
+    <div class="doc-meta">대기 중 ${data?data.length:0}건</div>
+    <div class="notice">승인은 <b>2단계</b>예요: ① 여기서 [승인] → ② Supabase 대시보드 <b>Authentication → Invite user</b>로 그 이메일 초대. 초대받은 사람이 비밀번호를 설정해 로그인하면 기수·이름·활동명이 자동으로 채워집니다.</div>
+    <div class="history">${rows}</div>`;
+  $('#backAdmin').onclick=()=>{ location.hash='#admin'; };
+  $('#doc').querySelectorAll('button[data-approve]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.approve,'approved',b.dataset.email));
+  $('#doc').querySelectorAll('button[data-reject]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.reject,'rejected'));
+  window.scrollTo(0,0);
+}
+async function decideRequest(id, status, email){
+  if(status==='rejected' && !confirm('이 신청을 거절할까요?')) return;
+  const { error } = await sb.from('signup_requests')
+    .update({ status, decided_by: state.user.id, decided_at: new Date().toISOString() }).eq('id', id);
+  if(error){ alert('처리 실패: '+error.message); return; }
+  if(status==='approved'){
+    alert('승인되었습니다.\n\n이제 Supabase 대시보드 → Authentication → Invite user 로\n'+email+'\n을(를) 초대하세요. 로그인하면 프로필이 자동으로 채워집니다.');
+  }
+  renderRequests();
+}
+
+/* ================== 유틸 / 라우팅 ================== */
+function fmtKST(iso){ if(!iso) return '-';
+  try{ return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}); }
+  catch(e){ return iso; } }
+function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
+function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+function route(){
+  const key=(location.hash||'#home').slice(1);
+  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
+  if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
+  if(state.docs.length && !state.docs.find(d=>d.key===key)){ renderDoc(state.docs[0].key); return; }
+  renderDoc(key||'home');
+}
+window.addEventListener('hashchange',()=>{ if($('#app').style.display!=='none') route(); });
+
+/* 이벤트 바인딩 */
+$('#li-btn').onclick=doLogin;
+$('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
+$('#li-reset').onclick=doReset;
+/* 가입 신청 토글 */
+$('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; };
+$('#go-login').onclick=()=>{ $('#signupCard').style.display='none'; $('#loginCard').style.display='block'; };
+$('#su-btn').onclick=doSignupRequest;
+async function doSignupRequest(){
+  const email=$('#su-email').value.trim(), msg=$('#su-msg'); msg.className='msg';
+  const cohort=$('#su-cohort').value, name=$('#su-name').value.trim(), handle=$('#su-handle').value.trim();
+  if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
+  $('#su-btn').disabled=true; $('#su-btn').textContent='신청 중…';
+  const { error } = await sb.from('signup_requests').insert({
+    email, cohort:parseInt(cohort,10), name, handle });
+  $('#su-btn').disabled=false; $('#su-btn').textContent='신청하기';
+  if(error){
+    msg.className='msg err';
+    msg.textContent = /duplicate|unique/i.test(error.message)
+      ? '이미 신청이 접수되어 승인 대기 중입니다.' : ('신청 실패: '+error.message);
+    return;
+  }
+  msg.className='msg ok';
+  msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
+  ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
+}
+$('#logoutBtn').onclick=async()=>{ await sb.auth.signOut(); state.user=null; showLogin(); };
+$('#homeLink').onclick=()=>{ location.hash='#home'; };
+$('#addBtn').onclick=addDoc;
+$('#adminBtn').onclick=()=>{ location.hash='#admin'; };
+$('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
+$('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
+  $('#nav').querySelectorAll('a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'); });
+
+init();
+</script>
+</body>
+</html>
