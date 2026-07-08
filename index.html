@@ -38,19 +38,21 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .topbar button.mode:hover,.topbar button.logout:hover{background:rgba(255,255,255,.26);}
 .topbar .userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#fff;}
 .role-badge{background:rgba(255,255,255,.22);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;}
-.usermenu{position:relative;}
-.usermenu .userbtn{background:rgba(255,255,255,.14);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:7px;max-width:230px;}
-.usermenu .userbtn:hover{background:rgba(255,255,255,.26);}
-.usermenu .userbtn #userlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;}
-.usermenu-drop{position:absolute;right:0;top:100%;padding-top:6px;min-width:190px;display:none;z-index:60;}
-.usermenu:hover .usermenu-drop,.usermenu.open .usermenu-drop{display:block;}
-.usermenu-drop .inner,.usermenu-drop{pointer-events:auto;}
+.usermenu{position:relative;display:flex;align-items:center;gap:9px;}
+#userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.um-trigger{position:relative;}
+.usericon{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;}
+.usericon:hover{background:rgba(255,255,255,.30);}
+.usermenu-drop{position:absolute;right:0;top:100%;padding-top:8px;min-width:190px;display:none;z-index:60;}
+.um-trigger:hover .usermenu-drop,.um-trigger.open .usermenu-drop{display:block;}
+.um-trigger.closing .usermenu-drop{display:none;}
 .usermenu-drop a{display:block;padding:11px 15px;color:var(--text);font-size:13.5px;cursor:pointer;background:var(--card);border-left:1px solid var(--border);border-right:1px solid var(--border);}
 .usermenu-drop a:first-child{border-top:1px solid var(--border);border-radius:8px 8px 0 0;}
 .usermenu-drop a:last-child{border-bottom:1px solid var(--border);border-radius:0 0 8px 8px;box-shadow:0 6px 18px rgba(0,0,0,.14);}
 .usermenu-drop a+a{border-top:1px solid var(--border);}
 .usermenu-drop a:hover{background:var(--box-bg);text-decoration:none;}
 .usermenu-drop a.danger{color:var(--link-red);}
+@media(max-width:860px){ #userlabel{display:none;} }
 
 .layout{max-width:1180px;margin:16px auto;padding:0 14px;display:flex;gap:16px;align-items:flex-start;}
 .sidebar{width:210px;flex:none;position:sticky;top:64px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
@@ -208,12 +210,17 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="spacer"></div>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <div class="usermenu" id="usermenu">
-      <button class="userbtn" id="userbtn"><span id="userlabel"></span> <span style="opacity:.7">▾</span></button>
-      <div class="usermenu-drop" id="userdrop">
-        <a data-go="me">개인정보</a>
-        <a data-go="password">비밀번호 변경</a>
-        <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
-        <a id="dropLogout" class="danger">로그아웃</a>
+      <span id="userlabel"></span>
+      <div class="um-trigger" id="umTrigger">
+        <button class="usericon" id="usericon" aria-label="내 메뉴" title="내 메뉴">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-3.8 3.5-6 7.5-6s7.5 2.2 7.5 6"/></svg>
+        </button>
+        <div class="usermenu-drop" id="userdrop">
+          <a data-go="me">개인정보</a>
+          <a data-go="password">비밀번호 변경</a>
+          <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
+          <a id="dropLogout" class="danger">로그아웃</a>
+        </div>
       </div>
     </div>
   </div>
@@ -257,7 +264,7 @@ function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile
 /* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
-const state = { user:null, role:'viewer', email:'', docs:[], key:null, recovery:false };
+const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false };
 const $ = s => document.querySelector(s);
 
 /* ================== 인증 ================== */
@@ -292,9 +299,11 @@ async function doReset(){
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
   state.user = user;
-  const { data: prof } = await sb.from('profiles').select('role,email').eq('id', user.id).single();
+  const { data: prof } = await sb.from('profiles').select('role,email,name,handle').eq('id', user.id).single();
   state.role = prof?.role || 'viewer';
   state.email = prof?.email || user.email;
+  state.name = prof?.name || '';
+  state.handle = prof?.handle || '';
   renderUserbox();
   $('#addBtn').style.display = canEdit() ? 'block' : 'none';
   await loadDocs();
@@ -304,7 +313,8 @@ async function onLoggedIn(){
 function canEdit(){ return state.role==='editor' || state.role==='admin'; }
 function isAdmin(){ return state.role==='admin'; }
 function renderUserbox(){
-  $('#userlabel').innerHTML = `${escapeHtml(state.email)} <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
+  const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
+  $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
 }
 
@@ -719,11 +729,14 @@ async function doSignupRequest(){
   msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
   ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
 }
-/* 사용자 드롭다운 메뉴 */
-$('#userbtn').onclick=(e)=>{ e.stopPropagation(); $('#usermenu').classList.toggle('open'); };
-document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)) $('#usermenu').classList.remove('open'); });
-$('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; $('#usermenu').classList.remove('open'); });
-$('#dropLogout').onclick=async()=>{ $('#usermenu').classList.remove('open'); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
+/* 사용자 드롭다운 메뉴 (아이콘 트리거 · 호버/탭 · 항목 클릭 시 닫힘) */
+const umTrig = $('#umTrigger');
+function closeUserMenu(){ umTrig.classList.remove('open'); umTrig.classList.add('closing'); }
+$('#usericon').onclick=(e)=>{ e.stopPropagation(); umTrig.classList.remove('closing'); umTrig.classList.toggle('open'); };
+umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
+document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
+$('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
+$('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#home'; };
 $('#addBtn').onclick=addDoc;
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
