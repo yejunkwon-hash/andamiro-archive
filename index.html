@@ -54,6 +54,33 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .usermenu-drop a.danger{color:var(--link-red);}
 @media(max-width:860px){ #userlabel{display:none;} }
 
+/* 페이지 전환 애니메이션 */
+@keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+#doc.pageIn{animation:pageIn .22s ease;}
+
+/* 대문(랜딩) */
+.landing .hero{text-align:center;padding:10px 0 16px;border-bottom:1px solid var(--border);margin-bottom:22px;}
+.hero-title{font-size:27px;font-weight:800;letter-spacing:-.5px;color:var(--accent);}
+.hero-sub{color:var(--text-dim);margin-top:6px;font-size:14px;}
+.hero-desc{max-width:640px;margin:14px auto 0;color:var(--text);font-size:14px;line-height:1.75;}
+.landing-grid{display:flex;gap:20px;align-items:flex-start;}
+.cats{flex:1;min-width:0;}
+.cat{margin-bottom:18px;}
+.cat-name{font-weight:800;font-size:15px;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:10px;}
+.cat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;}
+.cat-card{display:block;background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;}
+.cat-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow);text-decoration:none;}
+.cc-title{font-weight:700;color:var(--text);}
+.cc-desc{font-size:12.5px;color:var(--text-dim);margin-top:3px;}
+.recent{width:215px;flex:none;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);}
+.recent-h{font-weight:800;font-size:13px;padding:10px 13px;border-bottom:1px solid var(--border);color:var(--text-dim);background:var(--box-bg);}
+.rc-item{display:flex;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;color:var(--text);}
+.rc-item:last-child{border-bottom:none;}
+.rc-item:hover{background:var(--box-bg);text-decoration:none;}
+.rc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rc-time{color:var(--text-dim);font-size:11px;white-space:nowrap;}
+@media(max-width:760px){ .landing-grid{flex-direction:column;} .recent{width:100%;} }
+
 .layout{max-width:1180px;margin:16px auto;padding:0 14px;display:flex;gap:16px;align-items:flex-start;}
 .sidebar{width:210px;flex:none;position:sticky;top:64px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
 .sidebar h4{margin:0;padding:11px 14px;font-size:12px;color:var(--text-dim);letter-spacing:.5px;border-bottom:1px solid var(--border);background:var(--box-bg);}
@@ -327,8 +354,10 @@ async function loadDocs(){
   buildNav();
 }
 function buildNav(active){
-  $('#nav').innerHTML = state.docs.map(d =>
-    `<a data-key="${d.key}" class="${d.key===active?'active':''}">${escapeHtml(d.title||d.key)}</a>`).join('');
+  $('#nav').innerHTML =
+    `<a data-key="main" class="${active==='main'?'active':''}">🏠 대문</a>` +
+    state.docs.map(d =>
+      `<a data-key="${d.key}" class="${d.key===active?'active':''}">${escapeHtml(d.title||d.key)}</a>`).join('');
   $('#nav').querySelectorAll('a').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
 }
 
@@ -682,6 +711,49 @@ async function renderMe(){
   window.scrollTo(0,0);
 }
 
+/* ================== 대문 (랜딩) ================== */
+const LANDING_CATS = [
+  { name:'동아리', items:[ {key:'home', title:'안다미로', desc:'동아리 소개·연혁·활동'} ] },
+  { name:'대회',   items:[ {key:'kypt', title:'KYPT', desc:'대회 방식·역할·문제 유형'} ] },
+  { name:'연구',   items:[ {key:'method', title:'연구 방법', desc:'연구·발표 방법론'},
+                           {key:'stats', title:'데이터 분석과 통계', desc:'실험 데이터 통계 처리'} ] },
+  { name:'자료',   items:[ {key:'topics', title:'연구 주제', desc:'분야별 연구 주제'},
+                           {key:'tools', title:'실험 도구', desc:'실험 장비 안내'} ] },
+  { name:'위키 안내', items:[ {key:'member_tier', title:'멤버 등급', desc:'회원 등급과 권한'} ] },
+];
+async function renderLanding(){
+  let recent=[];
+  try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
+  const cats = LANDING_CATS.map(c=>`
+    <div class="cat">
+      <div class="cat-name">${escapeHtml(c.name)}</div>
+      <div class="cat-cards">
+        ${c.items.map(it=>`<a class="cat-card" data-key="${it.key}">
+            <div class="cc-title">${escapeHtml(it.title)}</div>
+            <div class="cc-desc">${escapeHtml(it.desc)}</div></a>`).join('')}
+      </div>
+    </div>`).join('');
+  const rc = recent.map(r=>`<a class="rc-item" data-key="${r.key}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('') || '<div class="rc-item">기록 없음</div>';
+  $('#doc').innerHTML=`
+    <div class="landing">
+      <div class="hero">
+        <div class="hero-title">안다미로가 탐구한 모든 것</div>
+        <div class="hero-sub">안다 아카이브에 오신 것을 환영합니다</div>
+        <p class="hero-desc">안다 아카이브는 경기북과학고등학교 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다. 부원이라면 누구나 문서를 열람할 수 있고, 편집 권한이 있으면 함께 채워 나갈 수 있습니다.</p>
+      </div>
+      <div class="landing-grid">
+        <div class="cats">${cats}</div>
+        <aside class="recent">
+          <div class="recent-h">최근 변경</div>
+          ${rc}
+        </aside>
+      </div>
+    </div>`;
+  $('#doc').querySelectorAll('[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  buildNav('main');
+  window.scrollTo(0,0);
+}
+
 /* ================== 유틸 / 라우팅 ================== */
 function fmtKST(iso){ if(!iso) return '-';
   try{ return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}); }
@@ -691,7 +763,8 @@ function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;',
 
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
-  const key=(location.hash||'#home').slice(1);
+  const key=(location.hash||'#main').slice(1);
+  if(key==='main'){ renderLanding(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
   if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
@@ -737,7 +810,7 @@ umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
 document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
-$('#homeLink').onclick=()=>{ location.hash='#home'; };
+$('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#addBtn').onclick=addDoc;
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 $('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
@@ -752,6 +825,12 @@ sb.auth.onAuthStateChange(async (event) => {
     renderPassword();
   }
 });
+
+/* 문서 전환 애니메이션: #doc 내용이 바뀔 때마다 재생 */
+(function(){
+  const d=$('#doc');
+  if(d) new MutationObserver(()=>{ d.classList.remove('pageIn'); void d.offsetWidth; d.classList.add('pageIn'); }).observe(d,{childList:true});
+})();
 
 init();
 </script>
