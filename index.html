@@ -483,7 +483,13 @@ async function renderAdmin(){
       <td><input class="m-name" data-id="${m.id}" value="${escapeAttr(m.name||'')}" style="width:84px"></td>
       <td><input class="m-handle" data-id="${m.id}" value="${escapeAttr(m.handle||'')}" style="width:84px"></td>
       <td><input type="number" class="m-cohort" data-id="${m.id}" value="${m.cohort??''}" min="1" style="width:52px">기</td>
-      <td><span class="role-badge" style="background:var(--box-bg);color:var(--accent);border:1px solid var(--border)">${escapeHtml(m.role||'viewer')}</span></td>
+      <td>${ m.id===state.user.id
+        ? `<span class="role-badge" style="background:var(--box-bg);color:var(--accent);border:1px solid var(--border)">${escapeHtml(m.role||'viewer')} (나)</span>`
+        : `<select class="m-role" data-id="${m.id}">
+             <option value="viewer" ${m.role==='viewer'?'selected':''}>viewer</option>
+             <option value="editor" ${m.role==='editor'?'selected':''}>editor</option>
+             <option value="admin" ${m.role==='admin'?'selected':''}>admin</option>
+           </select>` }</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
       <td><button class="btn ghost" data-save="${m.id}" style="padding:5px 9px">저장</button>
           <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:4px"></span></td>
@@ -492,7 +498,7 @@ async function renderAdmin(){
     <div class="doc-head"><h1>회원 관리</h1>
       <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="backBtn2">[문서로]</button></div></div>
     <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명 · 이름/활동명/기수 입력 후 [저장]</div>
-    <div class="notice">권한(viewer/editor/admin) 변경 기능은 다음 단계에서 추가됩니다. 지금은 조회·기수·이름·활동명 관리와 가입 신청 검토가 가능합니다.</div>
+    <div class="notice">권한을 바꾸면 즉시 적용됩니다. 본인 권한은 바꿀 수 없어요(잠김 방지). 이름·활동명·기수는 입력 후 [저장].</div>
     <table class="wtable">
       <tr><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>권한</th><th>최근 로그인</th><th>관리</th></tr>
       ${rows}
@@ -500,7 +506,19 @@ async function renderAdmin(){
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
   $('#doc').querySelectorAll('button[data-save]').forEach(b=>b.onclick=()=>saveMember(b.dataset.save));
+  $('#doc').querySelectorAll('.m-role').forEach(sel=>sel.onchange=()=>setRole(sel.dataset.id, sel.value));
   window.scrollTo(0,0);
+}
+async function setRole(id, role){
+  const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
+  if(role==='admin' && !confirm('이 회원을 admin으로 올릴까요? 관리자 권한이 부여됩니다.')){ renderAdmin(); return; }
+  if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
+  const { data, error } = await sb.functions.invoke('set-role', { body:{ target:id, role } });
+  if(error || !data || !data.ok){
+    if(note){ note.textContent=(data&&data.error)?data.error:'실패'; note.style.color='var(--link-red)'; }
+    return;
+  }
+  if(note){ note.textContent='권한 변경됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},2000); }
 }
 async function saveMember(id){
   const g=s=>$('#doc').querySelector(s+'[data-id="'+id+'"]');
@@ -581,14 +599,13 @@ async function doSignupRequest(){
   if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
   if(!suToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
   $('#su-btn').disabled=true; $('#su-btn').textContent='신청 중…';
-  const { error } = await sb.from('signup_requests').insert({
-    email, cohort:parseInt(cohort,10), name, handle });
+  const { data, error } = await sb.functions.invoke('signup-request', {
+    body:{ email, cohort:parseInt(cohort,10), name, handle, captchaToken: suToken } });
   $('#su-btn').disabled=false; $('#su-btn').textContent='신청하기';
   resetSignupCaptcha();
-  if(error){
+  if(error || !data || !data.ok){
     msg.className='msg err';
-    msg.textContent = /duplicate|unique/i.test(error.message)
-      ? '이미 신청이 접수되어 승인 대기 중입니다.' : ('신청 실패: '+error.message);
+    msg.textContent = (data && data.error) ? data.error : '신청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
     return;
   }
   msg.className='msg ok';
