@@ -195,6 +195,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="spacer"></div>
     <div class="userbox" id="userbox"></div>
     <button class="logout" id="adminBtn" style="display:none">회원 관리</button>
+    <button class="logout" id="pwBtn">비번 변경</button>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <button class="logout" id="logoutBtn">로그아웃</button>
   </div>
@@ -496,7 +497,7 @@ async function renderAdmin(){
     </tr>`).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="backBtn2">[문서로]</button></div></div>
+      <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button><button id="backBtn2">[문서로]</button></div></div>
     <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명 · 이름/활동명/기수 입력 후 [저장]</div>
     <div class="notice">권한을 바꾸면 즉시 적용됩니다. 본인 권한은 바꿀 수 없어요(잠김 방지). 이름·활동명·기수는 입력 후 [저장].</div>
     <table class="wtable">
@@ -505,6 +506,7 @@ async function renderAdmin(){
     </table>`;
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
+  $('#healthBtn').onclick=()=>{ location.hash='#health'; };
   $('#doc').querySelectorAll('button[data-save]').forEach(b=>b.onclick=()=>saveMember(b.dataset.save));
   $('#doc').querySelectorAll('.m-role').forEach(sel=>sel.onchange=()=>setRole(sel.dataset.id, sel.value));
   window.scrollTo(0,0);
@@ -515,7 +517,7 @@ async function setRole(id, role){
   if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
   const { data, error } = await sb.functions.invoke('set-role', { body:{ target:id, role } });
   if(error || !data || !data.ok){
-    if(note){ note.textContent=(data&&data.error)?data.error:'실패'; note.style.color='var(--link-red)'; }
+    if(note){ note.textContent=(data&&data.error)?((data.code?('['+data.code+'] '):'')+data.error):'실패(네트워크)'; note.style.color='var(--link-red)'; }
     return;
   }
   if(note){ note.textContent='권한 변경됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},2000); }
@@ -569,6 +571,78 @@ async function decideRequest(id, status, email){
   renderRequests();
 }
 
+/* ================== 시스템 점검 (admin) ================== */
+async function renderHealth(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>시스템 점검</h1>
+      <div class="tabs"><button id="hReload">[다시 검사]</button><button id="hBack">[회원 관리]</button></div></div>
+    <div class="doc-meta">각 줄이 ✅면 정상, ❌면 그 줄이 원인입니다. 문제 생기면 여기부터 보세요.</div>
+    <div class="history" id="hResult"><p>검사 중…</p></div>`;
+  $('#hBack').onclick=()=>{ location.hash='#admin'; };
+  $('#hReload').onclick=()=>renderHealth();
+  const lines=[];
+  lines.push(await dbCheck('DB · documents 읽기', ()=>sb.from('documents').select('key').limit(1)));
+  lines.push(await dbCheck('DB · profiles 읽기', ()=>sb.from('profiles').select('id').limit(1)));
+  lines.push(await dbCheck('DB · signup_requests 읽기(admin)', ()=>sb.from('signup_requests').select('id').limit(1)));
+  const sr = await fnDebug('signup-request');
+  const st = await fnDebug('set-role');
+  lines.push(fnLine('함수 signup-request', sr, ['SERVICE_KEY','TURNSTILE_SECRET','db_test']));
+  lines.push(fnLine('함수 set-role', st, ['SERVICE_KEY','db_test']));
+  $('#hResult').innerHTML = lines.join('');
+}
+async function dbCheck(label, fn){
+  try{ const { error } = await fn(); return healthRow(label, !error, error?error.message:'OK'); }
+  catch(e){ return healthRow(label, false, String(e)); }
+}
+async function fnDebug(name){
+  try{
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/${name}?debug=1`,
+      { headers:{ apikey: SUPABASE_KEY, Authorization: 'Bearer '+SUPABASE_KEY } });
+    return await r.json();
+  }catch(e){ return { ok:false, error:String(e) }; }
+}
+function fnLine(label, res, keys){
+  if(!res || !res.diag) return healthRow(label, false, (res&&res.error)?res.error:'함수 응답 없음 (배포/이름/Verify JWT 확인)');
+  const parts = keys.map(k=>`${k}: ${res.diag[k]||'-'}`);
+  const ok = keys.every(k=>{ const v=res.diag[k]||''; return v.indexOf('❌')<0 && v.indexOf('없음')<0 && v.indexOf('실패')<0 && v.indexOf('예외')<0; });
+  return healthRow(label, ok, parts.join(' · '));
+}
+function healthRow(label, ok, detail){
+  return `<div class="rev"><div class="meta"><b>${ok?'✅':'❌'} ${escapeHtml(label)}</b><br><span style="font-size:11.5px">${escapeHtml(detail)}</span></div></div>`;
+}
+
+/* ================== 비밀번호 변경 (로그인 사용자) ================== */
+function renderPassword(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>비밀번호 변경</h1>
+      <div class="tabs"><button id="pwBack">[문서로]</button></div></div>
+    <div class="doc-meta">${escapeHtml(state.email||'')} 계정의 비밀번호를 변경합니다.</div>
+    <div class="editor" style="max-width:420px">
+      <label>새 비밀번호 <span class="hint">(6자 이상)</span></label>
+      <input id="pw-new" type="password" autocomplete="new-password" placeholder="새 비밀번호">
+      <label>새 비밀번호 확인</label>
+      <input id="pw-new2" type="password" autocomplete="new-password" placeholder="한 번 더 입력">
+      <div class="editor-actions">
+        <button class="btn primary" id="pw-save" style="width:auto">변경하기</button>
+        <span class="msg" id="pw-msg" style="margin:0"></span>
+      </div>
+    </div>`;
+  $('#pwBack').onclick=()=>{ location.hash='#home'; };
+  $('#pw-save').onclick=savePassword;
+  $('#pw-new2').addEventListener('keydown',e=>{ if(e.key==='Enter') savePassword(); });
+}
+async function savePassword(){
+  const p1=$('#pw-new').value, p2=$('#pw-new2').value, msg=$('#pw-msg'); msg.className='msg';
+  if(p1.length<6){ msg.className='msg err'; msg.textContent='비밀번호는 6자 이상이어야 합니다.'; return; }
+  if(p1!==p2){ msg.className='msg err'; msg.textContent='두 비밀번호가 일치하지 않습니다.'; return; }
+  $('#pw-save').disabled=true; $('#pw-save').textContent='변경 중…';
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  $('#pw-save').disabled=false; $('#pw-save').textContent='변경하기';
+  if(error){ msg.className='msg err'; msg.textContent='변경 실패: '+error.message; return; }
+  msg.className='msg ok'; msg.textContent='비밀번호가 변경됐어요.';
+  $('#pw-new').value=''; $('#pw-new2').value='';
+}
+
 /* ================== 유틸 / 라우팅 ================== */
 function fmtKST(iso){ if(!iso) return '-';
   try{ return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}); }
@@ -580,6 +654,8 @@ function route(){
   const key=(location.hash||'#home').slice(1);
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
+  if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
+  if(key==='password'){ renderPassword(); return; }
   if(state.docs.length && !state.docs.find(d=>d.key===key)){ renderDoc(state.docs[0].key); return; }
   renderDoc(key||'home');
 }
@@ -605,7 +681,7 @@ async function doSignupRequest(){
   resetSignupCaptcha();
   if(error || !data || !data.ok){
     msg.className='msg err';
-    msg.textContent = (data && data.error) ? data.error : '신청 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.';
+    msg.textContent = (data && data.error) ? ((data.code?('['+data.code+'] '):'')+data.error) : '신청 처리 중 오류(네트워크). 잠시 후 다시 시도해 주세요.';
     return;
   }
   msg.className='msg ok';
@@ -616,6 +692,7 @@ $('#logoutBtn').onclick=async()=>{ await sb.auth.signOut(); state.user=null; sho
 $('#homeLink').onclick=()=>{ location.hash='#home'; };
 $('#addBtn').onclick=addDoc;
 $('#adminBtn').onclick=()=>{ location.hash='#admin'; };
+$('#pwBtn').onclick=()=>{ location.hash='#password'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 $('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
   $('#nav').querySelectorAll('a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'); });
