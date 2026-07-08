@@ -38,6 +38,19 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .topbar button.mode:hover,.topbar button.logout:hover{background:rgba(255,255,255,.26);}
 .topbar .userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#fff;}
 .role-badge{background:rgba(255,255,255,.22);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;}
+.usermenu{position:relative;}
+.usermenu .userbtn{background:rgba(255,255,255,.14);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:7px;max-width:230px;}
+.usermenu .userbtn:hover{background:rgba(255,255,255,.26);}
+.usermenu .userbtn #userlabel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.usermenu-drop{position:absolute;right:0;top:100%;padding-top:6px;min-width:190px;display:none;z-index:60;}
+.usermenu:hover .usermenu-drop,.usermenu.open .usermenu-drop{display:block;}
+.usermenu-drop .inner,.usermenu-drop{pointer-events:auto;}
+.usermenu-drop a{display:block;padding:11px 15px;color:var(--text);font-size:13.5px;cursor:pointer;background:var(--card);border-left:1px solid var(--border);border-right:1px solid var(--border);}
+.usermenu-drop a:first-child{border-top:1px solid var(--border);border-radius:8px 8px 0 0;}
+.usermenu-drop a:last-child{border-bottom:1px solid var(--border);border-radius:0 0 8px 8px;box-shadow:0 6px 18px rgba(0,0,0,.14);}
+.usermenu-drop a+a{border-top:1px solid var(--border);}
+.usermenu-drop a:hover{background:var(--box-bg);text-decoration:none;}
+.usermenu-drop a.danger{color:var(--link-red);}
 
 .layout{max-width:1180px;margin:16px auto;padding:0 14px;display:flex;gap:16px;align-items:flex-start;}
 .sidebar{width:210px;flex:none;position:sticky;top:64px;background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);overflow:hidden;}
@@ -193,11 +206,16 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="logo" id="homeLink"><span class="mark">⚛</span>안다 아카이브</div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
-    <div class="userbox" id="userbox"></div>
-    <button class="logout" id="adminBtn" style="display:none">회원 관리</button>
-    <button class="logout" id="pwBtn">비번 변경</button>
     <button class="mode" id="modeBtn">🌙 야간</button>
-    <button class="logout" id="logoutBtn">로그아웃</button>
+    <div class="usermenu" id="usermenu">
+      <button class="userbtn" id="userbtn"><span id="userlabel"></span> <span style="opacity:.7">▾</span></button>
+      <div class="usermenu-drop" id="userdrop">
+        <a data-go="me">개인정보</a>
+        <a data-go="password">비밀번호 변경</a>
+        <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
+        <a id="dropLogout" class="danger">로그아웃</a>
+      </div>
+    </div>
   </div>
   <div class="layout">
     <aside class="sidebar">
@@ -279,7 +297,6 @@ async function onLoggedIn(){
   state.email = prof?.email || user.email;
   renderUserbox();
   $('#addBtn').style.display = canEdit() ? 'block' : 'none';
-  $('#adminBtn').style.display = isAdmin() ? 'inline-block' : 'none';
   await loadDocs();
   showApp();
   route();
@@ -287,7 +304,8 @@ async function onLoggedIn(){
 function canEdit(){ return state.role==='editor' || state.role==='admin'; }
 function isAdmin(){ return state.role==='admin'; }
 function renderUserbox(){
-  $('#userbox').innerHTML = `<span>${escapeHtml(state.email)}</span><span class="role-badge">${state.role}</span>`;
+  $('#userlabel').innerHTML = `${escapeHtml(state.email)} <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
+  $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
 }
 
 /* ================== 문서 목록/로드 ================== */
@@ -481,33 +499,30 @@ async function renderAdmin(){
   const rows=(data||[]).map(m=>`
     <tr>
       <td>${escapeHtml(m.email||'')}</td>
-      <td><input class="m-name" data-id="${m.id}" value="${escapeAttr(m.name||'')}" style="width:84px"></td>
-      <td><input class="m-handle" data-id="${m.id}" value="${escapeAttr(m.handle||'')}" style="width:84px"></td>
-      <td><input type="number" class="m-cohort" data-id="${m.id}" value="${m.cohort??''}" min="1" style="width:52px">기</td>
+      <td>${escapeHtml(m.name||'-')}</td>
+      <td>${escapeHtml(m.handle||'-')}</td>
+      <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
       <td>${ m.id===state.user.id
         ? `<span class="role-badge" style="background:var(--box-bg);color:var(--accent);border:1px solid var(--border)">${escapeHtml(m.role||'viewer')} (나)</span>`
         : `<select class="m-role" data-id="${m.id}">
              <option value="viewer" ${m.role==='viewer'?'selected':''}>viewer</option>
              <option value="editor" ${m.role==='editor'?'selected':''}>editor</option>
              <option value="admin" ${m.role==='admin'?'selected':''}>admin</option>
-           </select>` }</td>
+           </select> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:4px"></span>` }</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
-      <td><button class="btn ghost" data-save="${m.id}" style="padding:5px 9px">저장</button>
-          <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:4px"></span></td>
     </tr>`).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
       <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button><button id="backBtn2">[문서로]</button></div></div>
-    <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명 · 이름/활동명/기수 입력 후 [저장]</div>
-    <div class="notice">권한을 바꾸면 즉시 적용됩니다. 본인 권한은 바꿀 수 없어요(잠김 방지). 이름·활동명·기수는 입력 후 [저장].</div>
+    <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명</div>
+    <div class="notice">여기서는 <b>권한만</b> 변경할 수 있어요. 이름·활동명·기수는 가입 시 신청서 정보로 자동 표시됩니다. 본인 권한은 바꿀 수 없어요(잠김 방지).</div>
     <table class="wtable">
-      <tr><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>권한</th><th>최근 로그인</th><th>관리</th></tr>
+      <tr><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>권한</th><th>최근 로그인</th></tr>
       ${rows}
     </table>`;
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
   $('#healthBtn').onclick=()=>{ location.hash='#health'; };
-  $('#doc').querySelectorAll('button[data-save]').forEach(b=>b.onclick=()=>saveMember(b.dataset.save));
   $('#doc').querySelectorAll('.m-role').forEach(sel=>sel.onchange=()=>setRole(sel.dataset.id, sel.value));
   window.scrollTo(0,0);
 }
@@ -521,19 +536,6 @@ async function setRole(id, role){
     return;
   }
   if(note){ note.textContent='권한 변경됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},2000); }
-}
-async function saveMember(id){
-  const g=s=>$('#doc').querySelector(s+'[data-id="'+id+'"]');
-  const cohortV=g('.m-cohort').value;
-  const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
-  const { error } = await sb.rpc('admin_set_member', {
-    p_target:id,
-    p_cohort: cohortV===''?null:parseInt(cohortV,10),
-    p_name: g('.m-name').value.trim()||null,
-    p_handle: g('.m-handle').value.trim()||null
-  });
-  if(error){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; }
-  else { note.textContent='저장됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},1500); }
 }
 
 /* ================== 가입 신청 검토 (admin) ================== */
@@ -649,6 +651,27 @@ async function savePassword(){
   }
 }
 
+/* ================== 개인정보 (본인) ================== */
+async function renderMe(){
+  let p={};
+  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>개인정보</h1>
+      <div class="tabs"><button id="meBack">[문서로]</button></div></div>
+    <table class="wtable" style="max-width:480px">
+      <tr><th style="width:110px">이메일</th><td>${escapeHtml(p.email||state.email||'-')}</td></tr>
+      <tr><th>이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
+      <tr><th>활동명</th><td>${escapeHtml(p.handle||'-')}</td></tr>
+      <tr><th>기수</th><td>${p.cohort!=null?p.cohort+'기':'-'}</td></tr>
+      <tr><th>권한</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
+      <tr><th>가입일</th><td>${joined}</td></tr>
+    </table>
+    <div class="doc-meta">이름·활동명·기수 수정이 필요하면 관리자에게 문의하세요. 비밀번호는 상단 메뉴 → 비밀번호 변경에서 바꿀 수 있어요.</div>`;
+  $('#meBack').onclick=()=>{ location.hash='#home'; };
+  window.scrollTo(0,0);
+}
+
 /* ================== 유틸 / 라우팅 ================== */
 function fmtKST(iso){ if(!iso) return '-';
   try{ return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}); }
@@ -663,6 +686,7 @@ function route(){
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
   if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
   if(key==='password'){ renderPassword(); return; }
+  if(key==='me'){ renderMe(); return; }
   if(state.docs.length && !state.docs.find(d=>d.key===key)){ renderDoc(state.docs[0].key); return; }
   renderDoc(key||'home');
 }
@@ -695,11 +719,13 @@ async function doSignupRequest(){
   msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
   ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
 }
-$('#logoutBtn').onclick=async()=>{ await sb.auth.signOut(); state.user=null; showLogin(); resetLoginCaptcha(); };
+/* 사용자 드롭다운 메뉴 */
+$('#userbtn').onclick=(e)=>{ e.stopPropagation(); $('#usermenu').classList.toggle('open'); };
+document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)) $('#usermenu').classList.remove('open'); });
+$('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; $('#usermenu').classList.remove('open'); });
+$('#dropLogout').onclick=async()=>{ $('#usermenu').classList.remove('open'); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#home'; };
 $('#addBtn').onclick=addDoc;
-$('#adminBtn').onclick=()=>{ location.hash='#admin'; };
-$('#pwBtn').onclick=()=>{ location.hash='#password'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 $('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
   $('#nav').querySelectorAll('a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'); });
