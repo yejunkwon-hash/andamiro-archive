@@ -239,7 +239,7 @@ function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile
 /* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
-const state = { user:null, role:'viewer', email:'', docs:[], key:null };
+const state = { user:null, role:'viewer', email:'', docs:[], key:null, recovery:false };
 const $ = s => document.querySelector(s);
 
 /* ================== 인증 ================== */
@@ -269,7 +269,7 @@ async function doReset(){
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href, captchaToken: liToken });
   resetLoginCaptcha();
   msg.className = error ? 'msg err' : 'msg ok';
-  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일함을 확인하세요.';
+  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일의 링크를 누르면 새 비밀번호를 설정하는 화면으로 이동합니다. (스팸함도 확인)';
 }
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
@@ -613,21 +613,23 @@ function healthRow(label, ok, detail){
 
 /* ================== 비밀번호 변경 (로그인 사용자) ================== */
 function renderPassword(){
+  const rec = state.recovery;
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>비밀번호 변경</h1>
-      <div class="tabs"><button id="pwBack">[문서로]</button></div></div>
-    <div class="doc-meta">${escapeHtml(state.email||'')} 계정의 비밀번호를 변경합니다.</div>
+    <div class="doc-head"><h1>비밀번호 ${rec?'설정':'변경'}</h1>
+      <div class="tabs">${rec?'':'<button id="pwBack">[문서로]</button>'}</div></div>
+    ${rec?`<div class="notice" style="border-left-color:var(--accent)"><b>보안을 위해 지금 새 비밀번호를 설정하세요.</b><br>재설정 링크로 로그인되었습니다. 새 비밀번호를 설정해야 계속 이용할 수 있어요.</div>`:''}
+    <div class="doc-meta">${escapeHtml(state.email||'')} 계정</div>
     <div class="editor" style="max-width:420px">
       <label>새 비밀번호 <span class="hint">(6자 이상)</span></label>
       <input id="pw-new" type="password" autocomplete="new-password" placeholder="새 비밀번호">
       <label>새 비밀번호 확인</label>
       <input id="pw-new2" type="password" autocomplete="new-password" placeholder="한 번 더 입력">
       <div class="editor-actions">
-        <button class="btn primary" id="pw-save" style="width:auto">변경하기</button>
+        <button class="btn primary" id="pw-save" style="width:auto">${rec?'설정하고 시작하기':'변경하기'}</button>
         <span class="msg" id="pw-msg" style="margin:0"></span>
       </div>
     </div>`;
-  $('#pwBack').onclick=()=>{ location.hash='#home'; };
+  if(!rec) $('#pwBack').onclick=()=>{ location.hash='#home'; };
   $('#pw-save').onclick=savePassword;
   $('#pw-new2').addEventListener('keydown',e=>{ if(e.key==='Enter') savePassword(); });
 }
@@ -635,12 +637,16 @@ async function savePassword(){
   const p1=$('#pw-new').value, p2=$('#pw-new2').value, msg=$('#pw-msg'); msg.className='msg';
   if(p1.length<6){ msg.className='msg err'; msg.textContent='비밀번호는 6자 이상이어야 합니다.'; return; }
   if(p1!==p2){ msg.className='msg err'; msg.textContent='두 비밀번호가 일치하지 않습니다.'; return; }
-  $('#pw-save').disabled=true; $('#pw-save').textContent='변경 중…';
+  $('#pw-save').disabled=true; $('#pw-save').textContent='처리 중…';
   const { error } = await sb.auth.updateUser({ password: p1 });
-  $('#pw-save').disabled=false; $('#pw-save').textContent='변경하기';
-  if(error){ msg.className='msg err'; msg.textContent='변경 실패: '+error.message; return; }
-  msg.className='msg ok'; msg.textContent='비밀번호가 변경됐어요.';
+  $('#pw-save').disabled=false;
+  if(error){ msg.className='msg err'; msg.textContent='실패: '+error.message; $('#pw-save').textContent='변경하기'; return; }
+  msg.className='msg ok'; msg.textContent='비밀번호가 설정됐어요.';
   $('#pw-new').value=''; $('#pw-new2').value='';
+  if(state.recovery){                 // 복구 모드 종료 → 정상 이용 시작
+    state.recovery=false;
+    setTimeout(()=>{ location.hash='#home'; route(); }, 800);
+  }
 }
 
 /* ================== 유틸 / 라우팅 ================== */
@@ -651,6 +657,7 @@ function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','
 function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
 function route(){
+  if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   const key=(location.hash||'#home').slice(1);
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
@@ -696,6 +703,16 @@ $('#pwBtn').onclick=()=>{ location.hash='#password'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 $('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
   $('#nav').querySelectorAll('a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'); });
+
+/* 비밀번호 재설정 링크로 들어온 경우: 즉시 비번 변경 화면으로 고정 */
+sb.auth.onAuthStateChange(async (event) => {
+  if(event === 'PASSWORD_RECOVERY'){
+    state.recovery = true;
+    await onLoggedIn();          // showApp → route → (recovery 가드) → 비번 변경 화면
+    location.hash = '#password';
+    renderPassword();
+  }
+});
 
 init();
 </script>
