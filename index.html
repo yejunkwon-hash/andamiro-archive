@@ -41,8 +41,8 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .topbar .search input{width:100%;height:32px;border:none;border-radius:5px;padding:0 12px;font-size:13.5px;background:rgba(255,255,255,.95);color:#111;}
 .topbar .search input:focus{outline:2px solid rgba(255,255,255,.6);}
 .topbar .spacer{flex:1;}
-.topbar button.mode,.topbar button.logout{background:rgba(255,255,255,.14);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px;}
-.topbar button.mode:hover,.topbar button.logout:hover{background:rgba(255,255,255,.26);}
+.topbar button.mode,.topbar button.logout,.topbar button.navbtn{background:rgba(255,255,255,.14);color:#fff;border:none;padding:6px 12px;border-radius:5px;cursor:pointer;font-size:13px;}
+.topbar button.mode:hover,.topbar button.logout:hover,.topbar button.navbtn:hover{background:rgba(255,255,255,.26);}
 .topbar .userbox{display:flex;align-items:center;gap:8px;font-size:12.5px;color:#fff;}
 .role-badge{background:rgba(255,255,255,.22);padding:2px 7px;border-radius:10px;font-size:11px;font-weight:700;}
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
@@ -72,10 +72,54 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .hn-lines b{color:var(--accent);}
 .landing-grid{display:flex;gap:20px;align-items:flex-start;}
 .cats{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.landing-reco{min-height:calc(100vh - 300px);display:flex;flex-direction:column;}
+.landing-reco .cat:last-child{flex:1;}
+/* 커뮤니티 */
+.community{display:flex;gap:16px;align-items:flex-start;}
+.chat{flex:1;min-width:0;display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
+.chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;}
+.chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
+.chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
+.msg{max-width:78%;align-self:flex-start;background:var(--box-bg);border:1px solid var(--border);border-radius:10px;padding:7px 11px;}
+.msg.mine{align-self:flex-end;background:var(--accent);border-color:var(--accent);}
+.msg.mine .msg-who,.msg.mine .msg-time,.msg.mine .msg-body{color:#fff;}
+.msg-meta{display:flex;gap:8px;align-items:baseline;margin-bottom:2px;}
+.msg-who{font-weight:800;font-size:12.5px;color:var(--accent);}
+.msg-time{font-size:10.5px;color:var(--text-dim);}
+.msg-body{font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);}
+.chat-input input{flex:1;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
+.chat-input button{border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
+.chat-input button:hover{filter:brightness(1.08);}
+/* 캘린더 */
+.calendar-wrap{width:280px;flex:none;position:sticky;top:64px;}
+.cal{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);}
+.cal-topbar{display:flex;align-items:center;justify-content:space-between;background:var(--accent);color:#fff;padding:8px 12px;}
+.cal-title{font-weight:800;font-size:14px;}
+.cal-nav{background:rgba(255,255,255,.18);color:#fff;border:none;width:26px;height:26px;border-radius:5px;cursor:pointer;font-size:11px;line-height:1;}
+.cal-nav:hover:not(:disabled){background:rgba(255,255,255,.32);}
+.cal-nav:disabled{opacity:.35;cursor:not-allowed;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);padding:1px;}
+.cal-dow{background:var(--box-bg);text-align:center;font-size:11px;font-weight:800;padding:6px 0;color:var(--text-dim);}
+.cal-cell{background:var(--card);min-height:38px;padding:4px;font-size:12px;color:var(--text);}
+.cal-cell.empty{background:var(--box-bg);}
+.cal-cell.today .cal-num{background:var(--accent);color:#fff;border-radius:50%;padding:1px 5px;}
+.cal-dow.sun,.cal-cell.sun .cal-num{color:#d33;}
+.cal-dow.sat,.cal-cell.sat .cal-num{color:#37c;}
+.cal-cell.today.sun .cal-num,.cal-cell.today.sat .cal-num{color:#fff;}
+.cal-admin{font-size:12px;color:var(--text);padding:9px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.cal-admin.muted{color:var(--text-dim);}
+.cal-yr{background:var(--box-bg);border:1px solid var(--border);border-radius:4px;width:22px;height:22px;cursor:pointer;color:var(--text);font-size:10px;}
+.cal-yr:hover{border-color:var(--accent);}
+.cal-range{color:var(--text-dim);font-size:11px;}
 .doclist-head{background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
-.cat-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;cursor:pointer;font-family:inherit;}
+.cat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;}
 .cat-name{font-weight:800;font-size:14px;color:#fff;}
-.cat-toggle{font-size:12px;color:#fff;opacity:.85;white-space:nowrap;}
+.cat-toggle{font-size:12px;color:#fff;white-space:nowrap;}
+.cat-toggle .ct-open,.cat-toggle .ct-close{cursor:pointer;opacity:.55;padding:0 1px;}
+.cat-toggle .ct-open:hover,.cat-toggle .ct-close:hover{opacity:1;text-decoration:underline;}
+.cat:not(.collapsed) .ct-close{opacity:1;font-weight:800;}
+.cat.collapsed .ct-open{opacity:1;font-weight:800;}
 .cat-body{background:var(--card);}
 .cat.collapsed .cat-body{display:none;}
 .doc-link{display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text);}
@@ -205,6 +249,10 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 @media(max-width:860px){
   .layout{flex-direction:column;}
   .rightrail{width:100%;position:static;}
+  .landing-reco{min-height:0;}
+  .community{flex-direction:column;}
+  .calendar-wrap{width:100%;position:static;}
+  .chat{height:60vh;}
   .infobox{float:none;width:100%;margin:0 0 16px;}
   .doc{padding:18px 16px 28px;}
   .topbar .search{max-width:none;}
@@ -261,6 +309,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
+    <button class="navbtn" id="communityBtn">커뮤니티</button>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <div class="usermenu" id="usermenu">
       <span id="userlabel"></span>
@@ -765,17 +814,16 @@ async function renderLanding(){
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
   const cats = LANDING_CATS.map((c,ci)=>`
     <div class="cat">
-      <button class="cat-head" data-cat="${ci}">
+      <div class="cat-head">
         <span class="cat-name">${escapeHtml(c.name)}</span>
-        <span class="cat-toggle">［ 접기 ］</span>
-      </button>
+        <span class="cat-toggle"><span class="ct-open">펼치기</span> · <span class="ct-close">접기</span></span>
+      </div>
       <div class="cat-body">
         ${c.items.map(it=>`<a class="doc-link" data-key="${escapeAttr(it.key)}">
             <span class="dl-title">${escapeHtml(it.title)}</span>
             <span class="dl-desc">${escapeHtml(it.desc)}</span></a>`).join('')}
       </div>
     </div>`).join('');
-  const rc = recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('') || '<div class="rc-item">기록 없음</div>';
   $('#doc').innerHTML=`
     <div class="landing">
       <div class="hero-notice">
@@ -787,22 +835,18 @@ async function renderLanding(){
           <p>새 문서가 필요하면 편집자·관리자에게 요청해 주세요.</p>
         </div>
       </div>
-      <div class="landing-grid">
-        <div class="cats">
-          <div class="doclist-head">안다 아카이브 문서 목록</div>
-          ${cats}
-        </div>
-        <aside class="recent">
-          <div class="recent-h">최근 변경</div>
-          ${rc}
-        </aside>
+      <div class="cats landing-reco">
+        <div class="doclist-head">추천 문서</div>
+        ${cats}
       </div>
     </div>`;
-  $('#doc').querySelectorAll('.doc-link[data-key], .rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
-  $('#doc').querySelectorAll('.cat-head').forEach(h=>h.onclick=()=>{
-    const collapsed = h.parentElement.classList.toggle('collapsed');
-    h.querySelector('.cat-toggle').textContent = collapsed ? '［ 펼치기 ］' : '［ 접기 ］';
+  $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  $('#doc').querySelectorAll('.cat').forEach(cat=>{
+    const open=cat.querySelector('.ct-open'), close=cat.querySelector('.ct-close');
+    if(open) open.onclick=()=>cat.classList.remove('collapsed');
+    if(close) close.onclick=()=>cat.classList.add('collapsed');
   });
+  renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   window.scrollTo(0,0);
 }
@@ -814,6 +858,137 @@ function fmtKST(iso){ if(!iso) return '-';
 function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
+/* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
+let chatChannel=null;
+const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth() };
+
+function unsubscribeChat(){ if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
+
+async function renderCommunity(){
+  $('#doc').innerHTML=`
+    <div class="community">
+      <section class="chat">
+        <div class="chat-head">커뮤니티 채팅</div>
+        <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
+        <div class="chat-input">
+          <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송" autocomplete="off">
+          <button id="chatSend">전송</button>
+        </div>
+      </section>
+      <aside class="calendar-wrap" id="calWrap"></aside>
+    </div>`;
+  await loadBaseYear();
+  community.viewY=community.baseYear;
+  renderCalendar();
+  $('#chatSend').onclick=sendMessage;
+  $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
+  await loadMessages();
+  subscribeChat();
+  window.scrollTo(0,0);
+}
+
+/* ---- 채팅 ---- */
+async function loadMessages(){
+  const log=$('#chatLog'); if(!log) return;
+  try{
+    const { data, error } = await sb.from('messages')
+      .select('id,user_id,author_name,author_handle,body,created_at')
+      .order('created_at',{ascending:true}).limit(200);
+    if(error) throw error;
+    log.innerHTML = (data&&data.length) ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
+    (data||[]).forEach(m=>appendMessage(m,false));
+    scrollChatBottom();
+  }catch(e){ log.innerHTML='<div class="chat-empty">메시지를 불러오지 못했습니다. (DB 설정 09_community_chat.sql 실행 여부 확인)</div>'; }
+}
+function appendMessage(m, doScroll=true){
+  const log=$('#chatLog'); if(!log) return;
+  const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
+  if(log.querySelector('[data-mid="'+m.id+'"]')) return;   // 중복 방지
+  const mine=(state.user && m.user_id===state.user.id);
+  const who=escapeHtml(m.author_name || m.author_handle || '익명');
+  const el=document.createElement('div');
+  el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id);
+  el.innerHTML=`<div class="msg-meta"><span class="msg-who">${who}</span><span class="msg-time">${fmtKST(m.created_at)}</span></div><div class="msg-body">${escapeHtml(m.body)}</div>`;
+  log.appendChild(el);
+  if(doScroll) scrollChatBottom();
+}
+function scrollChatBottom(){ const log=$('#chatLog'); if(log) log.scrollTop=log.scrollHeight; }
+async function sendMessage(){
+  const inp=$('#chatText'); if(!inp || !state.user) return;
+  const body=inp.value.trim(); if(!body) return;
+  inp.value='';
+  try{
+    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body });
+    if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨(본인 메시지 포함)
+  }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
+}
+function subscribeChat(){
+  unsubscribeChat();
+  chatChannel = sb.channel('community-messages')
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>appendMessage(payload.new, true))
+    .subscribe();
+}
+
+/* ---- 캘린더 ---- */
+async function loadBaseYear(){
+  try{
+    const { data, error } = await sb.from('app_settings').select('value').eq('key','calendar_base_year').maybeSingle();
+    if(!error && data && data.value!=null){ const y=parseInt(String(data.value),10); if(y) community.baseYear=y; }
+  }catch(e){}
+}
+function calMove(delta){
+  const min=(community.baseYear-1)*12+0, max=(community.baseYear+1)*12+11;
+  const total=community.viewY*12+community.viewM+delta;
+  if(total<min || total>max) return;
+  community.viewY=Math.floor(total/12); community.viewM=((total%12)+12)%12; renderCalendar();
+}
+async function setBaseYear(y){
+  if(!isAdmin() || y<2000 || y>2100) return;
+  try{
+    const { error } = await sb.from('app_settings').update({ value:y, updated_at:new Date().toISOString(), updated_by:state.user.id }).eq('key','calendar_base_year');
+    if(error) throw error;
+    community.baseYear=y; community.viewY=y;
+    const minY=y-1, maxY=y+1;
+    if(community.viewY<minY){ community.viewY=minY; community.viewM=0; }
+    if(community.viewY>maxY){ community.viewY=maxY; community.viewM=11; }
+    renderCalendar();
+  }catch(e){ alert('기준연도 변경 실패: admin 권한/DB 설정을 확인하세요.'); }
+}
+function renderCalendar(){
+  const wrap=$('#calWrap'); if(!wrap) return;
+  const y=community.viewY, m=community.viewM;
+  const startDow=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const minY=community.baseYear-1, maxY=community.baseYear+1;
+  const atMin=(y===minY && m===0), atMax=(y===maxY && m===11);
+  const wd=['일','월','화','수','목','금','토'];
+  let cells=wd.map((d,i)=>`<div class="cal-dow${i===0?' sun':''}${i===6?' sat':''}">${d}</div>`).join('');
+  for(let i=0;i<startDow;i++) cells+='<div class="cal-cell empty"></div>';
+  const t=new Date();
+  for(let d=1;d<=days;d++){
+    const isToday=(t.getFullYear()===y && t.getMonth()===m && t.getDate()===d);
+    const dow=(startDow+d-1)%7;
+    cells+=`<div class="cal-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}"><span class="cal-num">${d}</span></div>`;
+  }
+  const admin = isAdmin()
+    ? `<div class="cal-admin">기준연도 <button class="cal-yr" id="byMinus" title="기준연도 -1">◀</button><b>${community.baseYear}</b><button class="cal-yr" id="byPlus" title="기준연도 +1">▶</button> <span class="cal-range">(${minY}~${maxY} 이동)</span></div>`
+    : `<div class="cal-admin muted">기준연도 ${community.baseYear} · 이동범위 ${minY}~${maxY}</div>`;
+  wrap.innerHTML=`
+    <div class="cal">
+      <div class="cal-topbar">
+        <button class="cal-nav" id="calPrev" ${atMin?'disabled':''} aria-label="이전 달">▲</button>
+        <div class="cal-title">${y}년 ${m+1}월</div>
+        <button class="cal-nav" id="calNext" ${atMax?'disabled':''} aria-label="다음 달">▼</button>
+      </div>
+      <div class="cal-grid">${cells}</div>
+      ${admin}
+    </div>`;
+  const p=$('#calPrev'), n=$('#calNext');
+  if(p) p.onclick=()=>calMove(-1);
+  if(n) n.onclick=()=>calMove(1);
+  if(isAdmin()){ const mi=$('#byMinus'), pl=$('#byPlus'); if(mi) mi.onclick=()=>setBaseYear(community.baseYear-1); if(pl) pl.onclick=()=>setBaseYear(community.baseYear+1); }
+}
+
 /* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
 function startLoading(){ const m=$('#refreshMark'); if(m) m.classList.add('spinning'); }
 function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classList.remove('spinning'),280); }
@@ -821,9 +996,11 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
+  unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
   renderRightRail(null);   // 기본: 우측 레일 숨김 (문서 페이지에서만 renderDoc이 다시 표시)
   const key=(location.hash||'#main').slice(1);
   if(key==='main'){ renderLanding(); return; }
+  if(key==='community'){ renderCommunity(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
   if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
@@ -870,6 +1047,7 @@ document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
+$('#communityBtn').onclick=()=>{ location.hash='#community'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 /* 상단 검색: 한글 자모 분해 부분일치 + 호버 시 랜덤 추천 */
 const searchBox=$('#search');
