@@ -80,13 +80,27 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;}
 .chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
-.msg{max-width:78%;align-self:flex-start;background:var(--box-bg);border:1px solid var(--border);border-radius:10px;padding:7px 11px;}
-.msg.mine{align-self:flex-end;background:var(--accent);border-color:var(--accent);}
-.msg.mine .msg-who,.msg.mine .msg-time,.msg.mine .msg-body{color:#fff;}
-.msg-meta{display:flex;gap:8px;align-items:baseline;margin-bottom:2px;}
-.msg-who{font-weight:800;font-size:12.5px;color:var(--accent);}
-.msg-time{font-size:10.5px;color:var(--text-dim);}
-.msg-body{font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;}
+.chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
+.msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;}
+.msg-main{min-width:0;display:flex;flex-direction:column;gap:3px;}
+.msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
+.msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
+.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;max-width:min(72%,420px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
+body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
+.msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
+.msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
+.rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
+.rpill.mine{background:var(--accent);border-color:var(--accent);color:#fff;}
+.rpill:hover{border-color:var(--accent);}
+.react-wrap{position:relative;display:inline-flex;}
+.react-btn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
+.react-btn:hover{border-color:var(--accent);color:var(--accent);}
+.react-pop{position:absolute;bottom:26px;left:0;display:none;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 6px;box-shadow:var(--shadow);z-index:30;}
+.react-pop.open{display:flex;}
+.react-opt{border:none;background:transparent;font-size:17px;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;}
+.react-opt:hover{background:var(--box-bg);}
+.react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);}
 .chat-input input{flex:1;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
 .chat-input button{border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
@@ -109,7 +123,9 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .cal-cell.today.sun .cal-num,.cal-cell.today.sat .cal-num{color:#fff;}
 .cal-admin{font-size:12px;color:var(--text);padding:9px 12px;border-top:1px solid var(--border);display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .cal-admin.muted{color:var(--text-dim);}
-.cal-yr{background:var(--box-bg);border:1px solid var(--border);border-radius:4px;width:22px;height:22px;cursor:pointer;color:var(--text);font-size:10px;}
+.cal-yr-input{width:64px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--card);color:var(--text);font-size:12px;}
+.cal-save{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;}
+.cal-save:hover{filter:brightness(1.08);}
 .cal-yr:hover{border-color:var(--accent);}
 .cal-range{color:var(--text-dim);font-size:11px;}
 .doclist-head{background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
@@ -887,7 +903,17 @@ async function renderCommunity(){
   window.scrollTo(0,0);
 }
 
-/* ---- 채팅 ---- */
+/* ---- 채팅 + 반응 ---- */
+const EMOJIS=[{code:'heart',glyph:'❤️'},{code:'check',glyph:'✔️'},{code:'thumb',glyph:'👍'},{code:'smile',glyph:'😊'}];
+let reactState={};   // mid -> {counts:{code:n}, mine:code|null}
+
+function avatarFor(name, handle){
+  const s=String(handle||name||'익명');
+  const ch=[...s][0]||'?';
+  let h=0; for(const c of s) h=(h*31+c.charCodeAt(0))>>>0;
+  return { ch, bg:`hsl(${h%360} 52% 55%)` };
+}
+
 async function loadMessages(){
   const log=$('#chatLog'); if(!log) return;
   try{
@@ -895,24 +921,40 @@ async function loadMessages(){
       .select('id,user_id,author_name,author_handle,body,created_at')
       .order('created_at',{ascending:true}).limit(200);
     if(error) throw error;
-    log.innerHTML = (data&&data.length) ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
-    (data||[]).forEach(m=>appendMessage(m,false));
+    const rows=data||[];
+    log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
+    await loadReactions(rows.map(m=>m.id));
+    rows.forEach(m=>appendMessage(m,false));
     scrollChatBottom();
   }catch(e){ log.innerHTML='<div class="chat-empty">메시지를 불러오지 못했습니다. (DB 설정 09_community_chat.sql 실행 여부 확인)</div>'; }
 }
+
 function appendMessage(m, doScroll=true){
   const log=$('#chatLog'); if(!log) return;
   const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
-  if(log.querySelector('[data-mid="'+m.id+'"]')) return;   // 중복 방지
+  if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
   const mine=(state.user && m.user_id===state.user.id);
   const who=escapeHtml(m.author_name || m.author_handle || '익명');
+  const av=avatarFor(m.author_name, m.author_handle);
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id);
-  el.innerHTML=`<div class="msg-meta"><span class="msg-who">${who}</span><span class="msg-time">${fmtKST(m.created_at)}</span></div><div class="msg-body">${escapeHtml(m.body)}</div>`;
+  el.innerHTML=`
+    <div class="msg-avatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>
+    <div class="msg-main">
+      <div class="msg-who">${who}</div>
+      <div class="msg-bubble-row">
+        <div class="msg-bubble">${escapeHtml(m.body)}</div>
+        <span class="msg-time">${fmtKST(m.created_at)}</span>
+      </div>
+      <div class="msg-reactions" data-mid="${m.id}"></div>
+    </div>`;
   log.appendChild(el);
+  renderReactions(m.id);
   if(doScroll) scrollChatBottom();
 }
+
 function scrollChatBottom(){ const log=$('#chatLog'); if(log) log.scrollTop=log.scrollHeight; }
+
 async function sendMessage(){
   const inp=$('#chatText'); if(!inp || !state.user) return;
   const body=inp.value.trim(); if(!body) return;
@@ -922,10 +964,68 @@ async function sendMessage(){
     if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨(본인 메시지 포함)
   }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
 }
+
+/* 반응(회원당 최대 1개: 하트/체크/엄지/웃음) */
+async function loadReactions(ids){
+  reactState={};
+  if(!ids || !ids.length) return;
+  try{
+    const { data } = await sb.from('message_reactions').select('message_id,user_id,emoji').in('message_id', ids);
+    (data||[]).forEach(r=>{
+      const s=reactState[r.message_id] || (reactState[r.message_id]={counts:{},mine:null});
+      s.counts[r.emoji]=(s.counts[r.emoji]||0)+1;
+      if(state.user && r.user_id===state.user.id) s.mine=r.emoji;
+    });
+  }catch(e){}
+}
+function renderReactions(mid){
+  const box=document.querySelector('.msg-reactions[data-mid="'+mid+'"]'); if(!box) return;
+  const s=reactState[mid] || {counts:{},mine:null};
+  const pills=EMOJIS.filter(e=>s.counts[e.code]>0).map(e=>
+    `<button class="rpill${s.mine===e.code?' mine':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph} ${s.counts[e.code]}</button>`).join('');
+  const pop=EMOJIS.map(e=>`<button class="react-opt${s.mine===e.code?' on':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph}</button>`).join('');
+  box.innerHTML = pills + `<span class="react-wrap"><button class="react-btn" data-mid="${mid}" title="반응 남기기">＋</button><span class="react-pop">${pop}</span></span>`;
+  box.querySelectorAll('.rpill,.react-opt').forEach(b=>b.onclick=(ev)=>{ ev.stopPropagation(); toggleReaction(b.dataset.mid, b.dataset.emoji); });
+  const rb=box.querySelector('.react-btn');
+  if(rb) rb.onclick=(ev)=>{ ev.stopPropagation(); const pop=box.querySelector('.react-pop'); const willOpen=!pop.classList.contains('open'); closeAllReactPops(); if(willOpen) pop.classList.add('open'); };
+}
+function closeAllReactPops(){ document.querySelectorAll('.react-pop.open').forEach(p=>p.classList.remove('open')); }
+document.addEventListener('click',closeAllReactPops);
+
+async function toggleReaction(mid, emoji){
+  if(!state.user) return;
+  mid=parseInt(mid,10);
+  const s=reactState[mid] || {counts:{},mine:null};
+  try{
+    if(s.mine===emoji){
+      const { error } = await sb.from('message_reactions').delete().eq('message_id',mid).eq('user_id',state.user.id);
+      if(error) throw error;
+    } else {
+      const { error } = await sb.from('message_reactions').upsert({ message_id:mid, user_id:state.user.id, emoji }, { onConflict:'message_id,user_id' });
+      if(error) throw error;
+    }
+    await refreshReactionsFor(mid);
+  }catch(e){ alert('반응 처리 실패: DB 설정(10_message_reactions.sql) 실행 여부를 확인하세요.'); }
+}
+async function refreshReactionsFor(mid){
+  mid=parseInt(mid,10);
+  try{
+    const { data } = await sb.from('message_reactions').select('user_id,emoji').eq('message_id',mid);
+    const s={counts:{},mine:null};
+    (data||[]).forEach(r=>{ s.counts[r.emoji]=(s.counts[r.emoji]||0)+1; if(state.user&&r.user_id===state.user.id) s.mine=r.emoji; });
+    reactState[mid]=s;
+  }catch(e){}
+  renderReactions(mid);
+}
+
 function subscribeChat(){
   unsubscribeChat();
-  chatChannel = sb.channel('community-messages')
+  chatChannel = sb.channel('community-realtime')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>appendMessage(payload.new, true))
+    .on('postgres_changes', { event:'*', schema:'public', table:'message_reactions' }, payload=>{
+      const mid=(payload.new&&payload.new.message_id) || (payload.old&&payload.old.message_id);
+      if(mid && document.querySelector('.msg-reactions[data-mid="'+mid+'"]')) refreshReactionsFor(mid);
+    })
     .subscribe();
 }
 
@@ -937,7 +1037,7 @@ async function loadBaseYear(){
   }catch(e){}
 }
 function calMove(delta){
-  const min=(community.baseYear-1)*12+0, max=(community.baseYear+1)*12+11;
+  const min=(community.baseYear-5)*12+0, max=(community.baseYear+5)*12+11;
   const total=community.viewY*12+community.viewM+delta;
   if(total<min || total>max) return;
   community.viewY=Math.floor(total/12); community.viewM=((total%12)+12)%12; renderCalendar();
@@ -948,7 +1048,7 @@ async function setBaseYear(y){
     const { error } = await sb.from('app_settings').update({ value:y, updated_at:new Date().toISOString(), updated_by:state.user.id }).eq('key','calendar_base_year');
     if(error) throw error;
     community.baseYear=y; community.viewY=y;
-    const minY=y-1, maxY=y+1;
+    const minY=y-5, maxY=y+5;
     if(community.viewY<minY){ community.viewY=minY; community.viewM=0; }
     if(community.viewY>maxY){ community.viewY=maxY; community.viewM=11; }
     renderCalendar();
@@ -959,7 +1059,7 @@ function renderCalendar(){
   const y=community.viewY, m=community.viewM;
   const startDow=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
-  const minY=community.baseYear-1, maxY=community.baseYear+1;
+  const minY=community.baseYear-5, maxY=community.baseYear+5;
   const atMin=(y===minY && m===0), atMax=(y===maxY && m===11);
   const wd=['일','월','화','수','목','금','토'];
   let cells=wd.map((d,i)=>`<div class="cal-dow${i===0?' sun':''}${i===6?' sat':''}">${d}</div>`).join('');
@@ -971,7 +1071,7 @@ function renderCalendar(){
     cells+=`<div class="cal-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}"><span class="cal-num">${d}</span></div>`;
   }
   const admin = isAdmin()
-    ? `<div class="cal-admin">기준연도 <button class="cal-yr" id="byMinus" title="기준연도 -1">◀</button><b>${community.baseYear}</b><button class="cal-yr" id="byPlus" title="기준연도 +1">▶</button> <span class="cal-range">(${minY}~${maxY} 이동)</span></div>`
+    ? `<div class="cal-admin">기준연도 <input class="cal-yr-input" id="byInput" type="number" value="${community.baseYear}" min="2000" max="2100"><button class="cal-save" id="bySave">저장</button> <span class="cal-range">(${minY}~${maxY})</span></div>`
     : `<div class="cal-admin muted">기준연도 ${community.baseYear} · 이동범위 ${minY}~${maxY}</div>`;
   wrap.innerHTML=`
     <div class="cal">
@@ -986,7 +1086,10 @@ function renderCalendar(){
   const p=$('#calPrev'), n=$('#calNext');
   if(p) p.onclick=()=>calMove(-1);
   if(n) n.onclick=()=>calMove(1);
-  if(isAdmin()){ const mi=$('#byMinus'), pl=$('#byPlus'); if(mi) mi.onclick=()=>setBaseYear(community.baseYear-1); if(pl) pl.onclick=()=>setBaseYear(community.baseYear+1); }
+  if(isAdmin()){ const sv=$('#bySave'), inp=$('#byInput');
+    if(sv) sv.onclick=()=>{ const v=parseInt(inp.value,10); if(v) setBaseYear(v); };
+    if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=parseInt(inp.value,10); if(v) setBaseYear(v); } });
+  }
 }
 
 /* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
