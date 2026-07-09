@@ -28,8 +28,15 @@ body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMa
 a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a.new{color:var(--link-red);}
 
 .topbar{position:sticky;top:0;z-index:50;background:var(--accent);color:#fff;display:flex;align-items:center;gap:14px;padding:0 18px;height:48px;box-shadow:0 1px 4px rgba(0,0,0,.2);}
-.topbar .logo{font-weight:800;font-size:17px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:7px;cursor:pointer;}
-.topbar .logo .mark{display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;background:rgba(255,255,255,.18);font-size:15px;}
+.topbar .brandwrap{display:flex;align-items:center;gap:10px;flex:none;}
+.topbar .refresh{display:inline-flex;align-items:center;justify-content:center;color:#fff;opacity:.9;cursor:pointer;transition:opacity .15s;}
+.topbar .refresh:hover{opacity:1;}
+.topbar .refresh svg{display:block;}
+.topbar .refresh.spinning{animation:andaspin .7s linear infinite;}
+@keyframes andaspin{to{transform:rotate(360deg);}}
+.topbar .logo{font-weight:800;font-size:17px;letter-spacing:-.5px;color:#fff;display:flex;align-items:center;gap:8px;cursor:pointer;}
+.topbar .logo .mark{display:inline-flex;align-items:center;justify-content:center;background:#fff;border-radius:0;padding:4px 6px;box-shadow:0 1px 3px rgba(0,0,0,.25);}
+.topbar .logo .mark img{height:22px;width:auto;object-fit:contain;display:block;}
 .topbar .search{flex:1;max-width:420px;position:relative;}
 .topbar .search input{width:100%;height:32px;border:none;border-radius:5px;padding:0 12px;font-size:13.5px;background:rgba(255,255,255,.95);color:#111;}
 .topbar .search input:focus{outline:2px solid rgba(255,255,255,.6);}
@@ -59,19 +66,23 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 #doc.pageIn{animation:pageIn .22s ease;}
 
 /* 대문(랜딩) */
-.landing .hero{text-align:center;padding:10px 0 16px;border-bottom:1px solid var(--border);margin-bottom:22px;}
-.hero-title{font-size:27px;font-weight:800;letter-spacing:-.5px;color:var(--accent);}
-.hero-sub{color:var(--text-dim);margin-top:6px;font-size:14px;}
-.hero-desc{max-width:640px;margin:14px auto 0;color:var(--text);font-size:14px;line-height:1.75;}
+.landing .hero-notice{text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--box-bg);padding:22px 18px;margin-bottom:22px;}
+.hn-title{font-size:22px;font-weight:800;color:var(--accent);letter-spacing:-.5px;margin-bottom:12px;}
+.hn-lines p{margin:5px 0;color:var(--text);font-size:14px;line-height:1.7;}
+.hn-lines b{color:var(--accent);}
 .landing-grid{display:flex;gap:20px;align-items:flex-start;}
-.cats{flex:1;min-width:0;}
-.cat{margin-bottom:18px;}
-.cat-name{font-weight:800;font-size:15px;color:var(--accent);border-left:3px solid var(--accent);padding-left:8px;margin-bottom:10px;}
-.cat-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:10px;}
-.cat-card{display:block;background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;cursor:pointer;transition:border-color .15s,transform .15s,box-shadow .15s;}
-.cat-card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow);text-decoration:none;}
-.cc-title{font-weight:700;color:var(--text);}
-.cc-desc{font-size:12.5px;color:var(--text-dim);margin-top:3px;}
+.cats{flex:1;min-width:0;border:1px solid var(--border);border-radius:8px;overflow:hidden;}
+.doclist-head{background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
+.cat-head{width:100%;display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border:none;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;cursor:pointer;font-family:inherit;}
+.cat-name{font-weight:800;font-size:14px;color:#fff;}
+.cat-toggle{font-size:12px;color:#fff;opacity:.85;white-space:nowrap;}
+.cat-body{background:var(--card);}
+.cat.collapsed .cat-body{display:none;}
+.doc-link{display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text);}
+.doc-link:last-child{border-bottom:none;}
+.doc-link:hover{background:var(--box-bg);text-decoration:none;}
+.dl-title{font-weight:700;color:var(--accent);white-space:nowrap;}
+.dl-desc{font-size:12.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;}
 .recent{width:215px;flex:none;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);}
 .recent-h{font-weight:800;font-size:13px;padding:10px 13px;border-bottom:1px solid var(--border);color:var(--text-dim);background:var(--box-bg);}
 .rc-item{display:flex;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;color:var(--text);}
@@ -99,6 +110,7 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .search-results a:last-child{border-bottom:none;}
 .search-results a:hover{background:var(--box-bg);text-decoration:none;}
 .search-results .sr-empty{padding:9px 12px;color:var(--text-dim);font-size:13px;}
+.search-results .sr-head{padding:7px 12px;font-size:11px;font-weight:800;letter-spacing:.3px;color:var(--text-dim);background:var(--box-bg);border-bottom:1px solid var(--border);}
 
 .doc{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:22px 28px 34px;}
 .doc-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:4px;}
@@ -241,7 +253,12 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 <!-- ===== 앱 ===== -->
 <div id="app" style="display:none">
   <div class="topbar">
-    <div class="logo" id="homeLink"><span class="mark">⚛</span>안다 아카이브</div>
+    <div class="brandwrap">
+      <span class="refresh" id="refreshMark" title="현재 페이지 새로고침">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
+      </span>
+      <div class="logo" id="homeLink"><span class="mark"><img id="brandLogo" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEsAAABACAYAAABSiYopAAAJeUlEQVR4nO3ca4xdV3UH8N8+5877YTuVA1FAISmhokkoqVNCAogZE1KgBAjSGAWVQJtApaoPlA+gUrXjSCD6peITQgLUfmhR6Iz6gYfEB2rPOCShtDYtBVSlPBUeatUqiT2e9z1n98M+dzy2x+P7OHfsD/lLZ2Z0556111577XX+a619Ly+gbYQrMegs2X3kp2qSdwhfoXiUsiaRL6BX7KlnzZIdJT7JTaPMnKGMZL3IDJSTZCvMv44fHyX0y8Ma/RB6KdxCCJTH+eSLmYnIe5RZYBKnuT3wnpiM1RfsmWdVHhSf4MacbxcMN9P4veoQG4SCpSF+/S7+J6ZFiTWofR562gKdYL6aQJOPDLOvIA8MBgZ6vAYLwgTXbDAVCYu9O+yO2JNtWHlV+XVeMcj7zqaYUueEQoGC9wb+IfYpZu2VZ4VAHOB9w4yWaTK1hYBItk45wvQiN4caHhw7oe/GioSjxJPsC3xgNcWSWscNybPKISYCf0Da9nWOUY3TX8QUm4oFPjzJp85QhP7ElHIgedgzk7zyDlbqHqDfnhVQPsEE/mSdGPq3QNkmxSgvWeGuSIg1L0pfjTWbvCpu8vYJbtxItKhvY0Y0yEruD8T5muX3dRu2+M4i3xzhtSuUob/GanGu5wf51bt5tk7O1TfFF2gE4uO8fYzfWqPZT0OxFeib4+xf58GYnKG2Mfum/FTacpp8LJKXe0RTIlkTJQ+FFCOLumT3ZQJzVWB9nDuHubPafnuVWoUNymFuOsFvbtenV/RttavU5neHKvZuj4xVbcVijNGCaThY09i1T6CVMC9ywxD/UTDWTEF2L5P2cihxrv9c5fa3sV6H3No9q5UwR/58iIlib7cgCIlzNSd45Si/EwkLNeTBtRprlmyG8gTX5cwsJ6P1pQJwOURClU1/MBCnagj0tRrraOVVBe8eT2WYPfeqbQgbKLlrgRdX3t6TLrUZq1KkfIqRwJ+uJyJ4pQxFohDNfezLma6jzlWnZ2WBuM77J7l5o89svU2EJpr8UR1bsbbJBIqTDEQ+vGHL064oItkq5SCvPcFrArEXzlWLsRZoRMIy904kr+p7atMOqnhZjpBFHoCZHuTVMqGpVKOKJR+JKeu/4l61Ddk6Ct5VJdVdb8WejdWiBt/gnjFet9K/4l63aNW5rj9RNTS6pTM9G+toSlbjJo/sYKQorWSnV62IxCEGSh7opc7V03bZltr82kDqBQ7GijJUvCEfrQZpp6AUpCSySrzr6MFuqZol+Wdx6xt4Zpas0851TynAPOEI5TEeGGFoiWy0+l+OJSxzYoBik7/DD0uy7AIlS7I8kca3DHLPMK/J072RrUDdC0LB5n4mznAk8teLXRirayVaK7PIzQ2eHiac5b8b/FeTXwzz+TWem+LfOpX9De5p8sgQb22iqKd2Xw6RrfGdaV7djYCuFZgjP0JxnIdGmVzmVMlP38wzF75vBu3GiZlzW9AiM4P8fUGj18pFJObIOL3JbdP8vNOtWPsj/kLSd6SLgD1HfhPZHWwe552j/OO6c0/ebhHTVhw4zcen+IvWgrd7f8/GatW55/F9Yp3HfU4yUBnsc5M8vNQ7LWn1Fn85zMvvZrWTm68m8ngRImGebJihA3y3wcvWpHpVD2Kb4zSWeGCaLy7QmKbZzo1XPCXZDYF4kPAOVjb4q8GKqvQos/X7nbDYbcyaJbvlKvO2Vv085wC+m3PtZm/nJcoG2Qb/dy3X38pGuzdeVYa5HI7xiX18rIbYVYwTl3hwii/Ok7UT6M8jpYvcNsK1q5W1A+uR1SZhEJuEPBXV9tTIQ6lEHCOntnW1eyouFqlS8kjgsXbPc20Zq6ok7ovcEPlAgxcVXP8ixlomLyQrthUN+4AotWlqWKl8NZHU249xd+CpmIqXuxpty1gVEXyiuv4G/onrz3LHcjrgcV3JGxocjlxTJJK4p4g1ttRKylEaG6n7883Fc/3NS+K8gavEOBytnjg7cabjnBzl0FpytKupFNMpyqFUSf3eYW5r54ZdV2mWbCoJzM/SvJbfHuNLK6mqkF3u/hZif89ldY2MYoByjcPTPDlL/uguUabdyYZ5sl/h5DivXu3Qq3J9KFLVg+YEjdPMHU5n6HeNW5flKq1O7kHum0yGaupw+xU8f9W5lZRrrqRa11u/lXqL5W6Nlssaa/FcFeDhaoC2510V/VYi/5Knv2s/yN8LWodIJplY5/5I+OwuNb5djRWrz9qc4MYGb1rpjDk3x9PvY5gY3BJ51aF1hv7NgfihXWLWrhM/cq4d/4kRhmNizu16VraRBvhBYLKZPLSM9V89LUDVW4w5957gpYE4ewm7XNJYc+TzFE9y6wAzZzusiTeSEs9Glq/hlpiqB40Rsp2u4eq61N87XSNkjare3y2qrdicYKysQs3UJexyyf35/cqD1nloP40zyT3brdkXIykt+lKTry9z3wYbWZrYlmdWlCJuI5u79Ta2e3SMqZZfRG7IOVhe/J5O0FhJAz98ko/fweZOuuwovFVuXWB/zo9woNB+46AkjhNWODzFQpcTaAuLTA9zfLXHsxWBYoiwxrum+MosjQs5147Cj54zyp+Nc03ZWawqh5Ohno78a0yt89qZQyTMpUf/U2t8azTNpWs6VxCretm9l3rPRZOotkR8nIMFP2iwr9kZA2+OJ8b/6Sn+uJNKZKeI1UddFnnbEF9d76HOFasz9Js8N8gNr0+dvPO24kWCWzwj8u7JdCCt2UmqUpJvpqD5GPxvH+lCoJgjfyNfW+OpkaRnV94V0vGkYoIDTe6Xjlae90C7yFi/TEEzL/m9zS05baMYwzrf2ce/x1RU6+sn4g9WOyHj8zU8GcV0fcgO57kurDq03Pq9E3yhi09wFePkS/z+NH/bkteD/pdFTFWScCfjY3x7kBu7bWrEZPSAosktb0pxdytfvJAKlNWPj26yUT3W2/KManXDMs81+fJ2ef1EpWMWOLOQmhqfW2UtpEpox45W0txP/hxvwdOnkrOcb6yF9Fmb5jEefAmvWsJwB4MU2I+f8c/38OxsJa9TZbtEOUd+gMfO8JfX8dJV3UX6koERPM8fzvGZQ2y2HnpbxmoF4pyfrPLRpQvKMK0DapUCcftrFWKZ/v9kyyMf7ULZblCNFwPLJ/jgGr9xugfedTbJdNM20lyvxlcB+j2pnXhWdqr6nphD217f/r0xh3Z4rfX6ofRQuGLfCdM6J3Gh/p1iidgvfvgCXsD5+H/2a2KXuWSnrAAAAABJRU5ErkJggg==" alt="안다 아카이브"></span>안다 아카이브</div>
+    </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
     <button class="mode" id="modeBtn">🌙 야간</button>
@@ -746,32 +763,46 @@ const LANDING_CATS = [
 async function renderLanding(){
   let recent=[];
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
-  const cats = LANDING_CATS.map(c=>`
+  const cats = LANDING_CATS.map((c,ci)=>`
     <div class="cat">
-      <div class="cat-name">${escapeHtml(c.name)}</div>
-      <div class="cat-cards">
-        ${c.items.map(it=>`<a class="cat-card" data-key="${it.key}">
-            <div class="cc-title">${escapeHtml(it.title)}</div>
-            <div class="cc-desc">${escapeHtml(it.desc)}</div></a>`).join('')}
+      <button class="cat-head" data-cat="${ci}">
+        <span class="cat-name">${escapeHtml(c.name)}</span>
+        <span class="cat-toggle">［ 접기 ］</span>
+      </button>
+      <div class="cat-body">
+        ${c.items.map(it=>`<a class="doc-link" data-key="${escapeAttr(it.key)}">
+            <span class="dl-title">${escapeHtml(it.title)}</span>
+            <span class="dl-desc">${escapeHtml(it.desc)}</span></a>`).join('')}
       </div>
     </div>`).join('');
-  const rc = recent.map(r=>`<a class="rc-item" data-key="${r.key}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('') || '<div class="rc-item">기록 없음</div>';
+  const rc = recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('') || '<div class="rc-item">기록 없음</div>';
   $('#doc').innerHTML=`
     <div class="landing">
-      <div class="hero">
-        <div class="hero-title">안다미로가 탐구한 모든 것</div>
-        <div class="hero-sub">안다 아카이브에 오신 것을 환영합니다</div>
-        <p class="hero-desc">안다 아카이브는 경기북과학고등학교 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다. 부원이라면 누구나 문서를 열람할 수 있고, 편집 권한이 있으면 함께 채워 나갈 수 있습니다.</p>
+      <div class="hero-notice">
+        <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
+        <div class="hn-lines">
+          <p>안다 아카이브는 경기북과학고등학교 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다.</p>
+          <p>부원이라면 누구나 문서를 열람할 수 있습니다.</p>
+          <p>편집 권한(editor)이 있으면 함께 문서를 채워 나갈 수 있습니다.</p>
+          <p>새 문서가 필요하면 편집자·관리자에게 요청해 주세요.</p>
+        </div>
       </div>
       <div class="landing-grid">
-        <div class="cats">${cats}</div>
+        <div class="cats">
+          <div class="doclist-head">안다 아카이브 문서 목록</div>
+          ${cats}
+        </div>
         <aside class="recent">
           <div class="recent-h">최근 변경</div>
           ${rc}
         </aside>
       </div>
     </div>`;
-  $('#doc').querySelectorAll('[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  $('#doc').querySelectorAll('.doc-link[data-key], .rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  $('#doc').querySelectorAll('.cat-head').forEach(h=>h.onclick=()=>{
+    const collapsed = h.parentElement.classList.toggle('collapsed');
+    h.querySelector('.cat-toggle').textContent = collapsed ? '［ 펼치기 ］' : '［ 접기 ］';
+  });
   buildNav('main');
   window.scrollTo(0,0);
 }
@@ -783,8 +814,13 @@ function fmtKST(iso){ if(!iso) return '-';
 function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
+/* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
+function startLoading(){ const m=$('#refreshMark'); if(m) m.classList.add('spinning'); }
+function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classList.remove('spinning'),280); }
+
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
+  startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   renderRightRail(null);   // 기본: 우측 레일 숨김 (문서 페이지에서만 renderDoc이 다시 표시)
   const key=(location.hash||'#main').slice(1);
   if(key==='main'){ renderLanding(); return; }
@@ -835,23 +871,39 @@ $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ locatio
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
-/* 상단 검색: 좌측 목록이 사라졌으므로 제목/키 매칭 드롭다운으로 문서 이동 */
+/* 상단 검색: 한글 자모 분해 부분일치 + 호버 시 랜덤 추천 */
 const searchBox=$('#search');
+const _CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const _JUNG=['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const _JONG=['','ㄱ','ㄲ','ㄳ','ㄴ','ㄵ','ㄶ','ㄷ','ㄹ','ㄺ','ㄻ','ㄼ','ㄽ','ㄾ','ㄿ','ㅀ','ㅁ','ㅂ','ㅄ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+function _jamo(str){ let out=''; for(const ch of String(str)){ const c=ch.charCodeAt(0);
+    if(c>=0xAC00 && c<=0xD7A3){ const s=c-0xAC00; out+=_CHO[Math.floor(s/588)]+_JUNG[Math.floor((s%588)/28)]+_JONG[s%28]; }
+    else out+=ch; } return out; }
+function _norm(s){ return _jamo(String(s).toLowerCase().replace(/\s+/g,'')); }   // 띄어쓰기 제거 + 자모 분해
+function searchDocs(q){ const nq=_norm(q); if(!nq) return [];
+  return (state.docs||[]).filter(d=> _norm(d.title||'').includes(nq) || _norm(d.key).includes(nq)).slice(0,8); }
+function randomDocs(n){ const a=[...(state.docs||[])];
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a.slice(0,n); }
 function closeSearchResults(){ const d=$('#searchResults'); if(d) d.remove(); }
 function goSearchHit(key){ location.hash='#'+key; searchBox.value=''; closeSearchResults(); }
-searchBox.addEventListener('input',()=>{
+function _renderResults(items, headLabel){
   closeSearchResults();
-  const q=searchBox.value.trim().toLowerCase();
-  if(!q) return;
-  const hits=(state.docs||[]).filter(d=>(d.title||'').toLowerCase().includes(q)||d.key.toLowerCase().includes(q)).slice(0,8);
   const wrap=document.createElement('div'); wrap.id='searchResults'; wrap.className='search-results';
-  wrap.innerHTML = hits.length
-    ? hits.map(d=>`<a data-key="${escapeAttr(d.key)}">${escapeHtml(d.title||d.key)}</a>`).join('')
+  const head = headLabel ? `<div class="sr-head">${headLabel}</div>` : '';
+  wrap.innerHTML = items.length
+    ? head + items.map(d=>`<a data-key="${escapeAttr(d.key)}">${escapeHtml(d.title||d.key)}</a>`).join('')
     : '<div class="sr-empty">검색 결과 없음</div>';
   searchBox.parentElement.appendChild(wrap);
   wrap.querySelectorAll('a[data-key]').forEach(a=>a.onclick=()=>goSearchHit(a.dataset.key));
-});
-searchBox.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=document.querySelector('#searchResults a[data-key]'); if(first) goSearchHit(first.dataset.key); } });
+}
+function showRecommend(){ if(searchBox.value.trim()) return; const r=randomDocs(5); if(r.length) _renderResults(r,'추천 문서'); }
+searchBox.addEventListener('input',()=>{ const q=searchBox.value.trim(); if(!q){ showRecommend(); return; } _renderResults(searchDocs(q), null); });
+searchBox.addEventListener('mouseenter', showRecommend);
+searchBox.addEventListener('focus', showRecommend);
+searchBox.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=document.querySelector('#searchResults a[data-key]'); if(first) goSearchHit(first.dataset.key); }
+  else if(e.key==='Escape'){ closeSearchResults(); } });
+(function(){ const sc=searchBox.parentElement;
+  sc.addEventListener('mouseleave',()=>{ if(document.activeElement!==searchBox) closeSearchResults(); }); })();
 document.addEventListener('click',e=>{ const sc=document.querySelector('.topbar .search'); if(sc && !sc.contains(e.target)) closeSearchResults(); });
 
 /* 비밀번호 재설정 링크로 들어온 경우: 즉시 비번 변경 화면으로 고정 */
@@ -867,8 +919,9 @@ sb.auth.onAuthStateChange(async (event) => {
 /* 문서 전환 애니메이션: #doc 내용이 바뀔 때마다 재생 */
 (function(){
   const d=$('#doc');
-  if(d) new MutationObserver(()=>{ d.classList.remove('pageIn'); void d.offsetWidth; d.classList.add('pageIn'); }).observe(d,{childList:true});
+  if(d) new MutationObserver(()=>{ stopLoading(); d.classList.remove('pageIn'); void d.offsetWidth; d.classList.add('pageIn'); }).observe(d,{childList:true});
 })();
+if($('#refreshMark')) $('#refreshMark').onclick=()=>route();   // 수동 새로고침
 
 init();
 </script>
