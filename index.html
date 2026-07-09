@@ -6,6 +6,9 @@
 <title>안다 아카이브</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <style>
 /* ===== 기본 토큰 (wiki.html과 동일) ===== */
 :root{
@@ -105,6 +108,39 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .chat-input input{flex:1;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
 .chat-input button{border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
 .chat-input button:hover{filter:brightness(1.08);}
+.eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:38px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;padding:0;}
+.eye-btn:hover{border-color:var(--accent);}
+.chat-hint{display:flex;justify-content:flex-end;padding:2px 4px 0;}
+.latex-help{font-size:11.5px;color:var(--text-dim);cursor:pointer;}
+.latex-help:hover{color:var(--accent);text-decoration:underline;}
+.chat-preview{border:1px dashed var(--border);border-radius:8px;padding:8px 10px;margin-top:6px;background:var(--box-bg);}
+.preview-label{font-size:11px;font-weight:800;color:var(--text-dim);margin-bottom:6px;letter-spacing:.3px;}
+.preview-empty{font-size:13px;color:var(--text-dim);}
+.chat-preview .preview-msg{max-width:100%;}
+.chat-preview .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
+body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
+.chat-admin{padding:6px 10px 2px;font-size:12px;color:var(--text-dim);}
+.chat-admin-row{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:wrap;}
+.chat-admin-text{text-align:right;}
+.chat-admin-text b{color:var(--text);}
+.chat-trash{border:1px solid var(--border);background:var(--card);border-radius:6px;width:32px;height:28px;cursor:pointer;font-size:14px;line-height:1;}
+.chat-trash:hover{border-color:var(--accent);}
+.chat-del-prompt{display:flex;align-items:center;justify-content:flex-end;gap:6px;width:100%;margin-top:5px;color:var(--text);font-size:12.5px;}
+.chat-del-prompt button{border:none;border-radius:5px;padding:4px 11px;cursor:pointer;font-size:12px;font-weight:700;}
+.chat-del-prompt .cdp-yes{background:var(--accent);color:#fff;}
+.chat-del-prompt .cdp-no{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
+.modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
+.modal-box{background:var(--card);border-radius:12px;padding:22px 22px 18px;max-width:340px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.35);}
+.modal-msg{font-size:16px;font-weight:800;color:var(--text);line-height:1.5;}
+.modal-sub{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
+.modal-btns button{border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;}
+.modal-cancel{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
+.modal-ok{background:var(--accent);color:#fff;}
+.block-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1100;cursor:wait;}
+.block-box{background:var(--card);border-radius:12px;padding:26px 34px;display:flex;flex-direction:column;align-items:center;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.35);}
+.block-spin{width:34px;height:34px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:andaspin .8s linear infinite;}
+.block-text{font-size:14px;color:var(--text);font-weight:600;}
 /* 캘린더 */
 .calendar-wrap{width:280px;flex:none;position:sticky;top:64px;}
 .cal{border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);}
@@ -453,13 +489,19 @@ async function fetchRecent(){
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(10); return data||[]; }
   catch(e){ return []; }
 }
+function railReserve(on){
+  const rail=$('#rightrail'); if(!rail) return;
+  if(on){ rail.style.display=''; if(!rail.innerHTML) rail.innerHTML='<div class="recent"><div class="recent-h">최근 변경</div><div class="rc-item" style="cursor:default;color:var(--text-dim)">불러오는 중…</div></div>'; }
+  else { rail.style.display='none'; rail.innerHTML=''; }
+}
 function renderRightRail(recent){
   const rail=$('#rightrail'); if(!rail) return;
-  if(!recent || !recent.length){ rail.style.display='none'; rail.innerHTML=''; return; }
-  const rc = recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('');
-  rail.innerHTML = `<div class="recent"><div class="recent-h">최근 변경</div>${rc}</div>`
-    + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'');
   rail.style.display='';
+  const list = (recent && recent.length)
+    ? recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('')
+    : '<div class="rc-item" style="cursor:default;color:var(--text-dim)">최근 변경 없음</div>';
+  rail.innerHTML = `<div class="recent"><div class="recent-h">최근 변경</div>${list}</div>`
+    + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'');
   rail.querySelectorAll('.rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
   const add=$('#railAdd'); if(add) add.onclick=addDoc;
 }
@@ -886,10 +928,22 @@ async function renderCommunity(){
       <section class="chat">
         <div class="chat-head">커뮤니티 채팅</div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
+        <div class="chat-preview" id="chatPreview" style="display:none"></div>
+        <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="chat-input">
-          <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송" autocomplete="off">
+          <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습)">
+            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="26" height="18" aria-hidden="true">
+              <path d="M4 18 Q24 5 44 18 Q24 31 4 18 Z"/>
+              <circle cx="24" cy="18" r="7.5" fill="#C00000" fill-opacity="0.16"/>
+              <circle cx="24" cy="18" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="21.6" cy="15.6" r="1" fill="#fff" stroke="none"/>
+              <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
+            </svg>
+          </button>
+          <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
           <button id="chatSend">전송</button>
         </div>
+        <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
       <aside class="calendar-wrap" id="calWrap"></aside>
     </div>`;
@@ -898,7 +952,11 @@ async function renderCommunity(){
   renderCalendar();
   $('#chatSend').onclick=sendMessage;
   $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
+  $('#chatText').addEventListener('input', updatePreview);
+  $('#eyeBtn').onclick=togglePreview;
+  $('#latexHelp').onclick=openLatexGuide;
   await loadMessages();
+  await renderChatAdmin();
   subscribeChat();
   window.scrollTo(0,0);
 }
@@ -919,9 +977,9 @@ async function loadMessages(){
   try{
     const { data, error } = await sb.from('messages')
       .select('id,user_id,author_name,author_handle,body,created_at')
-      .order('created_at',{ascending:true}).limit(200);
+      .order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
-    const rows=data||[];
+    const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
     await loadReactions(rows.map(m=>m.id));
     rows.forEach(m=>appendMessage(m,false));
@@ -949,11 +1007,93 @@ function appendMessage(m, doScroll=true){
       <div class="msg-reactions" data-mid="${m.id}"></div>
     </div>`;
   log.appendChild(el);
+  renderMath(el.querySelector('.msg-bubble'));
   renderReactions(m.id);
   if(doScroll) scrollChatBottom();
 }
 
+/* LaTeX 수식 렌더 (KaTeX 로드된 경우에만; $..$ 인라인, $$..$$ 디스플레이) */
+function renderMath(node){
+  if(!node || !window.renderMathInElement) return;
+  try{ window.renderMathInElement(node,{ delimiters:[
+    {left:'$$',right:'$$',display:true},
+    {left:'$',right:'$',display:false},
+    {left:'\\(',right:'\\)',display:false},
+    {left:'\\[',right:'\\]',display:true}
+  ], throwOnError:false }); }catch(e){}
+}
 function scrollChatBottom(){ const log=$('#chatLog'); if(log) log.scrollTop=log.scrollHeight; }
+
+/* 미리보기: 눈동자 아이콘을 누르면 입력창 바로 위에 LaTeX 적용된 모습 표시 */
+function togglePreview(){
+  const p=$('#chatPreview'); if(!p) return;
+  const hidden = (p.style.display==='none' || !p.style.display);
+  if(hidden){ p.style.display='block'; updatePreview(); }
+  else p.style.display='none';
+}
+function updatePreview(){
+  const p=$('#chatPreview'); if(!p || p.style.display==='none') return;
+  const txt=($('#chatText')&&$('#chatText').value)||'';
+  if(!txt.trim()){ p.innerHTML='<div class="preview-label">미리보기</div><div class="preview-empty">메시지를 입력하면 이렇게 표시됩니다 (수식 포함).</div>'; return; }
+  p.innerHTML='<div class="preview-label">미리보기</div><div class="msg mine preview-msg"><div class="msg-bubble">'+escapeHtml(txt)+'</div></div>';
+  renderMath(p.querySelector('.msg-bubble'));
+}
+
+/* LaTeX 사용법 가이드를 새 탭으로 (자체 포함 HTML, KaTeX로 렌더) */
+function openLatexGuide(){
+  const row=(code,label)=>`<tr><td><code>${escapeHtml(code)}</code></td><td>${code}</td><td>${label}</td></tr>`;
+  const body = [
+    row('$a^2 + b^2 = c^2$','위첨자(제곱)'),
+    row('$x_{1} + x_{2}$','아래첨자'),
+    row('$\\frac{a}{b}$','분수'),
+    row('$\\sqrt{2},\\ \\sqrt[3]{x}$','제곱근·세제곱근'),
+    row('$\\sum_{i=1}^{n} i$','시그마(합)'),
+    row('$\\int_{0}^{1} x^2\\,dx$','적분'),
+    row('$\\lim_{x \\to 0} \\frac{\\sin x}{x}$','극한'),
+    row('$\\vec{v},\\ \\hat{n}$','벡터·단위벡터'),
+    row('$\\alpha, \\beta, \\gamma, \\pi, \\theta$','그리스 문자'),
+    row('$\\times \\div \\pm \\cdot \\approx \\neq \\leq \\geq$','연산·비교 기호'),
+    row('$\\rightarrow \\Rightarrow \\infty \\partial \\nabla$','화살표·기타'),
+    row('$\\begin{pmatrix} a & b \\\\ c & d \\end{pmatrix}$','행렬')
+  ].join('');
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LaTeX 사용법 · 안다 아카이브</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
+<style>
+  body{font-family:'Pretendard','Noto Sans KR',system-ui,sans-serif;max-width:760px;margin:0 auto;padding:28px 20px 60px;color:#222;line-height:1.7;}
+  h1{color:#C00000;border-bottom:3px solid #C00000;padding-bottom:10px;font-size:24px;}
+  h2{color:#C00000;margin-top:28px;font-size:18px;}
+  code{background:#f4f4f4;border:1px solid #e2e2e2;border-radius:4px;padding:1px 6px;font-size:13px;color:#a11;}
+  table{border-collapse:collapse;width:100%;margin-top:12px;}
+  th,td{border:1px solid #e0e0e0;padding:9px 11px;text-align:left;vertical-align:middle;font-size:14px;}
+  th{background:#C00000;color:#fff;font-weight:700;}
+  td:nth-child(2){background:#fafafa;}
+  .tip{background:#fdf2f2;border-left:4px solid #C00000;padding:12px 14px;border-radius:0 8px 8px 0;margin:16px 0;font-size:14px;}
+</style></head><body>
+<h1>LaTeX 수식 사용법</h1>
+<p>커뮤니티 채팅에서 수식을 입력하면 자동으로 예쁘게 렌더됩니다. 달러 기호로 감싸면 됩니다.</p>
+<div class="tip"><b>인라인 수식</b>: 문장 안에 <code>$ ... $</code> — 예: <code>$E=mc^2$</code> → 이렇게 $E=mc^2$ 처럼 문장에 섞입니다.<br>
+<b>디스플레이 수식</b>(가운데 큰 수식): <code>$$ ... $$</code> — 예: $$\\int_0^1 x^2\\,dx=\\frac{1}{3}$$</div>
+<h2>자주 쓰는 수식 표</h2>
+<p>왼쪽은 입력 코드, 가운데는 렌더 결과입니다.</p>
+<table><thead><tr><th>입력 코드</th><th>결과</th><th>설명</th></tr></thead><tbody>${body}</tbody></table>
+<h2>팁</h2>
+<ul>
+  <li>중괄호 <code>{ }</code>로 여러 글자를 묶습니다: <code>x^{10}</code> → $x^{10}$ (묶지 않으면 $x^10$ 처럼 첫 글자만 적용).</li>
+  <li>공백은 <code>\\,</code>(작은 공백), <code>\\quad</code>(큰 공백)로 조절합니다.</li>
+  <li>수식이 아닌 일반 달러 표시가 필요하면 <code>\\$</code>로 씁니다.</li>
+  <li>잘못된 수식은 빨간 원문 그대로 표시되니 안심하고 시도해 보세요.</li>
+</ul>
+<p style="margin-top:30px;color:#999;font-size:13px;">안다 아카이브 · 경기북과학고 안다미로</p>
+<script>window.addEventListener('DOMContentLoaded',function(){try{renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],ignoredTags:['script','noscript','style','textarea','code'],throwOnError:false});}catch(e){}});<\/script>
+</body></html>`;
+  const url=URL.createObjectURL(new Blob([html],{type:'text/html'}));
+  window.open(url,'_blank');
+  setTimeout(()=>URL.revokeObjectURL(url), 60000);
+}
 
 async function sendMessage(){
   const inp=$('#chatText'); if(!inp || !state.user) return;
@@ -1029,6 +1169,71 @@ function subscribeChat(){
     .subscribe();
 }
 
+/* ---- 채팅 관리(관리자 전용): 통계 + 1년 지난 메시지 삭제 ---- */
+async function renderChatAdmin(){
+  const bar=$('#chatAdmin'); if(!bar) return;
+  if(!isAdmin()){ bar.style.display='none'; bar.innerHTML=''; return; }
+  bar.style.display='';
+  let count=0, oldest=null;
+  try{
+    const { count:c } = await sb.from('messages').select('*',{count:'exact',head:true});
+    count=c||0;
+    const { data } = await sb.from('messages').select('created_at').order('created_at',{ascending:true}).limit(1).maybeSingle();
+    oldest = data ? data.created_at : null;
+  }catch(e){}
+  bar.innerHTML=`
+    <div class="chat-admin-row">
+      <div class="chat-admin-text">현재 총 메세지 수는 <b>${count}</b>개입니다. 가장 오래된 메세지는 <b>${oldest?fmtKST(oldest):'-'}</b>에 작성되었습니다.</div>
+      <button class="chat-trash" id="chatTrash" title="1년 지난 메시지 정리">🗑️</button>
+    </div>`;
+  $('#chatTrash').onclick=onTrashClick;
+}
+function onTrashClick(){
+  const bar=$('#chatAdmin');
+  const old=bar.querySelector('.chat-del-prompt'); if(old){ old.remove(); return; }   // 토글
+  const p=document.createElement('div'); p.className='chat-del-prompt';
+  p.innerHTML=`<span>1년 전 메세지를 삭제하시겠습니까?</span><button class="cdp-yes">삭제</button><button class="cdp-no">취소</button>`;
+  bar.appendChild(p);
+  p.querySelector('.cdp-no').onclick=()=>p.remove();
+  p.querySelector('.cdp-yes').onclick=async()=>{
+    p.remove();
+    const ok=await confirmModal('정말로 삭제하시겠습니까?', '1년이 지난 메세지가 영구 삭제되며 되돌릴 수 없습니다.');
+    if(ok) await deleteOldMessages();
+  };
+}
+async function deleteOldMessages(){
+  const cutoff=new Date(); cutoff.setFullYear(cutoff.getFullYear()-1);
+  showBlockingLoader('오래된 메세지를 삭제하는 중…');
+  try{
+    const { error } = await sb.from('messages').delete().lt('created_at', cutoff.toISOString());
+    if(error) throw error;
+    await loadMessages();
+    await renderChatAdmin();
+  }catch(e){ alert('삭제 실패: admin 권한과 DB 설정을 확인하세요.'); }
+  finally{ hideBlockingLoader(); }
+}
+
+/* 확인 팝업(Promise) */
+function confirmModal(title, sub){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box"><div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}<div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">삭제</button></div></div>`;
+    document.body.appendChild(ov);
+    const done=v=>{ ov.remove(); resolve(v); };
+    ov.querySelector('.modal-cancel').onclick=()=>done(false);
+    ov.querySelector('.modal-ok').onclick=()=>done(true);
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(false); });
+  });
+}
+/* 화면 전체 차단 로딩 */
+function showBlockingLoader(text){
+  hideBlockingLoader();
+  const ov=document.createElement('div'); ov.className='block-ov'; ov.id='blockOv';
+  ov.innerHTML=`<div class="block-box"><div class="block-spin"></div><div class="block-text">${escapeHtml(text||'처리 중…')}</div></div>`;
+  document.body.appendChild(ov);
+}
+function hideBlockingLoader(){ const o=$('#blockOv'); if(o) o.remove(); }
+
 /* ---- 캘린더 ---- */
 async function loadBaseYear(){
   try{
@@ -1100,8 +1305,9 @@ function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
-  renderRightRail(null);   // 기본: 우측 레일 숨김 (문서 페이지에서만 renderDoc이 다시 표시)
   const key=(location.hash||'#main').slice(1);
+  const fullWidthPages=['community','admin','requests','health','password','me'];
+  railReserve(!fullWidthPages.includes(key));   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
