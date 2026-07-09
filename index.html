@@ -90,6 +90,15 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .sidebar .addbtn{display:block;width:calc(100% - 20px);margin:10px;padding:8px;border:1px dashed var(--border-strong);background:transparent;color:var(--accent);border-radius:6px;cursor:pointer;font-size:13px;font-weight:700;}
 .sidebar .addbtn:hover{background:var(--box-bg);}
 .content{flex:1;min-width:0;}
+.rightrail{width:217px;flex:none;position:sticky;top:64px;display:flex;flex-direction:column;gap:10px;}
+.rightrail .recent{width:100%;box-sizing:border-box;}
+.rightrail .addbtn{display:block;width:100%;padding:9px;border:1px dashed var(--border-strong);background:var(--card);color:var(--accent);border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:var(--shadow);}
+.rightrail .addbtn:hover{background:var(--box-bg);}
+.search-results{position:absolute;top:36px;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;box-shadow:var(--shadow);overflow-y:auto;max-height:60vh;z-index:60;}
+.search-results a{display:block;padding:9px 12px;color:var(--text);font-size:13.5px;border-bottom:1px solid var(--border);cursor:pointer;}
+.search-results a:last-child{border-bottom:none;}
+.search-results a:hover{background:var(--box-bg);text-decoration:none;}
+.search-results .sr-empty{padding:9px 12px;color:var(--text-dim);font-size:13px;}
 
 .doc{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:22px 28px 34px;}
 .doc-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:4px;}
@@ -183,7 +192,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 
 @media(max-width:860px){
   .layout{flex-direction:column;}
-  .sidebar{width:100%;position:static;}
+  .rightrail{width:100%;position:static;}
   .infobox{float:none;width:100%;margin:0 0 16px;}
   .doc{padding:18px 16px 28px;}
   .topbar .search{max-width:none;}
@@ -252,15 +261,11 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     </div>
   </div>
   <div class="layout">
-    <aside class="sidebar">
-      <h4>문서 목록</h4>
-      <nav id="nav"></nav>
-      <button class="addbtn" id="addBtn" style="display:none">＋ 새 문서</button>
-    </aside>
     <main class="content">
       <div class="doc" id="doc"></div>
       <footer class="site">안다 아카이브 · 로그인한 부원 전용 · 편집은 editor/admin</footer>
     </main>
+    <aside class="rightrail" id="rightrail" style="display:none"></aside>
   </div>
 </div>
 
@@ -321,7 +326,7 @@ async function doReset(){
   const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href, captchaToken: liToken });
   resetLoginCaptcha();
   msg.className = error ? 'msg err' : 'msg ok';
-  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일의 링크를 누르면 새 비밀번호를 설정하는 화면으로 이동합니다. (스팸함도 확인)';
+  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일의 링크를 누르면 새 비밀번호를 설정하는 화면으로 이동합니다. (스팸함도 확인) 혹시 메일을 받지 못하였다면 관리자에게 직접 문의하세요.';
 }
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
@@ -332,7 +337,6 @@ async function onLoggedIn(){
   state.name = prof?.name || '';
   state.handle = prof?.handle || '';
   renderUserbox();
-  $('#addBtn').style.display = canEdit() ? 'block' : 'none';
   await loadDocs();
   showApp();
   route();
@@ -354,11 +358,28 @@ async function loadDocs(){
   buildNav();
 }
 function buildNav(active){
-  $('#nav').innerHTML =
+  const nav=$('#nav'); if(!nav) return;   // 좌측 문서 목록 제거됨 → 호출돼도 안전하게 무시
+  nav.innerHTML =
     `<a data-key="main" class="${active==='main'?'active':''}">🏠 대문</a>` +
     state.docs.map(d =>
       `<a data-key="${d.key}" class="${d.key===active?'active':''}">${escapeHtml(d.title||d.key)}</a>`).join('');
   $('#nav').querySelectorAll('a').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+}
+
+/* 우측 '최근 변경' 레일 (문서 페이지에서만 표시) */
+async function fetchRecent(){
+  try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(10); return data||[]; }
+  catch(e){ return []; }
+}
+function renderRightRail(recent){
+  const rail=$('#rightrail'); if(!rail) return;
+  if(!recent || !recent.length){ rail.style.display='none'; rail.innerHTML=''; return; }
+  const rc = recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('');
+  rail.innerHTML = `<div class="recent"><div class="recent-h">최근 변경</div>${rc}</div>`
+    + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'');
+  rail.style.display='';
+  rail.querySelectorAll('.rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  const add=$('#railAdd'); if(add) add.onclick=addDoc;
 }
 
 async function renderDoc(key){
@@ -393,6 +414,7 @@ async function renderDoc(key){
   if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
   $('#histBtn').onclick=()=>showHistory(key);
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
+  renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
 }
 
@@ -763,6 +785,7 @@ function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;',
 
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
+  renderRightRail(null);   // 기본: 우측 레일 숨김 (문서 페이지에서만 renderDoc이 다시 표시)
   const key=(location.hash||'#main').slice(1);
   if(key==='main'){ renderLanding(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
@@ -811,10 +834,25 @@ document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
-$('#addBtn').onclick=addDoc;
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
-$('#search').addEventListener('input',()=>{ const q=$('#search').value.trim().toLowerCase();
-  $('#nav').querySelectorAll('a').forEach(a=>a.style.display=a.textContent.toLowerCase().includes(q)?'block':'none'); });
+/* 상단 검색: 좌측 목록이 사라졌으므로 제목/키 매칭 드롭다운으로 문서 이동 */
+const searchBox=$('#search');
+function closeSearchResults(){ const d=$('#searchResults'); if(d) d.remove(); }
+function goSearchHit(key){ location.hash='#'+key; searchBox.value=''; closeSearchResults(); }
+searchBox.addEventListener('input',()=>{
+  closeSearchResults();
+  const q=searchBox.value.trim().toLowerCase();
+  if(!q) return;
+  const hits=(state.docs||[]).filter(d=>(d.title||'').toLowerCase().includes(q)||d.key.toLowerCase().includes(q)).slice(0,8);
+  const wrap=document.createElement('div'); wrap.id='searchResults'; wrap.className='search-results';
+  wrap.innerHTML = hits.length
+    ? hits.map(d=>`<a data-key="${escapeAttr(d.key)}">${escapeHtml(d.title||d.key)}</a>`).join('')
+    : '<div class="sr-empty">검색 결과 없음</div>';
+  searchBox.parentElement.appendChild(wrap);
+  wrap.querySelectorAll('a[data-key]').forEach(a=>a.onclick=()=>goSearchHit(a.dataset.key));
+});
+searchBox.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const first=document.querySelector('#searchResults a[data-key]'); if(first) goSearchHit(first.dataset.key); } });
+document.addEventListener('click',e=>{ const sc=document.querySelector('.topbar .search'); if(sc && !sc.contains(e.target)) closeSearchResults(); });
 
 /* 비밀번호 재설정 링크로 들어온 경우: 즉시 비번 변경 화면으로 고정 */
 sb.auth.onAuthStateChange(async (event) => {
