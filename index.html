@@ -171,8 +171,12 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .landing-reco .cat:last-child{flex:1;}
 /* 커뮤니티 */
 .community{display:flex;gap:16px;align-items:flex-start;}
-.chat{flex:1;min-width:0;display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
-.chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;}
+.chat{flex:1;min-width:0;display:flex;flex-direction:column;height:var(--chat-h,calc(100vh - 180px));min-height:300px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
+.chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.chat-size{display:inline-flex;gap:5px;}
+.csz-btn{width:22px;height:22px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.16);color:#fff;border-radius:5px;cursor:pointer;font-weight:800;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;}
+.csz-btn:hover{background:rgba(255,255,255,.32);}
+.csz-btn:disabled{opacity:.35;cursor:default;}
 .chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
 .chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
@@ -184,6 +188,10 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
+.msg-del{flex:none;border:none;background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;padding:2px 3px;border-radius:5px;opacity:0;transition:opacity .15s,color .15s,background .15s;}
+.msg:hover .msg-del{opacity:.65;}
+.msg-del:hover{opacity:1;color:var(--accent);background:var(--box-bg);}
+@media(hover:none){ .msg-del{opacity:.6;} }
 .msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
 .rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
 .rpill.mine{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -202,6 +210,7 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .chat-input button:hover{filter:brightness(1.08);}
 .eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:40px;height:38px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;padding:0;}
 .eye-btn:hover{border-color:var(--accent);}
+.eye-btn.on{border-color:var(--accent);color:var(--accent);background:var(--box-bg);}
 .chat-hint{display:flex;justify-content:flex-end;padding:2px 4px 0;}
 .latex-help{font-size:11.5px;color:var(--text-dim);cursor:pointer;}
 .latex-help:hover{color:var(--accent);text-decoration:underline;}
@@ -257,15 +266,14 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .cal-yr:hover{border-color:var(--accent);}
 .cal-range{color:var(--text-dim);font-size:11px;}
 .doclist-head{background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
-.cat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;}
+.cat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;cursor:pointer;user-select:none;}
+.cat-head:hover{filter:brightness(1.06);}
 .cat-name{font-weight:800;font-size:14px;color:#fff;}
-.cat-toggle{font-size:12px;color:#fff;white-space:nowrap;}
-.cat-toggle .ct-open,.cat-toggle .ct-close{cursor:pointer;opacity:.55;padding:0 1px;}
-.cat-toggle .ct-open:hover,.cat-toggle .ct-close:hover{opacity:1;text-decoration:underline;}
-.cat:not(.collapsed) .ct-close{opacity:1;font-weight:800;}
-.cat.collapsed .ct-open{opacity:1;font-weight:800;}
-.cat-body{background:var(--card);}
-.cat.collapsed .cat-body{display:none;}
+.cat-toggle{font-size:12px;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
+.cat-chev{display:inline-block;font-size:11px;line-height:1;transition:transform .25s ease;opacity:.9;}
+.cat.collapsed .cat-chev{transform:rotate(-90deg);}
+.cat-body{background:var(--card);max-height:1200px;overflow:hidden;transition:max-height .3s ease,opacity .25s ease;opacity:1;}
+.cat.collapsed .cat-body{max-height:0;opacity:0;}
 .doc-link{display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text);}
 .doc-link:last-child{border-bottom:none;}
 .doc-link:hover{background:var(--box-bg);text-decoration:none;}
@@ -1287,7 +1295,7 @@ async function renderLanding(){
     <div class="cat">
       <div class="cat-head">
         <span class="cat-name">${escapeHtml(c.name)}</span>
-        <span class="cat-toggle"><span class="ct-open">펼치기</span> · <span class="ct-close">접기</span></span>
+        <span class="cat-toggle"><span class="ct-label">접기</span><span class="cat-chev">▾</span></span>
       </div>
       <div class="cat-body">
         ${c.items.map(it=>`<a class="doc-link" data-key="${escapeAttr(it.key)}">
@@ -1313,9 +1321,8 @@ async function renderLanding(){
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
-    const open=cat.querySelector('.ct-open'), close=cat.querySelector('.ct-close');
-    if(open) open.onclick=()=>cat.classList.remove('collapsed');
-    if(close) close.onclick=()=>cat.classList.add('collapsed');
+    const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
+    if(head) head.onclick=()=>{ const col=cat.classList.toggle('collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
   });
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
@@ -1331,7 +1338,7 @@ function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;',
 
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
-const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth() };
+const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:2 };
 
 function unsubscribeChat(){ if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
 
@@ -1339,7 +1346,7 @@ async function renderCommunity(){
   $('#doc').innerHTML=`
     <div class="community">
       <section class="chat">
-        <div class="chat-head">커뮤니티 채팅</div>
+        <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
         <div class="chat-preview" id="chatPreview" style="display:none"></div>
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
@@ -1367,11 +1374,43 @@ async function renderCommunity(){
   $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
   $('#chatText').addEventListener('input', updatePreview);
   $('#eyeBtn').onclick=togglePreview;
+  community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
+  initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
+  await loadAdminIds();                            // (관리자) 다른 관리자 메세지 삭제 방지용 id 집합
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
   window.scrollTo(0,0);
+}
+
+/* ---- 채팅창 크기 (축소/확대) ---- */
+const CHAT_H=['calc(100vh - 340px)','calc(100vh - 250px)','calc(100vh - 180px)','calc(100vh - 110px)','calc(100vh - 60px)'];
+function applyChatSize(){
+  const i=Math.max(0,Math.min(CHAT_H.length-1, community.chatSize|0));
+  document.documentElement.style.setProperty('--chat-h', CHAT_H[i]);
+  const d=$('#cszDown'), u=$('#cszUp');
+  if(d) d.disabled=(i<=0); if(u) u.disabled=(i>=CHAT_H.length-1);
+}
+function changeChatSize(delta){
+  community.chatSize=Math.max(0,Math.min(CHAT_H.length-1,(community.chatSize|0)+delta));
+  try{ localStorage.setItem('andachat_size', String(community.chatSize)); }catch(e){}
+  applyChatSize();
+}
+function initChatSize(){
+  try{ const v=localStorage.getItem('andachat_size'); if(v!==null){ const n=parseInt(v,10); if(!isNaN(n)) community.chatSize=n; } }catch(e){}
+  const d=$('#cszDown'), u=$('#cszUp');
+  if(d) d.onclick=()=>changeChatSize(-1);
+  if(u) u.onclick=()=>changeChatSize(1);
+  applyChatSize();
+}
+
+/* ---- (관리자) 관리자 user_id 집합: 다른 관리자 메세지 삭제 버튼 숨김용 ---- */
+let adminIds=new Set();
+async function loadAdminIds(){
+  adminIds=new Set();
+  if(!isAdmin()) return;
+  try{ const { data } = await sb.from('profiles').select('id').eq('role','admin'); (data||[]).forEach(p=>adminIds.add(p.id)); }catch(e){}
 }
 
 /* ---- 채팅 + 반응 ---- */
@@ -1436,6 +1475,7 @@ function appendMessage(m, doScroll=true){
   const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
   if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
   const mine=(state.user && m.user_id===state.user.id);
+  const canDel = mine || (isAdmin() && !adminIds.has(m.user_id));   // 본인 or (관리자 && 대상이 관리자 아님)
   const who=escapeHtml(m.author_name || m.author_handle || '익명');
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
@@ -1446,10 +1486,12 @@ function appendMessage(m, doScroll=true){
       <div class="msg-bubble-row">
         <div class="msg-bubble">${escapeHtml(m.body)}</div>
         <span class="msg-time">${fmtKST(m.created_at)}</span>
+        ${canDel?'<button class="msg-del" title="메세지 삭제">🗑</button>':''}
       </div>
       <div class="msg-reactions" data-mid="${m.id}"></div>
     </div>`;
   log.appendChild(el);
+  if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
   if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
   renderMath(el.querySelector('.msg-bubble'));
   renderReactions(m.id);
@@ -1471,16 +1513,18 @@ function scrollChatBottom(){ const log=$('#chatLog'); if(log) log.scrollTop=log.
 /* 미리보기: 눈동자 아이콘을 누르면 입력창 바로 위에 LaTeX 적용된 모습 표시 */
 function togglePreview(){
   const p=$('#chatPreview'); if(!p) return;
-  const hidden = (p.style.display==='none' || !p.style.display);
-  if(hidden){ p.style.display='block'; updatePreview(); }
-  else p.style.display='none';
+  community.previewOn=!community.previewOn;
+  p.style.display=community.previewOn?'block':'none';
+  const eye=$('#eyeBtn'); if(eye) eye.classList.toggle('on',community.previewOn);
+  if(community.previewOn) updatePreview();
 }
 function updatePreview(){
-  const p=$('#chatPreview'); if(!p || p.style.display==='none') return;
+  const p=$('#chatPreview'); if(!p || !community.previewOn) return;
   const txt=($('#chatText')&&$('#chatText').value)||'';
   if(!txt.trim()){ p.innerHTML='<div class="preview-label">미리보기</div><div class="preview-empty">메시지를 입력하면 이렇게 표시됩니다 (수식 포함).</div>'; return; }
-  p.innerHTML='<div class="preview-label">미리보기</div><div class="msg mine preview-msg"><div class="msg-bubble">'+escapeHtml(txt)+'</div></div>';
-  renderMath(p.querySelector('.msg-bubble'));
+  p.innerHTML='<div class="preview-label">미리보기</div><div class="msg mine preview-msg"><div class="msg-bubble"></div></div>';
+  const bub=p.querySelector('.msg-bubble'); bub.textContent=txt;   // 원문을 항상 안전하게 표시한 뒤 수식만 렌더
+  renderMath(bub);
 }
 
 /* LaTeX 사용법 가이드를 새 탭으로 (자체 포함 HTML, KaTeX로 렌더) */
@@ -1549,6 +1593,17 @@ async function sendMessage(){
   }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
 }
 
+/* 메세지 삭제: 본인 메세지 or (관리자면서 대상이 관리자가 아닌 경우). 권한은 RPC(delete_message)가 서버에서 최종 검증 */
+async function deleteMessage(m){
+  const ok=await confirmModal('메세지를 삭제하시겠습니까?','삭제된 메세지는 되돌릴 수 없습니다.');
+  if(!ok) return;
+  try{
+    const { error } = await sb.rpc('delete_message', { p_id: m.id });
+    if(error) throw error;
+    const el=document.querySelector('.msg[data-mid="'+m.id+'"]'); if(el) el.remove();
+  }catch(e){ alert('삭제 실패: 권한을 확인하세요. (관리자는 다른 관리자의 메세지를 삭제할 수 없습니다) — 15_message_delete.sql 실행 여부도 확인'); }
+}
+
 /* 반응(회원당 최대 1개: 하트/체크/엄지/웃음) */
 async function loadReactions(ids){
   reactState={};
@@ -1606,6 +1661,10 @@ function subscribeChat(){
   unsubscribeChat();
   chatChannel = sb.channel('community-realtime')
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>appendMessage(payload.new, true))
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
+      const id=payload.old&&payload.old.id;
+      if(id!=null){ const el=document.querySelector('.msg[data-mid="'+id+'"]'); if(el) el.remove(); }
+    })
     .on('postgres_changes', { event:'*', schema:'public', table:'message_reactions' }, payload=>{
       const mid=(payload.new&&payload.new.message_id) || (payload.old&&payload.old.message_id);
       if(mid && document.querySelector('.msg-reactions[data-mid="'+mid+'"]')) refreshReactionsFor(mid);
