@@ -1230,7 +1230,7 @@ async function renderDirectory(){
     <div class="dir-filter" id="dirFilter" style="display:none"></div>
     <div class="dir-grid" id="dirGrid"><div class="club-empty" style="padding:12px">불러오는 중…</div></div>`;
   // 데이터 로드
-  try{ const { data } = await sb.from('profiles').select('id,member_no,name,handle,club,avatar_url'); dir.data=data||[]; }catch(e){ dir.data=[]; }
+  try{ const { data } = await sb.from('members_public').select('id,member_no,name,handle,club,avatar_url'); dir.data=data||[]; }catch(e){ dir.data=[]; }
   let clubs=[]; try{ const { data } = await sb.from('clubs').select('name,is_none'); clubs=data||[]; }catch(e){}
   // 동아리 목록: 테이블 + 목록외(프로필에만 있는 값), 무소속 맨 뒤
   const tableNames=clubs.filter(c=>!c.is_none).map(c=>c.name);
@@ -1493,14 +1493,14 @@ function applyAvatar(uid){
 async function ensureAvatar(uid){
   if(!uid || (uid in avatarCache)) return;
   avatarCache[uid]=null;   // 재요청 방지
-  try{ const { data } = await sb.from('profiles').select('avatar_url').eq('id', uid).single(); avatarCache[uid]=(data&&data.avatar_url)?data.avatar_url:null; }catch(e){}
+  try{ const { data } = await sb.from('members_public').select('avatar_url').eq('id', uid).single(); avatarCache[uid]=(data&&data.avatar_url)?data.avatar_url:null; }catch(e){}
   applyAvatar(uid);
 }
 async function prefetchAvatars(ids){
   const need=[...new Set((ids||[]).filter(Boolean))].filter(u=>!(u in avatarCache));
   if(!need.length) return;
   try{
-    const { data } = await sb.from('profiles').select('id,avatar_url').in('id', need);
+    const { data } = await sb.from('members_public').select('id,avatar_url').in('id', need);
     (data||[]).forEach(p=>{ avatarCache[p.id]=p.avatar_url||null; });
   }catch(e){}
   need.forEach(u=>{ if(!(u in avatarCache)) avatarCache[u]=null; });
