@@ -153,7 +153,7 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;}
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
 .chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
-.msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;}
+.msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
 .msg-main{min-width:0;display:flex;flex-direction:column;gap:3px;}
 .msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
@@ -1081,6 +1081,7 @@ async function onAvatarFile(e){
     const url=base+'?v='+Date.now();
     const { error } = await sb.rpc('set_my_avatar', { p_url:url });
     if(error) throw error;
+    avatarCache[state.user.id]=url; applyAvatar(state.user.id);
     const el=$('#meAvatar'); if(el){ el.textContent=''; el.style.background=''; el.style.backgroundImage="url('"+url+"')"; }
     msg.className='me-avatar-msg ok'; msg.textContent='프로필 사진이 변경됐어요.';
   }catch(err){ msg.className='me-avatar-msg err'; msg.textContent='업로드 실패: 스토리지(avatars 버킷·정책)를 확인해 주세요.'; }
@@ -1091,6 +1092,7 @@ async function removeAvatar(){
     try{ await sb.storage.from('avatars').remove([state.user.id+'/avatar']); }catch(_){}
     const { error } = await sb.rpc('set_my_avatar', { p_url:null });
     if(error) throw error;
+    avatarCache[state.user.id]=null;
     let nm=null, hd=null;
     try{ const { data } = await sb.from('profiles').select('name,handle').eq('id',state.user.id).single(); nm=data&&data.name; hd=data&&data.handle; }catch(_){}
     const av=avatarFor(nm, hd);
@@ -1268,6 +1270,36 @@ function avatarFor(name, handle){
   return { ch, bg:`hsl(${h%360} 52% 55%)` };
 }
 
+/* 채팅 아바타: user_id -> avatar_url 캐시 (프로필 사진 반영) */
+const avatarCache = {};
+function msgAvatarHTML(m){
+  const url=avatarCache[m.user_id];
+  if(url) return `<div class="msg-avatar" style="background-image:url('${escapeAttr(url)}')"></div>`;
+  const av=avatarFor(m.author_name, m.author_handle);
+  return `<div class="msg-avatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+}
+function applyAvatar(uid){
+  const url=avatarCache[uid]; if(!uid||!url) return;
+  document.querySelectorAll('.msg[data-uid="'+uid+'"] .msg-avatar').forEach(el=>{
+    el.textContent=''; el.style.background=''; el.style.backgroundImage="url('"+url+"')";
+  });
+}
+async function ensureAvatar(uid){
+  if(!uid || (uid in avatarCache)) return;
+  avatarCache[uid]=null;   // 재요청 방지
+  try{ const { data } = await sb.from('profiles').select('avatar_url').eq('id', uid).single(); avatarCache[uid]=(data&&data.avatar_url)?data.avatar_url:null; }catch(e){}
+  applyAvatar(uid);
+}
+async function prefetchAvatars(ids){
+  const need=[...new Set((ids||[]).filter(Boolean))].filter(u=>!(u in avatarCache));
+  if(!need.length) return;
+  try{
+    const { data } = await sb.from('profiles').select('id,avatar_url').in('id', need);
+    (data||[]).forEach(p=>{ avatarCache[p.id]=p.avatar_url||null; });
+  }catch(e){}
+  need.forEach(u=>{ if(!(u in avatarCache)) avatarCache[u]=null; });
+}
+
 async function loadMessages(){
   const log=$('#chatLog'); if(!log) return;
   try{
@@ -1278,6 +1310,7 @@ async function loadMessages(){
     const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
     await loadReactions(rows.map(m=>m.id));
+    await prefetchAvatars(rows.map(m=>m.user_id));
     rows.forEach(m=>appendMessage(m,false));
     scrollChatBottom();
   }catch(e){ log.innerHTML='<div class="chat-empty">메시지를 불러오지 못했습니다. (DB 설정 09_community_chat.sql 실행 여부 확인)</div>'; }
@@ -1289,11 +1322,10 @@ function appendMessage(m, doScroll=true){
   if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
   const mine=(state.user && m.user_id===state.user.id);
   const who=escapeHtml(m.author_name || m.author_handle || '익명');
-  const av=avatarFor(m.author_name, m.author_handle);
   const el=document.createElement('div');
-  el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id);
+  el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
   el.innerHTML=`
-    <div class="msg-avatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>
+    ${msgAvatarHTML(m)}
     <div class="msg-main">
       <div class="msg-who">${who}</div>
       <div class="msg-bubble-row">
@@ -1303,6 +1335,7 @@ function appendMessage(m, doScroll=true){
       <div class="msg-reactions" data-mid="${m.id}"></div>
     </div>`;
   log.appendChild(el);
+  if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
   renderMath(el.querySelector('.msg-bubble'));
   renderReactions(m.id);
   if(doScroll) scrollChatBottom();
