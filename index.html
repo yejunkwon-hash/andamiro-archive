@@ -117,6 +117,29 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .ce-del,.ce-save,.ce-add button{background:var(--accent);color:#fff;}
 .ce-lock{margin-left:auto;font-size:11px;color:var(--text-dim);}
 .ce-edit{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);}
+.dir-top{display:flex;align-items:center;gap:8px;}
+.dir-searchwrap{display:flex;align-items:center;gap:6px;border:1px solid var(--border);border-radius:9px;padding:7px 11px;background:var(--card);color:var(--text-dim);min-width:210px;}
+.dir-searchwrap input{border:none;outline:none;background:transparent;color:var(--text);font-size:14px;width:100%;}
+.dir-filter{border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0 4px;background:var(--card);display:flex;flex-direction:column;gap:12px;}
+.dir-fgroup{display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+.dir-flabel{font-weight:800;font-size:13px;color:var(--text);min-width:48px;padding-top:5px;}
+.dir-sort{display:flex;gap:6px;flex-wrap:wrap;}
+.dir-chip{border:1px solid var(--border);background:var(--card);color:var(--text-dim);border-radius:20px;padding:5px 13px;font-size:12.5px;font-weight:700;cursor:pointer;}
+.dir-chip.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.dir-clubs{display:flex;gap:6px 14px;flex-wrap:wrap;}
+.dir-check{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text);cursor:pointer;}
+.dir-check input{accent-color:var(--accent);}
+.dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:12px;}
+.dir-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);text-decoration:none;color:var(--text);transition:box-shadow .15s,transform .15s,border-color .15s;}
+.dir-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.10);transform:translateY(-2px);border-color:var(--accent);}
+.dir-ava{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
+.dir-info{padding:9px 11px 11px;}
+.dir-name{font-weight:800;font-size:14.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.dir-handle{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;}
+.dir-metarow{display:flex;align-items:center;gap:6px;margin-top:7px;}
+.dir-no{font-size:11px;font-weight:800;color:var(--accent);}
+.dir-club{font-size:10.5px;color:var(--text-dim);border:1px solid var(--border);border-radius:8px;padding:0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:560px){ .dir-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;} .dir-searchwrap{min-width:150px;} }
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
 #userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .um-trigger{position:relative;}
@@ -432,6 +455,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
+    <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <div class="usermenu" id="usermenu">
@@ -1155,6 +1179,97 @@ async function renderMemberProfile(id){
   window.scrollTo(0,0);
 }
 
+/* ================== 회원 조회 (디렉터리 · 모든 회원) ================== */
+const dir={ data:[], clubNames:[], q:'', sort:'no_asc', selClubs:new Set() };
+async function renderDirectory(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>회원 조회</h1>
+      <div class="dir-top">
+        <button id="dirFilterBtn" class="btn ghost">필터</button>
+        <div class="dir-searchwrap">
+          <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <input id="dirSearch" type="text" placeholder="이름 · 활동명 · 회원번호 검색" autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <div class="doc-meta" id="dirCount">불러오는 중…</div>
+    <div class="dir-filter" id="dirFilter" style="display:none"></div>
+    <div class="dir-grid" id="dirGrid"><div class="club-empty" style="padding:12px">불러오는 중…</div></div>`;
+  // 데이터 로드
+  try{ const { data } = await sb.from('profiles').select('id,member_no,name,handle,club,avatar_url'); dir.data=data||[]; }catch(e){ dir.data=[]; }
+  let clubs=[]; try{ const { data } = await sb.from('clubs').select('name,is_none'); clubs=data||[]; }catch(e){}
+  // 동아리 목록: 테이블 + 목록외(프로필에만 있는 값), 무소속 맨 뒤
+  const tableNames=clubs.filter(c=>!c.is_none).map(c=>c.name);
+  const orphan=[...new Set(dir.data.map(m=>m.club||'무소속'))].filter(n=>n!=='무소속' && !tableNames.includes(n));
+  dir.clubNames=[...tableNames.sort((a,b)=>a.localeCompare(b,'ko')), ...orphan.sort((a,b)=>a.localeCompare(b,'ko')), '무소속'];
+  // 필터 패널
+  $('#dirFilter').innerHTML=`
+    <div class="dir-fgroup">
+      <span class="dir-flabel">정렬</span>
+      <div class="dir-sort">
+        <button class="dir-chip on" data-sort="no_asc">회원번호 ↑</button>
+        <button class="dir-chip" data-sort="no_desc">회원번호 ↓</button>
+        <button class="dir-chip" data-sort="name_asc">이름 ↑</button>
+        <button class="dir-chip" data-sort="name_desc">이름 ↓</button>
+      </div>
+    </div>
+    <div class="dir-fgroup">
+      <span class="dir-flabel">동아리</span>
+      <div class="dir-clubs">
+        ${dir.clubNames.map(n=>`<label class="dir-check"><input type="checkbox" value="${escapeAttr(n)}">${escapeHtml(n)}</label>`).join('')}
+      </div>
+    </div>`;
+  // 바인딩
+  $('#dirSearch').addEventListener('input', e=>{ dir.q=e.target.value; renderDirGrid(); });
+  $('#dirFilterBtn').onclick=()=>{ const f=$('#dirFilter'); f.style.display=(f.style.display==='none')?'block':'none'; };
+  $('#dirFilter').querySelectorAll('.dir-chip').forEach(b=>b.onclick=()=>{
+    $('#dirFilter').querySelectorAll('.dir-chip').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); dir.sort=b.dataset.sort; renderDirGrid();
+  });
+  $('#dirFilter').querySelectorAll('.dir-clubs input').forEach(c=>c.onchange=()=>{
+    if(c.checked) dir.selClubs.add(c.value); else dir.selClubs.delete(c.value);
+    renderDirGrid();
+  });
+  renderDirGrid();
+  window.scrollTo(0,0);
+}
+function dirMatch(m, q){
+  q=(q||'').trim(); if(!q) return true;
+  const strip=s=>String(s||'').toLowerCase().replace(/\s+/g,'');
+  const nq = (typeof _norm==='function') ? _norm(q) : strip(q);
+  const name = (typeof _norm==='function') ? _norm(m.name||'') : strip(m.name);
+  const handle = (typeof _norm==='function') ? _norm(m.handle||'') : strip(m.handle);
+  const no = String(m.member_no||'');
+  return (nq && (name.includes(nq) || handle.includes(nq))) || no.includes(strip(q)) || ('#'+no).includes(strip(q));
+}
+function renderDirGrid(){
+  const grid=$('#dirGrid'); if(!grid) return;
+  let arr=dir.data.filter(m=>dirMatch(m, dir.q));
+  if(dir.selClubs.size) arr=arr.filter(m=>dir.selClubs.has(m.club||'무소속'));
+  const byNo=(x,y)=>(x.member_no||1e9)-(y.member_no||1e9);
+  const byName=(x,y)=>String(x.name||'').localeCompare(String(y.name||''),'ko');
+  if(dir.sort==='no_asc') arr.sort(byNo);
+  else if(dir.sort==='no_desc') arr.sort((x,y)=>byNo(y,x));
+  else if(dir.sort==='name_asc') arr.sort(byName);
+  else if(dir.sort==='name_desc') arr.sort((x,y)=>byName(y,x));
+  const cnt=$('#dirCount'); if(cnt) cnt.textContent='전체 '+dir.data.length+'명'+(arr.length!==dir.data.length?(' · 표시 '+arr.length+'명'):'');
+  if(!arr.length){ grid.innerHTML='<div class="club-empty" style="padding:16px">조건에 맞는 회원이 없습니다.</div>'; return; }
+  grid.innerHTML=arr.map(m=>{
+    const av=avatarFor(m.name, m.handle);
+    const ava = m.avatar_url
+      ? `<div class="dir-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></div>`
+      : `<div class="dir-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+    return `<a class="dir-card" href="#member/${m.id}">
+      ${ava}
+      <div class="dir-info">
+        <div class="dir-name">${escapeHtml(m.name||'-')}</div>
+        <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
+        <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span></div>
+      </div>
+    </a>`;
+  }).join('');
+}
+
 /* ================== 대문 (랜딩) ================== */
 const LANDING_CATS = [
   { name:'동아리', items:[ {key:'home', title:'안다미로', desc:'동아리 소개·연혁·활동'} ] },
@@ -1636,9 +1751,10 @@ function route(){
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
-  const fullWidthPages=['community','admin','requests','health','password','me'];
+  const fullWidthPages=['community','admin','requests','health','password','me','directory'];
   railReserve(!fullWidthPages.includes(key) && !isMember);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
+  if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
@@ -1689,6 +1805,7 @@ $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ locatio
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#community'; };
+$('#directoryBtn').onclick=()=>{ location.hash='#directory'; };
 $('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
 /* 상단 검색: 한글 자모 분해 부분일치 + 호버 시 랜덤 추천 */
 const searchBox=$('#search');
