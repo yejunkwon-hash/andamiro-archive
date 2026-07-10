@@ -55,6 +55,23 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .seg-opt:not(.on):not(:disabled):hover{background:var(--box-bg);color:var(--text);}
 .seg-locked .seg-opt{cursor:not-allowed;opacity:.8;}
 .seg-me{font-size:11px;color:var(--text-dim);margin-left:6px;vertical-align:middle;}
+.mlink{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700;}
+.mlink:hover{text-decoration:underline;}
+.profile-wrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
+.profile-main{flex:1;min-width:300px;}
+.profile-side{width:290px;flex:none;}
+.profile-top{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
+.profile-ava{width:96px;height:96px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:800;flex:none;user-select:none;}
+.profile-headline{min-width:0;}
+.profile-name{font-size:22px;font-weight:800;color:var(--text);}
+.profile-handle{font-size:14px;font-weight:500;color:var(--text-dim);}
+.profile-sub{font-size:13px;color:var(--text-dim);margin-top:5px;display:flex;align-items:center;gap:6px;}
+.role-chip{background:var(--accent);color:#fff;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;}
+.profile-table{max-width:520px;}
+.profile-side .side-head{font-weight:800;color:var(--accent);margin-bottom:8px;}
+.hh-first{background:var(--box-bg);color:var(--accent);border:1px solid var(--border);border-radius:8px;font-size:10px;padding:0 6px;margin-left:4px;}
+.muted{color:var(--text-dim);}
+@media(max-width:720px){ .profile-side{width:100%;} }
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
 #userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .um-trigger{position:relative;}
@@ -696,7 +713,7 @@ async function renderAdmin(){
     <tr>
       <td class="y">${ex.no??'-'}</td>
       <td>${escapeHtml(m.email||'')}</td>
-      <td>${escapeHtml(m.name||'-')}</td>
+      <td><a class="mlink" href="#member/${m.id}">${escapeHtml(m.name||'-')}</a></td>
       <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
       <td>${escapeHtml(ex.club||'무소속')}</td>
@@ -875,6 +892,58 @@ async function renderMe(){
     </table>
     <div class="doc-meta">이름·활동명·기수 수정이 필요하면 관리자에게 문의하세요. 비밀번호는 상단 메뉴 → 비밀번호 변경에서 바꿀 수 있어요.</div>`;
   $('#meBack').onclick=()=>{ location.hash='#home'; };
+  window.scrollTo(0,0);
+}
+
+/* ================== 회원 프로필 (공개 · 모든 회원 열람) ================== */
+async function renderMemberProfile(id){
+  if(!id){ location.hash='#home'; return; }
+  let p=null;
+  try{ const { data } = await sb.rpc('member_profile', { target:id }); p = Array.isArray(data)?(data[0]||null):(data||null); }catch(e){}
+  if(!p){
+    $('#doc').innerHTML='<div class="doc-head"><h1>회원 프로필</h1><div class="tabs"><button id="mpBack">[뒤로]</button></div></div><p>회원을 찾을 수 없습니다.</p>';
+    const b=$('#mpBack'); if(b) b.onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
+    return;
+  }
+  let hist=[];
+  try{ const { data:h } = await sb.from('handle_history').select('handle,changed_at').eq('user_id', id).order('changed_at',{ascending:true}); hist=h||[]; }catch(e){}
+  const av=avatarFor(p.name, p.handle);
+  const histRows = (hist.length ? hist : [{handle:p.handle, changed_at:p.created_at}]).map((h,i)=>
+    `<tr><td class="y">${fmtKST(h.changed_at)}</td><td>${escapeHtml(h.handle||'-')}${i===0?' <span class="hh-first">가입</span>':''}</td></tr>`).join('');
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>회원 프로필</h1>
+      <div class="tabs"><button id="mpBack">[뒤로]</button></div></div>
+    <div class="profile-wrap">
+      <section class="profile-main">
+        <div class="profile-top">
+          <div class="profile-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>
+          <div class="profile-headline">
+            <div class="profile-name">${escapeHtml(p.name||'-')} <span class="profile-handle">@${escapeHtml(p.handle||'-')}</span></div>
+            <div class="profile-sub">회원번호 #${p.member_no??'-'} · <span class="role-chip">${escapeHtml(p.role||'viewer')}</span></div>
+          </div>
+        </div>
+        <table class="wtable profile-table">
+          <tr><th style="width:120px">이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
+          <tr><th>활동명</th><td>${escapeHtml(p.handle||'-')}</td></tr>
+          <tr><th>소속</th><td>${escapeHtml(p.club||'무소속')}</td></tr>
+          <tr><th>기수</th><td>${p.cohort!=null?p.cohort+'기':'-'}</td></tr>
+          <tr><th>등급</th><td>${escapeHtml(p.role||'viewer')}</td></tr>
+          <tr><th>가입일</th><td>${fmtKST(p.created_at)}</td></tr>
+          <tr><th>최근 로그인</th><td>${fmtKST(p.last_sign_in_at)}</td></tr>
+          <tr><th>회원번호</th><td>#${p.member_no??'-'}</td></tr>
+          <tr><th>한줄 소개</th><td>${p.bio?escapeHtml(p.bio):'<span class="muted">아직 한줄 소개가 없어요.</span>'}</td></tr>
+        </table>
+      </section>
+      <aside class="profile-side">
+        <div class="side-head">활동명 변경 내역</div>
+        <table class="wtable">
+          <tr><th>날짜</th><th>활동명</th></tr>
+          ${histRows}
+        </table>
+        <div class="doc-meta">맨 윗줄이 가입 시점의 활동명입니다.</div>
+      </aside>
+    </div>`;
+  $('#mpBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
   window.scrollTo(0,0);
 }
 
@@ -1327,8 +1396,10 @@ function route(){
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
   const key=(location.hash||'#main').slice(1);
+  const isMember = key.startsWith('member/');
   const fullWidthPages=['community','admin','requests','health','password','me'];
-  railReserve(!fullWidthPages.includes(key));   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !isMember);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
