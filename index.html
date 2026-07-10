@@ -245,6 +245,10 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .modal-box{background:var(--card);border-radius:12px;padding:22px 22px 18px;max-width:340px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.35);}
 .modal-msg{font-size:16px;font-weight:800;color:var(--text);line-height:1.5;}
 .modal-sub{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
+.he-input{width:100%;box-sizing:border-box;margin-top:12px;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);font-family:inherit;}
+.he-input:focus{outline:none;border-color:var(--accent);}
+.he-msg{min-height:16px;font-size:12.5px;margin-top:6px;color:var(--text-dim);}
+.he-msg.err{color:var(--link-red);}
 .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
 .modal-btns button{border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;}
 .modal-cancel{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
@@ -484,7 +488,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-3.8 3.5-6 7.5-6s7.5 2.2 7.5 6"/></svg>
         </button>
         <div class="usermenu-drop" id="userdrop">
-          <a data-go="me">개인정보</a>
+          <a data-go="me">계정 정보</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
@@ -1128,8 +1132,8 @@ async function renderMe(){
     ? `<div class="me-avatar" id="meAvatar" style="background-image:url('${escapeAttr(p.avatar_url)}')"></div>`
     : `<div class="me-avatar" id="meAvatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>개인정보</h1>
-      <div class="tabs"><button id="meProfile">[내 프로필 보기]</button><button id="meBack">[문서로]</button></div></div>
+    <div class="doc-head"><h1>계정 정보</h1>
+      <div class="tabs"><button id="meHandleBtn">[활동명 변경]</button><button id="meProfile">[내 프로필 보기]</button><button id="meBack">[문서로]</button></div></div>
     <div class="me-wrap">
       <table class="wtable me-table" style="max-width:480px">
         <tr><th style="width:110px">회원번호</th><td>#${p.member_no??'-'}</td></tr>
@@ -1151,13 +1155,50 @@ async function renderMe(){
         <input type="file" id="meAvaFile" accept="image/*" style="display:none">
       </div>
     </div>
-    <div class="doc-meta">이름·활동명·기수 수정이 필요하면 관리자에게 문의하세요. 비밀번호는 상단 메뉴 → 비밀번호 변경에서 바꿀 수 있어요. 프로필 사진은 <b>10KB 미만</b> 이미지만 올릴 수 있어요.</div>`;
+    <div class="doc-meta">이름·기수 수정이 필요하면 관리자에게 문의하세요. <b>활동명</b>은 위 [활동명 변경]에서 직접 바꿀 수 있어요(다른 회원과 중복 불가). 비밀번호는 상단 메뉴 → 비밀번호 변경에서, 프로필 사진은 <b>10KB 미만</b> 이미지만 올릴 수 있어요.</div>`;
   $('#meBack').onclick=()=>{ location.hash='#home'; };
   $('#meProfile').onclick=()=>{ location.hash='#member/'+state.user.id; };
+  $('#meHandleBtn').onclick=()=>openHandleEditor(p.handle||'');
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
   window.scrollTo(0,0);
+}
+
+/* 활동명(handle) 변경 모달: 본인만, 중복 불가(서버 set_my_handle 검증), 변경내역 자동 기록 */
+function openHandleEditor(current){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box">
+    <div class="modal-msg">활동명 변경</div>
+    <div class="modal-sub">다른 회원과 겹치는 활동명은 사용할 수 없어요.</div>
+    <input class="he-input" id="heInput" type="text" maxlength="20" placeholder="새 활동명">
+    <div class="he-msg" id="heMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">변경</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  const inp=ov.querySelector('#heInput'), msg=ov.querySelector('#heMsg'), okb=ov.querySelector('.modal-ok');
+  inp.value=current||''; inp.focus(); inp.select();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const doSave=async()=>{
+    const v=inp.value.trim();
+    if(!v){ msg.textContent='활동명을 입력하세요.'; msg.className='he-msg err'; return; }
+    if(v===current){ close(); return; }
+    okb.disabled=true; okb.textContent='변경 중…';
+    try{
+      const { error } = await sb.rpc('set_my_handle', { p_handle: v });
+      if(error) throw error;
+      state.handle=v; renderUserbox();
+      close(); renderMe();
+    }catch(e){
+      const dup=/taken|duplicate|unique|exists|중복|이미/i.test(e.message||'');
+      msg.textContent = dup ? '이미 사용 중인 활동명이에요.' : ('변경 실패: '+(e.message||'')); msg.className='he-msg err';
+      okb.disabled=false; okb.textContent='변경';
+    }
+  };
+  okb.onclick=doSave;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSave(); });
 }
 
 /* 프로필 사진 업로드/제거 (10KB 미만, Supabase Storage: avatars 버킷) */
