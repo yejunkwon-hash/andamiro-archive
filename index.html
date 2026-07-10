@@ -83,6 +83,40 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .me-avatar-msg.err{color:var(--link-red);}
 .me-avatar-msg.ok{color:#1b7a2f;}
 @media(max-width:720px){ .me-avatar-box{width:100%;align-items:center;} }
+.club-sec{margin-top:28px;}
+.club-sec-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:10px;}
+.club-sec-head h2{font-size:17px;margin:0;color:var(--text);}
+.club-list{border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.club-item{border-bottom:1px solid var(--border);}
+.club-item:last-child{border-bottom:none;}
+.club-row{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;background:var(--card);}
+.club-row:hover{background:var(--box-bg);}
+.club-caret{color:var(--text-dim);font-size:12px;width:12px;flex:none;}
+.club-name{font-weight:700;color:var(--text);}
+.club-count{color:var(--text-dim);font-size:12px;margin-left:auto;flex:none;}
+.club-tag{font-size:10px;color:var(--text-dim);border:1px solid var(--border);border-radius:8px;padding:0 6px;}
+.club-members{padding:6px 12px 12px 30px;background:var(--box-bg);display:flex;flex-direction:column;gap:2px;}
+.club-mem{display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:8px;text-decoration:none;color:var(--text);}
+.club-mem:hover{background:var(--card);}
+.club-mem-ava{width:26px;height:26px;border-radius:7px;flex:none;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:800;background-size:cover;background-position:center;}
+.club-mem-t{font-size:13px;}
+.club-empty{color:var(--text-dim);font-size:12.5px;padding:4px 6px;}
+.ce-box{max-width:420px;}
+.ce-add{display:flex;gap:8px;margin:14px 0 6px;}
+.ce-add input{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text);}
+.ce-msg{font-size:12px;min-height:15px;}
+.ce-msg.err{color:var(--link-red);}
+.ce-msg.ok{color:#1b7a2f;}
+.ce-list{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px;}
+.ce-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
+.ce-row:last-child{border-bottom:none;}
+.ce-name{font-weight:600;color:var(--text);}
+.ce-btns{margin-left:auto;display:flex;gap:6px;}
+.ce-btns button,.ce-add button{border:none;border-radius:6px;padding:5px 11px;font-size:12px;font-weight:700;cursor:pointer;}
+.ce-rename,.ce-cancel{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
+.ce-del,.ce-save,.ce-add button{background:var(--accent);color:#fff;}
+.ce-lock{margin-left:auto;font-size:11px;color:var(--text-dim);}
+.ce-edit{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);}
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
 #userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .um-trigger{position:relative;}
@@ -749,14 +783,117 @@ async function renderAdmin(){
     <table class="wtable">
       <tr><th>번호</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>최근 로그인</th></tr>
       ${rows}
-    </table>`;
+    </table>
+    <div id="clubSection" class="club-sec"></div>`;
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
   $('#healthBtn').onclick=()=>{ location.hash='#health'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
+  renderClubSection();
   window.scrollTo(0,0);
+}
+
+/* ---- 동아리 목록 (admin) : 펼치면 소속 회원 프로필 링크 · 무소속 맨 아래 ---- */
+async function renderClubSection(){
+  const box=$('#clubSection'); if(!box) return;
+  let clubs=[], profs=[];
+  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('id,member_no,name,handle,club,avatar_url'); profs=data||[]; }catch(e){}
+  const byClub={}; profs.forEach(p=>{ const c=p.club||'무소속'; (byClub[c]=byClub[c]||[]).push(p); });
+  const tableByName={}; clubs.forEach(c=>{ tableByName[c.name]=c; });
+  const allNames=new Set([...clubs.map(c=>c.name), ...profs.map(p=>p.club||'무소속')]);
+  const names=[...allNames].filter(n=>n!=='무소속').sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  names.push('무소속');
+  const items=names.map(n=>{
+    const t=tableByName[n]; const inTable=!!t;
+    const mem=(byClub[n]||[]).slice().sort((a,b)=>(a.member_no||1e9)-(b.member_no||1e9));
+    const memHtml = mem.length ? mem.map(m=>{
+      const av=avatarFor(m.name,m.handle);
+      const ava = m.avatar_url
+        ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
+        : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
+      return `<a class="club-mem" href="#member/${m.id}">${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
+    }).join('') : '<div class="club-empty">소속 회원이 없습니다.</div>';
+    return `<div class="club-item">
+      <div class="club-row">
+        <span class="club-caret">▸</span>
+        <span class="club-name">${escapeHtml(n)}</span>${(!inTable && n!=='무소속')?'<span class="club-tag">목록 외</span>':''}
+        <span class="club-count">${mem.length}명</span>
+      </div>
+      <div class="club-members" style="display:none">${memHtml}</div>
+    </div>`;
+  }).join('');
+  box.innerHTML=`
+    <div class="club-sec-head"><h2>동아리 목록</h2><button class="btn ghost" id="clubEditBtn">동아리 목록 수정</button></div>
+    <div class="club-list">${items}</div>
+    <div class="doc-meta">동아리명을 눌러 소속 회원을 펼쳐볼 수 있어요. '목록 외'는 회원이 가입 때 직접 적었지만 목록에 아직 없는 이름이에요 — 수정에서 추가하면 관리됩니다.</div>`;
+  box.querySelectorAll('.club-row').forEach(r=>r.onclick=()=>{
+    const m=r.parentElement.querySelector('.club-members'); const open=m.style.display!=='none';
+    m.style.display=open?'none':'block'; r.querySelector('.club-caret').textContent=open?'▸':'▾';
+  });
+  $('#clubEditBtn').onclick=openClubEditor;
+}
+
+/* 동아리 목록 수정 모달 (추가 / 이름변경 / 삭제) */
+async function openClubEditor(){
+  let clubs=[];
+  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
+  clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
+  const rows=clubs.map(c=>c.is_none
+    ? `<div class="ce-row"><span class="ce-name">${escapeHtml(c.name)}</span><span class="ce-lock">고정</span></div>`
+    : `<div class="ce-row" data-id="${c.id}" data-name="${escapeAttr(c.name)}">
+         <span class="ce-name">${escapeHtml(c.name)}</span>
+         <span class="ce-btns"><button class="ce-rename">이름변경</button><button class="ce-del">삭제</button></span>
+       </div>`).join('');
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box ce-box">
+    <div class="modal-msg">동아리 목록 수정</div>
+    <div class="ce-add"><input id="ceNew" type="text" placeholder="새 동아리 이름" maxlength="40" autocomplete="off"><button id="ceAdd">추가</button></div>
+    <div class="ce-msg" id="ceMsg"></div>
+    <div class="ce-list">${rows||'<div class="club-empty" style="padding:10px">동아리가 없습니다.</div>'}</div>
+    <div class="modal-btns"><button class="modal-cancel" id="ceClose">닫기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const reopen=()=>{ ov.remove(); openClubEditor(); };
+  const close=()=>{ ov.remove(); renderClubSection(); };
+  const setMsg=(t,ok)=>{ const m=$('#ceMsg'); if(!m)return; m.textContent=t||''; m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
+  $('#ceClose').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  $('#ceAdd').onclick=async()=>{
+    const name=($('#ceNew').value||'').trim(); if(!name){ setMsg('이름을 입력하세요.'); return; }
+    const { error }=await sb.rpc('add_club',{ p_name:name });
+    if(error){ setMsg(error.message||'추가 실패'); return; }
+    reopen();
+  };
+  $('#ceNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#ceAdd').click(); } });
+  ov.querySelectorAll('.ce-del').forEach(b=>b.onclick=async()=>{
+    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
+    const ok=await confirmModal('"'+name+'" 동아리를 삭제할까요?','소속 회원은 모두 무소속으로 이동합니다.');
+    if(!ok) return;
+    showBlockingLoader('삭제하는 중…');
+    const { error }=await sb.rpc('delete_club',{ p_id:Number(id) });
+    hideBlockingLoader();
+    if(error){ setMsg(error.message||'삭제 실패'); return; }
+    reopen();
+  });
+  ov.querySelectorAll('.ce-rename').forEach(b=>b.onclick=()=>{
+    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
+    row.innerHTML=`<input class="ce-edit" type="text" value="${escapeAttr(name)}" maxlength="40" autocomplete="off"><span class="ce-btns"><button class="ce-save">저장</button><button class="ce-cancel">취소</button></span>`;
+    const inp=row.querySelector('.ce-edit'); inp.focus();
+    row.querySelector('.ce-cancel').onclick=reopen;
+    const doSave=async()=>{
+      const nn=(inp.value||'').trim(); if(!nn){ setMsg('이름을 입력하세요.'); return; }
+      showBlockingLoader('이름을 변경하는 중…');
+      const { error }=await sb.rpc('rename_club',{ p_id:Number(id), p_new:nn });
+      hideBlockingLoader();
+      if(error){ setMsg(error.message||'변경 실패'); return; }
+      reopen();
+    };
+    row.querySelector('.ce-save').onclick=doSave;
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doSave(); } });
+  });
 }
 async function setRole(id, role){
   const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
