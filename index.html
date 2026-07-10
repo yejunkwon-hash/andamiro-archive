@@ -72,6 +72,17 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .hh-first{background:var(--box-bg);color:var(--accent);border:1px solid var(--border);border-radius:8px;font-size:10px;padding:0 6px;margin-left:4px;}
 .muted{color:var(--text-dim);}
 @media(max-width:720px){ .profile-side{width:100%;} }
+.profile-ava{background-size:cover;background-position:center;}
+.me-wrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
+.me-table{flex:1;min-width:280px;}
+.me-avatar-box{width:190px;flex:none;display:flex;flex-direction:column;gap:10px;align-items:stretch;}
+.me-avatar{width:190px;height:190px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
+.me-avatar-btns{display:flex;flex-direction:column;gap:6px;}
+.me-avatar-btns .btn{padding:7px 10px;font-size:13px;}
+.me-avatar-msg{font-size:12px;min-height:16px;line-height:1.4;}
+.me-avatar-msg.err{color:var(--link-red);}
+.me-avatar-msg.ok{color:#1b7a2f;}
+@media(max-width:720px){ .me-avatar-box{width:100%;align-items:center;} }
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
 #userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .um-trigger{position:relative;}
@@ -877,22 +888,78 @@ async function savePassword(){
 /* ================== 개인정보 (본인) ================== */
 async function renderMe(){
   let p={};
-  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
   const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
+  const av=avatarFor(p.name, p.handle);
+  const avaInner = p.avatar_url
+    ? `<div class="me-avatar" id="meAvatar" style="background-image:url('${escapeAttr(p.avatar_url)}')"></div>`
+    : `<div class="me-avatar" id="meAvatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>개인정보</h1>
-      <div class="tabs"><button id="meBack">[문서로]</button></div></div>
-    <table class="wtable" style="max-width:480px">
-      <tr><th style="width:110px">이메일</th><td>${escapeHtml(p.email||state.email||'-')}</td></tr>
-      <tr><th>이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
-      <tr><th>활동명</th><td>${escapeHtml(p.handle||'-')}</td></tr>
-      <tr><th>기수</th><td>${p.cohort!=null?p.cohort+'기':'-'}</td></tr>
-      <tr><th>권한</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
-      <tr><th>가입일</th><td>${joined}</td></tr>
-    </table>
-    <div class="doc-meta">이름·활동명·기수 수정이 필요하면 관리자에게 문의하세요. 비밀번호는 상단 메뉴 → 비밀번호 변경에서 바꿀 수 있어요.</div>`;
+      <div class="tabs"><button id="meProfile">[내 프로필 보기]</button><button id="meBack">[문서로]</button></div></div>
+    <div class="me-wrap">
+      <table class="wtable me-table" style="max-width:480px">
+        <tr><th style="width:110px">회원번호</th><td>#${p.member_no??'-'}</td></tr>
+        <tr><th>이메일</th><td>${escapeHtml(p.email||state.email||'-')}</td></tr>
+        <tr><th>이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
+        <tr><th>활동명</th><td>${escapeHtml(p.handle||'-')}</td></tr>
+        <tr><th>소속</th><td>${escapeHtml(p.club||'무소속')}</td></tr>
+        <tr><th>기수</th><td>${p.cohort!=null?p.cohort+'기':'-'}</td></tr>
+        <tr><th>등급</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
+        <tr><th>가입일</th><td>${joined}</td></tr>
+      </table>
+      <div class="me-avatar-box">
+        ${avaInner}
+        <div class="me-avatar-btns">
+          <button class="btn ghost" id="meAvaChange">사진 변경</button>
+          <button class="btn ghost" id="meAvaRemove">현재 사진 제거</button>
+        </div>
+        <div class="me-avatar-msg" id="meAvaMsg"></div>
+        <input type="file" id="meAvaFile" accept="image/*" style="display:none">
+      </div>
+    </div>
+    <div class="doc-meta">이름·활동명·기수 수정이 필요하면 관리자에게 문의하세요. 비밀번호는 상단 메뉴 → 비밀번호 변경에서 바꿀 수 있어요. 프로필 사진은 <b>10KB 미만</b> 이미지만 올릴 수 있어요.</div>`;
   $('#meBack').onclick=()=>{ location.hash='#home'; };
+  $('#meProfile').onclick=()=>{ location.hash='#member/'+state.user.id; };
+  $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
+  $('#meAvaFile').onchange=onAvatarFile;
+  $('#meAvaRemove').onclick=removeAvatar;
   window.scrollTo(0,0);
+}
+
+/* 프로필 사진 업로드/제거 (10KB 미만, Supabase Storage: avatars 버킷) */
+const AVA_MAX = 10*1024;
+async function onAvatarFile(e){
+  const msg=$('#meAvaMsg'); const file=e.target.files&&e.target.files[0]; e.target.value='';
+  if(!file) return;
+  if(!/^image\//.test(file.type||'')){ msg.className='me-avatar-msg err'; msg.textContent='이미지 파일만 올릴 수 있어요.'; return; }
+  if(file.size > AVA_MAX){ msg.className='me-avatar-msg err'; msg.textContent='사진의 용량은 10kb보다 작아야 합니다.'; return; }
+  msg.className='me-avatar-msg'; msg.textContent='업로드 중…';
+  try{
+    const path=state.user.id+'/avatar';
+    const up=await sb.storage.from('avatars').upload(path, file, { upsert:true, contentType:file.type, cacheControl:'0' });
+    if(up.error) throw up.error;
+    const pub=sb.storage.from('avatars').getPublicUrl(path);
+    const base=(pub&&pub.data&&pub.data.publicUrl)?pub.data.publicUrl:'';
+    const url=base+'?v='+Date.now();
+    const { error } = await sb.rpc('set_my_avatar', { p_url:url });
+    if(error) throw error;
+    const el=$('#meAvatar'); if(el){ el.textContent=''; el.style.background=''; el.style.backgroundImage="url('"+url+"')"; }
+    msg.className='me-avatar-msg ok'; msg.textContent='프로필 사진이 변경됐어요.';
+  }catch(err){ msg.className='me-avatar-msg err'; msg.textContent='업로드 실패: 스토리지(avatars 버킷·정책)를 확인해 주세요.'; }
+}
+async function removeAvatar(){
+  const msg=$('#meAvaMsg'); msg.className='me-avatar-msg'; msg.textContent='제거 중…';
+  try{
+    try{ await sb.storage.from('avatars').remove([state.user.id+'/avatar']); }catch(_){}
+    const { error } = await sb.rpc('set_my_avatar', { p_url:null });
+    if(error) throw error;
+    let nm=null, hd=null;
+    try{ const { data } = await sb.from('profiles').select('name,handle').eq('id',state.user.id).single(); nm=data&&data.name; hd=data&&data.handle; }catch(_){}
+    const av=avatarFor(nm, hd);
+    const el=$('#meAvatar'); if(el){ el.style.backgroundImage=''; el.style.background=av.bg; el.textContent=av.ch; }
+    msg.className='me-avatar-msg ok'; msg.textContent='기본 사진으로 되돌렸어요.';
+  }catch(err){ msg.className='me-avatar-msg err'; msg.textContent='제거 실패: 잠시 후 다시 시도해 주세요.'; }
 }
 
 /* ================== 회원 프로필 (공개 · 모든 회원 열람) ================== */
@@ -916,7 +983,9 @@ async function renderMemberProfile(id){
     <div class="profile-wrap">
       <section class="profile-main">
         <div class="profile-top">
-          <div class="profile-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>
+          ${p.avatar_url
+            ? `<div class="profile-ava" style="background-image:url('${escapeAttr(p.avatar_url)}')"></div>`
+            : `<div class="profile-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`}
           <div class="profile-headline">
             <div class="profile-name">${escapeHtml(p.name||'-')} <span class="profile-handle">@${escapeHtml(p.handle||'-')}</span></div>
             <div class="profile-sub">회원번호 #${p.member_no??'-'} · <span class="role-chip">${escapeHtml(p.role||'viewer')}</span></div>
