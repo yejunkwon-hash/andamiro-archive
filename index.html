@@ -201,6 +201,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
 .msg-del{flex:none;align-self:center;margin-left:auto;border:1px solid var(--text-dim);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;line-height:1;padding:3px 7px;border-radius:6px;opacity:1;transition:border-color .15s,color .15s,background .15s;}
+.msg-system{text-align:center;color:var(--text-dim);font-size:13.5px;line-height:1.5;margin:10px 0;padding:0 12px;}
+.msg-system span{display:inline-block;background:var(--box-bg);border-radius:12px;padding:4px 12px;max-width:90%;}
 .msg-del:hover{color:var(--accent);border-color:var(--accent);background:var(--box-bg);}
 .msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
 .rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
@@ -248,6 +250,8 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .he-input:focus{outline:none;border-color:var(--accent);}
 .he-msg{min-height:16px;font-size:12.5px;margin-top:6px;color:var(--text-dim);}
 .he-msg.err{color:var(--link-red);}
+.nd-label{display:block;margin-top:12px;margin-bottom:2px;font-size:12.5px;font-weight:700;color:var(--text-dim);}
+.modal-box .he-input{margin-top:2px;}
 .handle-cell{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .handle-edit{flex:none;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text-dim);cursor:pointer;padding:0;transition:border-color .15s,color .15s,background .15s;}
 .handle-edit:hover{border-color:var(--accent);color:var(--accent);background:var(--box-bg);}
@@ -641,7 +645,7 @@ function renderRightRail(recent){
     + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'')
     + (isAdmin()?`<button class="addbtn trash-btn" id="railTrash">🗑 휴지통</button>`:'');
   rail.querySelectorAll('.rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
-  const add=$('#railAdd'); if(add) add.onclick=addDoc;
+  const add=$('#railAdd'); if(add) add.onclick=openNewDocModal;
   const tr=$('#railTrash'); if(tr) tr.onclick=()=>{ location.hash='#trash'; };
 }
 
@@ -724,6 +728,8 @@ function enterEdit(doc){
   $('#doc').innerHTML = `
     <div class="doc-head"><h1>문서 편집</h1></div>
     <div class="editor">
+      <label>문서 주소 <span class="hint">(영문 소문자·숫자·-·_, 중복 불가 · 변경 시 링크가 바뀝니다)</span></label>
+      <input id="e-key" value="${escapeAttr(doc.key||'')}">
       <label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}">
       <label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}">
       <label>안내상자 <span class="hint">(문서 상단 회색 박스, HTML 가능·선택)</span></label>
@@ -762,19 +768,64 @@ async function saveDoc(key){
   };
   $('#saveBtn').disabled=true;
   const { error } = await sb.from('documents').update(payload).eq('key', key);
+  if(error){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
+  // 주소(key) 변경: editor·admin·owner, 값이 바뀐 경우
+  let finalKey = key;
+  const keyEl = $('#e-key');
+  if(canEdit() && keyEl){
+    const newKey=(keyEl.value||'').trim().toLowerCase();
+    if(newKey && newKey!==key){
+      if(!/^[a-z0-9_-]+$/.test(newKey)){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
+      const { error:rerr } = await sb.rpc('rename_document', { p_old:key, p_new:newKey });
+      if(rerr){ $('#saveBtn').disabled=false; const dup=/exist|taken|duplicate|unique|중복|이미/i.test(rerr.message||''); msg.className='msg err'; msg.textContent = dup ? '이미 사용 중인 주소예요.' : ('주소 변경 실패: '+rerr.message); return; }
+      finalKey=newKey;
+    }
+  }
   $('#saveBtn').disabled=false;
-  if(error){ msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
-  await loadDocs(); await renderDoc(key);   // 저장 시 트리거가 이전 버전을 자동 백업
+  await loadDocs();
+  if(finalKey!==key){ location.hash='#'+finalKey; }   // 주소 변경 시 URL도 갱신(route→renderDoc)
+  else { await renderDoc(finalKey); }                  // 저장 시 트리거가 이전 버전을 자동 백업
 }
-async function addDoc(){
-  const key=(prompt('새 문서의 주소(영문 소문자, 예: history)')||'').trim().toLowerCase();
-  if(!key) return;
-  if(!/^[a-z0-9_-]+$/.test(key)){ alert('주소는 영문 소문자·숫자·-·_ 만 가능해요.'); return; }
-  const title=(prompt('문서 제목')||'').trim(); if(!title) return;
-  const { error } = await sb.from('documents').insert({
-    key, title, body:'<h2>개요</h2>\n<p>내용을 작성하세요.</p>', updated_by: state.user.id });
-  if(error){ alert('생성 실패: '+error.message); return; }
-  await loadDocs(); location.hash='#'+key;
+/* 새 문서 만들기: 화면 중앙 모달(주소+제목). 주소 중복 불가(서버 create_document가 최종 검증). admin·owner. */
+function openNewDocModal(){
+  if(!canEdit()) return;
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box">
+    <div class="modal-msg">새 문서 만들기</div>
+    <div class="modal-sub">문서 주소는 영문 소문자·숫자·-·_ 만 쓸 수 있고, 다른 문서와 중복될 수 없어요.</div>
+    <label class="nd-label">문서 주소</label>
+    <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off">
+    <label class="nd-label">문서 제목</label>
+    <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
+    <div class="he-msg" id="ndMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  const key=ov.querySelector('#ndKey'), title=ov.querySelector('#ndTitle'), msg=ov.querySelector('#ndMsg'), okb=ov.querySelector('.modal-ok');
+  key.focus();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const doCreate=async()=>{
+    const k=key.value.trim().toLowerCase(), t=title.value.trim();
+    msg.className='he-msg';
+    if(!/^[a-z0-9_-]+$/.test(k)){ msg.className='he-msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
+    if(!t){ msg.className='he-msg err'; msg.textContent='문서 제목을 입력하세요.'; return; }
+    okb.disabled=true; okb.textContent='만드는 중…';
+    try{
+      const { data:ex } = await sb.from('documents').select('key').eq('key', k).maybeSingle();   // 빠른 중복 확인
+      if(ex){ throw { message:'address already exists' }; }
+      const { error } = await sb.rpc('create_document', { p_key:k, p_title:t });
+      if(error) throw error;
+      close(); await loadDocs(); location.hash='#'+k;
+    }catch(e){
+      const dup=/exist|taken|duplicate|unique|중복|이미/i.test(e.message||'');
+      msg.className='he-msg err'; msg.textContent = dup ? '이미 사용 중인 주소예요.' : ('생성 실패: '+(e.message||''));
+      okb.disabled=false; okb.textContent='만들기';
+    }
+  };
+  okb.onclick=doCreate;
+  [key,title].forEach(inp=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doCreate(); }));
 }
 async function deleteDoc(doc){
   if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
@@ -848,9 +899,13 @@ async function showHistory(key){
   const { data: revs, error } = await sb.from('revisions').select('*').eq('doc_key', key).order('edited_at',{ascending:false});
   if(error){ alert('이력을 불러오지 못했습니다: '+error.message); return; }
   const MONTH = 30*24*3600*1000;
+  const eids=[...new Set((revs||[]).map(r=>r.edited_by).filter(Boolean))];
+  const pmap={};
+  if(eids.length){ try{ const { data } = await sb.from('members_public').select('id,name,handle').in('id', eids);
+    (data||[]).forEach(p=>{ pmap[p.id]=p.handle||p.name||''; }); }catch(e){} }
   const rows = (revs||[]).map(r=>{
     const within = (Date.now()-new Date(r.edited_at).getTime()) <= MONTH;
-    const who = r.edited_by ? r.edited_by.slice(0,8) : '알 수 없음';
+    const who = r.edited_by ? escapeHtml(pmap[r.edited_by] || r.edited_by.slice(0,8)) : '알 수 없음';
     const rb = canEdit()
       ? (within ? `<button class="btn ghost" data-id="${r.id}">이 버전으로 되돌리기</button>`
                 : `<span class="expired">30일 경과 · 롤백 불가</span>`)
@@ -1263,6 +1318,7 @@ function openHandleEditor(current){
       const { error } = await sb.rpc('set_my_handle', { p_handle: v });
       if(error) throw error;
       state.handle=v; renderUserbox();
+      if(state.user){ nameCache[state.user.id]={handle:v,name:state.name||''}; applyName(state.user.id); }
       close(); renderMe();
     }catch(e){
       const dup=/taken|duplicate|unique|exists|중복|이미/i.test(e.message||'');
@@ -1632,10 +1688,22 @@ function avatarFor(name, handle){
 
 /* 채팅 아바타: user_id -> avatar_url 캐시 (프로필 사진 반영) */
 const avatarCache = {};
+/* 채팅 표시명: user_id -> {handle,name} 라이브 캐시 (활동명 변경 즉시 반영) */
+const nameCache = {};
+function liveWho(m){
+  const p=nameCache[m.user_id];
+  return escapeHtml((p&&(p.handle||p.name)) || m.author_handle || m.author_name || '익명');
+}
+function applyName(uid){
+  const p=nameCache[uid]; if(!uid||!p) return;
+  const who=(p.handle||p.name||'익명');
+  document.querySelectorAll('.msg[data-uid="'+uid+'"] .msg-who').forEach(el=>{ el.textContent=who; });
+}
 function msgAvatarHTML(m){
   const url=avatarCache[m.user_id];
   if(url) return `<div class="msg-avatar" style="background-image:url('${escapeAttr(url)}')"></div>`;
-  const av=avatarFor(m.author_name, m.author_handle);
+  const p=nameCache[m.user_id];
+  const av=avatarFor((p&&p.name)||m.author_name, (p&&p.handle)||m.author_handle);
   return `<div class="msg-avatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
 }
 function applyAvatar(uid){
@@ -1647,15 +1715,19 @@ function applyAvatar(uid){
 async function ensureAvatar(uid){
   if(!uid || (uid in avatarCache)) return;
   avatarCache[uid]=null;   // 재요청 방지
-  try{ const { data } = await sb.from('members_public').select('avatar_url').eq('id', uid).single(); avatarCache[uid]=(data&&data.avatar_url)?data.avatar_url:null; }catch(e){}
-  applyAvatar(uid);
+  try{
+    const { data } = await sb.from('members_public').select('name,handle,avatar_url').eq('id', uid).single();
+    avatarCache[uid]=(data&&data.avatar_url)?data.avatar_url:null;
+    if(data) nameCache[uid]={handle:data.handle||'',name:data.name||''};
+  }catch(e){}
+  applyAvatar(uid); applyName(uid);
 }
 async function prefetchAvatars(ids){
   const need=[...new Set((ids||[]).filter(Boolean))].filter(u=>!(u in avatarCache));
   if(!need.length) return;
   try{
-    const { data } = await sb.from('members_public').select('id,avatar_url').in('id', need);
-    (data||[]).forEach(p=>{ avatarCache[p.id]=p.avatar_url||null; });
+    const { data } = await sb.from('members_public').select('id,name,handle,avatar_url').in('id', need);
+    (data||[]).forEach(p=>{ avatarCache[p.id]=p.avatar_url||null; nameCache[p.id]={handle:p.handle||'',name:p.name||''}; });
   }catch(e){}
   need.forEach(u=>{ if(!(u in avatarCache)) avatarCache[u]=null; });
 }
@@ -1664,7 +1736,7 @@ async function loadMessages(){
   const log=$('#chatLog'); if(!log) return;
   try{
     const { data, error } = await sb.from('messages')
-      .select('id,user_id,author_name,author_handle,body,created_at')
+      .select('id,user_id,author_name,author_handle,body,created_at,kind')
       .order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
     const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
@@ -1680,10 +1752,18 @@ async function loadMessages(){
 function appendMessage(m, doScroll=true){
   const log=$('#chatLog'); if(!log) return;
   const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
-  if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
+  if(log.querySelector('[data-mid="'+m.id+'"]')) return;   // 중복 방지(일반·시스템 공통)
+  if(m.kind==='system'){                                   // 시스템 공지: 회색·중앙 정렬
+    const s=document.createElement('div');
+    s.className='msg-system'; s.setAttribute('data-mid', m.id);
+    s.innerHTML=`<span>${escapeHtml(m.body||'')}</span>`;
+    log.appendChild(s);
+    if(doScroll) scrollChatBottom();
+    return;
+  }
   const mine=(state.user && m.user_id===state.user.id);
   const canDel = canDeleteMsg(m);   // admin·owner만 + 내 서열 > 작성자 서열
-  const who=escapeHtml(m.author_handle || m.author_name || '익명');   // 활동명 우선
+  const who=liveWho(m);             // 활동명 라이브 조회(변경 즉시 반영), 폴백=저장 스냅샷
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
   el.innerHTML=`
@@ -1877,7 +1957,7 @@ function subscribeChat(){
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>appendMessage(payload.new, true))
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
       const id=payload.old&&payload.old.id;
-      if(id!=null){ const el=document.querySelector('.msg[data-mid="'+id+'"]'); if(el) el.remove(); }
+      if(id!=null){ const el=document.querySelector('[data-mid="'+id+'"]'); if(el) el.remove(); }
     })
     .on('postgres_changes', { event:'*', schema:'public', table:'message_reactions' }, payload=>{
       const mid=(payload.new&&payload.new.message_id) || (payload.old&&payload.old.message_id);
