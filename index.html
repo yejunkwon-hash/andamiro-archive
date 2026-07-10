@@ -55,6 +55,10 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .seg-opt:not(.on):not(:disabled):hover{background:var(--box-bg);color:var(--text);}
 .seg-locked .seg-opt{cursor:not-allowed;opacity:.8;}
 .seg-me{font-size:11px;color:var(--text-dim);margin-left:6px;vertical-align:middle;}
+.club-sel{max-width:140px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text);font-size:12.5px;font-family:inherit;cursor:pointer;}
+.club-sel:hover{border-color:var(--accent);}
+.club-sel:disabled{opacity:.6;cursor:default;}
+.club-sel.ok{border-color:#1b7a2f;box-shadow:0 0 0 2px rgba(27,122,47,.18);}
 .seg-opt.seg-owner{color:var(--accent);}
 .seg-opt.seg-owner.on{background:var(--accent);color:#fff;}
 .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#fdeaea;color:var(--accent);}
@@ -808,6 +812,28 @@ function memberSeg(m){
   return `<div class="seg" data-id="${m.id}">${btns}</div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>`;
 }
 
+/* 소속(동아리) 칸: owner는 드롭다운으로 배정, 그 외는 텍스트 표시 */
+function clubCell(id, cur, names){
+  cur = cur || '무소속';
+  if(!isOwner()) return escapeHtml(cur);
+  const opts = names.includes(cur) ? names : [...names, cur];   // '목록 외' 값도 선택 유지
+  const o = opts.map(n=>`<option value="${escapeAttr(n)}"${n===cur?' selected':''}>${escapeHtml(n)}</option>`).join('');
+  return `<select class="club-sel" data-id="${escapeAttr(id)}" data-prev="${escapeAttr(cur)}">${o}</select>`;
+}
+async function setMemberClub(id, club, sel){
+  const prev = sel.getAttribute('data-prev') || club;
+  sel.disabled=true;
+  try{
+    const { error } = await sb.rpc('set_member_club', { p_target:id, p_club:club });
+    if(error) throw error;
+    sel.setAttribute('data-prev', club);
+    sel.classList.add('ok'); setTimeout(()=>sel.classList.remove('ok'), 1200);
+  }catch(e){
+    sel.value=prev;
+    alert('소속 변경 실패: owner 권한과 동아리 목록을 확인하세요. (20_member_club.sql 실행 여부도 확인)');
+  }finally{ sel.disabled=false; }
+}
+
 async function renderAdmin(){
   const { data, error } = await sb.rpc('admin_list_members');
   if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
@@ -815,6 +841,13 @@ async function renderAdmin(){
   try{ const c=await sb.from('signup_requests').select('*',{count:'exact',head:true}).eq('status','pending'); pend=c.count||0; }catch(e){}
   let extra={};
   try{ const { data:pr } = await sb.from('profiles').select('id,member_no,club'); (pr||[]).forEach(p=>{ extra[p.id]={no:p.member_no, club:p.club}; }); }catch(e){}
+  let clubNames=[];
+  if(isOwner()){
+    try{ const { data:cl } = await sb.from('clubs').select('name,is_none');
+      const nn=(cl||[]).filter(c=>!c.is_none).map(c=>c.name).sort((a,b)=>a.localeCompare(b,'ko'));
+      clubNames=[...nn,'무소속'];
+    }catch(e){}
+  }
   const rows=(data||[]).map(m=>{ const ex=extra[m.id]||{}; return `
     <tr>
       <td class="y">${ex.no??'-'}</td>
@@ -822,7 +855,7 @@ async function renderAdmin(){
       <td><a class="mlink" href="#member/${m.id}">${escapeHtml(m.name||'-')}</a></td>
       <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
-      <td>${escapeHtml(ex.club||'무소속')}</td>
+      <td>${clubCell(m.id, ex.club, clubNames)}</td>
       <td>${memberSeg(m)}</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
     </tr>`; }).join('');
@@ -842,6 +875,7 @@ async function renderAdmin(){
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
+  $('#doc').querySelectorAll('.club-sel').forEach(sel=>sel.onchange=()=>setMemberClub(sel.dataset.id, sel.value, sel));
   renderClubSection();
   window.scrollTo(0,0);
 }
