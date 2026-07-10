@@ -189,7 +189,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
 .chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
 .msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
-.msg-main{min-width:0;display:flex;flex-direction:column;gap:3px;}
+.msg-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;}
 .msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
 .msg-who.go-profile{cursor:pointer;}
 .msg-who.go-profile:hover{color:var(--accent);text-decoration:underline;}
@@ -200,7 +200,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
-.msg-del{flex:none;border:1px solid var(--text-dim);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;line-height:1;padding:3px 7px;border-radius:6px;opacity:1;transition:border-color .15s,color .15s,background .15s;}
+.msg-del{flex:none;align-self:center;margin-left:auto;border:1px solid var(--text-dim);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;line-height:1;padding:3px 7px;border-radius:6px;opacity:1;transition:border-color .15s,color .15s,background .15s;}
 .msg-del:hover{color:var(--accent);border-color:var(--accent);background:var(--box-bg);}
 .msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
 .rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
@@ -214,11 +214,11 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .react-opt{border:none;background:transparent;font-size:17px;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;}
 .react-opt:hover{background:var(--box-bg);}
 .react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
-.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);}
+.chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
 .chat-input input{flex:1;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
 .chat-input button{border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
 .chat-input button:hover{filter:brightness(1.08);}
-.eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:48px;height:38px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;padding:0;}
+.eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:64px;height:54px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;padding:0;}
 .eye-btn:hover{border-color:var(--accent);}
 .eye-btn.on{border-color:var(--accent);color:var(--accent);background:var(--box-bg);}
 .chat-hint{display:flex;justify-content:flex-end;padding:2px 4px 0;}
@@ -318,6 +318,15 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .rightrail .recent{width:100%;box-sizing:border-box;}
 .rightrail .addbtn{display:block;width:100%;padding:9px;border:1px dashed var(--border-strong);background:var(--card);color:var(--accent);border-radius:8px;cursor:pointer;font-size:13px;font-weight:700;box-shadow:var(--shadow);}
 .rightrail .addbtn:hover{background:var(--box-bg);}
+.rightrail .addbtn.trash-btn{margin-top:2px;border-style:solid;border-color:var(--border-strong);color:var(--text-dim);}
+.rightrail .addbtn.trash-btn:hover{color:var(--text);background:var(--box-bg);}
+/* 휴지통 열람 모드: 다른 탭/이동 비활성화 + 문서 흑백 */
+body.trash-view .search,
+body.trash-view #directoryBtn,
+body.trash-view #communityBtn,
+body.trash-view #homeLink,
+body.trash-view .usermenu{pointer-events:none;opacity:.4;}
+.trash-doc{filter:grayscale(1);opacity:.92;}
 .search-results{position:absolute;top:36px;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;box-shadow:var(--shadow);overflow-y:auto;max-height:60vh;z-index:60;}
 .search-results a{display:block;padding:9px 12px;color:var(--text);font-size:13.5px;border-bottom:1px solid var(--border);cursor:pointer;}
 .search-results a:last-child{border-bottom:none;}
@@ -629,9 +638,11 @@ function renderRightRail(recent){
     ? recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('')
     : '<div class="rc-item" style="cursor:default;color:var(--text-dim)">최근 변경 없음</div>';
   rail.innerHTML = `<div class="recent"><div class="recent-h">최근 변경</div>${list}</div>`
-    + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'');
+    + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'')
+    + (isAdmin()?`<button class="addbtn trash-btn" id="railTrash">🗑 휴지통</button>`:'');
   rail.querySelectorAll('.rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
   const add=$('#railAdd'); if(add) add.onclick=addDoc;
+  const tr=$('#railTrash'); if(tr) tr.onclick=()=>{ location.hash='#trash'; };
 }
 
 async function renderDoc(key){
@@ -766,10 +777,70 @@ async function addDoc(){
   await loadDocs(); location.hash='#'+key;
 }
 async function deleteDoc(doc){
-  if(!confirm(`'${doc.title}' 문서를 삭제할까요? (이력도 함께 사라집니다)`)) return;
-  const { error } = await sb.from('documents').delete().eq('key', doc.key);
+  if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
+  const { error } = await sb.rpc('trash_document', { p_key: doc.key });
   if(error){ alert('삭제 실패: '+error.message); return; }
   await loadDocs(); location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home';
+}
+
+/* ================== 문서 휴지통 (admin+) ================== */
+async function renderTrash(){
+  document.body.classList.remove('trash-view');
+  let rows=[];
+  try{ const { data, error } = await sb.rpc('list_deleted_documents'); if(error) throw error; rows=data||[]; }
+  catch(e){ $('#doc').innerHTML='<div class="doc-head"><h1>🗑 휴지통</h1></div><p>불러오지 못했습니다: '+escapeHtml(e.message||'')+' (23_document_trash.sql 실행 여부 확인)</p>'; buildNav(null); railReserve(false); return; }
+  const body = rows.length ? rows.map(r=>`
+    <tr>
+      <td class="y">${fmtKST(r.deleted_at)}</td>
+      <td><b>${escapeHtml(r.title||r.key)}</b> <span class="muted">(${escapeHtml(r.key)})</span></td>
+      <td>${escapeHtml(r.deleter_handle||r.deleter_name||'-')}</td>
+      <td style="white-space:nowrap">
+        <button class="btn ghost" data-view="${r.id}">열람</button>
+        <button class="btn ghost" data-restore="${r.id}">복원</button>
+      </td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:18px">휴지통이 비어 있습니다.</td></tr>';
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>🗑 휴지통</h1>
+      <div class="tabs"><button id="trBack">[문서로]</button></div></div>
+    <div class="doc-meta">삭제된 문서 보관함 · admin 전용 · 총 ${rows.length}개</div>
+    <div class="notice">삭제된 문서는 여기 보관돼요. <b>열람</b>은 흑백 읽기 전용이며, <b>복원</b>하면 다시 정상 문서로 돌아갑니다.</div>
+    <table class="wtable">
+      <tr><th style="width:150px">삭제 일시</th><th>문서</th><th style="width:120px">삭제한 사람</th><th style="width:150px"></th></tr>
+      ${body}
+    </table>`;
+  $('#trBack').onclick=()=>{ location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home'; };
+  $('#doc').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#trash/'+b.dataset.view; });
+  $('#doc').querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>restoreDoc(b.dataset.restore));
+  buildNav(null); railReserve(false); window.scrollTo(0,0);
+}
+
+async function restoreDoc(id){
+  if(!confirm('이 문서를 복원할까요? 다시 정상 문서로 돌아갑니다.')) return;
+  const { error } = await sb.rpc('restore_document', { p_id: Number(id) });
+  if(error){ alert('복원 실패: '+error.message); return; }
+  await loadDocs();
+  document.body.classList.remove('trash-view');
+  location.hash='#trash';
+  renderTrash();   // 목록 갱신(해시가 이미 #trash면 hashchange가 안 뜨므로 직접 호출)
+}
+
+/* 휴지통 문서 열람: 흑백 읽기 전용 + 다른 탭 이동 비활성화(trash-view) */
+async function renderTrashDoc(id){
+  let d=null;
+  try{ const { data, error } = await sb.rpc('get_deleted_document', { p_id: Number(id) }); if(error) throw error; d = Array.isArray(data)?data[0]:data; }catch(e){}
+  if(!d){ location.hash='#trash'; return; }
+  const doc = d.data || {};
+  document.body.classList.add('trash-view');
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>🗑 ${escapeHtml(doc.title||d.title||'')}</h1>
+      <div class="tabs"><button id="trRestore" class="danger">[복원]</button><button id="trBack2">[휴지통으로]</button></div></div>
+    <div class="notice" style="border-left-color:var(--accent)">이 문서는 <b>휴지통</b>에 있는 삭제된 문서예요. <b>읽기 전용(흑백)</b>이며 삭제일: ${fmtKST(d.deleted_at)}. 복원하면 다시 정상 문서가 됩니다.</div>
+    <div class="trash-doc">
+      <div class="doc-body">${doc.body||'<p class="muted">(본문 없음)</p>'}</div>
+    </div>`;
+  $('#trRestore').onclick=()=>restoreDoc(id);
+  $('#trBack2').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#trash'; };
+  buildNav(null); railReserve(false); window.scrollTo(0,0);
 }
 
 /* ================== 역사 / 롤백 ================== */
@@ -1459,7 +1530,7 @@ async function renderCommunity(){
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="chat-input">
           <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습)">
-            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
+            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="60" height="43" aria-hidden="true">
               <path d="M4 18 Q24 5 44 18 Q24 31 4 18 Z"/>
               <circle cx="24" cy="18" r="7.5" fill="#C00000" fill-opacity="0.16"/>
               <circle cx="24" cy="18" r="3" fill="currentColor" stroke="none"/>
@@ -1951,11 +2022,15 @@ function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
+  document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
-  const fullWidthPages=['community','admin','requests','health','password','me','directory'];
-  railReserve(!fullWidthPages.includes(key) && !isMember);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  const isTrashDoc = key.startsWith('trash/');
+  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash'];
+  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
+  if(key==='trash'){ if(isAdmin()) renderTrash(); else location.hash='#home'; return; }
+  if(isTrashDoc){ if(isAdmin()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#home'; return; }
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
