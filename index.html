@@ -1507,7 +1507,9 @@ async function onAvatarFile(e){
   msg.className='me-avatar-msg'; msg.textContent='업로드 중…';
   try{
     const path=state.user.id+'/avatar';
-    const up=await sb.storage.from('avatars').upload(path, out.blob, { upsert:true, contentType:out.type, cacheControl:'0' });
+    // CDN 캐시 1년: 저장 URL에 ?v=업로드시각(아래)이 붙어 사진을 바꾸면 URL이 달라지므로,
+    // 길게 캐시해도 변경은 즉시 반영되고(새 URL=캐시 미스), 안 바뀐 동안은 CDN에서 바로 서빙(egress 절감).
+    const up=await sb.storage.from('avatars').upload(path, out.blob, { upsert:true, contentType:out.type, cacheControl:'31536000' });
     if(up.error) throw up.error;
     const pub=sb.storage.from('avatars').getPublicUrl(path);
     const base=(pub&&pub.data&&pub.data.publicUrl)?pub.data.publicUrl:'';
