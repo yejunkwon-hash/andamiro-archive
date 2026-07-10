@@ -478,9 +478,9 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
         <div class="usermenu-drop" id="userdrop">
           <a data-go="me">개인정보</a>
           <a data-go="password">비밀번호 변경</a>
+          <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
           <a data-go="health" id="dropHealth" style="display:none">시스템 점검</a>
-          <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
       </div>
@@ -576,9 +576,9 @@ function isOwner(){ return state.role==='owner'; }
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
   $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
-  $('#dropRequests').style.display = isAdmin() ? 'block' : 'none';
-  $('#dropHealth').style.display = isAdmin() ? 'block' : 'none';
-  $('#dropAdmin').style.display = isOwner() ? 'block' : 'none';
+  $('#dropRequests').style.display = isOwner() ? 'block' : 'none';
+  $('#dropHealth').style.display = isOwner() ? 'block' : 'none';
+  $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
 }
 
 /* ================== 문서 목록/로드 ================== */
@@ -789,7 +789,25 @@ async function doRollback(key, revId){
   await loadDocs(); await renderDoc(key);
 }
 
-/* ================== 회원 관리 (admin) ================== */
+/* ================== 회원 관리 (admin+) ================== */
+/* 세그먼트 렌더: owner=모든 회원(+양도), admin=viewer·editor 회원만(최대 admin). 본인 행은 잠금. */
+function memberSeg(m){
+  const base=['viewer','editor','admin'];
+  const btn=(r,cls,extra)=>`<button class="seg-opt${cls}${r==='owner'?' seg-owner':''}${m.role===r?' on':''}"${extra}>${r}</button>`;
+  if(m.id===state.user.id){
+    const btns=[...base,'owner'].map(r=>btn(r,'',' disabled')).join('');
+    return `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요">${btns}</div> <span class="seg-me">(나)</span>`;
+  }
+  const manageable = isOwner() || roleRank(m.role) <= ROLE_RANK.editor;   // admin은 viewer·editor만
+  if(!manageable){
+    const btns=base.map(r=>btn(r,'',' disabled')).join('');
+    return `<div class="seg seg-locked" title="admin은 viewer·editor 회원만 변경할 수 있어요">${btns}</div>`;
+  }
+  const list = isOwner() ? [...base,'owner'] : base;   // owner만 양도(owner) 옵션
+  const btns=list.map(r=>btn(r,'',` data-role="${r}"${r==='owner'?' title="owner 양도"':''}`)).join('');
+  return `<div class="seg" data-id="${m.id}">${btns}</div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>`;
+}
+
 async function renderAdmin(){
   const { data, error } = await sb.rpc('admin_list_members');
   if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
@@ -805,34 +823,22 @@ async function renderAdmin(){
       <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
       <td>${escapeHtml(ex.club||'무소속')}</td>
-      <td>${ m.id===state.user.id
-        ? `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요(양도는 상대 회원 행에서)">
-             <button class="seg-opt${m.role==='viewer'?' on':''}" disabled>viewer</button>
-             <button class="seg-opt${m.role==='editor'?' on':''}" disabled>editor</button>
-             <button class="seg-opt${m.role==='admin'?' on':''}" disabled>admin</button>
-             <button class="seg-opt${m.role==='owner'?' on':''}" disabled>owner</button>
-           </div> <span class="seg-me">(나)</span>`
-        : `<div class="seg" data-id="${m.id}">
-             <button class="seg-opt${m.role==='viewer'?' on':''}" data-role="viewer">viewer</button>
-             <button class="seg-opt${m.role==='editor'?' on':''}" data-role="editor">editor</button>
-             <button class="seg-opt${m.role==='admin'?' on':''}" data-role="admin">admin</button>
-             <button class="seg-opt seg-owner${m.role==='owner'?' on':''}" data-role="owner" title="owner 양도">owner</button>
-           </div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>` }</td>
+      <td>${memberSeg(m)}</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button><button id="backBtn2">[문서로]</button></div></div>
-    <div class="doc-meta">owner 전용 · 총 ${data?data.length:0}명</div>
-    <div class="notice">여기서는 <b>등급만</b> 변경할 수 있어요. 이름·활동명·기수는 가입 시 신청서 정보로 자동 표시됩니다. 본인 등급은 바꿀 수 없어요(잠김 방지).</div>
+      <div class="tabs">${isOwner()?`<button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button>`:''}<button id="backBtn2">[문서로]</button></div></div>
+    <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
+    <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원만(최대 admin까지), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <table class="wtable">
       <tr><th>번호</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>최근 로그인</th></tr>
       ${rows}
     </table>
     <div id="clubSection" class="club-sec"></div>`;
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
-  $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
-  $('#healthBtn').onclick=()=>{ location.hash='#health'; };
+  if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
+  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#health'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
@@ -943,17 +949,16 @@ async function openClubEditor(){
 async function setRole(id, role){
   const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
   if(role==='owner'){
-    const ok=await confirmModal('이 회원에게 owner 권한을 양도하시겠습니까?', '본인은 editor로 등급 하향됩니다. (되돌리려면 새 owner가 다시 양도해야 합니다.)', '양도');
+    const ok=await confirmModal('이 회원에게 owner 권한을 양도하시겠습니까?', '본인은 admin으로 등급 하향됩니다. (되돌리려면 새 owner가 다시 양도해야 합니다.)', '양도');
     if(!ok){ renderAdmin(); return; }
     if(note){ note.textContent='양도 중…'; note.style.color='var(--text-dim)'; }
     const { error } = await sb.rpc('transfer_owner', { p_target:id });
     if(error){ if(note){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; } return; }
-    state.role='editor'; renderUserbox();               // 본인은 이제 editor → 회원관리 접근 불가
-    alert('owner 권한을 양도했습니다. 본인 등급은 editor로 변경되었습니다.');
-    location.hash='#home';
+    state.role='admin'; renderUserbox();                 // 본인은 이제 admin
+    alert('owner 권한을 양도했습니다. 본인 등급은 admin으로 변경되었습니다.');
+    renderAdmin();                                        // 새 권한 기준으로 표 갱신
     return;
   }
-  if(role==='admin' && !confirm('이 회원을 admin 등급으로 올릴까요? 관리자 등급이 부여됩니다.')){ renderAdmin(); return; }
   if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
   const { error } = await sb.rpc('set_member_role', { p_target:id, p_role:role });
   if(error){ if(note){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; } return; }
@@ -1837,9 +1842,9 @@ function route(){
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
-  if(key==='admin'){ if(isOwner()) renderAdmin(); else location.hash='#home'; return; }
-  if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
-  if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
+  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
+  if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#home'; return; }
+  if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#home'; return; }
   if(key==='password'){ renderPassword(); return; }
   if(key==='me'){ renderMe(); return; }
   if(state.docs.length && !state.docs.find(d=>d.key===key)){ renderDoc(state.docs[0].key); return; }
