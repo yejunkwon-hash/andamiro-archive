@@ -1420,7 +1420,7 @@ async function renderMe(){
         <input type="file" id="meAvaFile" accept="image/*" style="display:none">
       </div>
     </div>
-    <div class="doc-meta">이름·기수 수정이 필요하면 관리자에게 문의하세요. <b>활동명</b>은 위 [활동명 변경]에서 직접 바꿀 수 있어요(다른 회원과 중복 불가). 비밀번호는 상단 메뉴 → 비밀번호 변경에서, 프로필 사진은 <b>10KB 미만</b> 이미지만 올릴 수 있어요.</div>`;
+    <div class="doc-meta">이름·기수 수정이 필요하면 관리자에게 문의하세요. <b>활동명</b>은 위 [활동명 변경]에서 직접 바꿀 수 있어요(다른 회원과 중복 불가). 비밀번호는 상단 메뉴 → 비밀번호 변경에서, 프로필 사진은 <b>아무 이미지나</b> 올리면 자동으로 정사각형·작은 용량으로 맞춰집니다.</div>`;
   $('#meBack').onclick=()=>{ location.hash='#home'; };
   $('#meProfile').onclick=()=>{ location.hash='#member/'+state.user.id; };
   $('#meHandleBtn').onclick=()=>openHandleEditor(p.handle||'');
@@ -1467,17 +1467,47 @@ function openHandleEditor(current){
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSave(); });
 }
 
-/* 프로필 사진 업로드/제거 (10KB 미만, Supabase Storage: avatars 버킷) */
-const AVA_MAX = 10*1024;
+/* 프로필 사진 업로드/제거 (클라이언트에서 정사각형 리사이즈·압축 후 Supabase Storage: avatars 버킷) */
+const AVA_DIM = 256;                 // 저장 크기(정사각형 한 변, px)
+const AVA_TARGET = 40*1024;          // 목표 용량(이 이하가 되도록 품질 자동 조절)
+const AVA_RAW_MAX = 25*1024*1024;    // 원본 파일 상한(초대형 파일 디코딩 방지)
+/* 어떤 이미지든 중앙 정사각형 크롭 → AVA_DIM 리사이즈 → WebP(미지원 시 JPEG) 압축. 표시(cover)와 동일하게 크롭. */
+function compressAvatar(file){
+  return new Promise((resolve, reject)=>{
+    const objurl=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(objurl);
+      try{
+        const s=Math.min(img.width, img.height);
+        const sx=(img.width-s)/2, sy=(img.height-s)/2;
+        const cv=document.createElement('canvas'); cv.width=AVA_DIM; cv.height=AVA_DIM;
+        cv.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, AVA_DIM, AVA_DIM);
+        const type = cv.toDataURL('image/webp').startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
+        const step=q=>cv.toBlob(b=>{
+          if(!b){ reject(new Error('encode')); return; }
+          if(b.size<=AVA_TARGET || q<=0.5) resolve({ blob:b, type }); else step(q-0.1);
+        }, type, q);
+        step(0.9);
+      }catch(err){ reject(err); }
+    };
+    img.onerror=()=>{ URL.revokeObjectURL(objurl); reject(new Error('load')); };
+    img.src=objurl;
+  });
+}
 async function onAvatarFile(e){
   const msg=$('#meAvaMsg'); const file=e.target.files&&e.target.files[0]; e.target.value='';
   if(!file) return;
   if(!/^image\//.test(file.type||'')){ msg.className='me-avatar-msg err'; msg.textContent='이미지 파일만 올릴 수 있어요.'; return; }
-  if(file.size > AVA_MAX){ msg.className='me-avatar-msg err'; msg.textContent='사진의 용량은 10kb보다 작아야 합니다.'; return; }
+  if(file.size > AVA_RAW_MAX){ msg.className='me-avatar-msg err'; msg.textContent='이미지가 너무 큽니다(25MB 이하로 올려주세요).'; return; }
+  msg.className='me-avatar-msg'; msg.textContent='이미지 처리 중…';
+  let out;
+  try{ out=await compressAvatar(file); }
+  catch(_){ msg.className='me-avatar-msg err'; msg.textContent='이미지를 처리하지 못했습니다. 다른 사진으로 시도해 주세요.'; return; }
   msg.className='me-avatar-msg'; msg.textContent='업로드 중…';
   try{
     const path=state.user.id+'/avatar';
-    const up=await sb.storage.from('avatars').upload(path, file, { upsert:true, contentType:file.type, cacheControl:'0' });
+    const up=await sb.storage.from('avatars').upload(path, out.blob, { upsert:true, contentType:out.type, cacheControl:'0' });
     if(up.error) throw up.error;
     const pub=sb.storage.from('avatars').getPublicUrl(path);
     const base=(pub&&pub.data&&pub.data.publicUrl)?pub.data.publicUrl:'';
