@@ -55,6 +55,10 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .seg-opt:not(.on):not(:disabled):hover{background:var(--box-bg);color:var(--text);}
 .seg-locked .seg-opt{cursor:not-allowed;opacity:.8;}
 .seg-me{font-size:11px;color:var(--text-dim);margin-left:6px;vertical-align:middle;}
+.seg-opt.seg-owner{color:var(--accent);}
+.seg-opt.seg-owner.on{background:var(--accent);color:#fff;}
+.seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#fdeaea;color:var(--accent);}
+body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .mlink{color:var(--accent);cursor:pointer;text-decoration:none;font-weight:700;}
 .mlink:hover{text-decoration:underline;}
 .profile-wrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
@@ -474,6 +478,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
         <div class="usermenu-drop" id="userdrop">
           <a data-go="me">개인정보</a>
           <a data-go="password">비밀번호 변경</a>
+          <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
+          <a data-go="health" id="dropHealth" style="display:none">시스템 점검</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
@@ -570,7 +576,9 @@ function isOwner(){ return state.role==='owner'; }
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
   $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
-  $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
+  $('#dropRequests').style.display = isAdmin() ? 'block' : 'none';
+  $('#dropHealth').style.display = isAdmin() ? 'block' : 'none';
+  $('#dropAdmin').style.display = isOwner() ? 'block' : 'none';
 }
 
 /* ================== 문서 목록/로드 ================== */
@@ -798,22 +806,24 @@ async function renderAdmin(){
       <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
       <td>${escapeHtml(ex.club||'무소속')}</td>
       <td>${ m.id===state.user.id
-        ? `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요(잠김 방지)">
+        ? `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요(양도는 상대 회원 행에서)">
              <button class="seg-opt${m.role==='viewer'?' on':''}" disabled>viewer</button>
              <button class="seg-opt${m.role==='editor'?' on':''}" disabled>editor</button>
              <button class="seg-opt${m.role==='admin'?' on':''}" disabled>admin</button>
+             <button class="seg-opt${m.role==='owner'?' on':''}" disabled>owner</button>
            </div> <span class="seg-me">(나)</span>`
         : `<div class="seg" data-id="${m.id}">
              <button class="seg-opt${m.role==='viewer'?' on':''}" data-role="viewer">viewer</button>
              <button class="seg-opt${m.role==='editor'?' on':''}" data-role="editor">editor</button>
              <button class="seg-opt${m.role==='admin'?' on':''}" data-role="admin">admin</button>
+             <button class="seg-opt seg-owner${m.role==='owner'?' on':''}" data-role="owner" title="owner 양도">owner</button>
            </div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>` }</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
       <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button><button id="backBtn2">[문서로]</button></div></div>
-    <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명</div>
+    <div class="doc-meta">owner 전용 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급만</b> 변경할 수 있어요. 이름·활동명·기수는 가입 시 신청서 정보로 자동 표시됩니다. 본인 등급은 바꿀 수 없어요(잠김 방지).</div>
     <table class="wtable">
       <tr><th>번호</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>최근 로그인</th></tr>
@@ -932,13 +942,21 @@ async function openClubEditor(){
 }
 async function setRole(id, role){
   const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
-  if(role==='admin' && !confirm('이 회원을 admin 등급으로 올릴까요? 관리자 등급이 부여됩니다.')){ renderAdmin(); return; }
-  if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
-  const { data, error } = await sb.functions.invoke('set-role', { body:{ target:id, role } });
-  if(error || !data || !data.ok){
-    if(note){ note.textContent=(data&&data.error)?((data.code?('['+data.code+'] '):'')+data.error):'실패(네트워크)'; note.style.color='var(--link-red)'; }
+  if(role==='owner'){
+    const ok=await confirmModal('이 회원에게 owner 권한을 양도하시겠습니까?', '본인은 editor로 등급 하향됩니다. (되돌리려면 새 owner가 다시 양도해야 합니다.)', '양도');
+    if(!ok){ renderAdmin(); return; }
+    if(note){ note.textContent='양도 중…'; note.style.color='var(--text-dim)'; }
+    const { error } = await sb.rpc('transfer_owner', { p_target:id });
+    if(error){ if(note){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; } return; }
+    state.role='editor'; renderUserbox();               // 본인은 이제 editor → 회원관리 접근 불가
+    alert('owner 권한을 양도했습니다. 본인 등급은 editor로 변경되었습니다.');
+    location.hash='#home';
     return;
   }
+  if(role==='admin' && !confirm('이 회원을 admin 등급으로 올릴까요? 관리자 등급이 부여됩니다.')){ renderAdmin(); return; }
+  if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
+  const { error } = await sb.rpc('set_member_role', { p_target:id, p_role:role });
+  if(error){ if(note){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; } return; }
   const seg=$('#doc').querySelector('.seg[data-id="'+id+'"]');
   if(seg) seg.querySelectorAll('.seg-opt').forEach(b=>b.classList.toggle('on', b.dataset.role===role));
   if(note){ note.textContent='등급 변경됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},2000); }
@@ -1720,10 +1738,10 @@ async function deleteOldMessages(){
 }
 
 /* 확인 팝업(Promise) */
-function confirmModal(title, sub){
+function confirmModal(title, sub, okLabel){
   return new Promise(resolve=>{
     const ov=document.createElement('div'); ov.className='modal-ov';
-    ov.innerHTML=`<div class="modal-box"><div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}<div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">삭제</button></div></div>`;
+    ov.innerHTML=`<div class="modal-box"><div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}<div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">${escapeHtml(okLabel||'삭제')}</button></div></div>`;
     document.body.appendChild(ov);
     const done=v=>{ ov.remove(); resolve(v); };
     ov.querySelector('.modal-cancel').onclick=()=>done(false);
@@ -1819,7 +1837,7 @@ function route(){
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
-  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
+  if(key==='admin'){ if(isOwner()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isAdmin()) renderRequests(); else location.hash='#home'; return; }
   if(key==='health'){ if(isAdmin()) renderHealth(); else location.hash='#home'; return; }
   if(key==='password'){ renderPassword(); return; }
