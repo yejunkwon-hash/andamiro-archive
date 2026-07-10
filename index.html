@@ -1403,7 +1403,6 @@ async function renderCommunity(){
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
-  await loadAdminIds();                            // (관리자) 다른 관리자 메세지 삭제 방지용 id 집합
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
@@ -1431,12 +1430,39 @@ function initChatSize(){
   applyChatSize();
 }
 
-/* ---- (관리자) 관리자 user_id 집합: 다른 관리자 메세지 삭제 버튼 숨김용 ---- */
-let adminIds=new Set();
-async function loadAdminIds(){
-  adminIds=new Set();
-  if(!isAdmin()) return;
-  try{ const { data } = await sb.from('profiles').select('id').eq('role','admin'); (data||[]).forEach(p=>adminIds.add(p.id)); }catch(e){}
+/* ---- 메세지 삭제 권한: admin·owner만, 그리고 내 서열 > 작성자 서열 ----
+   (admin→viewer·editor / owner→viewer·editor·admin. owner 메세지·본인 메세지는 삭제 불가) */
+const roleCache={};   // user_id -> role
+async function prefetchRoles(ids){
+  if(!isAdmin()) return;   // 삭제 가능자(admin+)만 작성자 등급이 필요
+  const need=[...new Set((ids||[]).filter(Boolean))].filter(u=>!(u in roleCache));
+  if(!need.length) return;
+  try{ const { data } = await sb.from('profiles').select('id,role').in('id', need); (data||[]).forEach(p=>{ roleCache[p.id]=p.role||'viewer'; }); }catch(e){}
+  need.forEach(u=>{ if(!(u in roleCache)) roleCache[u]='viewer'; });
+}
+async function ensureRole(uid){
+  if(!isAdmin() || !uid || (uid in roleCache)) return;
+  roleCache[uid]='viewer';   // 재요청 방지(임시) → 실제값으로 덮어씀
+  try{ const { data } = await sb.from('profiles').select('role').eq('id',uid).single(); roleCache[uid]=(data&&data.role)||'viewer'; }catch(e){}
+  refreshMsgDelete(uid);
+}
+function canDeleteMsg(m){
+  if(!isAdmin() || !m || !m.user_id) return false;
+  const r=roleCache[m.user_id]; if(r===undefined) return false;
+  return myRank() > roleRank(r);
+}
+/* 작성자 등급이 뒤늦게 확인됐을 때, 해당 사용자의 메세지들에 삭제버튼을 추가/제거 */
+function refreshMsgDelete(uid){
+  const allow = isAdmin() && roleRank(roleCache[uid]) < myRank();
+  document.querySelectorAll('.msg[data-uid="'+uid+'"]').forEach(el=>{
+    const row=el.querySelector('.msg-bubble-row'); if(!row) return;
+    const has=row.querySelector('.msg-del');
+    if(allow && !has){
+      const b=document.createElement('button'); b.className='msg-del'; b.title='메세지 삭제'; b.textContent='🗑';
+      b.onclick=()=>deleteMessage({ id:el.getAttribute('data-mid'), user_id:uid });
+      row.appendChild(b);
+    } else if(!allow && has){ has.remove(); }
+  });
 }
 
 /* ---- 채팅 + 반응 ---- */
@@ -1491,6 +1517,7 @@ async function loadMessages(){
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
     await loadReactions(rows.map(m=>m.id));
     await prefetchAvatars(rows.map(m=>m.user_id));
+    await prefetchRoles(rows.map(m=>m.user_id));   // 작성자 등급(삭제 권한 판정용)
     rows.forEach(m=>appendMessage(m,false));
     scrollChatBottom();
   }catch(e){ log.innerHTML='<div class="chat-empty">메시지를 불러오지 못했습니다. (DB 설정 09_community_chat.sql 실행 여부 확인)</div>'; }
@@ -1501,7 +1528,7 @@ function appendMessage(m, doScroll=true){
   const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
   if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
   const mine=(state.user && m.user_id===state.user.id);
-  const canDel = mine || (isAdmin() && !adminIds.has(m.user_id));   // 본인 or (관리자 && 대상이 관리자 아님)
+  const canDel = canDeleteMsg(m);   // admin·owner만 + 내 서열 > 작성자 서열
   const who=escapeHtml(m.author_name || m.author_handle || '익명');
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
@@ -1518,6 +1545,7 @@ function appendMessage(m, doScroll=true){
     </div>`;
   log.appendChild(el);
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
+  else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
   if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
   renderMath(el.querySelector('.msg-bubble'));
   renderReactions(m.id);
@@ -1619,7 +1647,7 @@ async function sendMessage(){
   }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
 }
 
-/* 메세지 삭제: 본인 메세지 or (관리자면서 대상이 관리자가 아닌 경우). 권한은 RPC(delete_message)가 서버에서 최종 검증 */
+/* 메세지 삭제: admin·owner만, 그리고 내 서열 > 작성자 서열. 권한은 RPC(delete_message)가 서버에서 최종 검증 */
 async function deleteMessage(m){
   const ok=await confirmModal('메세지를 삭제하시겠습니까?','삭제된 메세지는 되돌릴 수 없습니다.');
   if(!ok) return;
@@ -1627,7 +1655,7 @@ async function deleteMessage(m){
     const { error } = await sb.rpc('delete_message', { p_id: m.id });
     if(error) throw error;
     const el=document.querySelector('.msg[data-mid="'+m.id+'"]'); if(el) el.remove();
-  }catch(e){ alert('삭제 실패: 권한을 확인하세요. (관리자는 다른 관리자의 메세지를 삭제할 수 없습니다) — 15_message_delete.sql 실행 여부도 확인'); }
+  }catch(e){ alert('삭제 실패: 자신보다 낮은 등급의 메세지만 삭제할 수 있어요. (admin→viewer·editor, owner→admin까지) — 18_message_delete_rank.sql 실행 여부도 확인'); }
 }
 
 /* 반응(회원당 최대 1개: 하트/체크/엄지/웃음) */
