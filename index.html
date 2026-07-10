@@ -1244,20 +1244,90 @@ async function renderHealth(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템 점검</h1>
       <div class="tabs"><button id="hReload">[다시 검사]</button><button id="hBack">[회원 관리]</button></div></div>
-    <div class="doc-meta">각 줄이 ✅면 정상, ❌면 그 줄이 원인입니다. 문제 생기면 여기부터 보세요.</div>
+    <div class="doc-meta">각 줄이 ✅면 정상, ❌면 그 줄이 원인입니다. RPC는 부작용 없이 존재 여부만 확인합니다.</div>
     <div class="history" id="hResult"><p>검사 중…</p></div>`;
   $('#hBack').onclick=()=>{ location.hash='#admin'; };
   $('#hReload').onclick=()=>renderHealth();
+
+  const NIL='00000000-0000-0000-0000-000000000000';
   const lines=[];
-  lines.push(await dbCheck('DB · documents 읽기', ()=>sb.from('documents').select('key').limit(1)));
-  lines.push(await dbCheck('DB · profiles 읽기', ()=>sb.from('profiles').select('id').limit(1)));
-  lines.push(await dbCheck('DB · signup_requests 읽기(admin)', ()=>sb.from('signup_requests').select('id').limit(1)));
+
+  // ── 1) 데이터베이스 테이블/뷰 읽기 ──
+  lines.push(healthHead('1) 테이블 · 뷰 읽기'));
+  lines.push(await dbCheck('documents (문서)', ()=>sb.from('documents').select('key').limit(1)));
+  lines.push(await dbCheck('profiles (회원)', ()=>sb.from('profiles').select('id').limit(1)));
+  lines.push(await dbCheck('members_public (공개 회원 뷰)', ()=>sb.from('members_public').select('id').limit(1)));
+  lines.push(await dbCheck('messages (채팅)', ()=>sb.from('messages').select('id').limit(1)));
+  lines.push(await dbCheck('message_reactions (반응)', ()=>sb.from('message_reactions').select('message_id').limit(1)));
+  lines.push(await dbCheck('revisions (편집 이력)', ()=>sb.from('revisions').select('id').limit(1)));
+  lines.push(await dbCheck('handle_history (활동명 이력)', ()=>sb.from('handle_history').select('user_id').limit(1)));
+  lines.push(await dbCheck('clubs (동아리)', ()=>sb.from('clubs').select('name').limit(1)));
+  lines.push(await dbCheck('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1)));
+  lines.push(await dbCheck('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1)));
+
+  // ── 2) 스키마 컬럼 (마이그레이션 적용 여부) ──
+  lines.push(healthHead('2) 스키마 컬럼(마이그레이션 확인)'));
+  lines.push(await dbCheck('messages.kind — 시스템 공지 (24)', ()=>sb.from('messages').select('kind').limit(1)));
+  lines.push(await dbCheck('profiles.last_active_at — 마지막 활동 (26)', ()=>sb.from('profiles').select('last_active_at').limit(1)));
+  lines.push(await dbCheck('profiles.total_seconds — 누적 체류 (26)', ()=>sb.from('profiles').select('total_seconds').limit(1)));
+  lines.push(await dbCheck('profiles.session_seconds — 이번 체류 (27)', ()=>sb.from('profiles').select('session_seconds').limit(1)));
+  lines.push(await dbCheck('members_public.last_active_at (26)', ()=>sb.from('members_public').select('last_active_at').limit(1)));
+
+  // ── 3) 함수(RPC) 배포 여부 — 부작용 없는 probe ──
+  lines.push(healthHead('3) 함수(RPC) 배포 여부'));
+  lines.push(await rpcCheck('role_rank / is_admin / is_owner / is_editor (16·25)', 'is_editor', {}));
+  lines.push(await rpcCheck('role_kor — 등급 한글 (24)', 'role_kor', { p:'viewer' }));
+  lines.push(await rpcCheck('post_system_notice — 시스템 공지 (24)', 'post_system_notice', { p_body:'' }));
+  lines.push(await rpcCheck('set_member_role — 등급 변경 (17·24·26)', 'set_member_role', { p_target:NIL, p_role:'viewer' }));
+  lines.push(await rpcCheck('transfer_owner — owner 양도 (17·24)', 'transfer_owner', { p_target:NIL }));
+  lines.push(await rpcCheck('set_my_handle — 활동명 변경 (21·24)', 'set_my_handle', { p_handle:'' }));
+  lines.push(await rpcCheck('set_member_club — 소속 배정 (20)', 'set_member_club', { p_target:NIL, p_club:'__healthcheck__' }));
+  lines.push(await rpcCheck('member_profile — 회원 프로필 (조회)', 'member_profile', { target:NIL }));
+  lines.push(await rpcCheck('admin_list_members — 회원 목록 (26·27)', 'admin_list_members', {}));
+  lines.push(await rpcCheck('delete_message — 메세지 삭제 (22)', 'delete_message', { p_id:-1 }));
+  lines.push(await rpcCheck('heartbeat — 접속/체류 (26·27)', 'heartbeat', { p_add:0, p_new:false }));
+  lines.push(await rpcCheck('rollback_document — 문서 롤백', 'rollback_document', { p_key:'__healthcheck_none__', p_revision_id:-1 }));
+  lines.push(await rpcCheck('trash_document — 문서 휴지통 (23)', 'trash_document', { p_key:'__healthcheck_none__' }));
+  lines.push(await rpcCheck('restore_document — 문서 복원 (23)', 'restore_document', { p_id:-1 }));
+  lines.push(await rpcCheck('list_deleted_documents — 휴지통 목록 (23)', 'list_deleted_documents', {}));
+  lines.push(await rpcCheck('get_deleted_document — 휴지통 열람 (23)', 'get_deleted_document', { p_id:-1 }));
+  lines.push(await rpcCheck('create_document — 문서 생성 (25)', 'create_document', { p_key:'', p_title:'' }));
+  lines.push(await rpcCheck('rename_document — 주소 변경 (25)', 'rename_document', { p_old:'__healthcheck_none__', p_new:'__healthcheck_none__' }));
+  lines.push(await rpcCheck('set_my_avatar — 프로필 사진', 'set_my_avatar', { p_url: state.avatar_url || null }));
+  lines.push(await rpcCheck('delete_club — 동아리 삭제', 'delete_club', { p_id:-1 }));
+  lines.push(await rpcCheck('rename_club — 동아리 이름변경', 'rename_club', { p_id:-1, p_new:'__healthcheck__' }));
+
+  // ── 4) 스토리지 ──
+  lines.push(healthHead('4) 스토리지'));
+  lines.push(await storageCheck('avatars 버킷 (프로필 사진)', 'avatars'));
+
+  // ── 5) 엣지 함수 ──
+  lines.push(healthHead('5) 엣지 함수'));
   const sr = await fnDebug('signup-request');
-  const st = await fnDebug('set-role');
-  lines.push(fnLine('함수 signup-request', sr, ['SERVICE_KEY','TURNSTILE_SECRET','db_test']));
-  lines.push(fnLine('함수 set-role', st, ['SERVICE_KEY','db_test']));
-  $('#hResult').innerHTML = lines.join('');
+  lines.push(fnLine('signup-request (가입 신청)', sr, ['SERVICE_KEY','TURNSTILE_SECRET','db_test']));
+
+  const html = lines.join('');
+  const fails = (html.match(/❌/g)||[]).length;
+  const summary = `<div class="notice" style="border-left-color:${fails?'var(--link-red)':'#2e9e5b'}"><b>${fails? ('⚠ 문제 '+fails+'건 발견 — ❌ 항목을 확인하세요.') : '✅ 모든 항목 정상입니다.'}</b></div>`;
+  $('#hResult').innerHTML = summary + html;
 }
+async function rpcCheck(label, name, args){
+  try{
+    const { error } = await sb.rpc(name, args||{});
+    if(!error) return healthRow(label, true, 'OK');
+    const msg=error.message||''; const code=error.code||'';
+    const missing = code==='PGRST202' || code==='PGRST203' || code==='404'
+      || /could not find the function|does not exist|schema cache|찾을 수 없/i.test(msg);
+    if(missing) return healthRow(label, false, '함수 없음/미배포 · '+msg);
+    return healthRow(label, true, '배포됨 (정상 거부: '+msg+')');
+  }catch(e){ return healthRow(label, false, String(e)); }
+}
+async function storageCheck(label, bucket){
+  try{ const { error } = await sb.storage.from(bucket).list('', { limit:1 });
+    return healthRow(label, !error, error?error.message:'OK'); }
+  catch(e){ return healthRow(label, false, String(e)); }
+}
+function healthHead(t){ return `<div class="rev" style="border-left-color:transparent;background:transparent;padding:12px 0 2px"><b style="color:var(--accent);font-size:13.5px">${escapeHtml(t)}</b></div>`; }
 async function dbCheck(label, fn){
   try{ const { error } = await fn(); return healthRow(label, !error, error?error.message:'OK'); }
   catch(e){ return healthRow(label, false, String(e)); }
