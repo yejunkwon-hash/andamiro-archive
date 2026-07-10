@@ -350,6 +350,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <input id="su-name" type="text" placeholder="홍길동">
     <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
     <input id="su-handle" type="text" placeholder="gildong">
+    <label>소속 <span style="color:var(--text-dim);font-weight:400">(동아리 · 없으면 비워두세요)</span></label>
+    <input id="su-club" type="text" placeholder="예: 안다미로 (무소속이면 비워두기)">
     <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">신청하기</button>
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
@@ -688,12 +690,16 @@ async function renderAdmin(){
   if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
   let pend=0;
   try{ const c=await sb.from('signup_requests').select('*',{count:'exact',head:true}).eq('status','pending'); pend=c.count||0; }catch(e){}
-  const rows=(data||[]).map(m=>`
+  let extra={};
+  try{ const { data:pr } = await sb.from('profiles').select('id,member_no,club'); (pr||[]).forEach(p=>{ extra[p.id]={no:p.member_no, club:p.club}; }); }catch(e){}
+  const rows=(data||[]).map(m=>{ const ex=extra[m.id]||{}; return `
     <tr>
+      <td class="y">${ex.no??'-'}</td>
       <td>${escapeHtml(m.email||'')}</td>
       <td>${escapeHtml(m.name||'-')}</td>
       <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort+'기':'-'}</td>
+      <td>${escapeHtml(ex.club||'무소속')}</td>
       <td>${ m.id===state.user.id
         ? `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요(잠김 방지)">
              <button class="seg-opt${m.role==='viewer'?' on':''}" disabled>viewer</button>
@@ -706,14 +712,14 @@ async function renderAdmin(){
              <button class="seg-opt${m.role==='admin'?' on':''}" data-role="admin">admin</button>
            </div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>` }</td>
       <td class="y">${fmtKST(m.last_sign_in_at)}</td>
-    </tr>`).join('');
+    </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
       <div class="tabs"><button id="reqBtn">[가입 신청 ${pend}]</button><button id="healthBtn">[시스템 점검]</button><button id="backBtn2">[문서로]</button></div></div>
     <div class="doc-meta">관리자 전용 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급만</b> 변경할 수 있어요. 이름·활동명·기수는 가입 시 신청서 정보로 자동 표시됩니다. 본인 등급은 바꿀 수 없어요(잠김 방지).</div>
     <table class="wtable">
-      <tr><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>등급</th><th>최근 로그인</th></tr>
+      <tr><th>번호</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>최근 로그인</th></tr>
       ${rows}
     </table>`;
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
@@ -1346,11 +1352,12 @@ $('#su-btn').onclick=doSignupRequest;
 async function doSignupRequest(){
   const email=$('#su-email').value.trim(), msg=$('#su-msg'); msg.className='msg';
   const cohort=$('#su-cohort').value, name=$('#su-name').value.trim(), handle=$('#su-handle').value.trim();
-  if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
+  const club=$('#su-club').value.trim();
+  if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요. (소속은 없으면 비워두셔도 돼요)'; return; }
   if(!suToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
   $('#su-btn').disabled=true; $('#su-btn').textContent='신청 중…';
   const { data, error } = await sb.functions.invoke('signup-request', {
-    body:{ email, cohort:parseInt(cohort,10), name, handle, captchaToken: suToken } });
+    body:{ email, cohort:parseInt(cohort,10), name, handle, club, captchaToken: suToken } });
   $('#su-btn').disabled=false; $('#su-btn').textContent='신청하기';
   resetSignupCaptcha();
   if(error || !data || !data.ok){
@@ -1360,7 +1367,7 @@ async function doSignupRequest(){
   }
   msg.className='msg ok';
   msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
-  ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
+  ['#su-email','#su-cohort','#su-name','#su-handle','#su-club'].forEach(s=>$(s).value='');
 }
 /* 사용자 드롭다운 메뉴 (아이콘 트리거 · 호버/탭 · 항목 클릭 시 닫힘) */
 const umTrig = $('#umTrigger');
