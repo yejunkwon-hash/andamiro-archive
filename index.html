@@ -153,7 +153,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .um-trigger{position:relative;}
 .usericon{position:relative;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;overflow:hidden;transition:border-radius .12s;}
 .usericon:hover{background:rgba(255,255,255,.30);}
-.usericon.has-photo{border-radius:7px;}
+.usericon.has-photo{border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.9);}
 .ui-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .online-dot{color:#2e9e5b;font-size:11px;font-weight:800;margin-left:6px;white-space:nowrap;}
 .ava-cell{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex:none;}
@@ -223,15 +223,14 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .react-opt:hover{background:var(--box-bg);}
 .react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
-.chat-input input{flex:1;height:38px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
-.chat-input button{border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
+.chat-input input{flex:1;height:44px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
+.chat-input button{height:44px;border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
 .chat-input button:hover{filter:brightness(1.08);}
-.eye-btn{flex:none;display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:70px;height:auto;min-height:54px;padding:5px 6px;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;}
+.eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:56px;height:44px;padding:0;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;}
 .eye-btn:hover{border-color:var(--accent);}
 .eye-btn.on{border-color:var(--accent);color:var(--accent);background:var(--box-bg);}
-.eye-cap{display:flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;color:var(--text-dim);line-height:1;white-space:nowrap;}
-.eye-btn.on .eye-cap{color:var(--accent);}
-.eye-key{font-size:8.5px;font-weight:700;border:1px solid var(--border-strong);border-radius:3px;padding:1px 3px;color:var(--text-dim);}
+.preview-hint{padding:6px 10px 0;font-size:11.5px;color:var(--text-dim);line-height:1.4;}
+.eye-key{font-size:9px;font-weight:700;border:1px solid var(--border-strong);border-radius:3px;padding:1px 4px;color:var(--text-dim);}
 .chat-hint{display:flex;justify-content:flex-end;padding:2px 4px 0;}
 .latex-help{font-size:11.5px;color:var(--text-dim);cursor:pointer;}
 .latex-help:hover{color:var(--accent);text-decoration:underline;}
@@ -576,15 +575,20 @@ async function init(){
 function showLogin(){ $('#login').style.display='flex'; $('#app').style.display='none'; }
 function showApp(){ $('#login').style.display='none'; $('#app').style.display='block'; }
 
-/* 접속 heartbeat: 5초마다 이번 체류(session)+누적(total) 누적. 탭이 보일 때만 카운트. */
-let hbTimer=null;
+/* 접속 heartbeat: 5초 단위로 로컬 측정 → 30초마다 서버로 한 번에 전송(트래픽 절감). 탭 보일 때만 카운트. */
+let hbTimer=null, hbTick=null, hbAccum=0;
 async function beat(add, isNew){ try{ await sb.rpc('heartbeat', { p_add: add|0, p_new: !!isNew }); }catch(e){} }
+function hbFlush(){ if(hbAccum>0){ const n=hbAccum; hbAccum=0; beat(n, false); } }
 function startHeartbeat(){
   stopHeartbeat();
-  beat(0, true);                                            // 새 방문: 이번 체류 0으로 리셋
-  hbTimer=setInterval(()=>{ if(!document.hidden) beat(5, false); }, 5000);  // 5초마다 +5초(보일 때만)
+  hbAccum=0;
+  beat(0, true);                                              // 새 방문: 이번 체류(session) 0으로 리셋 + 접속 표시
+  hbTick=setInterval(()=>{ if(!document.hidden) hbAccum+=5; }, 5000);  // 5초 단위 로컬 측정
+  hbTimer=setInterval(hbFlush, 30000);                        // 30초마다 서버 전송
 }
-function stopHeartbeat(){ if(hbTimer){ clearInterval(hbTimer); hbTimer=null; } }
+function stopHeartbeat(){ if(hbTimer){ clearInterval(hbTimer); hbTimer=null; } if(hbTick){ clearInterval(hbTick); hbTick=null; } hbFlush(); }
+document.addEventListener('visibilitychange',()=>{ if(document.hidden) hbFlush(); });   // 탭 숨김 시 남은 시간 전송
+window.addEventListener('beforeunload', hbFlush);                                        // 종료 직전 best-effort 전송
 
 /* 체류시간(분 반올림) 표기: N일 N시간 N분 (0 단위 생략, 1분 미만이면 "0분") */
 function fmtDurationMin(sec){
@@ -1663,18 +1667,18 @@ async function renderCommunity(){
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="chat-input">
           <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습) · Ctrl 키로 켜기/끄기">
-            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="52" height="37" aria-hidden="true">
+            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
               <path d="M4 18 Q24 5 44 18 Q24 31 4 18 Z"/>
               <circle cx="24" cy="18" r="7.5" fill="#C00000" fill-opacity="0.16"/>
               <circle cx="24" cy="18" r="3" fill="currentColor" stroke="none"/>
               <circle cx="21.6" cy="15.6" r="1" fill="#fff" stroke="none"/>
               <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
             </svg>
-            <span class="eye-cap">미리보기<span class="eye-key">Ctrl</span></span>
           </button>
           <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
           <button id="chatSend">전송</button>
         </div>
+        <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요.</div>
         <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
       <aside class="calendar-wrap" id="calWrap"></aside>
