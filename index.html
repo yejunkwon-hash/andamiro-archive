@@ -191,6 +191,10 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
 .msg-main{min-width:0;display:flex;flex-direction:column;gap:3px;}
 .msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
+.msg-who.go-profile{cursor:pointer;}
+.msg-who.go-profile:hover{color:var(--accent);text-decoration:underline;}
+.msg-avatar.go-profile{cursor:pointer;}
+.msg-avatar.go-profile:hover{filter:brightness(1.05);box-shadow:0 0 0 2px var(--accent);}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
 .msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;max-width:min(72%,420px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
@@ -1563,7 +1567,7 @@ function appendMessage(m, doScroll=true){
   if(log.querySelector('.msg[data-mid="'+m.id+'"]')) return;   // 중복 방지
   const mine=(state.user && m.user_id===state.user.id);
   const canDel = canDeleteMsg(m);   // admin·owner만 + 내 서열 > 작성자 서열
-  const who=escapeHtml(m.author_name || m.author_handle || '익명');
+  const who=escapeHtml(m.author_handle || m.author_name || '익명');   // 활동명 우선
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
   el.innerHTML=`
@@ -1578,6 +1582,12 @@ function appendMessage(m, doScroll=true){
       <div class="msg-reactions" data-mid="${m.id}"></div>
     </div>`;
   log.appendChild(el);
+  if(!mine && m.user_id){   // 본인 제외: 아바타/활동명 클릭 → 해당 회원 프로필
+    const go=()=>{ location.hash='#member/'+m.user_id; };
+    const av=el.querySelector('.msg-avatar'), wh=el.querySelector('.msg-who');
+    if(av){ av.classList.add('go-profile'); av.onclick=go; }
+    if(wh){ wh.classList.add('go-profile'); wh.onclick=go; }
+  }
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
   else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
   if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
