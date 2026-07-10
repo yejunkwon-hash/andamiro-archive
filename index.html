@@ -300,6 +300,13 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .doc-link:hover{background:var(--box-bg);text-decoration:none;}
 .dl-title{font-weight:700;color:var(--accent);white-space:nowrap;}
 .dl-desc{font-size:12.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;}
+.alldocs-sec{margin-top:16px;}
+.ad-count{font-weight:700;opacity:.85;font-size:13px;}
+.alldocs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));}
+.alldocs-grid .alldoc{border-right:1px solid var(--border);}
+.alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
+@media(max-width:640px){ .alldocs-grid{grid-template-columns:1fr;} }
 .recent{width:215px;flex:none;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:var(--shadow);}
 .recent-h{font-weight:800;font-size:13px;padding:10px 13px;border-bottom:1px solid var(--border);color:var(--text-dim);background:var(--box-bg);}
 .rc-item{display:flex;justify-content:space-between;gap:8px;padding:9px 13px;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;color:var(--text);}
@@ -1474,6 +1481,7 @@ async function renderDirectory(){
   });
   renderDirGrid();
   window.scrollTo(0,0);
+  const ds=$('#dirSearch'); if(ds) ds.focus();   // 진입 시 바로 검색 타이핑 가능
 }
 function dirMatch(m, q){
   q=(q||'').trim(); if(!q) return true;
@@ -1525,6 +1533,9 @@ const LANDING_CATS = [
 async function renderLanding(){
   let recent=[];
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
+  let alldocs=[];
+  try{ const { data } = await sb.from('documents').select('key,title').order('title',{ascending:true}); alldocs=data||[]; }
+  catch(e){ alldocs=(state.docs||[]).slice(); }
   const cats = LANDING_CATS.map((c,ci)=>`
     <div class="cat">
       <div class="cat-head">
@@ -1552,6 +1563,12 @@ async function renderLanding(){
         <div class="doclist-head">추천 문서</div>
         ${cats}
       </div>
+      <div class="cats alldocs-sec">
+        <div class="doclist-head">모든 문서 목록 <span class="ad-count">(${alldocs.length})</span></div>
+        <div class="alldocs-grid">
+          ${alldocs.length ? alldocs.map(d=>`<a class="doc-link alldoc" data-key="${escapeAttr(d.key)}"><span class="dl-title">${escapeHtml(d.title||d.key)}</span><span class="dl-key">/${escapeHtml(d.key)}</span></a>`).join('') : '<div class="ad-empty">아직 문서가 없습니다. 새 문서를 만들면 여기에 표시됩니다.</div>'}
+        </div>
+      </div>
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
@@ -1572,7 +1589,7 @@ function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;',
 
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
-const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:2 };
+const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4 };
 
 function unsubscribeChat(){ if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
 
@@ -1615,10 +1632,11 @@ async function renderCommunity(){
   await renderChatAdmin();
   subscribeChat();
   window.scrollTo(0,0);
+  const ci=$('#chatText'); if(ci) ci.focus();   // 진입 시 바로 타이핑 가능
 }
 
 /* ---- 채팅 내부 콘텐츠 배율 (축소/확대) : 창 크기는 고정, 프로필사진·텍스트·말풍선만 스케일 ---- */
-const CHAT_SCALE=[0.8,0.9,1,1.1,1.2];
+const CHAT_SCALE=[0.6,0.7,0.8,0.9,1,1.1,1.2,1.3,1.4];
 function applyChatSize(){
   const i=Math.max(0,Math.min(CHAT_SCALE.length-1, community.chatSize|0));
   document.documentElement.style.setProperty('--chat-scale', String(CHAT_SCALE[i]));
@@ -1627,11 +1645,11 @@ function applyChatSize(){
 }
 function changeChatSize(delta){
   community.chatSize=Math.max(0,Math.min(CHAT_SCALE.length-1,(community.chatSize|0)+delta));
-  try{ localStorage.setItem('andachat_size', String(community.chatSize)); }catch(e){}
+  try{ localStorage.setItem('andachat_size2', String(community.chatSize)); }catch(e){}
   applyChatSize();
 }
 function initChatSize(){
-  try{ const v=localStorage.getItem('andachat_size'); if(v!==null){ const n=parseInt(v,10); if(!isNaN(n)) community.chatSize=n; } }catch(e){}
+  try{ const v=localStorage.getItem('andachat_size2'); if(v!==null){ const n=parseInt(v,10); if(!isNaN(n)) community.chatSize=n; } }catch(e){}
   const d=$('#cszDown'), u=$('#cszUp');
   if(d) d.onclick=()=>changeChatSize(-1);
   if(u) u.onclick=()=>changeChatSize(1);
@@ -2163,7 +2181,14 @@ $('#dropLogout').onclick=async()=>{ closeUserMenu(); await sb.auth.signOut(); st
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#community'; };
 $('#directoryBtn').onclick=()=>{ location.hash='#directory'; };
-$('#modeBtn').onclick=()=>{ const d=document.body.classList.toggle('dark'); $('#modeBtn').textContent=d?'☀ 주간':'🌙 야간'; };
+/* 테마(야간/주간): 저장값 적용 + 토글 시 저장 후 새로고침 */
+try{ if(localStorage.getItem('anda_theme')==='dark') document.body.classList.add('dark'); }catch(e){}
+$('#modeBtn').textContent = document.body.classList.contains('dark') ? '☀ 주간' : '🌙 야간';
+$('#modeBtn').onclick=()=>{
+  const goingDark = !document.body.classList.contains('dark');
+  try{ localStorage.setItem('anda_theme', goingDark?'dark':'light'); }catch(e){}
+  location.reload();
+};
 /* 상단 검색: 한글 자모 분해 부분일치 + 호버 시 랜덤 추천 */
 const searchBox=$('#search');
 const _CHO=['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
