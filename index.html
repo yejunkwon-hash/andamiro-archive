@@ -721,6 +721,38 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
 .doc-card .dc-cat{font-size:11px;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
 @media(max-width:640px){ .docs-grid{grid-template-columns:1fr;} }
+
+/* ===== 계열(track) 레일 — 대문·문서 탭 왼쪽 컬러 버튼 ===== */
+.with-rail{display:flex;gap:16px;align-items:flex-start;}
+.with-rail .rail-main{flex:1;min-width:0;}
+.trackrail{width:150px;flex:none;position:sticky;top:60px;display:flex;flex-direction:column;gap:6px;}
+.trackrail .tr-head{font-size:11px;font-weight:800;color:var(--text-dim);letter-spacing:.04em;padding:0 2px 2px;}
+.tr-btn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid var(--border);border-left:4px solid var(--tc,var(--border-strong));
+  border-radius:8px;padding:8px 10px;font-size:13.5px;font-weight:700;color:var(--text);
+  transition:transform .1s, box-shadow .12s, background .12s;}
+.tr-btn:hover{transform:translateX(2px);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.tr-btn .tr-dot{width:10px;height:10px;border-radius:3px;background:var(--tc,var(--border-strong));flex:none;}
+.tr-btn .tr-cnt{margin-left:auto;font-size:11px;font-weight:700;color:var(--text-dim);}
+.tr-btn.on{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent));color:#fff;}
+.tr-btn.on .tr-cnt{color:rgba(255,255,255,.85);}
+.tr-btn.on .tr-dot{background:#fff;}
+@media(max-width:768px){
+  .with-rail{flex-direction:column;gap:10px;}
+  .trackrail{width:100%;position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
+  .trackrail .tr-head{display:none;}
+  .tr-btn{width:auto;flex:none;border-radius:99px;border-left-width:1px;padding:6px 12px;font-size:13px;}
+  .tr-btn:hover{transform:none;}
+  .tr-btn .tr-cnt{margin-left:4px;}
+}
+/* 문서 카드의 분류 배지 */
+.dc-track{font-size:11px;font-weight:800;border-radius:99px;padding:1px 8px;color:#fff;background:var(--tc,var(--accent));}
+.dc-type{font-size:11px;border-radius:99px;padding:1px 8px;color:var(--text-dim);background:var(--box-bg);border:1px solid var(--border);}
+.dc-club{font-size:11px;border-radius:99px;padding:1px 8px;color:var(--text-dim);background:var(--box-bg);border:1px solid var(--border);}
+.docs-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
+.docs-filters select{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;}
+/* 테마 전환 서클 리빌 */
+#themeReveal{position:fixed;inset:0;z-index:9999;pointer-events:none;}
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
@@ -1027,7 +1059,136 @@ function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile
 /* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
-const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false };
+const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false,
+                tracks:[], trackSel:null, docTypes:[], clubs:[] };
+
+/* ================== 계열(track) + 테마 엔진 ==================
+   계열 7종은 DB(tracks)에 고정 시드. 색만 owner가 바꾼다(set_track_color).
+   선택한 계열은 localStorage에 저장 → 새로고침·다른 탭에서도 사이트 전체 테마색이 유지된다.
+   admin이 아무 RGB나 고를 수 있으므로 (1) 상단바 흰 글자 대비 가드 (2) 야간모드 자동 보정을 둔다. */
+const DEFAULT_ACCENT = '#C00000';          // 계열 미선택 시 기본색(안다미로 빨강)
+const TRACK_LS_KEY   = 'anda_track';
+
+function _hex2rgb(h){ const s=String(h||'').replace('#',''); 
+  return [parseInt(s.slice(0,2),16)||0, parseInt(s.slice(2,4),16)||0, parseInt(s.slice(4,6),16)||0]; }
+function _rgb2hex(r,g,b){ const f=n=>Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,'0');
+  return '#'+f(r)+f(g)+f(b); }
+function _rgb2hsl(r,g,b){ r/=255;g/=255;b/=255;
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn; let h=0, s=0, l=(mx+mn)/2;
+  if(d){ s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn);
+    if(mx===r) h=((g-b)/d + (g<b?6:0)); else if(mx===g) h=((b-r)/d + 2); else h=((r-g)/d + 4); h*=60; }
+  return [h, s, l]; }
+function _hsl2hex(h,s,l){ h=((h%360)+360)%360; s=Math.max(0,Math.min(1,s)); l=Math.max(0,Math.min(1,l));
+  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs(((h/60)%2)-1)), m=l-c/2;
+  let r=0,g=0,b=0;
+  if(h<60){r=c;g=x;} else if(h<120){r=x;g=c;} else if(h<180){g=c;b=x;}
+  else if(h<240){g=x;b=c;} else if(h<300){r=x;b=c;} else {r=c;b=x;}
+  return _rgb2hex((r+m)*255,(g+m)*255,(b+m)*255); }
+function _lum(hex){ const [r,g,b]=_hex2rgb(hex).map(v=>{ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); });
+  return 0.2126*r + 0.7152*g + 0.0722*b; }
+
+/* 상단바는 흰 글자 → 너무 밝은 색이면 대비가 깨진다. 밝기를 자동으로 낮춘다. */
+function safeAccent(hex){
+  let [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
+  let out = _hsl2hex(h,s,l), guard = 0;
+  while(_lum(out) > 0.38 && guard++ < 20){ l -= 0.03; out = _hsl2hex(h,s,l); }
+  return out;
+}
+/* 야간모드: 같은 색상(hue)을 유지하되 밝게·부드럽게 (#C00000 → #e05a52 관계의 일반화) */
+function darkVariant(hex){
+  const [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
+  return _hsl2hex(h, Math.min(s, 0.68), Math.max(l, 0.58));
+}
+function softVariant(hex, dark){
+  const [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
+  return dark ? _hsl2hex(h, s*0.85, Math.min(l+0.09, 0.78))
+              : _hsl2hex(h, s*0.70, Math.min(l+0.17, 0.66));   // 원래 #C00000 → #d64a42 관계(채도↓·명도↑)
+}
+
+/* 사이트 전체 테마색 적용 — :root 인라인 변수는 body.dark 규칙보다 우선하므로 야간에도 직접 계산해 넣는다 */
+function applyThemeColor(hex){
+  const dark = document.body.classList.contains('dark');
+  const base = dark ? darkVariant(hex) : safeAccent(hex);
+  const st = document.documentElement.style;
+  st.setProperty('--accent', base);
+  st.setProperty('--accent-soft', softVariant(base, dark));
+  st.setProperty('--infobox-head', dark ? _hsl2hex(..._rgb2hsl(..._hex2rgb(base)).map((v,i)=> i===2 ? Math.max(v-0.18,0.28) : v)) : base);
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', base);
+}
+function trackBySlug(slug){ return (state.tracks||[]).find(t=>t.slug===slug) || null; }
+function currentTrackColor(){ const t = trackBySlug(state.trackSel); return t ? t.color : DEFAULT_ACCENT; }
+function applyCurrentTheme(){ applyThemeColor(currentTrackColor()); }
+
+/* 서클 리빌: 클릭 지점에서 새 색이 화면 전체로 퍼진다 */
+function revealTheme(hex, ev){
+  const dark = document.body.classList.contains('dark');
+  const shown = dark ? darkVariant(hex) : safeAccent(hex);
+  let x = window.innerWidth/2, y = window.innerHeight/2;
+  if(ev && typeof ev.clientX === 'number' && (ev.clientX || ev.clientY)){ x = ev.clientX; y = ev.clientY; }
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce){ applyThemeColor(hex); return; }
+  const far = Math.hypot(Math.max(x, window.innerWidth-x), Math.max(y, window.innerHeight-y));
+  const ov = document.createElement('div');
+  ov.id = 'themeReveal';
+  ov.style.background = shown;
+  ov.style.clipPath = `circle(0px at ${x}px ${y}px)`;
+  ov.style.transition = 'clip-path .5s cubic-bezier(.4,0,.2,1), opacity .25s ease .38s';
+  document.body.appendChild(ov);
+  requestAnimationFrame(()=>{
+    ov.style.clipPath = `circle(${far}px at ${x}px ${y}px)`;
+    ov.style.opacity  = '0';
+  });
+  setTimeout(()=>{ applyThemeColor(hex); }, 170);   // 원이 퍼지는 도중 실제 색 교체 → 이음매가 안 보인다
+  setTimeout(()=>{ ov.remove(); }, 800);
+}
+
+/* 계열 선택 (null = 전체) */
+function setTrack(slug, ev){
+  state.trackSel = slug || null;
+  try{ if(slug) localStorage.setItem(TRACK_LS_KEY, slug); else localStorage.removeItem(TRACK_LS_KEY); }catch(e){}
+  revealTheme(currentTrackColor(), ev);
+  route();                                          // 현재 화면만 다시 그림(필터·버튼 상태 반영)
+}
+async function loadTracks(){
+  try{
+    const { data } = await sb.from('tracks').select('slug,name,color,sort').order('sort',{ascending:true});
+    state.tracks = data || [];
+  }catch(e){ state.tracks = []; }
+  try{ const saved = localStorage.getItem(TRACK_LS_KEY); if(saved && (saved==='__none' || trackBySlug(saved))) state.trackSel = saved; }catch(e){}
+  applyCurrentTheme();
+}
+async function loadDocTypes(){
+  try{
+    const { data } = await sb.from('doc_types').select('id,name,is_core,sort').order('sort',{ascending:true}).order('name',{ascending:true});
+    state.docTypes = data || [];
+  }catch(e){ state.docTypes = []; }
+}
+
+/* 계열 레일 HTML (대문·문서 탭 공용). counts = {slug:개수}, unclassified 포함 */
+function trackRailHTML(counts, opts){
+  const o = opts || {};
+  const t = state.tracks || [];
+  const btn = (slug, name, color, cnt) => {
+    const on = (state.trackSel||null) === (slug||null);
+    return `<button class="tr-btn ${on?'on':''}" data-track="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
+      <span class="tr-dot"></span><span>${escapeHtml(name)}</span>
+      ${cnt!==undefined?`<span class="tr-cnt">${cnt}</span>`:''}
+    </button>`;
+  };
+  const total = o.total!==undefined ? o.total : undefined;
+  return `<aside class="trackrail">
+    <div class="tr-head">계열</div>
+    ${btn('', '전체', DEFAULT_ACCENT, total)}
+    ${t.map(x=>btn(x.slug, x.name, x.color, counts ? (counts[x.slug]||0) : undefined)).join('')}
+    ${o.showNone ? btn('__none','미분류','#9aa0ab', counts ? (counts.__none||0) : undefined) : ''}
+  </aside>`;
+}
+function bindTrackRail(root){
+  (root||document).querySelectorAll('.tr-btn[data-track]').forEach(b=>{
+    b.onclick = (ev)=>{ setTrack(b.dataset.track || null, ev); };
+  });
+}
 const $ = s => document.querySelector(s);
 
 /* ================== 인증 ================== */
@@ -1111,6 +1272,7 @@ async function onLoggedIn(){
   state.avatar_url = prof?.avatar_url || '';
   renderUserbox();
   await loadDocs();
+  await Promise.all([ loadTracks(), loadDocTypes() ]);   // 계열(테마색 복원) + 문서 유형
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
@@ -1510,13 +1672,13 @@ async function renderQuestions(){
 
 /* ================== 문서 탭 (#docs) — 문서의 정문 ==================
    전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
-const docsPage = { sort: 'recent' };
+const docsPage = { sort: 'recent', club: '', type: '' };
 async function renderDocsPage(){
   $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
   try{
     const { data, error } = await sb.from('documents')
-      .select('key,title,eng,category,updated_at,updated_by');
+      .select('key,title,eng,category,track,club,doc_type,updated_at,updated_by');
     if(error) throw error;
     rows=data||[];
   }catch(e){ $('#doc').innerHTML='<h1>문서</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
@@ -1533,12 +1695,22 @@ async function renderDocsPage(){
       (ps||[]).forEach(p=>{ names[p.id]=p.handle||p.name||''; });
     }catch(_){}
   }
+  const clubList=[...new Set(rows.map(r=>r.club).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
 
   const draw=()=>{
     const lc=k=>(likes[k]&&likes[k].cnt)||0;
     const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
-    const stubCount=rows.filter(d=>isStub(d.key)).length;
-    let sorted=rows.slice();
+    // 계열 카운트는 다른 필터와 무관하게(레일이 항상 전체 그림을 보여주도록)
+    const counts={__none:0}; rows.forEach(d=>{ if(d.track) counts[d.track]=(counts[d.track]||0)+1; else counts.__none++; });
+
+    let base=rows.slice();
+    if(state.trackSel==='__none')   base=base.filter(d=>!d.track);
+    else if(state.trackSel)         base=base.filter(d=>d.track===state.trackSel);
+    if(docsPage.club) base=base.filter(d=>d.club===docsPage.club);
+    if(docsPage.type) base=base.filter(d=>d.doc_type===docsPage.type);
+
+    const stubCount=base.filter(d=>isStub(d.key)).length;
+    let sorted=base.slice();
     if(docsPage.sort==='stub') sorted=sorted.filter(d=>isStub(d.key));
     sorted.sort((a,b)=>{
       if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
@@ -1546,39 +1718,65 @@ async function renderDocsPage(){
       if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
       return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
+    const selTrack = trackBySlug(state.trackSel);
+    const heading = state.trackSel==='__none' ? '미분류 문서' : (selTrack ? selTrack.name+' 문서' : '문서');
+
     $('#doc').innerHTML = `
-      <div class="docs-head">
-        <h1>문서 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
-        <div class="docs-sort">
-          <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
-          <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
-          <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
-          ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
+    <div class="with-rail">
+      ${trackRailHTML(counts, {showNone:true, total:rows.length})}
+      <div class="rail-main">
+        <div class="docs-head">
+          <h1>${escapeHtml(heading)} <span class="muted" style="font-size:14px;font-weight:400">${sorted.length}개</span></h1>
+          <div class="docs-sort">
+            <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
+            <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
+            <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+            ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
+          </div>
+          ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
         </div>
-        ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+        <div class="docs-filters">
+          <select id="dpType">
+            <option value="">유형 전체</option>
+            ${(state.docTypes||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${docsPage.type===t.name?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}
+          </select>
+          <select id="dpClub">
+            <option value="">동아리 전체</option>
+            ${clubList.map(c=>`<option value="${escapeAttr(c)}" ${docsPage.club===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}
+          </select>
+          ${(docsPage.type||docsPage.club||state.trackSel)?`<button class="btn ghost" id="dpClear" style="width:auto;font-size:12px;padding:6px 12px">필터 해제</button>`:''}
+        </div>
+        ${(canEdit() && stubCount) ? `<div class="nudge">
+          <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
+          <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
+        </div>` : ''}
+        ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
+        <div class="docs-grid">
+          ${sorted.map(d=>{ const tk=trackBySlug(d.track); return `
+            <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
+              <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
+              <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
+              <div class="dc-meta">
+                ${tk?`<span class="dc-track" style="--tc:${escapeAttr(tk.color)}">${escapeHtml(tk.name)}</span>`:''}
+                ${d.doc_type?`<span class="dc-type">${escapeHtml(d.doc_type)}</span>`:''}
+                ${d.club?`<span class="dc-club">${escapeHtml(d.club)}</span>`:''}
+                ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
+                               :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
+                ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
+                ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
+              </div>
+            </a>`; }).join('')}
+        </div>
       </div>
-      ${(canEdit() && stubCount) ? `<div class="nudge">
-        <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
-        <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
-      </div>` : ''}
-      ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
-      <div class="docs-grid">
-        ${sorted.map(d=>`
-          <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
-            <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
-            <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
-            <div class="dc-meta">
-              ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
-                             :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
-              ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
-              ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
-              ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
-            </div>
-          </a>`).join('')}
-      </div>`;
+    </div>`;
+    bindTrackRail($('#doc'));
     $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
       b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
     });
+    const ty=$('#dpType'); if(ty) ty.onchange=()=>{ docsPage.type=ty.value; draw(); };
+    const cb=$('#dpClub'); if(cb) cb.onchange=()=>{ docsPage.club=cb.value; draw(); };
+    const cl=$('#dpClear'); if(cl) cl.onclick=(ev)=>{ docsPage.type=''; docsPage.club='';
+      if(state.trackSel) setTrack(null, ev); else draw(); };
     const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
     const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
@@ -5225,6 +5423,7 @@ $('#modeBtn').onclick=()=>{
   const goingDark = !document.body.classList.contains('dark');
   document.body.classList.toggle('dark', goingDark);                 // 새로고침 없이 즉시 전환
   try{ localStorage.setItem('anda_theme', goingDark?'dark':'light'); }catch(e){}
+  applyCurrentTheme();                                                // 야간/주간에 맞춰 계열색 재계산
   $('#modeBtn').innerHTML = goingDark ? ic2('sun','ic16')+' 주간' : ic2('moon','ic16')+' 야간';
   route();                                                            // 현재 탭만 다시 그림(색상 반영)
 };
