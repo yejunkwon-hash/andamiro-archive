@@ -1252,6 +1252,10 @@ async function renderHealth(){
   const NIL='00000000-0000-0000-0000-000000000000';
   const lines=[];
 
+  // ── 0) 용량 (무료 한도) ──
+  lines.push(healthHead('0) 용량 (무료 한도)'));
+  lines.push(await capacityCheck());
+
   // ── 1) 데이터베이스 테이블/뷰 읽기 ──
   lines.push(healthHead('1) 테이블 · 뷰 읽기'));
   lines.push(await dbCheck('documents (문서)', ()=>sb.from('documents').select('key').limit(1)));
@@ -1331,6 +1335,46 @@ async function storageCheck(label, bucket){
   try{ const { error } = await sb.storage.from(bucket).list('', { limit:1 });
     return healthRow(label, !error, error?error.message:'OK'); }
   catch(e){ return healthRow(label, false, String(e)); }
+}
+/* 용량 게이지 — DB(500MB) / Storage(1GB) 사용률 + 무거운 테이블 상위 목록 */
+function fmtBytes(b){
+  if(b>=1024*1024*1024) return (b/1024/1024/1024).toFixed(2)+' GB';
+  if(b>=1024*1024)      return (b/1024/1024).toFixed(1)+' MB';
+  if(b>=1024)           return (b/1024).toFixed(0)+' KB';
+  return b+' B';
+}
+function usageBar(label, used, limit){
+  const pct = limit ? Math.min(100, used/limit*100) : 0;
+  const col = pct>=90 ? 'var(--link-red)' : (pct>=70 ? '#c98500' : '#2e9e5b');
+  return `<div style="margin:8px 0 12px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
+      <b>${escapeHtml(label)}</b>
+      <span>${escapeHtml(fmtBytes(used))} / ${escapeHtml(fmtBytes(limit))} · <b style="color:${col}">${pct.toFixed(1)}%</b></span>
+    </div>
+    <div style="height:8px;border-radius:4px;background:#e5e5e5;overflow:hidden">
+      <div style="height:100%;width:${pct.toFixed(1)}%;background:${col}"></div>
+    </div>
+  </div>`;
+}
+async function capacityCheck(){
+  try{
+    const { data, error } = await sb.rpc('capacity_usage');
+    if(error) throw error;
+    const d = (typeof data==='string') ? JSON.parse(data) : data;
+    let html = usageBar('Database (텍스트·문서·리비전)', d.db_bytes, d.db_limit)
+             + usageBar('Storage (사진)', d.storage_bytes, d.storage_limit);
+    const tb = d.tables||[];
+    if(tb.length){
+      html += `<div style="font-size:12px;color:var(--muted,#666);margin-top:6px">무거운 테이블: `
+            + tb.slice(0,5).map(t=>`${escapeHtml(t.name)} ${escapeHtml(fmtBytes(t.bytes))}`).join(' · ')
+            + `</div>`;
+    }
+    const worst = Math.max(d.db_bytes/d.db_limit, d.storage_bytes/d.storage_limit)*100;
+    if(worst>=90) html += `<div class="notice" style="border-left-color:var(--link-red);margin-top:8px"><b>⚠ 한도의 90%를 넘었습니다 — 정리 또는 플랜 상향이 필요합니다.</b></div>`;
+    return html;
+  }catch(e){
+    return healthRow('용량 조회 (capacity_usage)', false, '함수 미배포 또는 권한 없음 · '+String((e&&e.message)||e));
+  }
 }
 function healthHead(t){ return `<div class="rev" style="border-left-color:transparent;background:transparent;padding:12px 0 2px"><b style="color:var(--accent);font-size:13.5px">${escapeHtml(t)}</b></div>`; }
 async function dbCheck(label, fn){
@@ -1472,26 +1516,42 @@ function openHandleEditor(current){
   inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doSave(); });
 }
 
-/* 프로필 사진 업로드/제거 (클라이언트에서 정사각형 리사이즈·압축 후 Supabase Storage: avatars 버킷) */
-const AVA_DIM = 256;                 // 저장 크기(정사각형 한 변, px)
-const AVA_TARGET = 40*1024;          // 목표 용량(이 이하가 되도록 품질 자동 조절)
-const AVA_RAW_MAX = 25*1024*1024;    // 원본 파일 상한(초대형 파일 디코딩 방지)
-/* 어떤 이미지든 중앙 정사각형 크롭 → AVA_DIM 리사이즈 → WebP(미지원 시 JPEG) 압축. 표시(cover)와 동일하게 크롭. */
-function compressAvatar(file){
+/* ── 범용 이미지 압축기 ──────────────────────────────────────────────
+   업로드 전에 브라우저에서 리사이즈·재인코딩해 용량을 목표치 이하로 맞춘다.
+   (원칙: 이미지는 절대 DB에 넣지 않고 Storage로. DB 500MB / Storage 1GB는 별도 쿼터)
+   opts.mode   'cover'   = 중앙 정사각형 크롭 (프로필 사진: 표시가 정사각형이라 크롭이 맞음)
+               'contain' = 비율 유지, 장변만 dim으로 축소 (질문 이미지: 잘리면 안 됨)
+   opts.dim    결과 최대 변 길이(px)
+   opts.target 목표 바이트. 품질을 0.9→minQuality까지 낮춰 이 이하로 맞춘다.
+   opts.minQuality 품질 하한(기본 0.5)
+   반환 { blob, type, width, height }                                     */
+const IMG_RAW_MAX = 25*1024*1024;   // 원본 파일 상한(초대형 파일 디코딩 방지)
+function compressImage(file, opts){
+  const o = Object.assign({ mode:'contain', dim:1280, target:100*1024, minQuality:0.5 }, opts||{});
   return new Promise((resolve, reject)=>{
     const objurl=URL.createObjectURL(file);
     const img=new Image();
     img.onload=()=>{
       URL.revokeObjectURL(objurl);
       try{
-        const s=Math.min(img.width, img.height);
-        const sx=(img.width-s)/2, sy=(img.height-s)/2;
-        const cv=document.createElement('canvas'); cv.width=AVA_DIM; cv.height=AVA_DIM;
-        cv.getContext('2d').drawImage(img, sx, sy, s, s, 0, 0, AVA_DIM, AVA_DIM);
+        const iw=img.width, ih=img.height;
+        let sx=0, sy=0, sw=iw, sh=ih, dw, dh;
+        if(o.mode==='cover'){
+          const s=Math.min(iw, ih);
+          sx=(iw-s)/2; sy=(ih-s)/2; sw=sh=s;
+          dw=dh=o.dim;
+        }else{
+          const scale=Math.min(1, o.dim/Math.max(iw, ih));   // 원본보다 키우지 않음
+          dw=Math.max(1, Math.round(iw*scale));
+          dh=Math.max(1, Math.round(ih*scale));
+        }
+        const cv=document.createElement('canvas'); cv.width=dw; cv.height=dh;
+        cv.getContext('2d').drawImage(img, sx, sy, sw, sh, 0, 0, dw, dh);
         const type = cv.toDataURL('image/webp').startsWith('data:image/webp') ? 'image/webp' : 'image/jpeg';
         const step=q=>cv.toBlob(b=>{
           if(!b){ reject(new Error('encode')); return; }
-          if(b.size<=AVA_TARGET || q<=0.5) resolve({ blob:b, type }); else step(q-0.1);
+          if(b.size<=o.target || q<=o.minQuality) resolve({ blob:b, type, width:dw, height:dh });
+          else step(q-0.1);
         }, type, q);
         step(0.9);
       }catch(err){ reject(err); }
@@ -1499,6 +1559,14 @@ function compressAvatar(file){
     img.onerror=()=>{ URL.revokeObjectURL(objurl); reject(new Error('load')); };
     img.src=objurl;
   });
+}
+
+/* 프로필 사진 업로드/제거 (Supabase Storage: avatars 버킷) — 위 압축기의 'cover' 프리셋 */
+const AVA_DIM = 256;                 // 정사각형 한 변(px)
+const AVA_TARGET = 40*1024;          // 목표 용량
+const AVA_RAW_MAX = IMG_RAW_MAX;     // (하위호환) 원본 파일 상한
+function compressAvatar(file){
+  return compressImage(file, { mode:'cover', dim:AVA_DIM, target:AVA_TARGET });
 }
 async function onAvatarFile(e){
   const msg=$('#meAvaMsg'); const file=e.target.files&&e.target.files[0]; e.target.value='';
