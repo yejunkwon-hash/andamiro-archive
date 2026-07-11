@@ -6,9 +6,6 @@
 <title>안다 아카이브</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"></script>
 <style>
 /* ===== 기본 토큰 (wiki.html과 동일) ===== */
 :root{
@@ -292,6 +289,39 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 
 
 
+
+/* ===== 문서 작성 팁 패널 (우측) ===== */
+/* 평소엔 눈에 띄지 않고, 마우스를 올렸을 때만 활성화된 모습이 된다 */
+.wk-tipbtn{background:transparent;border:1px solid transparent;color:var(--text-dim);font-size:12px;font-weight:700;padding:4px 9px;border-radius:6px;cursor:pointer;margin-left:auto;opacity:.55;transition:all .12s;}
+.wk-tipbtn:hover,.wk-tipbtn.on{opacity:1;background:var(--accent);color:#fff;border-color:var(--accent);}
+.tip-pane{border:1px solid var(--border);border-radius:8px;background:var(--card);overflow:auto;min-height:420px;max-height:70vh;}
+.tip-hd{position:sticky;top:0;background:var(--box-bg);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:8px;z-index:2;}
+.tip-hd b{font-size:13px;}
+.tip-x{margin-left:auto;background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:var(--text-dim);}
+.tip-sec{font-size:11px;font-weight:800;color:var(--accent);padding:9px 12px 3px;letter-spacing:.3px;}
+.tip-tbl{width:100%;border-collapse:collapse;table-layout:fixed;}
+.tip-tbl th{background:var(--box-bg);font-size:10.5px;color:var(--text-dim);padding:4px 8px;text-align:left;border-bottom:1px solid var(--border);}
+.tip-tbl td{border-bottom:1px solid var(--border);padding:6px 8px;font-size:12px;vertical-align:top;}
+.tip-tbl td:nth-child(1){width:32%;}
+.tip-tbl td:nth-child(2){width:38%;}
+.tip-tbl td:nth-child(3){width:30%;color:var(--text-dim);font-size:11px;}
+.tip-tbl code{background:var(--box-bg);border:1px solid var(--border);border-radius:3px;padding:1px 4px;font-size:11px;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap;word-break:break-all;}
+.tip-tbl .rz h2,.tip-tbl .rz h3{all:revert;font-size:12px;margin:0;font-weight:800;}
+.tip-tbl .rz p{margin:0;} .tip-tbl .rz ul,.tip-tbl .rz ol{margin:0 0 0 15px;padding:0;}
+.tip-tbl .rz table{border-collapse:collapse;} .tip-tbl .rz th,.tip-tbl .rz td{border:1px solid var(--border);padding:1px 4px;font-size:10.5px;}
+.tip-tbl .rz blockquote{margin:0;padding:0 0 0 7px;border-left:2px solid var(--border);color:var(--text-dim);}
+.tip-tbl .rz img{max-width:60px;} .tip-tbl .rz hr{margin:3px 0;}
+
+/* ===== 인포박스 폼 (JSON 추방) ===== */
+.ib-form{border:1px solid var(--border);border-radius:8px;padding:12px;background:var(--box-bg);margin-top:6px;}
+.ib-top2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ib-row{display:grid;grid-template-columns:34% 1fr 30px;gap:6px;margin-top:6px;align-items:center;}
+.ib-row input{padding:6px 9px !important;font-size:13px !important;}
+.ib-x{border:1px solid var(--border);background:var(--card);color:var(--text-dim);border-radius:6px;height:30px;cursor:pointer;font-size:14px;line-height:1;}
+.ib-x:hover{border-color:var(--link-red);color:var(--link-red);}
+.ib-add{margin-top:8px;background:var(--card);border:1px dashed var(--border-strong);color:var(--text-dim);border-radius:6px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;width:100%;}
+.ib-add:hover{border-color:var(--accent);color:var(--accent);}
+.ib-hd{display:grid;grid-template-columns:34% 1fr 30px;gap:6px;font-size:11px;color:var(--text-dim);font-weight:700;margin-top:10px;}
 
 /* ===== 문서 사진 업로드 ===== */
 .wk-split.drag #e-body{outline:2px dashed var(--accent);outline-offset:-3px;background:var(--box-bg);}
@@ -868,6 +898,7 @@ async function renderDoc(key){
     ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
   `;
   buildToc(); buildFootnotes(); buildNav(key);
+  renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
   $('#histBtn').onclick=()=>showHistory(key);
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
@@ -1015,196 +1046,16 @@ function htmlToWiki(html){
 }
 
 
-/* ================== 문서 작성 팁 (새 탭 가이드) ==================
-   ★핵심 설계: 예시의 '결과' 칸을 실제 wikiToHtml() 로 렌더한다.
-     → 문법이 바뀌어도 가이드가 저절로 따라옴. 문서와 코드가 어긋날 수 없다. */
-function openWritingGuide(){
-  const ex = (code, desc) =>
-    `<tr><td class="c"><code>${escapeHtml(code)}</code></td><td class="r">${wikiToHtml(code)}</td><td class="d">${escapeHtml(desc)}</td></tr>`;
 
-  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>안다 아카이브 · 문서 작성 팁</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
-<style>
- body{max-width:920px;margin:0 auto;padding:32px 22px 80px;font-family:system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.75;color:#222;background:#fff;}
- h1{font-size:26px;border-bottom:3px solid #c0392b;padding-bottom:10px;margin-bottom:4px;}
- .sub{color:#777;font-size:13.5px;margin-bottom:26px;}
- h2{font-size:20px;margin:38px 0 10px;padding:7px 12px;background:#f6f2f2;border-left:5px solid #c0392b;}
- h3{font-size:16px;margin:24px 0 8px;color:#c0392b;}
- p,li{font-size:14.5px;}
- table{border-collapse:collapse;width:100%;margin:12px 0 18px;table-layout:fixed;}
- th,td{border:1px solid #ddd;padding:9px 11px;vertical-align:top;font-size:13.5px;}
- th{background:#f6f2f2;font-size:12.5px;text-align:left;}
- td.c{width:34%;background:#fbfafa;} td.r{width:38%;} td.d{width:28%;color:#666;font-size:12.5px;}
- code{background:#f2efef;border:1px solid #e2dcdc;border-radius:4px;padding:1px 6px;font-size:12.5px;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap;}
- .tip{background:#fdf6f5;border:1px solid #f0d8d5;border-left:5px solid #c0392b;border-radius:0 6px 6px 0;padding:12px 15px;margin:14px 0;font-size:13.5px;}
- .warn{background:#fffbe9;border:1px solid #f0e3b0;border-left:5px solid #d9a300;border-radius:0 6px 6px 0;padding:12px 15px;margin:14px 0;font-size:13.5px;}
- .nav{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 0;margin-bottom:18px;font-size:13px;}
- .nav a{color:#c0392b;text-decoration:none;margin-right:14px;font-weight:700;}
- .nav a:hover{text-decoration:underline;}
- .r h2,.r h3{all:revert;font-size:15px;margin:2px 0;padding:0;background:none;border:none;color:#222;}
- .r p{margin:2px 0;} .r ul,.r ol{margin:2px 0 2px 18px;padding:0;}
- .r table{margin:2px 0;} .r th,.r td{padding:3px 7px;font-size:12px;}
- .r blockquote{margin:2px 0;padding:2px 10px;border-left:3px solid #ddd;color:#555;}
- .r img{max-width:100%;}
- kbd{background:#eee;border:1px solid #ccc;border-bottom-width:2px;border-radius:4px;padding:1px 6px;font-size:12px;}
- .steps{counter-reset:s;list-style:none;padding:0;}
- .steps li{counter-increment:s;position:relative;padding:8px 0 8px 38px;border-bottom:1px dashed #eee;}
- .steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:#c0392b;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
-</style></head><body>
 
-<h1>문서 작성 팁</h1>
-<div class="sub">안다 아카이브 · 문법을 몰라도 <b>버튼만으로</b> 문서를 쓸 수 있습니다. 이 창을 옆에 띄워두고 보세요.</div>
-
-<div class="nav">
-  <a href="#p1">1. 시작하기</a><a href="#p2">2. 문법 전부</a><a href="#p3">3. 잘 쓰는 법</a>
-</div>
-
-<h2 id="p1">1장 · 시작하기 — 5분이면 충분합니다</h2>
-
-<h3>가장 중요한 것: 버튼을 쓰세요</h3>
-<p>본문 위의 <b>도구 버튼</b>(제목·굵게·목록·표·링크·각주·수식)이 문법을 대신 써줍니다. <b>문법을 하나도 몰라도 됩니다.</b></p>
-<ol class="steps">
-  <li>본문에서 글자를 <b>드래그해서 선택</b>합니다.</li>
-  <li>도구 버튼(예: <b>굵게</b>)을 누릅니다.</li>
-  <li>선택한 글자가 <code>**이렇게**</code> 감싸지고, 오른쪽 <b>미리보기</b>에 <b>굵게</b> 나타납니다.</li>
-  <li>아무것도 선택하지 않고 눌러도 됩니다 — 예시 글자가 들어가니 그 위에 덮어쓰면 됩니다.</li>
-</ol>
-
-<div class="tip"><b>실수해도 괜찮습니다.</b> 모든 저장은 <b>역사</b>에 기록됩니다. 문서 상단의 <b>역사</b> 버튼에서 예전 버전을 언제든 되돌릴 수 있어요. 마음 편히 고치세요.</div>
-<div class="tip"><b>쓰다 만 글은 자동 저장됩니다.</b> 실수로 창을 닫아도, 다시 편집에 들어오면 <b>“저장되지 않은 초안이 있어요”</b>라고 물어봅니다.</div>
-
-<h3>화면 보는 법</h3>
-<p><b>컴퓨터</b>에서는 왼쪽에 쓰고 오른쪽에 결과가 <b>실시간</b>으로 보입니다. <b>휴대폰</b>에서는 화면이 좁아서 <b>[작성] / [미리보기]</b> 탭으로 나뉩니다 — 쓰다가 [미리보기]를 눌러 확인하세요.</p>
-
-<h3>문단 나누기 — 딱 하나만 기억하세요</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('첫째 줄\n둘째 줄', '한 번 줄바꿈 = 같은 문단 안에서 줄만 바뀜')}
-  ${ex('첫째 문단\n\n둘째 문단', '빈 줄 = 새 문단 (한 줄 띄우기)')}
-</table>
-
-<h2 id="p2">2장 · 문법 전부 — 이게 전부입니다</h2>
-
-<h3>제목 (목차가 자동으로 만들어집니다)</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('## 큰 제목', '문서의 章. 목차에 표시됨')}
-  ${ex('### 작은 제목', '章 안의 節. 목차에 함께 표시됨')}
-</table>
-<div class="tip"><b>#은 두 개부터</b> 씁니다. 문서 제목은 이미 맨 위에 있으니, 본문은 <code>##</code>부터 시작하세요.</div>
-
-<h3>글자 꾸미기</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('**굵게**', '중요한 부분')}
-  ${ex('*기울임*', '강조·인용어')}
-  ${ex('~~취소선~~', '지워진 내용')}
-</table>
-
-<h3>목록과 인용</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('- 첫째\n- 둘째', '순서 없는 목록')}
-  ${ex('1. 첫째\n2. 둘째', '순서 있는 목록')}
-  ${ex('> 인용한 말', '인용문·강조 상자')}
-  ${ex('---', '구분선')}
-</table>
-
-<h3>표 — 연혁·명단에 유용합니다</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('| 연도 | 내용 |\n| 2016 | 창립 |\n| 2020 | 첫 대회 |', '첫 줄이 제목 칸이 됩니다')}
-</table>
-<div class="tip">칸 수만 맞추면 됩니다. 줄마다 <code>|</code> 로 시작하고 <code>|</code> 로 끝내세요.</div>
-
-<h3>링크</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('[안다 홈페이지](https://example.com)', '바깥 사이트 (새 탭으로 열림)')}
-  ${ex('[동아리 역사](#history)', '아카이브 안의 다른 문서')}
-</table>
-<div class="tip"><b>내부 문서 링크</b>는 <code>#</code> 뒤에 그 문서의 <b>주소</b>를 씁니다. 주소는 편집 화면 오른쪽 위 <code>주소 /</code> 칸에서 확인할 수 있어요.</div>
-
-<h3>각주 — 용어 설명에 씁니다</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('[[안다|알고리즘과 다양성]]', '용어에 밑줄, 마우스를 올리면 설명이 뜸')}
-</table>
-<p><code>[[보여줄 글자|설명 내용]]</code> — 세로줄(<code>|</code>)로 나눕니다.</p>
-
-<h3>수식</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('피타고라스: $a^2+b^2=c^2$', '문장 안 수식')}
-  ${ex('$$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$$', '가운데 정렬 큰 수식')}
-</table>
-<p>자세한 수식 기호는 커뮤니티 채팅의 <b>“LaTeX 사용법”</b> 안내를 참고하세요.</p>
-
-<h3>사진</h3>
-<table>
-  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
-  ${ex('![창립 사진](https://example.com/a.webp)', '대괄호 안은 설명, 괄호 안은 주소')}
-</table>
-<div class="warn"><b>사진은 직접 주소를 쓰지 마세요.</b> 곧 추가될 <b>📷 사진</b> 버튼을 쓰면 자동으로 올라가고 주소가 삽입됩니다. (용량을 아끼려고 자동으로 압축됩니다)</div>
-
-<h2 id="p3">3장 · 잘 쓰는 법</h2>
-
-<h3>문서의 기본 구조</h3>
-<p>새 문서를 만들 때 <b>종류(인물·행사·개념·역사·안내)</b>를 고르면 뼈대가 자동으로 채워집니다. 백지에서 시작하지 마세요.</p>
-<ul>
-  <li><b>개요</b>를 맨 앞에 — 이 문서가 무엇인지 <b>한두 문장</b>으로.</li>
-  <li>그 다음 <b>본론</b>을 <code>##</code> 제목으로 나눕니다.</li>
-  <li><b>정보 틀(인포박스)</b>에는 날짜·인원 같은 <b>사실</b>만 넣습니다.</li>
-</ul>
-
-<h3>좋은 문서 · 아쉬운 문서</h3>
-<table>
-  <tr><th>아쉬운 예</th><th>좋은 예</th><th>왜</th></tr>
-  <tr><td class="c">한 문단에 전부 몰아쓰기</td><td class="r"><code>##</code> 제목으로 나누기</td><td class="d">목차가 생겨 찾기 쉬움</td></tr>
-  <tr><td class="c">“여러 활동을 했다”</td><td class="r">목록으로 하나씩</td><td class="d">구체적일수록 오래 남음</td></tr>
-  <tr><td class="c">기억나는 대로 날짜 추측</td><td class="r">모르면 비워두기</td><td class="d">아카이브는 <b>사실</b>이 생명</td></tr>
-  <tr><td class="c">완벽해질 때까지 저장 안 함</td><td class="r">조금씩 자주 저장</td><td class="d">역사가 남아 안전함</td></tr>
-</table>
-
-<div class="tip"><b>혼자 완성하려 하지 마세요.</b> 아카이브는 여럿이 조금씩 채워가는 곳입니다. 아는 만큼만 쓰고 저장하면, 다음 사람이 이어서 씁니다.</div>
-
-<h3>편집이 겹칠 때</h3>
-<p>다른 회원이 같은 문서를 동시에 고치고 있을 수 있습니다. 저장 전에 <b>미리보기</b>로 확인하고, 이상하면 <b>역사</b>에서 이전 버전과 비교해 보세요.</p>
-
-<h3>자주 겪는 문제</h3>
-<table>
-  <tr><th>증상</th><th>원인 / 해결</th><th></th></tr>
-  <tr><td class="c">굵게가 안 먹어요</td><td class="r">별표가 <b>두 개씩</b>인지 확인: <code>**굵게**</code></td><td class="d"></td></tr>
-  <tr><td class="c">줄이 안 나뉘어요</td><td class="r">문단을 나누려면 <b>빈 줄</b>을 넣으세요</td><td class="d"></td></tr>
-  <tr><td class="c">표가 깨져요</td><td class="r">줄마다 <code>|</code>로 시작하고 끝나야 하고, 칸 수가 같아야 합니다</td><td class="d"></td></tr>
-  <tr><td class="c">수식이 이상해요</td><td class="r">달러 기호 <code>$</code>로 <b>앞뒤를 모두</b> 감쌌는지 확인하세요</td><td class="d"></td></tr>
-</table>
-
-<p style="margin-top:40px;color:#999;font-size:12.5px;text-align:center">모르는 게 있으면 <b>커뮤니티</b>나 <b>질문 게시판</b>에 물어보세요.</p>
-
-  <script>
-  window.addEventListener('load',function(){
-    if(window.renderMathInElement) renderMathInElement(document.body,{
-    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
-});
-<\/script>
-</body></html>`;
-
-  const w=window.open('','_blank');
-  if(!w){ alert('팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.'); return; }
-  w.document.write(html); w.document.close();
-}
 
 
 /* ── 문서 사진 업로드 ─────────────────────────────────────────
    압축(1600px/150KB) → doc-images 업로드 → 본문에 ![](URL) 삽입.
-   경로 3가지: 📷 버튼 · 드래그&드롭 · Ctrl+V 붙여넣기(스크린샷) */
+   경로 3가지: 📷 버튼 · 드래그&드롭 · Ctrl+V 붙여넣기(스크린샷)
+   ★본문에는 URL만 들어간다. base64를 넣으면 리비전이 편집마다 사진을 복사해 10년 78GB. */
 const DOC_IMG_DIM = 1600;
-const DOC_IMG_TARGET = 150*1024;   // 장당 상한 — Storage 1GB 안에서 문서 300개×8장이 안전한 수치
+const DOC_IMG_TARGET = 150*1024;
 
 function wkUpMsg(t, err){
   const el=$('#wkUpMsg'); if(!el) return;
@@ -1217,7 +1068,6 @@ async function wkUploadImages(files){
 
   for(const f of imgs){
     if(f.size > IMG_RAW_MAX){ wkUpMsg('25MB 이하 이미지만 올릴 수 있어요.', true); continue; }
-    // 자리표시자를 커서에 먼저 넣어, 업로드 중에도 어디에 들어갈지 보이게 한다
     const token = '![업로드 중…](uploading-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+')';
     const st=ta.selectionStart;
     ta.setRangeText('\n'+token+'\n', st, ta.selectionEnd, 'end');
@@ -1232,12 +1082,11 @@ async function wkUploadImages(files){
         .upload(path, out.blob, { contentType: out.type, cacheControl:'31536000', upsert:false });
       if(up.error) throw up.error;
       const pub = sb.storage.from('doc-images').getPublicUrl(path);
-      const url = pub.data.publicUrl;
       const alt = (f.name||'사진').replace(/\.[^.]+$/,'').replace(/[\[\]()]/g,'').slice(0,40);
-      ta.value = ta.value.replace(token, `![${alt}](${url})`);
+      ta.value = ta.value.replace(token, `![${alt}](${pub.data.publicUrl})`);
       wkUpMsg(`올렸어요 · ${(out.blob.size/1024).toFixed(0)}KB`);
     }catch(e){
-      ta.value = ta.value.replace(token, '');       // 실패한 자리표시자는 제거
+      ta.value = ta.value.replace(token, '');
       wkUpMsg('업로드 실패: '+((e&&e.message)||e), true);
     }
     wkRenderPreview(); wkAutosave(state.key);
@@ -1249,7 +1098,6 @@ function wkPickImage(){
   inp.onchange=()=>{ wkUploadImages(inp.files||[]); };
   inp.click();
 }
-/* 편집기에 드래그&드롭 · 붙여넣기 배선 */
 function wkBindImageDrop(){
   const ta=$('#e-body'), split=$('#wkSplit'); if(!ta) return;
   ['dragenter','dragover'].forEach(ev=>ta.addEventListener(ev, e=>{
@@ -1263,8 +1111,139 @@ function wkBindImageDrop(){
   ta.addEventListener('paste', e=>{
     const items=(e.clipboardData && e.clipboardData.items) || [];
     const files=[...items].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
-    if(files.length){ e.preventDefault(); wkUploadImages(files); }   // 스크린샷 붙여넣기
+    if(files.length){ e.preventDefault(); wkUploadImages(files); }
   });
+}
+
+/* ================== 정보 틀(인포박스) 폼 ==================
+   예전엔 raw JSON textarea 였다(쉼표 하나 틀리면 저장 실패).
+   이제 '항목명 | 값' 행을 버튼으로 추가/삭제하고, JSON은 뒤에서 자동 생성한다. */
+function INFOBOX_FORM_HTML(info){
+  const rows = (info && Array.isArray(info.rows) && info.rows.length) ? info.rows : [['',''],['','']];
+  return `<details class="adv" open><summary>정보 틀 (문서 오른쪽 위 요약 상자)</summary>
+    <div class="ib-form">
+      <div class="ib-top2">
+        <div><label style="margin-top:0">상자 제목</label>
+          <input id="ib-title" value="${escapeAttr((info&&info.title)||'')}" placeholder="예: 안다미로"></div>
+        <div><label style="margin-top:0">부제 <span class="hint">(선택)</span></label>
+          <input id="ib-sub" value="${escapeAttr((info&&info.sub)||'')}" placeholder="예: 경기북과학고 물리 동아리"></div>
+      </div>
+      <div class="ib-hd"><span>항목명</span><span>값</span><span></span></div>
+      <div id="ibRows">${rows.map(r=>ibRowHTML(r[0],r[1])).join('')}</div>
+      <button type="button" class="ib-add" id="ibAdd">＋ 항목 추가</button>
+    </div>
+  </details>`;
+}
+function ibRowHTML(k,v){
+  return `<div class="ib-row">
+    <input class="ib-k" value="${escapeAttr(k||'')}" placeholder="예: 창립">
+    <input class="ib-v" value="${escapeAttr(v||'')}" placeholder="예: 2016년">
+    <button type="button" class="ib-x" title="이 행 삭제">×</button>
+  </div>`;
+}
+function bindInfoboxForm(){
+  const box=$('#ibRows'); if(!box) return;
+  const bindX=()=>box.querySelectorAll('.ib-x').forEach(b=>{ b.onclick=()=>{ b.closest('.ib-row').remove(); }; });
+  bindX();
+  const add=$('#ibAdd');
+  if(add) add.onclick=()=>{
+    box.insertAdjacentHTML('beforeend', ibRowHTML('',''));
+    bindX();
+    const last=box.lastElementChild; if(last) last.querySelector('.ib-k').focus();
+  };
+}
+/* 폼 → JSON. 빈 행은 버리고, 전부 비면 null(인포박스 없음). */
+function collectInfobox(){
+  const box=$('#ibRows');
+  if(!box){                                       // 폼이 없으면 옛 JSON textarea 폴백
+    const el=$('#e-info'); const raw=el?el.value.trim():'';
+    if(!raw) return null;
+    try{ return JSON.parse(raw); }catch(e){ throw new Error('정보 틀 JSON 형식 오류: '+e.message); }
+  }
+  const title=($('#ib-title').value||'').trim();
+  const sub=($('#ib-sub').value||'').trim();
+  const rows=[...box.querySelectorAll('.ib-row')]
+    .map(r=>[ (r.querySelector('.ib-k').value||'').trim(), (r.querySelector('.ib-v').value||'').trim() ])
+    .filter(r=>r[0]!=='' || r[1]!=='');
+  if(!title && !sub && !rows.length) return null;
+  return { title, sub, rows };
+}
+
+/* ================== 문서 작성 팁 (편집기 우측 패널) ==================
+   ★ '결과' 칸을 실제 wikiToHtml()로 렌더한다 → 문법이 바뀌면 표가 저절로 따라오고,
+     가이드가 코드와 어긋날 수 없다. 긴 설명 없이 표만. */
+const TIP_ROWS = {
+  '기본': [
+    ['## 제목',            '문서의 章. 목차 자동 생성'],
+    ['### 소제목',         '章 안의 節'],
+    ['**굵게**',           '강조'],
+    ['*기울임*',           '약한 강조'],
+    ['~~취소선~~',         '지워진 내용'],
+  ],
+  '목록 · 인용': [
+    ['- 항목\n- 항목',      '순서 없는 목록'],
+    ['1. 첫째\n2. 둘째',    '순서 있는 목록'],
+    ['> 인용문',           '인용 상자'],
+    ['---',                '구분선'],
+  ],
+  '표': [
+    ['| 연도 | 내용 |\n| 2016 | 창립 |', '첫 줄이 제목 칸. 칸 수만 맞추면 됨'],
+  ],
+  '링크 · 각주': [
+    ['[안다](https://a.kr)',   '바깥 사이트 (새 탭)'],
+    ['[역사](#history)',       '아카이브 안의 문서 (# + 주소)'],
+    ['[[안다|알고리즘과 다양성]]', '각주 — 마우스 올리면 설명'],
+  ],
+  '수식 · 사진': [
+    ['$a^2+b^2=c^2$',      '문장 안 수식'],
+    ['$$\\frac{n(n+1)}{2}$$', '가운데 큰 수식'],
+    ['![설명](주소)',       '사진 — 📷 버튼이 자동 삽입'],
+  ],
+  '문단': [
+    ['첫 줄\n둘째 줄',      '한 번 줄바꿈 = 줄만 바뀜'],
+    ['첫 문단\n\n둘째 문단', '빈 줄 = 새 문단'],
+  ],
+};
+const TIP_FAQ = [
+  ['굵게가 안 먹어요',   '별표를 <b>두 개씩</b>: <code>**굵게**</code>'],
+  ['줄이 안 나뉘어요',   '문단을 나누려면 <b>빈 줄</b>'],
+  ['표가 깨져요',        '줄마다 <code>|</code>로 시작·끝, 칸 수 동일'],
+  ['수식이 이상해요',    '<code>$</code>로 <b>앞뒤 모두</b> 감쌌는지'],
+  ['실수했어요',         '문서 상단 <b>역사</b>에서 되돌리기'],
+  ['쓰다 창이 닫혔어요', '자동 저장됨 — 다시 열면 이어쓰기 제안'],
+];
+function tipPaneHTML(){
+  const row = (code, desc) =>
+    `<tr><td><code>${escapeHtml(code)}</code></td><td class="rz">${wikiToHtml(code)}</td><td>${escapeHtml(desc)}</td></tr>`;
+  let h = `<div class="tip-hd"><b>📖 문서 작성 팁</b>
+      <span style="font-size:11px;color:var(--text-dim)">버튼만 눌러도 작성됩니다</span>
+      <button class="tip-x" id="tipClose" title="닫고 미리보기로">×</button></div>`;
+  for(const [sec, rows] of Object.entries(TIP_ROWS)){
+    h += `<div class="tip-sec">${escapeHtml(sec)}</div>
+      <table class="tip-tbl"><tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+      ${rows.map(r=>row(r[0], r[1])).join('')}</table>`;
+  }
+  h += `<div class="tip-sec">자주 겪는 문제</div><table class="tip-tbl">
+    ${TIP_FAQ.map(f=>`<tr><td colspan="1">${escapeHtml(f[0])}</td><td colspan="2">${f[1]}</td></tr>`).join('')}</table>`;
+  return h;
+}
+/* 우측 칸을 [미리보기] ↔ [작성 팁] 으로 토글 */
+function toggleTipPane(){
+  const prevCol=$('#wkPrevCol'), btn=$('#wkTipBtn'); if(!prevCol) return;
+  const open = !prevCol.classList.contains('tips');
+  prevCol.classList.toggle('tips', open);
+  btn.classList.toggle('on', open);
+  if(open){
+    prevCol.innerHTML=`<div class="tip-pane" id="tipPane">${tipPaneHTML()}</div>`;
+    $('#tipClose').onclick=toggleTipPane;
+    renderMath($('#tipPane'));
+    if($('#wkSplit').classList.contains('prev-mode')===false && window.innerWidth<=900){
+      $('#wkTabP').click();                    // 폰: 팁을 켜면 오른쪽 칸이 보이도록 전환
+    }
+  }else{
+    prevCol.innerHTML=`<div class="wk-preview" id="wkPrev"></div>`;
+    wkRenderPreview();
+  }
 }
 
 /* ── 위키 편집기 UI ───────────────────────────────────────── */
@@ -1275,7 +1254,7 @@ function wkRenderPreview(){
   wkPrevTimer=setTimeout(()=>{
     const prev=$('#wkPrev'); const ta=$('#e-body'); if(!prev||!ta) return;
     prev.innerHTML=wikiToHtml(ta.value);
-    try{ if(window.renderMathInElement) renderMathInElement(prev,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false}); }catch(e){}
+    renderMath(prev);
   },250);
 }
 function wkAutosave(key){
@@ -1305,6 +1284,7 @@ const WK_TOOLBAR=[
 async function enterWikiEdit(doc, opts){
   opts=opts||{};
   state.editFmt='wiki';
+  state.editBase = doc.updated_at || null;      // 충돌 감지 기준 시각
   const catStr = doc.category ? doc.category.join(', ') : '';
   const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
   $('#doc').innerHTML=`
@@ -1316,7 +1296,7 @@ async function enterWikiEdit(doc, opts){
       </div>
     </div>
     <div class="editor">
-      ${opts.converted?'<div class="notice"><b>HTML → 안다 문법 자동 변환 결과입니다.</b> 미리보기로 확인한 뒤 저장하세요. 저장 전까지 원본은 그대로 남아 있습니다.</div>':''}
+      ${opts.converted?`<div class="notice"><b>이 문서는 예전 HTML 형식이라 자동으로 쉬운 문법으로 바꿔 열었어요.</b> 오른쪽 미리보기로 확인한 뒤 저장하면 변환이 확정됩니다. <b>저장하지 않고 나가면 원본 그대로</b>예요.</div>`:''}
       <div class="wk-row2">
         <div><label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}"></div>
         <div><label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}"></div>
@@ -1336,9 +1316,10 @@ async function enterWikiEdit(doc, opts){
         <div id="wkEditCol"><textarea id="e-body" placeholder="여기에 내용을 쓰세요. 빈 줄로 문단을 나눕니다.">${escapeHtml(doc.body||'')}</textarea></div>
         <div id="wkPrevCol"><div class="wk-preview" id="wkPrev"></div></div>
       </div>
-      <details class="adv"><summary>정보 틀(인포박스) 고급 편집 · JSON</summary>
-        <textarea id="e-info" style="min-height:160px">${escapeHtml(infoStr)}</textarea>
-      </details>
+      ${opts.originalHtml?`<details class="adv"><summary>원본 HTML 보기 (변환 전 · 대조용)</summary>
+        <textarea readonly style="min-height:140px;font-size:12px;opacity:.8">${escapeHtml(opts.originalHtml)}</textarea>
+      </details>`:''}
+      ${INFOBOX_FORM_HTML(doc.infobox)}
       <div class="editor-actions">
         <button class="btn primary" id="saveBtn" style="width:auto">저장</button>
         <button class="btn ghost" id="cancelBtn">취소</button>
@@ -1346,9 +1327,10 @@ async function enterWikiEdit(doc, opts){
       </div>
     </div>`;
   document.querySelectorAll('[data-wk]').forEach(b=>{ b.onclick=()=>{ const t=WK_TOOLBAR[+b.dataset.wk]; wkInsert(t[1],t[2],t[3]); }; });
-  $('#wkTipBtn').onclick=openWritingGuide;
+  $('#wkTipBtn').onclick=toggleTipPane;
   $('#wkImgBtn').onclick=wkPickImage;
   wkBindImageDrop();
+  bindInfoboxForm();
   $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
   $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
   const ta=$('#e-body');
@@ -1369,40 +1351,15 @@ async function enterWikiEdit(doc, opts){
 }
 
 function enterEdit(doc){
-  if((doc.format||'html')==='wiki'){ enterWikiEdit(doc); return; }   // 새 문서·변환된 문서 → 새 편집기
-  state.editFmt='html';
-  const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
-  const catStr = doc.category ? doc.category.join(', ') : '';
-  $('#doc').innerHTML = `
-    <div class="doc-head"><h1>문서 편집</h1></div>
-    <div class="editor">
-      <label>문서 주소 <span class="hint">(영문 소문자·숫자·-·_, 중복 불가 · 변경 시 링크가 바뀝니다)</span></label>
-      <input id="e-key" value="${escapeAttr(doc.key||'')}">
-      <label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}">
-      <label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}">
-      <label>안내상자 <span class="hint">(문서 상단 회색 박스, HTML 가능·선택)</span></label>
-      <input id="e-notice" value="${escapeAttr(doc.notice||'')}">
-      <label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}">
-      <label>본문 <span class="hint">(HTML. h2/h3로 제목, &lt;span class="fn" data-note="…"&gt;용어&lt;/span&gt;로 각주)</span></label>
-      <textarea id="e-body">${escapeHtml(doc.body||'')}</textarea>
-      <details class="adv"><summary>정보 틀(인포박스) 고급 편집 · JSON</summary>
-        <textarea id="e-info" style="min-height:160px">${escapeHtml(infoStr)}</textarea>
-      </details>
-      <div class="editor-actions">
-        <button class="btn primary" id="saveBtn" style="width:auto">저장</button>
-        <button class="btn ghost" id="cancelBtn">취소</button>
-        <button class="btn ghost" id="toWikiBtn" title="쉬운 문법으로 자동 변환 (저장 전 미리보기로 확인)">✨ 쉬운 문법으로 변환</button>
-        <span class="msg" id="e-msg" style="margin:0"></span>
-      </div>
-    </div>`;
-  $('#cancelBtn').onclick=()=>renderDoc(doc.key);
-  $('#saveBtn').onclick=()=>saveDoc(doc.key);
-  $('#toWikiBtn').onclick=()=>{
-    const converted = htmlToWiki($('#e-body').value);
-    enterWikiEdit(Object.assign({}, doc, { body:converted, format:'wiki',
-      title:$('#e-title').value, eng:$('#e-eng').value, notice:$('#e-notice').value }), { converted:true });
-  };
-  window.scrollTo(0,0);
+  // 모든 문서가 새 편집기를 쓴다. 기존 HTML 문서는 진입 시 자동으로 안다 문법으로 변환해 보여주고,
+  // ★저장하기 전까지 원본은 그대로 남는다(취소하면 아무 일도 없음). 원본은 아래 '원본 HTML'에서 대조 가능.
+  if((doc.format||'html')!=='wiki'){
+    const original = doc.body||'';
+    enterWikiEdit(Object.assign({}, doc, { body: htmlToWiki(original), format:'wiki' }),
+                  { converted:true, originalHtml: original });
+    return;
+  }
+  enterWikiEdit(doc);
 }
 async function saveDoc(key){
   const msg=$('#e-msg'); msg.className='msg';
@@ -1415,8 +1372,8 @@ async function saveDoc(key){
     return;
   }
   let infobox=null;
-  const rawInfo=$('#e-info').value.trim();
-  if(rawInfo){ try{ infobox=JSON.parse(rawInfo); }catch(e){ msg.className='msg err'; msg.textContent='정보 틀 JSON 형식 오류: '+e.message; return; } }
+  try{ infobox=collectInfobox(); }
+  catch(e){ msg.className='msg err'; msg.textContent=e.message; return; }
   const cat=$('#e-cat').value.split(',').map(s=>s.trim()).filter(Boolean);
   const payload={
     title:$('#e-title').value.trim(),
@@ -1430,6 +1387,35 @@ async function saveDoc(key){
     format: state.editFmt || undefined      // 'wiki' 저장 시 변환 확정, html은 그대로
   };
   $('#saveBtn').disabled=true;
+
+  // ── 동시 편집 충돌 보호 ──
+  // 예전엔 두 명이 같은 문서를 고치면 '나중에 저장한 사람'이 앞사람 걸 소리 없이 덮어썼다.
+  // 편집 시작 시점의 updated_at 과 지금 서버 값을 비교해, 그 사이에 누가 저장했으면 알려준다.
+  if(state.editBase){
+    try{
+      const { data:cur } = await sb.from('documents')
+        .select('updated_at,updated_by').eq('key', key).maybeSingle();
+      if(cur && cur.updated_at && cur.updated_at !== state.editBase){
+        let who='다른 회원';
+        try{
+          const { data:p } = await sb.from('members_public')
+            .select('handle,name').eq('id', cur.updated_by).maybeSingle();
+          if(p) who=(p.handle||p.name||who);
+        }catch(_){}
+        const ok = await confirmModal(
+          '편집하는 사이에 문서가 바뀌었어요',
+          `${who}님이 ${fmtKST(cur.updated_at)}에 이 문서를 저장했습니다.\n그대로 저장하면 그 내용이 사라집니다. (역사에서 복구는 가능)`,
+          '내 것으로 덮어쓰기');
+        if(!ok){
+          $('#saveBtn').disabled=false;
+          msg.className='msg err';
+          msg.textContent='저장하지 않았습니다. 새로고침해서 최신 내용을 확인한 뒤 다시 편집해 주세요.';
+          return;
+        }
+      }
+    }catch(_){}   // 확인 실패 시엔 저장을 막지 않는다
+  }
+
   const { error } = await sb.from('documents').update(payload).eq('key', key);
   if(error){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
   // 주소(key) 변경: editor·admin·owner, 값이 바뀐 경우
@@ -1445,6 +1431,7 @@ async function saveDoc(key){
     }
   }
   $('#saveBtn').disabled=false;
+  state.editBase = payload.updated_at;                            // 기준 시각 갱신
   try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
   await loadDocs();
   if(finalKey!==key){ location.hash='#'+finalKey; }   // 주소 변경 시 URL도 갱신(route→renderDoc)
@@ -3351,9 +3338,35 @@ function appendMessage(m, doScroll=true){
   if(doScroll) scrollChatBottom();
 }
 
-/* LaTeX 수식 렌더 (KaTeX 로드된 경우에만; $..$ 인라인, $$..$$ 디스플레이) */
-function renderMath(node){
-  if(!node || !window.renderMathInElement) return;
+/* KaTeX 온디맨드 로더 — 예전엔 head에서 전 페이지에 즉시 로드(≈280KB)했지만,
+   실제 사용처는 '수식이 들어있는 채팅·문서'뿐이다. 처음 필요할 때 1회만 받아온다.
+   → 로그인·대문·회원조회·쪽지함 첫 렌더가 빨라짐(특히 모바일). */
+const KATEX_CDN='https://cdn.jsdelivr.net/npm/katex@0.16.9/dist';
+let _katexP=null;
+function ensureKatex(){
+  if(_katexP) return _katexP;
+  _katexP = new Promise((resolve)=>{
+    const css=document.createElement('link');
+    css.rel='stylesheet'; css.href=KATEX_CDN+'/katex.min.css';
+    document.head.appendChild(css);
+    const s1=document.createElement('script'); s1.src=KATEX_CDN+'/katex.min.js';
+    s1.onload=()=>{
+      const s2=document.createElement('script'); s2.src=KATEX_CDN+'/contrib/auto-render.min.js';
+      s2.onload=()=>resolve(true); s2.onerror=()=>resolve(false);
+      document.head.appendChild(s2);
+    };
+    s1.onerror=()=>resolve(false);
+    document.head.appendChild(s1);
+  });
+  return _katexP;
+}
+/* LaTeX 수식 렌더 ($..$ 인라인, $$..$$ 디스플레이) */
+async function renderMath(node){
+  if(!node) return;
+  const t=node.textContent||'';
+  if(t.indexOf('$')<0 && t.indexOf('\\(')<0 && t.indexOf('\\[')<0) return;   // 수식 없으면 KaTeX를 아예 안 받음
+  await ensureKatex();
+  if(!window.renderMathInElement) return;
   try{ window.renderMathInElement(node,{ delimiters:[
     {left:'$$',right:'$$',display:true},
     {left:'$',right:'$',display:false},
