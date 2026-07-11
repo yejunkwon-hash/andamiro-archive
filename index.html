@@ -73,6 +73,13 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .profile-sub{font-size:13px;color:var(--text-dim);margin-top:5px;display:flex;align-items:center;gap:6px;}
 .role-chip{background:var(--accent);color:#fff;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;}
 .profile-table{max-width:520px;}
+/* 한 줄 소개 말풍선 (표 위) */
+.bio-bubble{position:relative;max-width:520px;margin:14px 0 16px;padding:12px 16px;background:var(--box-bg);
+  border:1px solid var(--border);border-radius:14px;font-size:14.5px;line-height:1.6;color:var(--text);word-break:break-word;}
+.bio-bubble::after{content:'';position:absolute;top:100%;left:28px;border:8px solid transparent;border-top-color:var(--box-bg);}
+.bio-bubble::before{content:'';position:absolute;top:100%;left:27px;border:9px solid transparent;border-top-color:var(--border);z-index:-1;}
+.bio-bubble.empty{color:var(--text-dim);font-style:italic;}
+.bio-quote{color:var(--accent);font-weight:800;font-size:18px;line-height:0;vertical-align:-2px;margin:0 3px;}
 .profile-side .side-head{font-weight:800;color:var(--accent);margin-bottom:8px;}
 .hh-first{background:var(--box-bg);color:var(--accent);border:1px solid var(--border);border-radius:8px;font-size:10px;padding:0 6px;margin-left:4px;}
 .muted{color:var(--text-dim);}
@@ -114,6 +121,13 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .ce-msg.ok{color:#1b7a2f;}
 .ce-list{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px;}
 .ce-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
+.track-chip,.tk-chip{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:var(--tc,#8a9099);border-radius:99px;padding:2px 10px;}
+.tk-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
+.tk-row .tk-color{width:34px;height:26px;padding:0;border:1px solid var(--border-strong);border-radius:6px;background:none;cursor:pointer;flex:none;}
+.tk-row .tk-cnt{margin-left:auto;font-size:12px;color:var(--text-dim);}
+.tk-row .ce-btns{margin-left:8px;}
+.tk-add{display:flex;gap:6px;align-items:center;}
+.tk-add input[type=color]{width:38px;height:32px;padding:0;border:1px solid var(--border-strong);border-radius:6px;background:none;cursor:pointer;flex:none;}
 .ce-row:last-child{border-bottom:none;}
 .ce-name{font-weight:600;color:var(--text);}
 .ce-btns{margin-left:auto;display:flex;gap:6px;}
@@ -147,7 +161,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 @media(max-width:560px){ .dir-grid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;} .dir-searchwrap{min-width:150px;} }
 .usermenu{position:relative;display:flex;align-items:center;gap:9px;}
 #userlabel{color:#fff;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.um-trigger{position:relative;}
+.um-trigger{position:relative;display:flex;align-items:center;gap:9px;cursor:pointer;}
 .usericon{position:relative;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;overflow:hidden;transition:border-radius .12s;}
 .usericon:hover{background:rgba(255,255,255,.30);}
 .usericon.has-photo{border-radius:50%;box-shadow:0 0 0 1px rgba(255,255,255,.9);}
@@ -248,7 +262,10 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg-avatar.go-profile{cursor:pointer;}
 .msg-avatar.go-profile:hover{filter:brightness(1.05);box-shadow:0 0 0 2px var(--accent);}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
-.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;max-width:min(72%,420px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:min(78%,560px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+/* 긴 글: 말풍선이 세로로 늘어나고 시각·삭제 버튼은 아래쪽에 붙는다 */
+.msg-bubble-row{align-items:flex-end;flex-wrap:wrap;}
+.msg-imgs{align-items:flex-start;}
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
@@ -258,7 +275,16 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-system span{display:inline-block;background:var(--box-bg);border-radius:12px;padding:4px 12px;max-width:90%;}
 
 .msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
-.rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
+.rpill{position:relative;display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
+/* 반응 툴팁: 마우스를 올리는 즉시(지연 없이) 누가 눌렀는지 표시 */
+.rpill .rtip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);
+  background:#111;color:#fff;font-size:11.5px;font-weight:600;line-height:1.45;white-space:pre-line;
+  padding:6px 9px;border-radius:7px;max-width:220px;width:max-content;text-align:center;
+  opacity:0;visibility:hidden;transition:opacity .08s;pointer-events:none;z-index:70;box-shadow:0 4px 14px rgba(0,0,0,.28);}
+.rpill .rtip::after{content:'';position:absolute;top:100%;left:50%;transform:translateX(-50%);
+  border:5px solid transparent;border-top-color:#111;}
+.rpill:hover .rtip{opacity:1;visibility:visible;}
+body.dark .rpill .rtip{background:#3a3d45;} body.dark .rpill .rtip::after{border-top-color:#3a3d45;}
 .rpill.mine{background:var(--accent);border-color:var(--accent);color:#fff;}
 .rpill:hover{border-color:var(--accent);}
 .react-wrap{position:relative;display:inline-flex;}
@@ -270,7 +296,11 @@ body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .react-opt:hover{background:var(--box-bg);}
 .react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
-.chat-input input{flex:1;height:44px;border:1px solid var(--border);border-radius:6px;padding:0 12px;font-size:14px;background:var(--card);color:var(--text);}
+.chat-input input,.chat-input textarea{flex:1;min-height:44px;max-height:132px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
+.chat-input textarea{align-self:flex-end;}
+.chat-input{align-items:flex-end;}
+.chat-count{font-size:11px;color:var(--text-dim);padding:2px 12px 0;text-align:right;}
+.chat-count.over{color:var(--link-red);font-weight:700;}
 .chat-input button{height:44px;border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
 .chat-input button:hover{filter:brightness(1.08);}
 .eye-btn{flex:none;display:inline-flex;align-items:center;justify-content:center;width:56px;height:44px;padding:0;border:1px solid var(--border);background:var(--card);color:var(--text);border-radius:6px;cursor:pointer;}
@@ -358,6 +388,41 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .wk-upmsg{font-size:12px;color:var(--text-dim);min-height:16px;margin-top:2px;}
 .wk-upmsg.err{color:var(--link-red);font-weight:700;}
 .orph-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--border);}
+/* ===== 시스템 검사 ===== */
+.hs-prog{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin:10px 0 14px;box-shadow:var(--shadow);}
+.hs-prog-top{display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:8px;color:var(--text);}
+.hs-prog-top span{color:var(--text-dim);font-size:12px;font-variant-numeric:tabular-nums;}
+.hs-track{height:8px;border-radius:99px;background:var(--box-bg);overflow:hidden;border:1px solid var(--border);}
+.hs-fill{height:100%;width:0;background:linear-gradient(90deg,var(--accent),var(--accent-soft));transition:width .25s ease;}
+.hs-prog.done .hs-fill{background:#2e9e5b;}
+.hs-sum{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:14px;border:1px solid var(--border);background:var(--card);}
+.hs-sum.ok{border-left:4px solid #2e9e5b;} .hs-sum.bad{border-left:4px solid var(--link-red);}
+.hs-sum .hs-ic{width:26px;height:26px;flex:none;}
+.hs-sum-sub{font-size:12px;color:var(--text-dim);margin-top:2px;}
+.hs-sec{margin-bottom:18px;}
+.hs-sec h2{font-size:15px;margin:0 0 8px;color:var(--text);display:flex;align-items:center;gap:8px;}
+.hs-badge{font-size:11px;font-weight:800;border-radius:99px;padding:2px 9px;}
+.hs-badge.ok{background:rgba(46,158,91,.14);color:#2e9e5b;}
+.hs-badge.bad{background:rgba(204,43,43,.13);color:var(--link-red);}
+.hs-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;}
+.hs-table th{background:var(--table-head);color:var(--text-dim);font-size:11.5px;font-weight:800;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+.hs-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
+.hs-table tr:last-child td{border-bottom:none;}
+.hs-table tr.hs-bad{background:rgba(204,43,43,.05);}
+.hs-st{width:30px;text-align:center;}
+.hs-lb{font-weight:700;white-space:nowrap;}
+.hs-dt{color:var(--text-dim);font-size:12px;word-break:break-word;}
+.hs-path{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;word-break:break-all;}
+.hs-note{font-size:11.5px;color:var(--text-dim);font-weight:400;margin-top:2px;}
+.hs-btn{width:auto;font-size:12px;padding:6px 12px;}
+.hs-ic{width:18px;height:18px;vertical-align:middle;}
+.hs-ic.ok{color:#2e9e5b;} .hs-ic.bad{color:var(--link-red);} .hs-ic.warn{color:#c98500;}
+.cap-bar{margin:8px 0 12px;}
+.cap-top{display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;color:var(--text);}
+.cap-track{height:8px;border-radius:4px;background:var(--box-bg);border:1px solid var(--border);overflow:hidden;}
+.cap-fill{height:100%;}
+.cap-table{margin-top:6px;}
+@media(max-width:640px){ .hs-lb{white-space:normal;} }
 
 /* ===== 편집기 상단 레이아웃 정리 ===== */
 .wk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:4px;}
@@ -597,6 +662,7 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
      그러면 상단바가 잘리고 position:fixed 하단 바가 화면 밖으로 밀려난다.
      16px 이상이면 확대가 아예 일어나지 않는다. */
   .chat-input input,
+  .chat-input textarea,
   .ip-reply textarea,
   .dir-search input, #dirSearch,
   .he-input, .editor input, .editor textarea,
@@ -623,7 +689,7 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
   .chat{ height:auto; min-height:0; max-width:100%; }
   .chat-log{ max-height:calc(100dvh - 300px); min-height:280px; overflow-x:hidden; }
   .msg{ max-width:100%; }
-  .msg-bubble{ max-width:78% !important; }
+  .msg-bubble{ max-width:86% !important; }
   .msg-imgs img{ max-width:60vw; }
 
   /* ★ 회원 관리 표: 가로 스크롤 확실히 동작하게
@@ -721,64 +787,6 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
 .doc-card .dc-cat{font-size:11px;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
 @media(max-width:640px){ .docs-grid{grid-template-columns:1fr;} }
-
-/* ===== 계열(track) 레일 — 대문·문서 탭 왼쪽 컬러 버튼 ===== */
-.with-rail{display:flex;gap:16px;align-items:flex-start;}
-.with-rail .rail-main{flex:1;min-width:0;}
-.trackrail{width:150px;flex:none;position:sticky;top:60px;display:flex;flex-direction:column;gap:6px;}
-.trackrail .tr-head{font-size:11px;font-weight:800;color:var(--text-dim);letter-spacing:.04em;padding:0 2px 2px;}
-.tr-btn{display:flex;align-items:center;gap:8px;width:100%;text-align:left;cursor:pointer;
-  background:var(--card);border:1px solid var(--border);border-left:4px solid var(--tc,var(--border-strong));
-  border-radius:8px;padding:8px 10px;font-size:13.5px;font-weight:700;color:var(--text);
-  transition:transform .1s, box-shadow .12s, background .12s;}
-.tr-btn:hover{transform:translateX(2px);box-shadow:0 2px 8px rgba(0,0,0,.08);}
-.tr-btn .tr-dot{width:10px;height:10px;border-radius:3px;background:var(--tc,var(--border-strong));flex:none;}
-.tr-btn .tr-cnt{margin-left:auto;font-size:11px;font-weight:700;color:var(--text-dim);}
-.tr-btn.on{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent));color:#fff;}
-.tr-btn.on .tr-cnt{color:rgba(255,255,255,.85);}
-.tr-btn.on .tr-dot{background:#fff;}
-@media(max-width:768px){
-  .with-rail{flex-direction:column;gap:10px;}
-  .trackrail{width:100%;position:static;flex-direction:row;overflow-x:auto;gap:6px;padding-bottom:4px;-webkit-overflow-scrolling:touch;}
-  .trackrail .tr-head{display:none;}
-  .tr-btn{width:auto;flex:none;border-radius:99px;border-left-width:1px;padding:6px 12px;font-size:13px;}
-  .tr-btn:hover{transform:none;}
-  .tr-btn .tr-cnt{margin-left:4px;}
-}
-/* 문서 카드의 분류 배지 */
-.dc-track{font-size:11px;font-weight:800;border-radius:99px;padding:1px 8px;color:#fff;background:var(--tc,var(--accent));}
-.dc-type{font-size:11px;border-radius:99px;padding:1px 8px;color:var(--text-dim);background:var(--box-bg);border:1px solid var(--border);}
-.dc-club{font-size:11px;border-radius:99px;padding:1px 8px;color:var(--text-dim);background:var(--box-bg);border:1px solid var(--border);}
-.docs-filters{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:10px;}
-.docs-filters select{background:var(--card);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:6px 10px;font-size:12.5px;font-weight:700;}
-.cls-row select{width:100%;background:var(--card);border:1px solid var(--border-strong);color:var(--text);border-radius:6px;padding:8px 10px;font-size:14px;}
-.cls-row{margin-bottom:10px;}
-.modal-box .cls-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0 4px;text-align:left;}
-.modal-box .cls-row label{display:block;font-size:12px;font-weight:700;color:var(--text-dim);margin-bottom:4px;}
-@media(max-width:640px){ .modal-box .cls-row{grid-template-columns:1fr;} }
-/* 문서 상단 분류 배지 */
-.doc-class{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0;}
-.doc-class .dc-track{font-size:12px;}
-.doc-class .dc-type,.doc-class .dc-club{font-size:12px;}
-/* 테마 전환 이펙트: 고리(가운데가 뚫린 원)가 퍼지고, 그 주위로 화면이 일렁인다 */
-#themeReveal{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;}
-#themeReveal .tr-glow{position:absolute;inset:0;}
-#themeReveal .tr-warp{position:absolute;inset:0;backdrop-filter:blur(4px) saturate(1.3);
-  -webkit-backdrop-filter:blur(4px) saturate(1.3);will-change:mask-image,opacity;}
-
-/* 상단 계열 선택 바 (모든 화면 상시) — 사이트 테마색을 정한다. 문서 필터와는 별개. */
-.trackbar{position:sticky;top:48px;z-index:45;display:flex;align-items:center;gap:6px;
-  background:var(--card);border-bottom:1px solid var(--border);padding:6px 18px;overflow-x:auto;
-  box-shadow:0 1px 3px rgba(0,0,0,.04);-webkit-overflow-scrolling:touch;}
-.trackbar .tb-lb{font-size:11px;font-weight:800;color:var(--text-dim);flex:none;margin-right:2px;letter-spacing:.03em;}
-.tb-btn{flex:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:transparent;
-  border:1px solid var(--border);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:700;color:var(--text);
-  transition:background .12s,border-color .12s,transform .1s;}
-.tb-btn:hover{border-color:var(--tc,var(--border-strong));transform:translateY(-1px);}
-.tb-btn .tb-dot{width:9px;height:9px;border-radius:50%;background:var(--tc,var(--border-strong));flex:none;}
-.tb-btn.on{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent));color:#fff;}
-.tb-btn.on .tb-dot{background:#fff;}
-@media(max-width:768px){ .trackbar{top:0;position:static;padding:6px 10px;} .trackbar .tb-lb{display:none;} }
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
@@ -1020,24 +1028,22 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <button class="navbtn" id="inboxBtn">쪽지함<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn"><svg class="ic16"><use href="#i-moon"/></svg> 야간</button>
     <div class="usermenu" id="usermenu">
-      <span id="userlabel"></span>
       <div class="um-trigger" id="umTrigger">
+        <span id="userlabel"></span>
         <button class="usericon" id="usericon" aria-label="내 메뉴" title="내 메뉴">
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-3.8 3.5-6 7.5-6s7.5 2.2 7.5 6"/></svg>
         </button>
         <div class="usermenu-drop" id="userdrop">
-          <a data-go="directory">회원 조회</a>
           <a data-go="me">계정 정보</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
-          <a data-go="health" id="dropHealth" style="display:none">시스템 점검</a>
+          <a data-go="health" id="dropHealth" style="display:none">시스템 검사</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
       </div>
     </div>
   </div>
-  <div class="trackbar" id="trackbar"></div>
   <div class="layout">
     <main class="content">
       <div class="doc" id="doc"></div>
@@ -1086,229 +1092,7 @@ function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile
 /* 사이드바 표시 순서(원하는 순). 목록에 없는 새 문서는 뒤에 자동 추가 */
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
-const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false,
-                tracks:[], themeTrack:null, docTypes:[], clubs:[] };
-
-/* ================== 계열(track) + 테마 엔진 ==================
-   계열 7종은 DB(tracks)에 고정 시드. 색만 owner가 바꾼다(set_track_color).
-   선택한 계열은 localStorage에 저장 → 새로고침·다른 탭에서도 사이트 전체 테마색이 유지된다.
-   admin이 아무 RGB나 고를 수 있으므로 (1) 상단바 흰 글자 대비 가드 (2) 야간모드 자동 보정을 둔다. */
-const DEFAULT_ACCENT = '#C00000';          // 계열 미선택 시 기본색(안다미로 빨강)
-const NEUTRAL_GRAY   = '#8a9099';          // 문서 레일의 '전체 문서'·'미분류' 버튼 색(테마와 무관)
-const TRACK_LS_KEY   = 'anda_track';       // 상단 계열 바에서 고른 '테마 계열'
-
-function _hex2rgb(h){ const s=String(h||'').replace('#',''); 
-  return [parseInt(s.slice(0,2),16)||0, parseInt(s.slice(2,4),16)||0, parseInt(s.slice(4,6),16)||0]; }
-function _rgb2hex(r,g,b){ const f=n=>Math.max(0,Math.min(255,Math.round(n))).toString(16).padStart(2,'0');
-  return '#'+f(r)+f(g)+f(b); }
-function _rgb2hsl(r,g,b){ r/=255;g/=255;b/=255;
-  const mx=Math.max(r,g,b), mn=Math.min(r,g,b), d=mx-mn; let h=0, s=0, l=(mx+mn)/2;
-  if(d){ s = l>0.5 ? d/(2-mx-mn) : d/(mx+mn);
-    if(mx===r) h=((g-b)/d + (g<b?6:0)); else if(mx===g) h=((b-r)/d + 2); else h=((r-g)/d + 4); h*=60; }
-  return [h, s, l]; }
-function _hsl2hex(h,s,l){ h=((h%360)+360)%360; s=Math.max(0,Math.min(1,s)); l=Math.max(0,Math.min(1,l));
-  const c=(1-Math.abs(2*l-1))*s, x=c*(1-Math.abs(((h/60)%2)-1)), m=l-c/2;
-  let r=0,g=0,b=0;
-  if(h<60){r=c;g=x;} else if(h<120){r=x;g=c;} else if(h<180){g=c;b=x;}
-  else if(h<240){g=x;b=c;} else if(h<300){r=x;b=c;} else {r=c;b=x;}
-  return _rgb2hex((r+m)*255,(g+m)*255,(b+m)*255); }
-function _lum(hex){ const [r,g,b]=_hex2rgb(hex).map(v=>{ v/=255; return v<=0.03928? v/12.92 : Math.pow((v+0.055)/1.055,2.4); });
-  return 0.2126*r + 0.7152*g + 0.0722*b; }
-
-/* 상단바는 흰 글자 → 너무 밝은 색이면 대비가 깨진다. 밝기를 자동으로 낮춘다. */
-function safeAccent(hex){
-  let [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
-  let out = _hsl2hex(h,s,l), guard = 0;
-  while(_lum(out) > 0.38 && guard++ < 20){ l -= 0.03; out = _hsl2hex(h,s,l); }
-  return out;
-}
-/* 야간모드: 같은 색상(hue)을 유지하되 밝게·부드럽게 (#C00000 → #e05a52 관계의 일반화) */
-function darkVariant(hex){
-  const [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
-  return _hsl2hex(h, Math.min(s, 0.68), Math.max(l, 0.58));
-}
-function softVariant(hex, dark){
-  const [h,s,l] = _rgb2hsl(..._hex2rgb(hex));
-  return dark ? _hsl2hex(h, s*0.85, Math.min(l+0.09, 0.78))
-              : _hsl2hex(h, s*0.70, Math.min(l+0.17, 0.66));   // 원래 #C00000 → #d64a42 관계(채도↓·명도↑)
-}
-
-/* 사이트 전체 테마색 적용 — :root 인라인 변수는 body.dark 규칙보다 우선하므로 야간에도 직접 계산해 넣는다 */
-function applyThemeColor(hex){
-  const dark = document.body.classList.contains('dark');
-  const base = dark ? darkVariant(hex) : safeAccent(hex);
-  const st = document.documentElement.style;
-  st.setProperty('--accent', base);
-  st.setProperty('--accent-soft', softVariant(base, dark));
-  st.setProperty('--infobox-head', dark ? _hsl2hex(..._rgb2hsl(..._hex2rgb(base)).map((v,i)=> i===2 ? Math.max(v-0.18,0.28) : v)) : base);
-  const meta = document.querySelector('meta[name="theme-color"]');
-  if(meta) meta.setAttribute('content', base);
-}
-function trackBySlug(slug){ return (state.tracks||[]).find(t=>t.slug===slug) || null; }
-function currentTrackColor(){ const t = trackBySlug(state.themeTrack); return t ? t.color : DEFAULT_ACCENT; }
-function applyCurrentTheme(){ applyThemeColor(currentTrackColor()); }
-
-/* 서클 리빌 → 고리 + 물결
-   색은 클릭 즉시 적용한다. 고리는 가운데가 뚫려 있어서, 고리가 지나간 안쪽에는
-   '이미 색이 바뀐 화면'이 그대로 보인다. 고리 주변은 backdrop blur로 일렁인다. 총 0.8초. */
-const REVEAL_MS = 800;
-function revealTheme(hex, ev){
-  applyThemeColor(hex);                                  // ① 색 즉시 적용 (고리 안쪽 = 새 색)
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce) return;
-  let x = window.innerWidth/2, y = window.innerHeight/2;
-  if(ev && typeof ev.clientX === 'number' && (ev.clientX || ev.clientY)){ x = ev.clientX; y = ev.clientY; }
-
-  const dark  = document.body.classList.contains('dark');
-  const shown = dark ? darkVariant(hex) : safeAccent(hex);
-  const rgb   = _hex2rgb(shown).join(',');
-  const far   = Math.hypot(Math.max(x, window.innerWidth-x), Math.max(y, window.innerHeight-y)) + 40;
-
-  const old = document.getElementById('themeReveal'); if(old) old.remove();   // 연타 대비
-  const ov = document.createElement('div'); ov.id='themeReveal';
-  const warp = document.createElement('div'); warp.className='tr-warp';       // 일렁임(화면 왜곡)
-  const glow = document.createElement('div'); glow.className='tr-glow';       // 고리 + 잔물결
-  ov.appendChild(warp); ov.appendChild(glow); document.body.appendChild(ov);
-
-  const t0 = (window.performance && performance.now) ? performance.now() : Date.now();
-  const at = r => Math.max(0, r);
-  function frame(now){
-    const p = Math.min(1, (now - t0) / REVEAL_MS);
-    const e = 1 - Math.pow(1-p, 3);                       // easeOutCubic — 처음 빠르고 끝에서 느슨하게
-    const R = far * e;
-    const fade = 1 - p*p;                                 // 뒤로 갈수록 옅어짐
-    const w = Math.max(7, 26 * (1 - e*0.55));             // 고리 두께
-    // 본 고리 + 뒤따르는 잔물결 2겹 → 물결파처럼 보인다
-    const r2 = R*0.80, r3 = R*0.62;
-    glow.style.background =
-      `radial-gradient(circle ${R+w*2}px at ${x}px ${y}px,`
-      + ` rgba(${rgb},0) ${at(r3-w*0.8)}px,`
-      + ` rgba(${rgb},${(0.10*fade).toFixed(3)}) ${at(r3)}px,`
-      + ` rgba(${rgb},0) ${at(r3+w*0.8)}px,`
-      + ` rgba(${rgb},0) ${at(r2-w*0.9)}px,`
-      + ` rgba(${rgb},${(0.20*fade).toFixed(3)}) ${at(r2)}px,`
-      + ` rgba(${rgb},0) ${at(r2+w*0.9)}px,`
-      + ` rgba(${rgb},0) ${at(R-w*1.6)}px,`
-      + ` rgba(${rgb},${(0.55*fade).toFixed(3)}) ${at(R)}px,`
-      + ` rgba(${rgb},${(0.14*fade).toFixed(3)}) ${at(R+w)}px,`
-      + ` rgba(${rgb},0) ${at(R+w*2)}px)`;
-    // 일렁임: 고리 부근만 마스크로 뚫어 backdrop blur를 적용 → 물결이 지나가며 화면이 흔들린다
-    const m = `radial-gradient(circle at ${x}px ${y}px,`
-      + ` transparent ${at(R-w*1.9)}px,`
-      + ` rgba(0,0,0,${(0.85*fade).toFixed(3)}) ${at(R-w*0.5)}px,`
-      + ` rgba(0,0,0,${(0.85*fade).toFixed(3)}) ${at(R+w*0.5)}px,`
-      + ` transparent ${at(R+w*1.9)}px)`;
-    warp.style.webkitMaskImage = m; warp.style.maskImage = m;
-    warp.style.opacity = String(fade);
-    if(p < 1) requestAnimationFrame(frame);
-    else ov.remove();
-  }
-  requestAnimationFrame(frame);
-}
-
-/* ── 테마 계열 (상단 계열 바) — 사이트 전체 색. 저장됨. ── */
-function setThemeTrack(slug, ev){
-  state.themeTrack = slug || null;
-  try{ if(slug) localStorage.setItem(TRACK_LS_KEY, slug); else localStorage.removeItem(TRACK_LS_KEY); }catch(e){}
-  revealTheme(currentTrackColor(), ev);
-  renderTrackBar();
-}
-function renderTrackBar(){
-  const bar = document.getElementById('trackbar'); if(!bar) return;
-  const btn = (slug, name, color) => {
-    const on = (state.themeTrack||null) === (slug||null);
-    return `<button class="tb-btn ${on?'on':''}" data-tb="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
-      <span class="tb-dot"></span>${escapeHtml(name)}</button>`;
-  };
-  bar.innerHTML = `<span class="tb-lb">계열</span>`
-    + btn('', '기본', DEFAULT_ACCENT)
-    + (state.tracks||[]).map(t=>btn(t.slug, t.name, t.color)).join('');
-  bar.querySelectorAll('.tb-btn[data-tb]').forEach(b=>{
-    b.onclick = (ev)=>{ setThemeTrack(b.dataset.tb || null, ev); };
-  });
-}
-
-/* ── 문서 목록의 계열 레일 — 필터 전용(테마색을 건드리지 않는다) ── */
-function trackRailHTML(counts, opts){
-  const o = opts || {};
-  const sel = docsPage.track || null;
-  const btn = (slug, name, color, cnt) => {
-    const on = sel === (slug||null);
-    return `<button class="tr-btn ${on?'on':''}" data-track="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
-      <span class="tr-dot"></span><span>${escapeHtml(name)}</span>
-      ${cnt!==undefined?`<span class="tr-cnt">${cnt}</span>`:''}
-    </button>`;
-  };
-  return `<aside class="trackrail">
-    <div class="tr-head">계열</div>
-    ${btn('', '전체 문서', NEUTRAL_GRAY, o.total)}
-    ${(state.tracks||[]).map(x=>btn(x.slug, x.name, x.color, counts ? (counts[x.slug]||0) : undefined)).join('')}
-    ${o.showNone ? btn('__none','미분류', NEUTRAL_GRAY, counts ? (counts.__none||0) : undefined) : ''}
-  </aside>`;
-}
-function bindTrackRail(root, onPick){
-  (root||document).querySelectorAll('.tr-btn[data-track]').forEach(b=>{
-    b.onclick = ()=>{ docsPage.track = b.dataset.track || null; if(onPick) onPick(); };
-  });
-}
-async function loadTracks(){
-  try{
-    const { data } = await sb.from('tracks').select('slug,name,color,sort').order('sort',{ascending:true});
-    state.tracks = data || [];
-  }catch(e){ state.tracks = []; }
-  try{ const saved = localStorage.getItem(TRACK_LS_KEY); if(saved && trackBySlug(saved)) state.themeTrack = saved; }catch(e){}
-  applyCurrentTheme();
-  renderTrackBar();
-}
-async function loadDocTypes(){
-  try{
-    const { data } = await sb.from('doc_types').select('id,name,is_core,sort').order('sort',{ascending:true}).order('name',{ascending:true});
-    state.docTypes = data || [];
-  }catch(e){ state.docTypes = []; }
-}
-
-async function loadClubList(){
-  try{
-    const { data } = await sb.from('clubs').select('name,is_none').order('name',{ascending:true});
-    state.clubs = (data||[]).filter(c=>!c.is_none).map(c=>c.name);   // '무소속'은 문서 분류에 쓰지 않음
-  }catch(e){ state.clubs = []; }
-}
-/* 분류 선택 3종(계열·유형·동아리) — 새 문서 모달과 편집 화면이 공용으로 쓴다.
-   전부 선택 사항: 아무것도 안 고르고 문서를 만들 수 있다(미분류로 남고 레일의 '미분류'에 모인다). */
-function classSelectsHTML(pfx, cur){
-  const c = cur || {};
-  return `
-    <div class="wk-row3 cls-row">
-      <div><label>계열 <span class="hint">(선택)</span></label>
-        <select id="${pfx}Track">
-          <option value="">— 없음 —</option>
-          ${(state.tracks||[]).map(t=>`<option value="${escapeAttr(t.slug)}" ${c.track===t.slug?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}
-        </select></div>
-      <div><label>문서 유형 <span class="hint">(선택)</span></label>
-        <select id="${pfx}Type">
-          <option value="">— 없음 —</option>
-          ${(state.docTypes||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${c.doc_type===t.name?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}
-        </select></div>
-      <div><label>동아리 <span class="hint">(비우면 공용)</span></label>
-        <select id="${pfx}Club">
-          <option value="">— 공용 —</option>
-          ${(state.clubs||[]).map(n=>`<option value="${escapeAttr(n)}" ${c.club===n?'selected':''}>${escapeHtml(n)}</option>`).join('')}
-        </select></div>
-    </div>`;
-}
-function readClassSelects(pfx, root){
-  const q=id=>((root||document).querySelector('#'+pfx+id));
-  const v=el=>(el && el.value) ? el.value : null;
-  return { track:v(q('Track')), doc_type:v(q('Type')), club:v(q('Club')) };
-}
-/* 분류 저장 — 실패해도 문서 저장 자체는 되돌리지 않는다(분류는 부가 정보) */
-async function saveDocClass(key, cls){
-  try{
-    const { error } = await sb.rpc('set_doc_class',
-      { p_key:key, p_track:cls.track, p_club:cls.club, p_type:cls.doc_type });
-    return error ? (error.message||'분류 저장 실패') : '';
-  }catch(e){ return (e && e.message) || '분류 저장 실패'; }
-}
+const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false, tracks:[], track:null };
 const $ = s => document.querySelector(s);
 
 /* ================== 인증 ================== */
@@ -1384,18 +1168,20 @@ async function doReset(){
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
   state.user = user;
-  const { data: prof } = await sb.from('profiles').select('role,email,name,handle,avatar_url').eq('id', user.id).single();
+  const { data: prof } = await sb.from('profiles').select('role,email,name,handle,avatar_url,track').eq('id', user.id).single();
   state.role = prof?.role || 'viewer';
   state.email = prof?.email || user.email;
   state.name = prof?.name || '';
   state.handle = prof?.handle || '';
   state.avatar_url = prof?.avatar_url || '';
+  state.track = prof?.track || null;
   renderUserbox();
   await loadDocs();
-  await Promise.all([ loadTracks(), loadDocTypes(), loadClubList() ]);   // 계열(테마색 복원) + 문서 유형 + 동아리
+  await loadTracks();          // 계열 목록(칩 색상·선택 목록)
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
+  setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
 }
 const ROLE_RANK={ viewer:0, editor:1, admin:2, owner:3 };
 function roleRank(r){ return ROLE_RANK[r] ?? 0; }
@@ -1513,6 +1299,55 @@ async function openClubPicker(cur){
       if(error) throw error;
       close();
       const el=document.getElementById('meClubText'); if(el) el.textContent=data||sel.value;
+    }catch(e){ ok.disabled=false; msg.className='he-msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e); }
+  };
+}
+
+/* ================== 계열(tracks) ==================
+   회원의 속성. 본인이 [계정 정보]에서 고르고, owner가 [회원 관리]에서 목록·색을 관리한다.
+   색은 회원 목록·프로필의 계열 칩에 쓰인다. */
+async function loadTracks(){
+  try{
+    const { data } = await sb.from('tracks').select('id,name,color,sort').order('sort',{ascending:true}).order('name',{ascending:true});
+    state.tracks = data || [];
+  }catch(e){ state.tracks = []; }
+  return state.tracks;
+}
+function trackByName(n){ return (state.tracks||[]).find(t=>t.name===n) || null; }
+function trackChipHTML(name){
+  if(!name) return '<span class="muted">없음</span>';
+  const t = trackByName(name);
+  const color = t ? t.color : '#8a9099';
+  return `<span class="track-chip" style="--tc:${escapeAttr(color)}">${escapeHtml(name)}</span>`;
+}
+
+/* 계열 변경 (본인) — tracks 목록에서 선택 */
+async function openTrackPicker(cur){
+  await loadTracks();
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box">
+    <div class="modal-msg">계열 변경</div>
+    <div class="modal-sub">본인의 계열을 골라주세요. (비워 둘 수도 있어요)</div>
+    <select class="he-input" id="tkSel">
+      <option value="" ${!cur?'selected':''}>— 없음 —</option>
+      ${(state.tracks||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${t.name===cur?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}
+    </select>
+    <div class="he-msg" id="tkMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  const sel=ov.querySelector('#tkSel'), msg=ov.querySelector('#tkMsg'), ok=ov.querySelector('.modal-ok');
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  ok.onclick=async()=>{
+    ok.disabled=true; msg.className='he-msg';
+    try{
+      const { data, error } = await sb.rpc('set_my_track', { p_track: sel.value });
+      if(error) throw error;
+      state.track = data || null;
+      close();
+      const el=document.getElementById('meTrackText'); if(el) el.innerHTML=trackChipHTML(state.track);
     }catch(e){ ok.disabled=false; msg.className='he-msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e); }
   };
 }
@@ -1792,13 +1627,13 @@ async function renderQuestions(){
 
 /* ================== 문서 탭 (#docs) — 문서의 정문 ==================
    전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
-const docsPage = { sort: 'recent', club: '', type: '', track: null };   // track = 문서 목록 필터(테마와 무관)
+const docsPage = { sort: 'recent' };
 async function renderDocsPage(){
   $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
   try{
     const { data, error } = await sb.from('documents')
-      .select('key,title,eng,category,track,club,doc_type,updated_at,updated_by');
+      .select('key,title,eng,category,updated_at,updated_by');
     if(error) throw error;
     rows=data||[];
   }catch(e){ $('#doc').innerHTML='<h1>문서</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
@@ -1815,22 +1650,12 @@ async function renderDocsPage(){
       (ps||[]).forEach(p=>{ names[p.id]=p.handle||p.name||''; });
     }catch(_){}
   }
-  const clubList=[...new Set(rows.map(r=>r.club).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
 
   const draw=()=>{
     const lc=k=>(likes[k]&&likes[k].cnt)||0;
     const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
-    // 계열 카운트는 다른 필터와 무관하게(레일이 항상 전체 그림을 보여주도록)
-    const counts={__none:0}; rows.forEach(d=>{ if(d.track) counts[d.track]=(counts[d.track]||0)+1; else counts.__none++; });
-
-    let base=rows.slice();
-    if(docsPage.track==='__none')   base=base.filter(d=>!d.track);
-    else if(docsPage.track)         base=base.filter(d=>d.track===docsPage.track);
-    if(docsPage.club) base=base.filter(d=>d.club===docsPage.club);
-    if(docsPage.type) base=base.filter(d=>d.doc_type===docsPage.type);
-
-    const stubCount=base.filter(d=>isStub(d.key)).length;
-    let sorted=base.slice();
+    const stubCount=rows.filter(d=>isStub(d.key)).length;
+    let sorted=rows.slice();
     if(docsPage.sort==='stub') sorted=sorted.filter(d=>isStub(d.key));
     sorted.sort((a,b)=>{
       if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
@@ -1838,64 +1663,39 @@ async function renderDocsPage(){
       if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
       return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
-    const selTrack = trackBySlug(docsPage.track);
-    const heading = docsPage.track==='__none' ? '미분류 문서' : (selTrack ? selTrack.name+' 문서' : '전체 문서');
-
     $('#doc').innerHTML = `
-    <div class="with-rail">
-      ${trackRailHTML(counts, {showNone:true, total:rows.length})}
-      <div class="rail-main">
-        <div class="docs-head">
-          <h1>${escapeHtml(heading)} <span class="muted" style="font-size:14px;font-weight:400">${sorted.length}개</span></h1>
-          <div class="docs-sort">
-            <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
-            <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
-            <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
-            ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
-          </div>
-          ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+      <div class="docs-head">
+        <h1>문서 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+        <div class="docs-sort">
+          <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
+          <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
+          <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+          ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
         </div>
-        <div class="docs-filters">
-          <select id="dpType">
-            <option value="">유형 전체</option>
-            ${(state.docTypes||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${docsPage.type===t.name?'selected':''}>${escapeHtml(t.name)}</option>`).join('')}
-          </select>
-          <select id="dpClub">
-            <option value="">동아리 전체</option>
-            ${clubList.map(c=>`<option value="${escapeAttr(c)}" ${docsPage.club===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}
-          </select>
-          ${(docsPage.type||docsPage.club||docsPage.track)?`<button class="btn ghost" id="dpClear" style="width:auto;font-size:12px;padding:6px 12px">필터 해제</button>`:''}
-        </div>
-        ${(canEdit() && stubCount) ? `<div class="nudge">
-          <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
-          <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
-        </div>` : ''}
-        ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
-        <div class="docs-grid">
-          ${sorted.map(d=>{ const tk=trackBySlug(d.track); return `
-            <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
-              <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
-              <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
-              <div class="dc-meta">
-                ${tk?`<span class="dc-track" style="--tc:${escapeAttr(tk.color)}">${escapeHtml(tk.name)}</span>`:''}
-                ${d.doc_type?`<span class="dc-type">${escapeHtml(d.doc_type)}</span>`:''}
-                ${d.club?`<span class="dc-club">${escapeHtml(d.club)}</span>`:''}
-                ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
-                               :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
-                ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
-                ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
-              </div>
-            </a>`; }).join('')}
-        </div>
+        ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
       </div>
-    </div>`;
-    bindTrackRail($('#doc'), draw);
+      ${(canEdit() && stubCount) ? `<div class="nudge">
+        <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
+        <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
+      </div>` : ''}
+      ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
+      <div class="docs-grid">
+        ${sorted.map(d=>`
+          <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
+            <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
+            <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
+            <div class="dc-meta">
+              ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
+                             :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
+              ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
+              ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
+              ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
+            </div>
+          </a>`).join('')}
+      </div>`;
     $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
       b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
     });
-    const ty=$('#dpType'); if(ty) ty.onchange=()=>{ docsPage.type=ty.value; draw(); };
-    const cb=$('#dpClub'); if(cb) cb.onchange=()=>{ docsPage.club=cb.value; draw(); };
-    const cl=$('#dpClear'); if(cl) cl.onclick=()=>{ docsPage.type=''; docsPage.club=''; docsPage.track=null; draw(); };
     const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
     const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
@@ -1983,13 +1783,6 @@ async function renderDoc(key){
     <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
       (String(doc.body||'').length < STUB_LEN && canEdit())
         ? `<span class="stub-badge">${ic('edit')} 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
-    ${(()=>{ const tk=trackBySlug(doc.track);
-      if(!tk && !doc.doc_type && !doc.club) return '';
-      return `<div class="doc-class">
-        ${tk?`<button class="dc-track" data-goTrack="${escapeAttr(tk.slug)}" style="--tc:${escapeAttr(tk.color)};border:0;cursor:pointer">${escapeHtml(tk.name)}</button>`:''}
-        ${doc.doc_type?`<span class="dc-type">${escapeHtml(doc.doc_type)}</span>`:''}
-        ${doc.club?`<span class="dc-club">${escapeHtml(doc.club)}</span>`:''}
-      </div>`; })()}
     <div id="likeSlot"></div>
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
@@ -2004,10 +1797,6 @@ async function renderDoc(key){
   if(canEdit()) $('#editBtn').onclick=()=>{ location.hash='#edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#hist/'+encodeURIComponent(key); };
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
-  // 문서의 계열 배지를 누르면 그 계열로 테마 전환 + 문서 탭 필터
-  $('#doc').querySelectorAll('[data-goTrack]').forEach(b=>{
-    b.onclick=()=>{ docsPage.track=b.getAttribute('data-goTrack'); location.hash='#docs'; };
-  });
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
 }
@@ -2659,7 +2448,6 @@ async function enterWikiEdit(doc, opts){
         <div><label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}"></div>
         <div><label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}"></div>
       </div>
-      ${classSelectsHTML('ec', doc)}
       <label style="display:flex;align-items:center;gap:8px">본문
         <span class="hint">— 버튼만 눌러도 작성돼요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span>
         <button type="button" class="wk-tipbtn" id="wkTipBtn">${ic('book')}문서 작성 팁</button>
@@ -2796,12 +2584,6 @@ async function saveDoc(key){
     }
   }
   $('#saveBtn').disabled=false;
-  // 분류(계열·유형·동아리)는 RLS 때문에 documents 직접 update가 아니라 set_doc_class RPC로 저장.
-  // 주소가 바뀐 경우 새 주소(finalKey)에 적용해야 한다.
-  if($('#ecTrack')){
-    const cerr = await saveDocClass(finalKey, readClassSelects('ec'));
-    if(cerr){ msg.className='msg err'; msg.textContent='문서는 저장됐지만 분류 저장에 실패했어요: '+cerr; }
-  }
   state.editBase = payload.updated_at;                            // 기준 시각 갱신
   try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
   await loadDocs();
@@ -2854,7 +2636,6 @@ function openNewDocModal(){
     <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off">
     <label class="nd-label">문서 제목</label>
     <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
-    ${classSelectsHTML('nd', { track: (docsPage.track && docsPage.track!=='__none') ? docsPage.track : (state.themeTrack||'') })}
     <div class="he-msg" id="ndMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
   </div>`;
@@ -2896,7 +2677,6 @@ function openNewDocModal(){
           .update({ body: tpl.body || '', infobox: info, format:'wiki' }).eq('key', k);
         if(uerr) throw uerr;   // 문서는 이미 생성됨 — 실패해도 빈 문서로 열림
       }
-      await saveDocClass(k, readClassSelects('nd', ov));   // 계열·유형·동아리 (전부 선택 사항)
       close(); await loadDocs(); location.hash='#'+k;
     }catch(e){
       const dup=/exist|taken|duplicate|unique|중복|이미/i.test(e.message||'');
@@ -3149,7 +2929,8 @@ async function renderAdmin(){
   let pend=0;
   try{ const c=await sb.from('signup_requests').select('*',{count:'exact',head:true}).eq('status','pending'); pend=c.count||0; }catch(e){}
   let extra={};
-  try{ const { data:pr } = await sb.from('profiles').select('id,member_no,club,avatar_url'); (pr||[]).forEach(p=>{ extra[p.id]={no:p.member_no, club:p.club, avatar_url:p.avatar_url}; }); }catch(e){}
+  try{ const { data:pr } = await sb.from('profiles').select('id,member_no,club,avatar_url,track'); (pr||[]).forEach(p=>{ extra[p.id]={no:p.member_no, club:p.club, avatar_url:p.avatar_url, track:p.track}; }); }catch(e){}
+  await loadTracks();                       // 계열 칩 색상
   let clubNames=[];
   if(isOwner()){
     try{ const { data:cl } = await sb.from('clubs').select('name,is_none');
@@ -3169,6 +2950,7 @@ async function renderAdmin(){
       <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort:'-'}</td>
       <td>${clubCell(m.id, ex.club, clubNames)}</td>
+      <td>${trackChipHTML(ex.track)}</td>
       <td>${memberSeg(m)}</td>
       <td class="y" data-act="${escapeAttr(m.id)}">${actCell}</td>
       ${isOwner()?`<td class="y">${m.session_seconds!=null?fmtDurationMin(m.session_seconds):'-'}</td>`:''}
@@ -3176,17 +2958,18 @@ async function renderAdmin(){
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템 점검</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
+      <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템 검사</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
     <div class="table-scroll">
     <table class="wtable admin-table">
-      <tr><th>사진</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
+      <tr><th>사진</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>계열</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
       ${rows}
     </table>
     </div>
-    <div id="clubSection" class="club-sec"></div>`;
+    <div id="clubSection" class="club-sec"></div>
+    ${isOwner()?'<div id="trackSection" class="club-sec"></div>':''}`;
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
@@ -3196,7 +2979,76 @@ async function renderAdmin(){
   });
   $('#doc').querySelectorAll('.club-sel').forEach(sel=>sel.onchange=()=>setMemberClub(sel.dataset.id, sel.value, sel));
   renderClubSection();
+  if(isOwner()) renderTrackSection();
   window.scrollTo(0,0);
+}
+
+/* ---- 계열 관리 (owner 전용) : 이름 변경 · 추가 · 삭제 · 색 지정 ---- */
+async function renderTrackSection(){
+  const box=$('#trackSection'); if(!box || !isOwner()) return;
+  await loadTracks();
+  let profs=[];
+  try{ const { data } = await sb.from('profiles').select('id,track'); profs=data||[]; }catch(e){}
+  const cnt={}; profs.forEach(p=>{ if(p.track) cnt[p.track]=(cnt[p.track]||0)+1; });
+  const rows=(state.tracks||[]).map(t=>`
+    <div class="tk-row" data-id="${t.id}" data-name="${escapeAttr(t.name)}">
+      <input type="color" class="tk-color" value="${escapeAttr(t.color)}" title="색 지정 (owner)">
+      <span class="tk-chip" style="--tc:${escapeAttr(t.color)}">${escapeHtml(t.name)}</span>
+      <span class="tk-cnt">${cnt[t.name]||0}명</span>
+      <span class="ce-btns"><button class="tk-rename">이름변경</button><button class="tk-del">삭제</button></span>
+    </div>`).join('');
+  box.innerHTML=`
+    <div class="club-sec-head"><h2>계열 관리 <span class="muted" style="font-size:12px;font-weight:400">owner 전용</span></h2></div>
+    <div class="ce-add tk-add"><input id="tkNew" type="text" placeholder="새 계열 이름 (예: 수학)" maxlength="20" autocomplete="off">
+      <input id="tkNewColor" type="color" value="#8a9099" title="색"><button id="tkAdd">추가</button></div>
+    <div class="ce-msg" id="tkSecMsg"></div>
+    <div class="ce-list">${rows||'<div class="club-empty" style="padding:10px">계열이 없습니다.</div>'}</div>
+    <div class="doc-meta">계열은 회원이 [계정 정보]에서 직접 고릅니다. 색은 회원 프로필·목록의 계열 표시에 쓰여요. 계열을 삭제하면 그 계열이던 회원은 '없음'이 됩니다.</div>`;
+  const setMsg=(t,ok)=>{ const m=$('#tkSecMsg'); if(!m) return; m.textContent=t||''; m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
+  const reload=()=>renderTrackSection();
+
+  $('#tkAdd').onclick=async()=>{
+    const name=($('#tkNew').value||'').trim(); if(!name){ setMsg('계열 이름을 입력하세요.'); return; }
+    const { error }=await sb.rpc('add_track',{ p_name:name, p_color:$('#tkNewColor').value });
+    if(error){ setMsg(error.message||'추가 실패'); return; }
+    reload();
+  };
+  $('#tkNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#tkAdd').click(); } });
+
+  box.querySelectorAll('.tk-color').forEach(inp=>{
+    inp.onchange=async()=>{
+      const row=inp.closest('.tk-row');
+      const { error }=await sb.rpc('set_track_color',{ p_id:Number(row.dataset.id), p_color:inp.value });
+      if(error){ setMsg(error.message||'색 변경 실패'); return; }
+      setMsg('색을 저장했어요.', true); reload();
+    };
+  });
+  box.querySelectorAll('.tk-del').forEach(b=>b.onclick=async()=>{
+    const row=b.closest('.tk-row'); const id=row.dataset.id, name=row.dataset.name;
+    const ok=await confirmModal('"'+name+'" 계열을 삭제할까요?','이 계열이던 회원의 계열은 \'없음\'이 됩니다.');
+    if(!ok) return;
+    showBlockingLoader('삭제하는 중…');
+    const { error }=await sb.rpc('delete_track',{ p_id:Number(id) });
+    hideBlockingLoader();
+    if(error){ setMsg(error.message||'삭제 실패'); return; }
+    reload();
+  });
+  box.querySelectorAll('.tk-rename').forEach(b=>b.onclick=()=>{
+    const row=b.closest('.tk-row'); const id=row.dataset.id, name=row.dataset.name;
+    row.innerHTML=`<input class="ce-edit" type="text" value="${escapeAttr(name)}" maxlength="20" autocomplete="off"><span class="ce-btns"><button class="tk-save">저장</button><button class="tk-cancel">취소</button></span>`;
+    const inp=row.querySelector('.ce-edit'); inp.focus();
+    row.querySelector('.tk-cancel').onclick=reload;
+    const doSave=async()=>{
+      const nn=(inp.value||'').trim(); if(!nn){ setMsg('이름을 입력하세요.'); return; }
+      showBlockingLoader('이름을 변경하는 중…');
+      const { error }=await sb.rpc('rename_track',{ p_id:Number(id), p_new:nn });
+      hideBlockingLoader();
+      if(error){ setMsg(error.message||'변경 실패'); return; }
+      reload();
+    };
+    row.querySelector('.tk-save').onclick=doSave;
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doSave(); } });
+  });
 }
 
 /* ---- 동아리 목록 (admin) : 펼치면 소속 회원 프로필 링크 · 무소속 맨 아래 ---- */
@@ -3355,246 +3207,393 @@ async function decideRequest(id, status, email){
   renderRequests();
 }
 
-/* ================== 시스템 점검 (admin) ================== */
-async function renderHealth(){
-  $('#doc').innerHTML=`
-    <div class="doc-head"><h1>시스템 점검</h1>
-      <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('users')}회원 관리</button></div></div>
-    <div class="doc-meta">각 줄이 ✅면 정상, ❌면 그 줄이 원인입니다. RPC는 부작용 없이 존재 여부만 확인합니다.</div>
-    <div class="history" id="hResult"><p>검사 중…</p></div>`;
-  $('#hBack').onclick=()=>{ location.hash='#admin'; };
-  $('#hReload').onclick=()=>renderHealth();
+/* ================== 시스템 검사 (admin) ==================
+   · 검사 항목을 '한 번에 하나씩' 순차 실행하며 진행률 게이지를 갱신한다.
+   · 결과는 섹션별 표(도표)로 정리. 상태 아이콘은 자체 SVG(이모지 폰트 의존 X).
+   · 유지보수(안 쓰는 문서 사진 / 채팅 사진 30일 정리)는 실제 Storage를 훑어 동작한다. */
 
-  const NIL='00000000-0000-0000-0000-000000000000';
-  const lines=[];
+/* ── 상태 아이콘 (자체 SVG) ── */
+function icOk(){ return `<svg class="hs-ic ok" viewBox="0 0 20 20" aria-label="정상" role="img">
+  <circle cx="10" cy="10" r="9" fill="currentColor" fill-opacity=".14"/>
+  <circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <path d="M5.8 10.4 L8.6 13.1 L14.2 7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`; }
+function icBad(){ return `<svg class="hs-ic bad" viewBox="0 0 20 20" aria-label="문제" role="img">
+  <circle cx="10" cy="10" r="9" fill="currentColor" fill-opacity=".14"/>
+  <circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
+  <path d="M6.8 6.8 L13.2 13.2 M13.2 6.8 L6.8 13.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>`; }
+function icWarn(){ return `<svg class="hs-ic warn" viewBox="0 0 20 20" aria-label="주의" role="img">
+  <path d="M10 2.6 L18.4 17 L1.6 17 Z" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+  <path d="M10 7.4 V11.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="10" cy="14.4" r="1.15" fill="currentColor"/></svg>`; }
+function hsIcon(st){ return st==='ok' ? icOk() : (st==='warn' ? icWarn() : icBad()); }
 
-  // ── 0) 용량 (무료 한도) ──
-  lines.push(healthHead('0) 용량 (무료 한도)'));
-  lines.push(await capacityCheck());
-
-  // ── 1) 데이터베이스 테이블/뷰 읽기 ──
-  lines.push(healthHead('1) 테이블 · 뷰 읽기'));
-  lines.push(await dbCheck('documents (문서)', ()=>sb.from('documents').select('key').limit(1)));
-  lines.push(await dbCheck('profiles (회원)', ()=>sb.from('profiles').select('id').limit(1)));
-  lines.push(await dbCheck('members_public (공개 회원 뷰)', ()=>sb.from('members_public').select('id').limit(1)));
-  lines.push(await dbCheck('messages (채팅)', ()=>sb.from('messages').select('id').limit(1)));
-  lines.push(await dbCheck('message_reactions (반응)', ()=>sb.from('message_reactions').select('message_id').limit(1)));
-  lines.push(await dbCheck('revisions (편집 이력)', ()=>sb.from('revisions').select('id').limit(1)));
-  lines.push(await dbCheck('handle_history (활동명 이력)', ()=>sb.from('handle_history').select('user_id').limit(1)));
-  lines.push(await dbCheck('clubs (동아리)', ()=>sb.from('clubs').select('name').limit(1)));
-  lines.push(await dbCheck('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1)));
-  lines.push(await dbCheck('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1)));
-
-  // ── 2) 스키마 컬럼 (마이그레이션 적용 여부) ──
-  lines.push(healthHead('2) 스키마 컬럼(마이그레이션 확인)'));
-  lines.push(await dbCheck('messages.kind — 시스템 공지 (24)', ()=>sb.from('messages').select('kind').limit(1)));
-  lines.push(await dbCheck('profiles.last_active_at — 마지막 활동 (26)', ()=>sb.from('profiles').select('last_active_at').limit(1)));
-  lines.push(await dbCheck('profiles.total_seconds — 누적 체류 (26)', ()=>sb.from('profiles').select('total_seconds').limit(1)));
-  lines.push(await dbCheck('profiles.session_seconds — 이번 체류 (27)', ()=>sb.from('profiles').select('session_seconds').limit(1)));
-  lines.push(await dbCheck('members_public.last_active_at (26)', ()=>sb.from('members_public').select('last_active_at').limit(1)));
-
-  // ── 3) 함수(RPC) 배포 여부 — 부작용 없는 probe ──
-  lines.push(healthHead('3) 함수(RPC) 배포 여부'));
-  lines.push(await rpcCheck('role_rank / is_admin / is_owner / is_editor (16·25)', 'is_editor', {}));
-  lines.push(await rpcCheck('role_kor — 등급 한글 (24)', 'role_kor', { p:'viewer' }));
-  lines.push(await rpcCheck('post_system_notice — 시스템 공지 (24)', 'post_system_notice', { p_body:'' }));
-  lines.push(await rpcCheck('set_member_role — 등급 변경 (17·24·26)', 'set_member_role', { p_target:NIL, p_role:'viewer' }));
-  lines.push(await rpcCheck('transfer_owner — owner 양도 (17·24)', 'transfer_owner', { p_target:NIL }));
-  lines.push(await rpcCheck('set_my_handle — 활동명 변경 (21·24)', 'set_my_handle', { p_handle:'' }));
-  lines.push(await rpcCheck('set_member_club — 소속 배정 (20)', 'set_member_club', { p_target:NIL, p_club:'__healthcheck__' }));
-  lines.push(await rpcCheck('member_profile — 회원 프로필 (조회)', 'member_profile', { target:NIL }));
-  lines.push(await rpcCheck('admin_list_members — 회원 목록 (26·27)', 'admin_list_members', {}));
-  lines.push(await rpcCheck('delete_message — 메세지 삭제 (22)', 'delete_message', { p_id:-1 }));
-  lines.push(await rpcCheck('heartbeat — 접속/체류 (26·27)', 'heartbeat', { p_add:0, p_new:false }));
-  lines.push(await rpcCheck('rollback_document — 문서 롤백', 'rollback_document', { p_key:'__healthcheck_none__', p_revision_id:-1 }));
-  lines.push(await rpcCheck('trash_document — 문서 휴지통 (23)', 'trash_document', { p_key:'__healthcheck_none__' }));
-  lines.push(await rpcCheck('restore_document — 문서 복원 (23)', 'restore_document', { p_id:-1 }));
-  lines.push(await rpcCheck('list_deleted_documents — 휴지통 목록 (23)', 'list_deleted_documents', {}));
-  lines.push(await rpcCheck('get_deleted_document — 휴지통 열람 (23)', 'get_deleted_document', { p_id:-1 }));
-  lines.push(await rpcCheck('create_document — 문서 생성 (25)', 'create_document', { p_key:'', p_title:'' }));
-  lines.push(await rpcCheck('rename_document — 주소 변경 (25)', 'rename_document', { p_old:'__healthcheck_none__', p_new:'__healthcheck_none__' }));
-  lines.push(await rpcCheck('set_my_avatar — 프로필 사진', 'set_my_avatar', { p_url: state.avatar_url || null }));
-  lines.push(await rpcCheck('delete_club — 동아리 삭제', 'delete_club', { p_id:-1 }));
-  lines.push(await rpcCheck('rename_club — 동아리 이름변경', 'rename_club', { p_id:-1, p_new:'__healthcheck__' }));
-
-  // ── 4) 스토리지 ──
-  lines.push(healthHead('4) 스토리지'));
-  lines.push(await storageCheck('avatars 버킷 (프로필 사진)', 'avatars'));
-
-  // ── 5) 엣지 함수 ──
-  lines.push(healthHead('5) 엣지 함수'));
-  const sr = await fnDebug('signup-request');
-  lines.push(fnLine('signup-request (가입 신청)', sr, ['SERVICE_KEY','TURNSTILE_SECRET','db_test']));
-
-  const html = lines.join('');
-  const fails = (html.match(/❌/g)||[]).length;
-  const summary = `<div class="notice" style="border-left-color:${fails?'var(--link-red)':'#2e9e5b'}"><b>${fails? ('⚠ 문제 '+fails+'건 발견 — ❌ 항목을 확인하세요.') : '✅ 모든 항목 정상입니다.'}</b></div>`;
-  $('#hResult').innerHTML = summary + html;
-}
-async function rpcCheck(label, name, args){
-  try{
-    const { error } = await sb.rpc(name, args||{});
-    if(!error) return healthRow(label, true, 'OK');
-    const msg=error.message||''; const code=error.code||'';
-    // 이 점검은 일부러 없는 ID(-1 등)를 넘겨 "함수가 배포됐는지"만 본다.
-    // 따라서 함수가 더미 인자를 거부하며 내는 "…찾을 수 없습니다"(=행 없음)는 '정상 거부'이지 '함수 없음'이 아니다.
-    // 판정은 메시지 문구가 아니라 에러 코드로 한다:
-    //   PGRST202/PGRST203 = PostgREST가 스키마 캐시에서 함수를 못 찾음, 42883 = Postgres undefined_function
-    const missing = code==='PGRST202' || code==='PGRST203' || code==='42883'
-      || /could not find the function|schema cache/i.test(msg)
-      || /function .+ does not exist/i.test(msg);
-    if(missing) return healthRow(label, false, '함수 없음/미배포 · '+msg);
-    return healthRow(label, true, '배포됨 (정상 거부: '+msg+')');
-  }catch(e){ return healthRow(label, false, String(e)); }
-}
-async function storageCheck(label, bucket){
-  try{ const { error } = await sb.storage.from(bucket).list('', { limit:1 });
-    return healthRow(label, !error, error?error.message:'OK'); }
-  catch(e){ return healthRow(label, false, String(e)); }
-}
-/* 용량 게이지 — DB(500MB) / Storage(1GB) 사용률 + 무거운 테이블 상위 목록 */
 function fmtBytes(b){
+  b=Number(b)||0;
   if(b>=1024*1024*1024) return (b/1024/1024/1024).toFixed(2)+' GB';
   if(b>=1024*1024)      return (b/1024/1024).toFixed(1)+' MB';
   if(b>=1024)           return (b/1024).toFixed(0)+' KB';
   return b+' B';
 }
-function usageBar(label, used, limit){
-  const pct = limit ? Math.min(100, used/limit*100) : 0;
-  const col = pct>=90 ? 'var(--link-red)' : (pct>=70 ? '#c98500' : '#2e9e5b');
-  return `<div style="margin:8px 0 12px">
-    <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px">
-      <b>${escapeHtml(label)}</b>
-      <span>${escapeHtml(fmtBytes(used))} / ${escapeHtml(fmtBytes(limit))} · <b style="color:${col}">${pct.toFixed(1)}%</b></span>
-    </div>
-    <div style="height:8px;border-radius:4px;background:#e5e5e5;overflow:hidden">
-      <div style="height:100%;width:${pct.toFixed(1)}%;background:${col}"></div>
-    </div>
-  </div>`;
+
+/* ── 검사 결과 한 줄 ── */
+function hsRow(label, st, detail){
+  return `<tr class="hs-${st}">
+    <td class="hs-st">${hsIcon(st)}</td>
+    <td class="hs-lb">${escapeHtml(label)}</td>
+    <td class="hs-dt">${escapeHtml(detail||'')}</td>
+  </tr>`;
 }
 
-/* 문서 사진 GC — 현재 본문에도, 살아남은 리비전 어디에도 없는 사진만 삭제 대상.
-   (옛 리비전이 참조 중인 사진을 지우면 역사가 깨지므로 반드시 리비전까지 확인한다) */
-async function scanOrphanImages(){
-  const msg=document.getElementById('gcMsg'), list=document.getElementById('gcList');
-  if(!msg||!list) return;
-  msg.textContent='검사 중…'; list.innerHTML='';
-  let rows=[];
+/* ── 개별 검사기 ── */
+async function chkTable(label, fn){
+  try{ const { error } = await fn();
+    return error ? hsRow(label,'bad',error.message) : hsRow(label,'ok','읽기 정상'); }
+  catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+}
+async function chkRpc(label, name, args){
   try{
-    const { data, error } = await sb.rpc('list_orphan_doc_images');
+    const { error } = await sb.rpc(name, args||{});
+    if(!error) return hsRow(label,'ok','배포됨');
+    const msg=error.message||'', code=error.code||'';
+    // 없는 ID를 일부러 넘기므로 '정상 거부'와 '함수 없음'을 코드로 구분한다.
+    const missing = code==='PGRST202' || code==='PGRST203' || code==='42883'
+      || /could not find the function|schema cache/i.test(msg)
+      || /function .+ does not exist/i.test(msg);
+    return missing ? hsRow(label,'bad','미배포 · '+msg)
+                   : hsRow(label,'ok','배포됨 (정상 거부: '+msg.slice(0,60)+')');
+  }catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+}
+async function chkBucket(label, bucket){
+  try{ const { error } = await sb.storage.from(bucket).list('', { limit:1 });
+    return error ? hsRow(label,'bad',error.message) : hsRow(label,'ok','접근 가능'); }
+  catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+}
+async function chkEdge(label, name, keys){
+  let res=null;
+  try{
+    const r = await fetch(`${SUPABASE_URL}/functions/v1/${name}?debug=1`,
+      { headers:{ apikey: SUPABASE_KEY, Authorization: 'Bearer '+SUPABASE_KEY } });
+    res = await r.json();
+  }catch(e){ return hsRow(label,'bad','응답 없음 · '+String(e)); }
+  if(!res || !res.diag) return hsRow(label,'bad',(res&&res.error)?res.error:'함수 응답 없음 (배포·이름·Verify JWT 확인)');
+  const parts = keys.map(k=>`${k}: ${res.diag[k]||'-'}`);
+  const ok = keys.every(k=>{ const v=String(res.diag[k]||''); return !/❌|없음|실패|예외/.test(v); });
+  return hsRow(label, ok?'ok':'bad', parts.join(' · '));
+}
+
+/* ── Storage 전체 목록(폴더 재귀) ── */
+async function listBucketAll(bucket, prefix){
+  prefix = prefix || '';
+  const out=[];
+  let offset=0;
+  for(;;){
+    const { data, error } = await sb.storage.from(bucket)
+      .list(prefix, { limit:100, offset, sortBy:{ column:'name', order:'asc' } });
     if(error) throw error;
-    rows=data||[];
-  }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); return; }
-
-  if(!rows.length){ msg.textContent='정리할 사진이 없습니다. ✅'; return; }
-  const total=rows.reduce((a,r)=>a+(Number(r.bytes)||0),0);
-  msg.textContent=`${rows.length}개 · ${fmtBytes(total)} 회수 가능`;
-  list.innerHTML = rows.slice(0,20).map(r=>
-      `<div class="orph-row"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.path)}</span><span>${escapeHtml(fmtBytes(Number(r.bytes)||0))}</span></div>`).join('')
-    + (rows.length>20?`<div class="orph-row"><span>… 외 ${rows.length-20}개</span></div>`:'')
-    + `<button class="btn" id="gcDel" style="margin-top:8px;font-size:12px;padding:6px 12px">${rows.length}개 삭제</button>`;
-
-  document.getElementById('gcDel').onclick=async()=>{
-    const ok=await confirmModal('안 쓰는 사진을 삭제할까요?',
-      `${rows.length}개 · ${fmtBytes(total)}. 현재 문서와 남아있는 역사(리비전) 어디에도 쓰이지 않는 사진입니다.`, '삭제');
-    if(!ok) return;
-    msg.textContent='삭제 중…';
-    try{
-      const paths=rows.map(r=>r.path);
-      for(let i=0;i<paths.length;i+=100){                       // 100개씩 나눠 요청
-        const { error } = await sb.storage.from('doc-images').remove(paths.slice(i,i+100));
-        if(error) throw error;
+    if(!data || !data.length) break;
+    for(const it of data){
+      const path = prefix ? prefix+'/'+it.name : it.name;
+      if(it.id === null || !it.metadata){                    // 폴더 → 재귀
+        const sub = await listBucketAll(bucket, path);
+        out.push(...sub);
+      }else{
+        out.push({ path, size:Number((it.metadata&&it.metadata.size)||0),
+                   created_at: it.created_at || (it.metadata&&it.metadata.lastModified) || null });
       }
-      list.innerHTML=''; msg.textContent=`${rows.length}개 삭제 완료 · ${fmtBytes(total)} 회수 ✅`;
-    }catch(e){ msg.textContent='삭제 실패: '+((e&&e.message)||e); }
-  };
+    }
+    if(data.length < 100) break;
+    offset += 100;
+  }
+  return out;
 }
 
+/* ── 안 쓰는 문서 사진 찾기 (실동작) ──
+   doc-images 버킷의 모든 파일을 나열한 뒤,
+   현재 문서 본문·인포박스 + 살아남은 리비전 본문 어디에도 URL이 없는 파일만 '고아'로 판정한다.
+   (옛 리비전이 참조 중인 사진을 지우면 역사가 깨지므로 리비전까지 반드시 확인) */
+async function findOrphanDocImages(){
+  const files = await listBucketAll('doc-images');
+  const used = new Set();
+  const collect = (txt)=>{
+    const s = String(txt||'');
+    const re = /doc-images\/([^\s)"'<>\\]+)/g;
+    let m;
+    while((m = re.exec(s))){
+      let pth = m[1].split('?')[0];
+      try{ pth = decodeURIComponent(pth); }catch(_){}
+      used.add(pth);
+    }
+  };
+  const { data:docs } = await sb.from('documents').select('body,infobox,notice');
+  (docs||[]).forEach(d=>{ collect(d.body); collect(d.notice); collect(JSON.stringify(d.infobox||'')); });
+  const { data:revs } = await sb.from('revisions').select('body');
+  (revs||[]).forEach(r=>collect(r.body));
+  return { files, orphans: files.filter(f=>!used.has(f.path)) };
+}
 
-/* 30일 지난 채팅 사진 정리 — chat-images 버킷은 채팅 전용이라 '나이'만 보면 된다.
-   (문서 사진처럼 리비전 참조를 검사할 필요가 없음) */
-async function scanExpiredChatImages(){
-  const msg=document.getElementById('gcMsg'), list=document.getElementById('gcList');
-  if(!msg||!list) return;
-  msg.textContent='검사 중…'; list.innerHTML='';
-  let rows=[];
-  try{
-    const { data, error } = await sb.rpc('list_expired_chat_images');
-    if(error) throw error;
-    rows=data||[];
-  }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); return; }
-
-  if(!rows.length){ msg.textContent='30일 지난 채팅 사진이 없습니다. ✅'; return; }
-  const total=rows.reduce((a,r)=>a+(Number(r.bytes)||0),0);
-  msg.textContent=`${rows.length}개 · ${fmtBytes(total)} 회수 가능 (메시지 글은 그대로 남습니다)`;
-  list.innerHTML=`<button class="btn" id="gcChatDel" style="margin-top:8px;font-size:12px;padding:6px 12px">${rows.length}개 삭제</button>`;
-  document.getElementById('gcChatDel').onclick=async()=>{
-    const ok=await confirmModal('30일 지난 채팅 사진을 삭제할까요?',
-      `${rows.length}개 · ${fmtBytes(total)}.\n메시지 글은 그대로 남고, 사진 자리에는 "사진이 만료되었습니다" 상자가 표시됩니다.`, '삭제');
-    if(!ok) return;
-    msg.textContent='삭제 중…';
+/* ── 채팅 사진 30일 자동 정리 (버튼 불필요) ──
+   chat-images는 채팅 전용이라 '나이'만 보면 된다. admin/owner가 앱을 열면 하루 한 번 자동 실행.
+   (service_role 키가 필요 없는 유일한 안전한 방법 — 브라우저엔 admin 권한 세션만 있으면 된다) */
+const CHAT_GC_KEY = 'anda_chat_gc_at';
+async function autoCleanChatImages(force){
+  if(!isAdmin() || !state.user) return null;
+  const now = Date.now();
+  if(!force){
     try{
-      const paths=rows.map(r=>r.path);
+      const last = Number(localStorage.getItem(CHAT_GC_KEY)||0);
+      if(now - last < 24*3600*1000) return null;     // 하루 1회로 제한(트래픽 절약)
+    }catch(e){}
+  }
+  try{
+    const files = await listBucketAll('chat-images');
+    const cutoff = now - CHAT_IMG_KEEP_DAYS*86400*1000;
+    const old = files.filter(f=>{
+      const t = f.created_at ? new Date(f.created_at).getTime() : NaN;
+      return !isNaN(t) && t < cutoff;
+    });
+    let bytes = 0;
+    if(old.length){
+      const paths = old.map(f=>f.path);
+      bytes = old.reduce((a,f)=>a+f.size,0);
       for(let i=0;i<paths.length;i+=100){
         const { error } = await sb.storage.from('chat-images').remove(paths.slice(i,i+100));
         if(error) throw error;
       }
-      list.innerHTML=''; msg.textContent=`${rows.length}개 삭제 완료 · ${fmtBytes(total)} 회수 ✅`;
-    }catch(e){ msg.textContent='삭제 실패: '+((e&&e.message)||e); }
-  };
+    }
+    try{ localStorage.setItem(CHAT_GC_KEY, String(now)); }catch(e){}
+    return { deleted: old.length, bytes, scanned: files.length };
+  }catch(e){ return { error: (e&&e.message)||String(e) }; }
 }
 
-async function capacityCheck(){
+/* ── 용량 게이지 ── */
+function usageBar(label, used, limit){
+  const pct = limit ? Math.min(100, used/limit*100) : 0;
+  const col = pct>=90 ? 'var(--link-red)' : (pct>=70 ? '#c98500' : '#2e9e5b');
+  return `<div class="cap-bar">
+    <div class="cap-top"><b>${escapeHtml(label)}</b>
+      <span>${escapeHtml(fmtBytes(used))} / ${escapeHtml(fmtBytes(limit))} · <b style="color:${col}">${pct.toFixed(1)}%</b></span></div>
+    <div class="cap-track"><div class="cap-fill" style="width:${pct.toFixed(1)}%;background:${col}"></div></div>
+  </div>`;
+}
+async function capacityHTML(){
   try{
     const { data, error } = await sb.rpc('capacity_usage');
     if(error) throw error;
     const d = (typeof data==='string') ? JSON.parse(data) : data;
     let html = usageBar('Database (텍스트·문서·리비전)', d.db_bytes, d.db_limit)
              + usageBar('Storage (사진)', d.storage_bytes, d.storage_limit);
-    const tb = d.tables||[];
-    if(tb.length){
-      html += `<div style="font-size:12px;color:var(--text-dim);margin-top:6px">무거운 테이블: `
-            + tb.slice(0,5).map(t=>`${escapeHtml(t.name)} ${escapeHtml(fmtBytes(t.bytes))}`).join(' · ')
-            + `</div>`;
+    if(d.tables && d.tables.length){
+      html += `<table class="hs-table cap-table"><tr><th>무거운 테이블</th><th>크기</th></tr>`
+        + d.tables.slice(0,8).map(t=>`<tr><td>${escapeHtml(t.name)}</td><td class="y">${escapeHtml(fmtBytes(t.bytes))}</td></tr>`).join('')
+        + `</table>`;
     }
-    const worst = Math.max(d.db_bytes/d.db_limit, d.storage_bytes/d.storage_limit)*100;
-    if(worst>=90) html += `<div class="notice" style="border-left-color:var(--link-red);margin-top:8px"><b>⚠ 한도의 90%를 넘었습니다 — 정리 또는 플랜 상향이 필요합니다.</b></div>`;
-    html += `<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn ghost" id="gcBtn" style="font-size:12px;padding:5px 10px">${ic('broom')} 안 쓰는 문서 사진 찾기</button>
-        <button class="btn ghost" id="gcChatBtn" style="font-size:12px;padding:5px 10px">${ic('calendar')} 30일 지난 채팅 사진 정리</button>
-      </div>
-      <div id="gcMsg" style="font-size:12px;color:var(--text-dim);margin-top:6px"></div><div id="gcList"></div>`;
-    setTimeout(()=>{
-      const b=document.getElementById('gcBtn');      if(b) b.onclick=scanOrphanImages;
-      const c=document.getElementById('gcChatBtn');  if(c) c.onclick=scanExpiredChatImages;
-    },0);
     return html;
   }catch(e){
-    return healthRow('용량 조회 (capacity_usage)', false, '함수 미배포 또는 권한 없음 · '+String((e&&e.message)||e));
+    return `<table class="hs-table">${hsRow('capacity_usage (용량 조회)','bad','미배포 또는 권한 없음 · '+String((e&&e.message)||e))}</table>`;
   }
 }
-function healthHead(t){ return `<div class="rev" style="border-left-color:transparent;background:transparent;padding:12px 0 2px"><b style="color:var(--accent);font-size:13.5px">${escapeHtml(t)}</b></div>`; }
-async function dbCheck(label, fn){
-  try{ const { error } = await fn(); return healthRow(label, !error, error?error.message:'OK'); }
-  catch(e){ return healthRow(label, false, String(e)); }
-}
-async function fnDebug(name){
-  try{
-    const r = await fetch(`${SUPABASE_URL}/functions/v1/${name}?debug=1`,
-      { headers:{ apikey: SUPABASE_KEY, Authorization: 'Bearer '+SUPABASE_KEY } });
-    return await r.json();
-  }catch(e){ return { ok:false, error:String(e) }; }
-}
-function fnLine(label, res, keys){
-  if(!res || !res.diag) return healthRow(label, false, (res&&res.error)?res.error:'함수 응답 없음 (배포/이름/Verify JWT 확인)');
-  const parts = keys.map(k=>`${k}: ${res.diag[k]||'-'}`);
-  const ok = keys.every(k=>{ const v=res.diag[k]||''; return v.indexOf('❌')<0 && v.indexOf('없음')<0 && v.indexOf('실패')<0 && v.indexOf('예외')<0; });
-  return healthRow(label, ok, parts.join(' · '));
-}
-function healthRow(label, ok, detail){
-  return `<div class="rev"><div class="meta"><b>${ok?'✅':'❌'} ${escapeHtml(label)}</b><br><span style="font-size:11.5px">${escapeHtml(detail)}</span></div></div>`;
+
+/* ── 검사 목록 (섹션 → 항목) ── */
+function healthTasks(){
+  const NIL='00000000-0000-0000-0000-000000000000';
+  return [
+    { sec:'테이블 · 뷰 읽기', items:[
+      ['documents (문서)',            ()=>chkTable('documents (문서)', ()=>sb.from('documents').select('key').limit(1))],
+      ['profiles (회원)',             ()=>chkTable('profiles (회원)', ()=>sb.from('profiles').select('id').limit(1))],
+      ['members_public (공개 회원)',  ()=>chkTable('members_public (공개 회원)', ()=>sb.from('members_public').select('id').limit(1))],
+      ['member_credits (기여도 40)',  ()=>chkTable('member_credits (기여도 40)', ()=>sb.from('member_credits').select('id').limit(1))],
+      ['doc_stats (본문 길이 41)',    ()=>chkTable('doc_stats (본문 길이 41)', ()=>sb.from('doc_stats').select('key').limit(1))],
+      ['messages (채팅)',             ()=>chkTable('messages (채팅)', ()=>sb.from('messages').select('id').limit(1))],
+      ['message_reactions (반응)',    ()=>chkTable('message_reactions (반응)', ()=>sb.from('message_reactions').select('message_id').limit(1))],
+      ['revisions (편집 이력)',       ()=>chkTable('revisions (편집 이력)', ()=>sb.from('revisions').select('id').limit(1))],
+      ['handle_history (활동명)',     ()=>chkTable('handle_history (활동명)', ()=>sb.from('handle_history').select('user_id').limit(1))],
+      ['clubs (동아리)',              ()=>chkTable('clubs (동아리)', ()=>sb.from('clubs').select('name').limit(1))],
+      ['tracks (계열 47)',            ()=>chkTable('tracks (계열 47)', ()=>sb.from('tracks').select('id,name,color').limit(1))],
+      ['questions (질문 31)',         ()=>chkTable('questions (질문 31)', ()=>sb.from('questions').select('id').limit(1))],
+      ['dm_messages (쪽지 30)',       ()=>chkTable('dm_messages (쪽지 30)', ()=>sb.from('dm_messages').select('id').limit(1))],
+      ['notifications (알림 32)',     ()=>chkTable('notifications (알림 32)', ()=>sb.from('notifications').select('id').limit(1))],
+      ['doc_likes (좋아요 40)',       ()=>chkTable('doc_likes (좋아요 40)', ()=>sb.from('doc_likes').select('doc_key').limit(1))],
+      ['signup_requests (가입 신청)', ()=>chkTable('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1))],
+      ['app_settings (설정)',         ()=>chkTable('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1))],
+    ]},
+    { sec:'스키마 컬럼 (마이그레이션 적용 여부)', items:[
+      ['messages.kind (24)',              ()=>chkTable('messages.kind (24)', ()=>sb.from('messages').select('kind').limit(1))],
+      ['messages.images (38)',            ()=>chkTable('messages.images (38)', ()=>sb.from('messages').select('images').limit(1))],
+      ['messages.question_id (31)',       ()=>chkTable('messages.question_id (31)', ()=>sb.from('messages').select('question_id').limit(1))],
+      ['profiles.last_active_at (26)',    ()=>chkTable('profiles.last_active_at (26)', ()=>sb.from('profiles').select('last_active_at').limit(1))],
+      ['profiles.session_seconds (27)',   ()=>chkTable('profiles.session_seconds (27)', ()=>sb.from('profiles').select('session_seconds').limit(1))],
+      ['profiles.bio (42)',               ()=>chkTable('profiles.bio (42)', ()=>sb.from('profiles').select('bio').limit(1))],
+      ['profiles.track — 계열 (47)',      ()=>chkTable('profiles.track — 계열 (47)', ()=>sb.from('profiles').select('track').limit(1))],
+      ['documents.format (36)',           ()=>chkTable('documents.format (36)', ()=>sb.from('documents').select('format').limit(1))],
+      ['documents.created_at (45)',       ()=>chkTable('documents.created_at (45)', ()=>sb.from('documents').select('created_at').limit(1))],
+    ]},
+    { sec:'함수(RPC) 배포 여부', items:[
+      ['is_editor (25)',              ()=>chkRpc('is_editor (25)','is_editor',{})],
+      ['set_member_role (17·26)',     ()=>chkRpc('set_member_role (17·26)','set_member_role',{ p_target:NIL, p_role:'viewer' })],
+      ['transfer_owner (17)',         ()=>chkRpc('transfer_owner (17)','transfer_owner',{ p_target:NIL })],
+      ['set_my_handle (21)',          ()=>chkRpc('set_my_handle (21)','set_my_handle',{ p_handle:'' })],
+      ['set_my_name / set_my_club (45)', ()=>chkRpc('set_my_name / set_my_club (45)','set_my_name',{ p_name:'' })],
+      ['set_my_bio (42)',             ()=>chkRpc('set_my_bio (42)','set_my_bio',{ p_bio:'' })],
+      ['set_my_track — 계열 선택 (47)', ()=>chkRpc('set_my_track — 계열 선택 (47)','set_my_track',{ p_track:'__healthcheck__' })],
+      ['add_track / rename_track / delete_track (47)', ()=>chkRpc('add_track / rename_track / delete_track (47)','rename_track',{ p_id:-1, p_new:'__healthcheck__' })],
+      ['set_track_color (47, owner)',  ()=>chkRpc('set_track_color (47, owner)','set_track_color',{ p_id:-1, p_color:'#000000' })],
+      ['admin_list_members (26·27)',  ()=>chkRpc('admin_list_members (26·27)','admin_list_members',{})],
+      ['member_profile',              ()=>chkRpc('member_profile','member_profile',{ target:NIL })],
+      ['heartbeat / go_offline (26·42)', ()=>chkRpc('heartbeat / go_offline (26·42)','heartbeat',{ p_add:0, p_new:false })],
+      ['create_document (25)',        ()=>chkRpc('create_document (25)','create_document',{ p_key:'', p_title:'' })],
+      ['rename_document (25)',        ()=>chkRpc('rename_document (25)','rename_document',{ p_old:'__healthcheck_none__', p_new:'__healthcheck_none__' })],
+      ['rollback_document',           ()=>chkRpc('rollback_document','rollback_document',{ p_key:'__healthcheck_none__', p_revision_id:-1 })],
+      ['trash / restore_document (23·45)', ()=>chkRpc('trash / restore_document (23·45)','restore_document',{ p_id:-1 })],
+      ['prune_revisions (33)',        ()=>chkRpc('prune_revisions (33)','prune_revisions',{ p_key:'__healthcheck_none__' })],
+      ['toggle_doc_like / doc_like_counts (40)', ()=>chkRpc('toggle_doc_like / doc_like_counts (40)','doc_like_counts',{})],
+      ['send_dm / get_dm_thread (30·38)', ()=>chkRpc('send_dm / get_dm_thread (30·38)','get_dm_thread',{ p_thread_id:-1 })],
+      ['delete_dm (46)',              ()=>chkRpc('delete_dm (46)','delete_dm',{ p_id:-1 })],
+      ['list_inbox / inbox_unread_total (32)', ()=>chkRpc('list_inbox / inbox_unread_total (32)','list_inbox',{})],
+      ['mark_notification_read (32)', ()=>chkRpc('mark_notification_read (32)','mark_notification_read',{ p_id:-1 })],
+      ['create_question / get_question (31)', ()=>chkRpc('create_question / get_question (31)','get_question',{ p_id:-1 })],
+      ['delete_question (31)',        ()=>chkRpc('delete_question (31)','delete_question',{ p_id:-1 })],
+      ['delete_message (22)',         ()=>chkRpc('delete_message (22)','delete_message',{ p_id:-1 })],
+      ['set_my_avatar (13)',          ()=>chkRpc('set_my_avatar (13)','set_my_avatar',{ p_url: state.avatar_url || null })],
+      ['add_club / rename_club / delete_club (14)', ()=>chkRpc('add_club / rename_club / delete_club (14)','rename_club',{ p_id:-1, p_new:'__healthcheck__' })],
+      ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
+    ]},
+    { sec:'스토리지 버킷', items:[
+      ['avatars (프로필 사진)',        ()=>chkBucket('avatars (프로필 사진)','avatars')],
+      ['doc-images (문서 사진 37)',    ()=>chkBucket('doc-images (문서 사진 37)','doc-images')],
+      ['chat-images (채팅 사진 38)',   ()=>chkBucket('chat-images (채팅 사진 38)','chat-images')],
+      ['question-images (질문 사진 31)', ()=>chkBucket('question-images (질문 사진 31)','question-images')],
+    ]},
+    { sec:'엣지 함수', items:[
+      ['signup-request (가입 신청)', ()=>chkEdge('signup-request (가입 신청)','signup-request',['SERVICE_KEY','TURNSTILE_SECRET','db_test'])],
+    ]},
+  ];
 }
 
+async function renderHealth(){
+  const groups = healthTasks();
+  const total = groups.reduce((a,g)=>a+g.items.length, 0) + 1;   // +1 = 용량
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>시스템 검사</h1>
+      <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('users')}회원 관리</button></div></div>
+    <div class="doc-meta">모든 자원(테이블·컬럼·RPC·스토리지·엣지 함수)을 하나씩 검사합니다. 문제 줄이 곧 원인입니다.</div>
+    <div class="hs-prog" id="hsProg">
+      <div class="hs-prog-top"><b id="hsProgLabel">검사 준비 중…</b><span id="hsProgNum">0 / ${total}</span></div>
+      <div class="hs-track"><div class="hs-fill" id="hsFill" style="width:0%"></div></div>
+    </div>
+    <div id="hsSummary"></div>
+    <div id="hsBody"></div>`;
+  $('#hBack').onclick=()=>{ location.hash='#admin'; };
+  $('#hReload').onclick=()=>renderHealth();
+
+  let done=0, ok=0, bad=0;
+  const bump=(label)=>{
+    done++;
+    const pct = Math.round(done/total*100);
+    const f=$('#hsFill'); if(f) f.style.width=pct+'%';
+    const n=$('#hsProgNum'); if(n) n.textContent=`${done} / ${total} (${pct}%)`;
+    const l=$('#hsProgLabel'); if(l) l.textContent=label;
+  };
+  const body=$('#hsBody');
+
+  // 0) 용량
+  bump('용량 확인 중…');
+  const capHtml = await capacityHTML();
+  body.insertAdjacentHTML('beforeend',
+    `<section class="hs-sec"><h2>용량 (무료 한도)</h2>${capHtml}</section>`);
+
+  // 1~5) 섹션별 검사
+  for(const g of groups){
+    const secId='sec_'+Math.random().toString(36).slice(2,8);
+    body.insertAdjacentHTML('beforeend',
+      `<section class="hs-sec"><h2>${escapeHtml(g.sec)} <span class="hs-cnt" id="${secId}_c"></span></h2>
+        <table class="hs-table"><tbody id="${secId}"></tbody></table></section>`);
+    const tb=document.getElementById(secId);
+    let sOk=0, sBad=0;
+    for(const [label, run] of g.items){
+      bump(label+' 검사 중…');
+      const row = await run();
+      if(/hs-ok/.test(row)) { ok++; sOk++; } else { bad++; sBad++; }
+      tb.insertAdjacentHTML('beforeend', row);
+    }
+    const c=document.getElementById(secId+'_c');
+    if(c) c.innerHTML = sBad ? `<span class="hs-badge bad">문제 ${sBad}</span>` : `<span class="hs-badge ok">정상 ${sOk}</span>`;
+  }
+
+  // 요약
+  const prog=$('#hsProg'); if(prog) prog.classList.add('done');
+  const pl=$('#hsProgLabel'); if(pl) pl.textContent='검사 완료';
+  $('#hsSummary').innerHTML = `<div class="hs-sum ${bad?'bad':'ok'}">
+    ${bad?icBad():icOk()}
+    <div><b>${bad ? `문제 ${bad}건 발견` : '모든 항목 정상'}</b>
+      <div class="hs-sum-sub">정상 ${ok} · 문제 ${bad} · 총 ${ok+bad}개 항목</div></div></div>`;
+
+  // 유지보수 섹션
+  renderMaintenance();
+}
+
+/* ── 유지보수: 안 쓰는 문서 사진 / 채팅 사진 자동 정리 ── */
+async function renderMaintenance(){
+  const body=$('#hsBody'); if(!body) return;
+  let gcAt=0; try{ gcAt=Number(localStorage.getItem(CHAT_GC_KEY)||0); }catch(e){}
+  body.insertAdjacentHTML('beforeend', `
+    <section class="hs-sec">
+      <h2>유지보수</h2>
+      <table class="hs-table">
+        <tr><th style="width:190px">항목</th><th>상태</th><th style="width:150px">동작</th></tr>
+        <tr>
+          <td><b>안 쓰는 문서 사진</b><div class="hs-note">현재 문서·남은 리비전 어디에도 없는 doc-images 파일</div></td>
+          <td id="gcDocMsg" class="hs-dt">아직 검사하지 않았어요.</td>
+          <td><button class="btn ghost hs-btn" id="gcDocBtn">찾기</button></td>
+        </tr>
+        <tr>
+          <td><b>채팅 사진 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요)</div></td>
+          <td id="gcChatMsg" class="hs-dt">${gcAt?('마지막 자동 정리: '+escapeHtml(fmtKST(new Date(gcAt).toISOString()))):'아직 자동 정리 기록이 없어요.'}</td>
+          <td><button class="btn ghost hs-btn" id="gcChatBtn">지금 실행</button></td>
+        </tr>
+      </table>
+      <div id="gcDocList"></div>
+    </section>`);
+
+  $('#gcDocBtn').onclick=async()=>{
+    const msg=$('#gcDocMsg'), list=$('#gcDocList');
+    msg.textContent='doc-images 버킷과 문서·리비전을 대조하는 중…'; list.innerHTML='';
+    try{
+      const { files, orphans } = await findOrphanDocImages();
+      if(!orphans.length){ msg.innerHTML = `${icOk()} 사진 ${files.length}개 모두 사용 중 — 정리할 게 없어요.`; return; }
+      const total=orphans.reduce((a,f)=>a+f.size,0);
+      msg.innerHTML = `${icWarn()} 안 쓰는 사진 <b>${orphans.length}개</b> · ${escapeHtml(fmtBytes(total))} 회수 가능 (전체 ${files.length}개 중)`;
+      list.innerHTML = `<table class="hs-table"><tr><th>경로</th><th style="width:90px">크기</th></tr>`
+        + orphans.slice(0,20).map(f=>`<tr><td class="hs-path">${escapeHtml(f.path)}</td><td class="y">${escapeHtml(fmtBytes(f.size))}</td></tr>`).join('')
+        + (orphans.length>20?`<tr><td colspan="2" class="hs-dt">… 외 ${orphans.length-20}개</td></tr>`:'')
+        + `</table><button class="btn hs-btn" id="gcDocDel" style="margin-top:8px">${orphans.length}개 삭제</button>`;
+      $('#gcDocDel').onclick=async()=>{
+        const ok=await confirmModal('안 쓰는 사진을 삭제할까요?',
+          `${orphans.length}개 · ${fmtBytes(total)}. 현재 문서와 남아있는 역사(리비전) 어디에도 쓰이지 않는 사진입니다.`, '삭제');
+        if(!ok) return;
+        msg.textContent='삭제 중…';
+        try{
+          const paths=orphans.map(f=>f.path);
+          for(let i=0;i<paths.length;i+=100){
+            const { error } = await sb.storage.from('doc-images').remove(paths.slice(i,i+100));
+            if(error) throw error;
+          }
+          list.innerHTML=''; msg.innerHTML=`${icOk()} ${orphans.length}개 삭제 완료 · ${escapeHtml(fmtBytes(total))} 회수`;
+        }catch(e){ msg.innerHTML=`${icBad()} 삭제 실패: `+escapeHtml((e&&e.message)||String(e)); }
+      };
+    }catch(e){ msg.innerHTML=`${icBad()} 실패: `+escapeHtml((e&&e.message)||String(e)); }
+  };
+
+  $('#gcChatBtn').onclick=async()=>{
+    const msg=$('#gcChatMsg');
+    msg.textContent='30일 지난 채팅 사진을 정리하는 중…';
+    const r = await autoCleanChatImages(true);
+    if(!r){ msg.textContent='권한이 없습니다.'; return; }
+    if(r.error){ msg.innerHTML=`${icBad()} 실패: `+escapeHtml(r.error); return; }
+    msg.innerHTML = r.deleted
+      ? `${icOk()} ${r.deleted}개 삭제 · ${escapeHtml(fmtBytes(r.bytes))} 회수 (전체 ${r.scanned}개 검사)`
+      : `${icOk()} 30일 지난 사진이 없어요 (전체 ${r.scanned}개 검사)`;
+  };
+}
 /* ================== 비밀번호 변경 (로그인 사용자) ================== */
 function renderPassword(){
   const rec = state.recovery;
@@ -3636,7 +3635,7 @@ async function savePassword(){
 /* ================== 개인정보 (본인) ================== */
 async function renderMe(){
   let p={};
-  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club,track').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
   const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
   const av=avatarFor(p.name, p.handle);
   const avaInner = p.avatar_url
@@ -3652,6 +3651,7 @@ async function renderMe(){
         <tr><th>이름</th><td><div class="handle-cell"><span id="meNameText">${escapeHtml(p.name||'-')}</span><button class="handle-edit" id="meNameBtn" title="이름 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>활동명</th><td><div class="handle-cell"><span>${escapeHtml(p.handle||'-')}</span><button class="handle-edit" id="meHandleBtn" title="활동명 변경" aria-label="활동명 변경"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div></td></tr>
         <tr><th>소속</th><td><div class="handle-cell"><span id="meClubText">${escapeHtml(p.club||'무소속')}</span><button class="handle-edit" id="meClubBtn" title="소속 변경">${ic('edit')}</button></div></td></tr>
+        <tr><th>계열</th><td><div class="handle-cell"><span id="meTrackText">${trackChipHTML(p.track)}</span><button class="handle-edit" id="meTrackBtn" title="계열 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
         <tr><th>등급</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
         <tr><th>가입일</th><td>${joined}</td></tr>
@@ -3679,6 +3679,7 @@ async function renderMe(){
   $('#meBioBtn').onclick=()=>openBioEditor(p.bio||'');
   $('#meNameBtn').onclick=()=>openNameEditor(p.name||'');
   $('#meClubBtn').onclick=()=>openClubPicker(p.club||'무소속');
+  $('#meTrackBtn').onclick=()=>openTrackPicker(p.track||'');
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
@@ -3836,6 +3837,7 @@ async function renderMemberProfile(id){
   try{ const { data:h } = await sb.from('handle_history').select('handle,changed_at').eq('user_id', id).order('changed_at',{ascending:true}); hist=h||[]; }catch(e){}
   let lastActive=null;
   try{ const { data:mp } = await sb.from('members_public').select('last_active_at').eq('id', id).single(); lastActive = mp && mp.last_active_at; }catch(e){}
+  try{ const { data:pt } = await sb.from('profiles').select('track').eq('id', id).single(); if(pt) p.track = pt.track; }catch(e){}   // 계열(member_profile RPC에 없어 별도 조회)
   const av=avatarFor(p.name, p.handle);
   const histRows = (hist.length ? hist : [{handle:p.handle, changed_at:p.created_at}]).map((h,i)=>
     `<tr><td class="y">${fmtKST(h.changed_at)}</td><td>${escapeHtml(h.handle||'-')}${i===0?' <span class="hh-first">가입</span>':''}</td></tr>`).join('');
@@ -3857,16 +3859,19 @@ async function renderMemberProfile(id){
           </div>
           <button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:6px 14px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">${(state.user && id===state.user.id)?'나에게 쪽지':'메시지'}</button>
         </div>
+        <div class="bio-bubble${p.bio?'':' empty'}">
+          <span class="bio-quote">“</span>${p.bio?escapeHtml(p.bio):'아직 한 줄 소개가 없어요.'}<span class="bio-quote">”</span>
+        </div>
         <table class="wtable profile-table">
           <tr><th style="width:120px">이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
           <tr><th>활동명</th><td>${escapeHtml(p.handle||'-')}</td></tr>
           <tr><th>소속</th><td>${escapeHtml(p.club||'무소속')}</td></tr>
+          <tr><th>계열</th><td>${trackChipHTML(p.track)}</td></tr>
           <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
           <tr><th>등급</th><td>${escapeHtml(p.role||'viewer')}</td></tr>
           <tr><th>가입일</th><td>${fmtKST(p.created_at)}</td></tr>
           <tr><th>마지막 활동</th><td>${(lastActive||p.last_active_at)?fmtKST(lastActive||p.last_active_at):(p.last_sign_in_at?fmtKST(p.last_sign_in_at):'-')}</td></tr>
           <tr><th>회원번호</th><td>#${p.member_no??'-'}</td></tr>
-          <tr><th>한줄 소개</th><td>${p.bio?escapeHtml(p.bio):'<span class="muted">아직 한줄 소개가 없어요.</span>'}</td></tr>
           <tr><th>문서 기여</th><td id="mpCredit"><span class="muted">불러오는 중…</span></td></tr>
         </table>
       </section>
@@ -3898,6 +3903,7 @@ async function renderDirectory(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 조회</h1>
       <div class="dir-top">
+        ${isOwner()?`<button id="dirAdminBtn" class="btn ghost">${ic('user')}회원 관리</button>`:''}
         <button id="dirFilterBtn" class="btn ghost">필터</button>
         <div class="dir-searchwrap">
           <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
@@ -3935,6 +3941,7 @@ async function renderDirectory(){
   // 바인딩
   $('#dirSearch').addEventListener('input', e=>{ dir.q=e.target.value; renderDirGrid(); });
   $('#dirFilterBtn').onclick=()=>{ const f=$('#dirFilter'); f.style.display=(f.style.display==='none')?'block':'none'; };
+  const dab=$('#dirAdminBtn'); if(dab) dab.onclick=()=>{ location.hash='#admin'; };   // owner 전용
   $('#dirFilter').querySelectorAll('.dir-chip').forEach(b=>b.onclick=()=>{
     $('#dirFilter').querySelectorAll('.dir-chip').forEach(x=>x.classList.remove('on'));
     b.classList.add('on'); dir.sort=b.dataset.sort; renderDirGrid();
@@ -4288,7 +4295,18 @@ async function loadInbox(quiet=false){
   const keepScroll=list.scrollTop;            // 목록 스크롤 위치 보존
   if(!rows.length){ list.innerHTML='<div class="ip-empty">받은 쪽지·알림이 없습니다.</div>'; return; }
   const ICON={ answer:'💬', role:'🎖', notice:'📢' };
-  list.innerHTML=rows.map(t=>{
+  // ★시스템 알림은 종류·건수와 무관하게 '시스템' 항목 하나로 합친다(알림마다 새 탭이 생기지 않게).
+  const notices = rows.filter(t=>t.kind!=='dm')
+                      .sort((a,b)=> new Date(b.at||0) - new Date(a.at||0));
+  inbox.notices = notices;
+  const disp = rows.filter(t=>t.kind==='dm');
+  if(notices.length){
+    const un = notices.reduce((a,t)=>a+(Number(t.unread)||0), 0);
+    disp.push({ kind:'sys', ref:'all', title:(notices[0].title||'알림'), at:notices[0].at,
+                unread:un, count:notices.length });
+  }
+  disp.sort((a,b)=> new Date(b.at||0) - new Date(a.at||0));
+  list.innerHTML=disp.map(t=>{
     const isDm = t.kind==='dm';
     const un=Number(t.unread)||0;
     const key=t.kind+':'+t.ref;
@@ -4300,13 +4318,13 @@ async function loadInbox(quiet=false){
         : `<div class="ib-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
       ava = `<span class="ava-wrap">${inner}<span class="pres-dot" data-pres="${escapeAttr(t.other_id)}" title="접속 중"></span></span>`;
     }else{
-      // 알림은 '시스템'이라는 발신자가 보낸 쪽지처럼 취급한다
-      ava = `<div class="ib-ava" style="background:var(--accent)">${ICON[t.kind]||'🔔'}</div>`;
+      // 알림은 '시스템'이라는 발신자가 보낸 쪽지처럼 취급한다 (항상 한 항목)
+      ava = `<div class="ib-ava" style="background:var(--accent)">🔔</div>`;
     }
     const self = isDm && state.user && String(t.other_id)===String(state.user.id);
     const name = isDm
       ? `${escapeHtml(t.other_name||'-')}${self?' <b style="color:var(--accent)">(나)</b>':''} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span>`
-      : `시스템 <span class="muted">@system</span>`;
+      : `시스템 <span class="muted">@system</span>${t.count>1?` <span class="muted">· ${t.count}건</span>`:''}`;
     return `<div class="ib-item ${un?'unread':''} ${inbox.sel===key?'on':''}" data-key="${escapeAttr(key)}">
       ${ava}
       <div class="ib-body">
@@ -4318,10 +4336,11 @@ async function loadInbox(quiet=false){
   }).join('');
   list.querySelectorAll('.ib-item').forEach(el=>{
     el.onclick=()=>{
+      if(el.dataset.key==='sys:all'){ openSystemThread(); return; }   // 시스템 알림 모아보기
       const item=inbox.threads.find(x=>(x.kind+':'+x.ref)===el.dataset.key);
       if(!item) return;
       if(item.kind==='dm') openDmThread(Number(item.ref));
-      else openNotice(item);
+      else openSystemThread();     // 알림은 모두 '시스템' 대화 하나로
     };
   });
   list.scrollTop=keepScroll;
@@ -4347,16 +4366,16 @@ async function refreshOpenThread(){
     if(inbox.msgIds.has(m.id)) return;                    // 이미 그린 건 건너뜀
     inbox.msgIds.add(m.id);
     if(m.body){
-      const b=document.createElement('div');
-      b.className='dm-b '+(m.from_me?'me':'them');
-      b.textContent=m.body;                               // textContent → XSS 안전
-      box.appendChild(b);
+      var _pendingBody=document.createElement('div');
+      _pendingBody.className='dm-b '+(m.from_me?'me':'them');
+      _pendingBody.textContent=m.body;                    // textContent → XSS 안전
     }
-    if(m.images && m.images.length){                      // 실시간으로 온 사진도 표시
+    if(m.images && m.images.length){                      // ★사진을 글보다 먼저 (표시 순서: 사진 → 글)
       const wrap=document.createElement('div');
       wrap.innerHTML=msgImagesHTML(m.images, m.created_at, m.from_me);
       const node=wrap.firstElementChild; if(node) box.appendChild(node);
     }
+    if(typeof _pendingBody!=='undefined' && _pendingBody) box.appendChild(_pendingBody);
     const t=document.createElement('div');
     t.className='dm-t'+(m.from_me?' me':'');
     t.innerHTML = escapeHtml(dmTime(m.created_at))
@@ -4372,28 +4391,37 @@ async function refreshOpenThread(){
 }
 
 /* 알림 상세 (쪽지가 아닌 항목) — 우측 패널에 펼치고 읽음 처리 */
-async function openNotice(item){
-  const key=item.kind+':'+item.ref;
+/* 시스템 알림 모아보기 — 모든 알림(답변·등급·공지)을 '시스템' 대화 하나에 시간순으로 쌓아 보여준다.
+   예전엔 알림 1건마다 목록에 새 항목이 생겨 쪽지함이 지저분해졌다. */
+async function openSystemThread(){
+  const key='sys:all';
   inbox.sel=key;
   inbox.msgIds=new Set();
   const pane=$('#ibPane'); if(!pane) return;
+  const notices=(inbox.notices||[]);
   $('#ibList').querySelectorAll('.ib-item').forEach(el=>{
     el.classList.toggle('on', el.dataset.key===key);
     if(el.dataset.key===key){ el.classList.remove('unread'); const d=el.querySelector('.ib-dot'); if(d) d.remove(); }
   });
+  const ICON={ answer:'💬', role:'🎖', notice:'📢' };
+  const asc=notices.slice().sort((a,b)=> new Date(a.at||0) - new Date(b.at||0));   // 오래된 것부터(대화처럼)
+  const body = asc.length ? asc.map(n=>`
+      <div class="dm-b them"><b>${ICON[n.kind]||'🔔'} ${escapeHtml(n.title||'알림')}</b>${n.preview?'\n'+escapeHtml(n.preview):''}</div>
+      <div class="dm-t">${escapeHtml(dmTime(n.at))}${n.link?` · <a href="${escapeAttr(n.link)}">바로 가기</a>`:''}</div>`).join('')
+    : '<div class="ip-empty">받은 알림이 없습니다.</div>';
   pane.innerHTML=`
     <div class="ip-head">
-      <span class="ip-title">시스템 <span class="muted" style="font-weight:400">@system</span></span>
+      <span class="ip-title">시스템 <span class="muted" style="font-weight:400">@system · ${asc.length}건</span></span>
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
-    <div class="ip-msgs">
-      <div class="dm-b them"><b>${escapeHtml(item.title||'알림')}</b>${item.preview?'\n'+escapeHtml(item.preview):''}</div>
-      <div class="dm-t">${escapeHtml(dmTime(item.at))}</div>
-      ${item.link?`<div style="margin-top:6px"><a class="btn ghost" href="${escapeAttr(item.link)}">바로 가기</a></div>`:''}
-    </div>`;
+    <div class="ip-msgs" id="ipMsgs">${body}</div>`;
+  const msgs=$('#ipMsgs'); if(msgs) msgs.scrollTop=msgs.scrollHeight;
   $('#ipClose').onclick=()=>{ inbox.sel=null; pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
     $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
-  try{ await sb.rpc('mark_notification_read', { p_id: Number(item.ref) }); }catch(_){}
+  // 안 읽은 알림 전부 읽음 처리
+  for(const n of notices){
+    if(Number(n.unread)>0){ try{ await sb.rpc('mark_notification_read', { p_id: Number(n.ref) }); }catch(_){} }
+  }
   refreshInboxBadge();
 }
 
@@ -4426,12 +4454,12 @@ async function openDmThread(tid){
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
-      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, m.from_me)}<div class="dm-t ${m.from_me?'me':''}">${escapeHtml(dmTime(m.created_at))}${m.from_me?`<button class="dm-del" data-del="${m.id}" title="쪽지 삭제">${ic('trash')}</button>`:''}</div>`).join('')}
+      ${msgs.map(m=>`${msgImagesHTML(m.images, m.created_at, m.from_me)}${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}<div class="dm-t ${m.from_me?'me':''}">${escapeHtml(dmTime(m.created_at))}${m.from_me?`<button class="dm-del" data-del="${m.id}" title="쪽지 삭제">${ic('trash')}</button>`:''}</div>`).join('')}
     </div>
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" placeholder="답장을 입력하세요… (Ctrl+Enter로 보내기)"></textarea>
+      <textarea id="ipInput" maxlength="300" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
@@ -4455,7 +4483,7 @@ async function openDmThread(tid){
     }catch(e){ alert('보내지 못했습니다: '+((e&&e.message)||e)); btn.disabled=false; }
   };
   $('#ipSend').onclick=send;
-  $('#ipInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) send(); });
+  bindChatKeys($('#ipInput'), send);      // Enter=보내기 · Ctrl+Enter=줄바꿈
   initDmImages();
   refreshInboxBadge();
 }
@@ -4486,7 +4514,7 @@ async function openNewDm(uid){
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" placeholder="쪽지를 입력하세요… (Ctrl+Enter로 보내기)"></textarea>
+      <textarea id="ipInput" maxlength="300" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#inbox'; };
@@ -4506,7 +4534,7 @@ async function openNewDm(uid){
   };
   $('#ipSend').onclick=send;
   $('#ipInput').focus();
-  $('#ipInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) send(); });
+  bindChatKeys($('#ipInput'), send);      // Enter=보내기 · Ctrl+Enter=줄바꿈
   initDmImages();
 }
 
@@ -4648,17 +4676,30 @@ async function renderQuestion(qid){
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="cimg-tray" id="chatTray" style="display:none"></div>
         <div class="chat-input">
+          <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습) · Ctrl 키로 켜기/끄기">
+            <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
+              <path d="M4 18 Q24 5 44 18 Q24 31 4 18 Z"/>
+              <circle cx="24" cy="18" r="7.5" fill="var(--accent)" fill-opacity="0.16"/>
+              <circle cx="24" cy="18" r="3" fill="currentColor" stroke="none"/>
+              <circle cx="21.6" cy="15.6" r="1" fill="#fff" stroke="none"/>
+              <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
+            </svg>
+          </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <input id="chatText" type="text" maxlength="2000" placeholder="답변을 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
+          <textarea id="chatText" maxlength="300" rows="1" placeholder="답변을 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
           <button id="chatSend">전송</button>
         </div>
+        <div class="chat-count" id="chatCount">0 / 300</div>
+        <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
       </section>
     </div>`;
 
   $('#chatSend').onclick=sendMessage;
-  $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
-  $('#chatText').addEventListener('input', sendTyping);
+  bindChatKeys($('#chatText'), sendMessage);      // Enter=전송 · Ctrl+Enter=줄바꿈
+  $('#chatText').addEventListener('input', ()=>{ autoGrow($('#chatText')); updateCharCount(); updatePreview(); sendTyping(); });
   initChatImages();
+  $('#eyeBtn').onclick=togglePreview;
+  community.previewOn=false;                       // 진입 시 미리보기 접힘
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();
   if(canDel) $('#qDel').onclick=()=>deleteQuestion(qid, q.images||[]);
@@ -4686,7 +4727,7 @@ async function deleteQuestion(qid, images){
     const urls = data || images || [];
     const paths = urls.map(u=>{ const i=String(u).indexOf('/question-images/'); return i<0?null:String(u).slice(i+17).split('?')[0]; }).filter(Boolean);
     if(paths.length){ try{ await sb.storage.from('question-images').remove(paths); }catch(_){} }
-    location.hash='#community';
+    location.hash='#questions';
   }catch(e){ alert('삭제 실패: '+((e&&e.message)||e)); }
 }
 
@@ -4793,10 +4834,11 @@ async function renderCommunity(){
             </svg>
           </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
+          <textarea id="chatText" maxlength="300" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
           <button id="chatSend">전송</button>
         </div>
-        <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요.</div>
+        <div class="chat-count" id="chatCount">0 / 300</div>
+        <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
         <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
       <aside class="calendar-wrap" id="calWrap"></aside>
@@ -4805,8 +4847,8 @@ async function renderCommunity(){
   community.viewY=community.baseYear;
   renderCalendar();
   $('#chatSend').onclick=sendMessage;
-  $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
-  $('#chatText').addEventListener('input', ()=>{ updatePreview(); sendTyping(); });
+  bindChatKeys($('#chatText'), sendMessage);      // Enter=전송 · Ctrl+Enter=줄바꿈
+  $('#chatText').addEventListener('input', ()=>{ autoGrow($('#chatText')); updateCharCount(); updatePreview(); sendTyping(); });
   initChatImages();
   $('#eyeBtn').onclick=togglePreview;
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
@@ -4974,8 +5016,9 @@ function appendMessage(m, doScroll=true){
     ${msgAvatarHTML(m)}
     <div class="msg-main">
       <div class="msg-who">${who}</div>
+      ${msgImagesHTML(m.images, m.created_at, mine)}
       <div class="msg-bubble-row">
-        ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, mine)}
+        ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}
         <span class="msg-time">${fmtKST(m.created_at)}</span>
         ${canDel?`<button class="msg-del" title="메세지 삭제">${ic('trash')}</button>`:''}
       </div>
@@ -5044,6 +5087,37 @@ document.addEventListener('keydown',e=>{
 document.addEventListener('keyup',e=>{
   if(e.key==='Control'){ if(_ctrlSolo && $('#chatPreview')) togglePreview(); _ctrlSolo=false; }
 });
+
+/* 채팅 입력 공통 키 처리 — Enter=전송, Ctrl(⌘)+Enter=줄바꿈, Shift+Enter도 줄바꿈 */
+const CHAT_MAX = 300;
+function bindChatKeys(el, send){
+  if(!el) return;
+  el.addEventListener('keydown', e=>{
+    if(e.key!=='Enter' || e.isComposing) return;          // 한글 조합 중이면 무시
+    if(e.ctrlKey || e.metaKey || e.shiftKey){             // 줄바꿈
+      e.preventDefault();
+      const st=el.selectionStart, en=el.selectionEnd, v=el.value;
+      if(v.length >= CHAT_MAX) return;                    // 글자수 상한
+      el.value = v.slice(0,st) + '\n' + v.slice(en);
+      el.selectionStart = el.selectionEnd = st+1;
+      autoGrow(el); updateCharCount(); updatePreview();
+      return;
+    }
+    e.preventDefault(); send();                           // 그냥 Enter = 전송
+  });
+}
+function autoGrow(el){
+  if(!el || el.tagName!=='TEXTAREA') return;
+  el.style.height='auto';
+  el.style.height=Math.min(el.scrollHeight, 132)+'px';
+}
+function updateCharCount(){
+  const el=$('#chatText'), box=$('#chatCount');
+  if(!el || !box) return;
+  const n=(el.value||'').length;
+  box.textContent = n+' / '+CHAT_MAX;
+  box.classList.toggle('over', n>=CHAT_MAX);
+}
 
 /* 미리보기: 눈동자 아이콘/Ctrl로 입력창 바로 위에 LaTeX 적용된 모습 표시 */
 function togglePreview(){
@@ -5219,7 +5293,7 @@ function renderReactions(mid){
   const s=reactState[mid] || newReact();
   const has=e=>s.mine && s.mine.has(e);
   const pills=EMOJIS.filter(e=>s.counts[e.code]>0).map(e=>
-    `<button class="rpill${has(e.code)?' mine':''}" data-mid="${mid}" data-emoji="${e.code}" title="${escapeAttr(reactWhoText(s, e.code))}">${e.glyph} ${s.counts[e.code]}</button>`).join('');
+    `<button class="rpill${has(e.code)?' mine':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph} ${s.counts[e.code]}<span class="rtip">${escapeHtml(reactWhoText(s, e.code))}</span></button>`).join('');
   const pop=EMOJIS.map(e=>`<button class="react-opt${has(e.code)?' on':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph}</button>`).join('');
   box.innerHTML = pills + `<span class="react-wrap"><button class="react-btn" data-mid="${mid}" title="반응 남기기">＋</button><span class="react-pop">${pop}</span></span>`;
   box.querySelectorAll('.rpill,.react-opt').forEach(b=>b.onclick=(ev)=>{ ev.stopPropagation(); toggleReaction(b.dataset.mid, b.dataset.emoji); });
@@ -5538,7 +5612,9 @@ async function doSignupRequest(){
 /* 사용자 드롭다운 메뉴 (아이콘 트리거 · 호버/탭 · 항목 클릭 시 닫힘) */
 const umTrig = $('#umTrigger');
 function closeUserMenu(){ umTrig.classList.remove('open'); umTrig.classList.add('closing'); }
-$('#usericon').onclick=(e)=>{ e.stopPropagation(); umTrig.classList.remove('closing'); umTrig.classList.toggle('open'); };
+const umToggle=(e)=>{ e.stopPropagation(); umTrig.classList.remove('closing'); umTrig.classList.toggle('open'); };
+$('#usericon').onclick=umToggle;
+$('#userlabel').onclick=umToggle;         // 활동명·등급 텍스트도 트리거(호버는 .um-trigger CSS가 처리)
 umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
 document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
 $('#inboxBtn').onclick=()=>{ location.hash='#inbox'; };
@@ -5562,7 +5638,6 @@ $('#modeBtn').onclick=()=>{
   const goingDark = !document.body.classList.contains('dark');
   document.body.classList.toggle('dark', goingDark);                 // 새로고침 없이 즉시 전환
   try{ localStorage.setItem('anda_theme', goingDark?'dark':'light'); }catch(e){}
-  applyCurrentTheme();                                                // 야간/주간에 맞춰 계열색 재계산
   $('#modeBtn').innerHTML = goingDark ? ic2('sun','ic16')+' 주간' : ic2('moon','ic16')+' 야간';
   route();                                                            // 현재 탭만 다시 그림(색상 반영)
 };
