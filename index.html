@@ -525,6 +525,60 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .alldocs-sec{margin-top:16px;}
 .ad-count{font-weight:700;opacity:.85;font-size:13px;}
 .alldocs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));}
+
+/* ===== 모바일 하단 탭 바 ===== */
+.botnav{display:none;}
+@media(max-width:768px){
+  /* 상단의 이동 버튼들은 하단으로 내려간다 → 상단바는 로고+검색+계정만 남아 홀가분해짐 */
+  .topbar .navbtn{display:none;}
+  .topbar{gap:8px;padding:0 10px;}
+  .topbar .search{min-width:0;}
+  .topbar .mode{padding:6px 8px;font-size:12px;}
+
+  .botnav{
+    display:flex; position:fixed; left:0; right:0; bottom:0; z-index:90;
+    background:var(--card); border-top:1px solid var(--border-strong);
+    box-shadow:0 -2px 12px rgba(0,0,0,.10);
+    padding-bottom:env(safe-area-inset-bottom);      /* 아이폰 홈 인디케이터 영역 */
+  }
+  .bn-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:2px; padding:7px 0 6px; background:none; border:none; cursor:pointer;
+    color:var(--text-dim); font-size:10.5px; font-weight:700; position:relative;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .bn-item .bn-ic{font-size:19px; line-height:1;}
+  .bn-item.on{color:var(--accent);}
+  .bn-item.on .bn-ic{transform:translateY(-1px);}
+  .bn-badge{
+    position:absolute; top:3px; left:50%; margin-left:5px;
+    min-width:16px; height:16px; padding:0 4px; border-radius:99px;
+    background:var(--link-red); color:#fff; font-size:10px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;
+  }
+  /* 하단 바에 가려지지 않도록 본문 아래 여백 확보 (채팅 입력줄 포함) */
+  body.has-botnav .wrap{ padding-bottom:calc(62px + env(safe-area-inset-bottom)); }
+  /* 폰에서 하단 시트로 뜨는 팁 창이 하단 바와 겹치지 않게 */
+  .tipwin{ bottom:calc(56px + env(safe-area-inset-bottom)) !important; height:56vh !important; }
+}
+body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비 비활성 */
+
+/* ===== 참여 넛지 (대문) ===== */
+.nudge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,var(--box-bg),var(--card));border:1px solid var(--border-strong);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:16px;}
+.nudge .nz-t{flex:1;font-size:13.5px;color:var(--text);min-width:180px;}
+.nudge .nz-t b{color:var(--accent);}
+.nudge button{white-space:nowrap;}
+.nudge .nz-x{background:none;border:none;color:var(--text-dim);font-size:17px;line-height:1;cursor:pointer;padding:0 2px;}
+.nudge .nz-x:hover{color:var(--link-red);}
+.stub-sec{margin-top:8px;}
+.stub-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;}
+.stub-card{border:1px dashed var(--border-strong);border-radius:9px;padding:10px 12px;background:var(--card);cursor:pointer;}
+.stub-card:hover{border-style:solid;border-color:var(--accent);}
+.stub-card .st-t{font-size:14px;font-weight:800;color:var(--text);word-break:break-all;}
+.stub-card .st-m{font-size:11.5px;color:var(--text-dim);margin-top:3px;}
+.stub-badge{display:inline-flex;align-items:center;gap:5px;background:var(--box-bg);border:1px dashed var(--border-strong);color:var(--text-dim);border-radius:99px;padding:3px 11px;font-size:12px;margin-left:8px;}
+.rc-who{font-size:11px;color:var(--text-dim);}
+
 /* ===== 기여 크레딧 · 좋아요 ===== */
 .like-bar{display:flex;align-items:center;gap:10px;margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--border);}
 .like-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border-strong);color:var(--text-dim);border-radius:99px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;}
@@ -780,6 +834,15 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     </main>
     <aside class="rightrail" id="rightrail" style="display:none"></aside>
   </div>
+
+  <nav class="botnav" id="botnav" aria-label="주요 메뉴">
+    <button class="bn-item" data-nav="home"><span class="bn-ic">🏠</span>홈</button>
+    <button class="bn-item" data-nav="docs"><span class="bn-ic">📄</span>문서</button>
+    <button class="bn-item" data-nav="community"><span class="bn-ic">💬</span>커뮤니티</button>
+    <button class="bn-item" data-nav="inbox"><span class="bn-ic">✉️</span>쪽지함<span class="bn-badge" id="botBadge" style="display:none">0</span></button>
+    <button class="bn-item" data-nav="directory"><span class="bn-ic">👥</span>회원</button>
+  </nav>
+
 </div>
 
 <script>
@@ -817,8 +880,8 @@ async function init(){
   const { data:{ session } } = await sb.auth.getSession();
   if(session){ await onLoggedIn(); } else { showLogin(); }
 }
-function showLogin(){ $('#login').style.display='flex'; $('#app').style.display='none'; }
-function showApp(){ $('#login').style.display='none'; $('#app').style.display='block'; }
+function showLogin(){ $('#login').style.display='flex'; $('#app').style.display='none'; document.body.classList.remove('has-botnav'); }
+function showApp(){ $('#login').style.display='none'; $('#app').style.display='block'; initBotnav(); }
 
 /* 접속 heartbeat: 5초 단위로 로컬 측정 → 30초마다 서버로 한 번에 전송(트래픽 절감). 탭 보일 때만 카운트. */
 let hbTimer=null, hbTick=null, hbAccum=0;
@@ -907,6 +970,98 @@ function renderUserbox(){
 
 /* ================== 문서 목록/로드 ================== */
 
+
+
+
+/* ================== 모바일 하단 탭 바 ==================
+   폰(≤768px)에서 상단의 이동 버튼을 아래로 내린다 — 엄지가 닿는 위치 + 쪽지 배지가 항상 보임.
+   겹침 방지: body.has-botnav 로 본문 하단 여백 확보(채팅 입력줄이 가려지지 않게),
+   팁 창(하단 시트)은 하단 바 위로 띄운다. iPhone safe-area 처리 포함. */
+function initBotnav(){
+  document.body.classList.add('has-botnav');
+  document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
+    b.onclick=()=>{ location.hash = '#' + b.dataset.nav; };
+  });
+}
+/* 현재 화면에 맞춰 활성 탭 표시 */
+function setBotnavActive(key){
+  const k=String(key||'');
+  let act='';
+  if(k==='' || k==='home' || k==='main')                 act='home';
+  else if(k==='docs')                                     act='docs';
+  else if(k==='community' || k.startsWith('q/'))          act='community';
+  else if(k==='inbox' || k.startsWith('dm/'))             act='inbox';
+  else if(k==='directory' || k.startsWith('member/'))     act='directory';
+  else if(!['me','admin','requests','health','password','trash'].includes(k)
+          && !k.startsWith('trash/'))
+    act='docs';                                           // 개별 문서 페이지 → '문서'
+  document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
+    b.classList.toggle('on', b.dataset.nav===act);
+  });
+}
+
+/* ================== 참여 넛지 (문서 편집 유도) ==================
+   ★알림(쪽지함)으로 쏘지 않는다 — "편집해보세요" 공지가 알림함에 쌓이면 스팸이 되고
+     진짜 알림(답변·쪽지)의 신뢰까지 깎는다. 넛지는 '지나가다 보이는 곳'에만 둔다. */
+const STUB_LEN = 400;                    // 이보다 짧으면 '도움이 필요한 문서'
+const NUDGE_KEY = 'anda_nudge_hide';     // 오늘 하루 숨김
+
+async function fetchDocStats(){
+  try{
+    const { data, error } = await sb.from('doc_stats').select('key,title,len,updated_at');
+    if(error) throw error;
+    return data||[];
+  }catch(e){ return []; }               // 미배포 시 조용히 생략
+}
+function nudgeHiddenToday(){
+  try{ return localStorage.getItem(NUDGE_KEY) === new Date().toDateString(); }catch(e){ return false; }
+}
+function hideNudgeToday(){
+  try{ localStorage.setItem(NUDGE_KEY, new Date().toDateString()); }catch(e){}
+  const n=document.getElementById('nudgeBar'); if(n) n.remove();
+}
+function randomDocHash(list){
+  if(!list || !list.length) return null;
+  return '#' + list[Math.floor(Math.random()*list.length)].key;
+}
+/* 대문 상단 배너 + '도움이 필요한 문서' 섹션 HTML */
+function nudgeHTML(stats){
+  if(!state.user) return '';
+  const stubs = stats.filter(d=>Number(d.len||0) < STUB_LEN)
+                     .sort((a,b)=>Number(a.len||0)-Number(b.len||0));
+  let h='';
+  if(!nudgeHiddenToday()){
+    h += `<div class="nudge" id="nudgeBar">
+      <span class="nz-t">${stubs.length
+        ? `아직 <b>${stubs.length}개</b>의 문서가 짧아요. 아는 만큼만 이어 써주시면 됩니다.`
+        : `오늘 문서 하나 다듬어볼까요? <b>실수해도 역사에서 되돌릴 수 있어요.</b>`}</span>
+      <button class="btn ghost" id="nzRandom" style="font-size:12px;padding:6px 12px">🎲 아무 문서나</button>
+      ${canEdit()?'<button class="btn ghost" id="nzNew" style="font-size:12px;padding:6px 12px">＋ 새 문서</button>':''}
+      <button class="btn ghost" id="nzDocs" style="font-size:12px;padding:6px 12px">문서 전체 보기</button>
+      <button class="nz-x" id="nzX" title="오늘은 그만 보기">×</button>
+    </div>`;
+  }
+  if(stubs.length){
+    h += `<div class="cats stub-sec">
+      <div class="doclist-head">도움이 필요한 문서 <span class="ad-count">(${stubs.length})</span></div>
+      <div class="stub-grid">
+        ${stubs.slice(0,6).map(d=>`
+          <div class="stub-card doc-link" data-key="${escapeAttr(d.key)}">
+            <div class="st-t">${escapeHtml(d.title||d.key)}</div>
+            <div class="st-m">${Number(d.len)||0}자 · ${Number(d.len)?'더 채워주세요':'아직 비어 있어요'}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+  }
+  return h;
+}
+function bindNudge(stats){
+  const r=document.getElementById('nzRandom');
+  if(r) r.onclick=()=>{ const h=randomDocHash(stats); if(h) location.hash=h; };
+  const n=document.getElementById('nzNew');   if(n) n.onclick=openNewDocModal;
+  const d=document.getElementById('nzDocs');  if(d) d.onclick=()=>{ location.hash='#docs'; };
+  const x=document.getElementById('nzX');     if(x) x.onclick=hideNudgeToday;
+}
 
 /* ================== 문서 좋아요 · 기여 크레딧 ==================
    좋아요는 1인 1개(취소 가능), 싫어요는 만들지 않는다 — 작은 동아리에서 부정 피드백은
@@ -1059,8 +1214,21 @@ function buildNav(active){
 
 /* 우측 '최근 변경' 레일 (문서 페이지에서만 표시) */
 async function fetchRecent(){
-  try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(10); return data||[]; }
-  catch(e){ return []; }
+  try{
+    const { data } = await sb.from('documents')
+      .select('key,title,updated_at,updated_by').order('updated_at',{ascending:false}).limit(10);
+    const rows=data||[];
+    // 편집자 활동명 — "남들도 하고 있구나"라는 사회적 신호가 참여를 부른다
+    const ids=[...new Set(rows.map(r=>r.updated_by).filter(Boolean))];
+    if(ids.length){
+      try{
+        const { data:ps } = await sb.from('members_public').select('id,handle,name').in('id', ids);
+        const nm={}; (ps||[]).forEach(p=>{ nm[p.id]=p.handle||p.name||''; });
+        rows.forEach(r=>{ r.who = nm[r.updated_by] || ''; });
+      }catch(_){}
+    }
+    return rows;
+  }catch(e){ return []; }
 }
 function railReserve(on){
   const rail=$('#rightrail'); if(!rail) return;
@@ -1071,7 +1239,7 @@ function renderRightRail(recent){
   const rail=$('#rightrail'); if(!rail) return;
   rail.style.display='';
   const list = (recent && recent.length)
-    ? recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}</span></a>`).join('')
+    ? recent.map(r=>`<a class="rc-item" data-key="${escapeAttr(r.key)}"><span class="rc-name">${escapeHtml(r.title||r.key)}</span><span class="rc-time">${fmtKST(r.updated_at)}${r.who?` <span class="rc-who">· ${escapeHtml(r.who)}</span>`:''}</span></a>`).join('')
     : '<div class="rc-item" style="cursor:default;color:var(--text-dim)">최근 변경 없음</div>';
   rail.innerHTML = `<div class="recent"><div class="recent-h">최근 변경</div>${list}</div>`
     + (canEdit()?`<button class="addbtn" id="railAdd">＋ 새 문서</button>`:'')
@@ -1101,7 +1269,9 @@ async function renderDoc(key){
   $('#doc').innerHTML = `
     <div class="doc-head"><h1>${escapeHtml(doc.title||'')}</h1>
       <div class="tabs">${tabs.join('')}</div></div>
-    <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}</div>
+    <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
+      (String(doc.body||'').length < STUB_LEN && canEdit())
+        ? `<span class="stub-badge">✏️ 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
     <div class="toc-slot"></div>
@@ -2987,6 +3157,7 @@ const LANDING_CATS = [
   { name:'위키 안내', items:[ {key:'member_tier', title:'멤버 등급', desc:'회원 등급과 권한'} ] },
 ];
 async function renderLanding(){
+  const stats = await fetchDocStats();
   let recent=[];
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
   let alldocs=[];
@@ -3005,6 +3176,7 @@ async function renderLanding(){
       </div>
     </div>`).join('');
   $('#doc').innerHTML=`
+    ${nudgeHTML(stats)}
     <div class="landing">
       <div class="hero-notice">
         <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
@@ -3031,6 +3203,7 @@ async function renderLanding(){
     const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
   });
+  bindNudge(stats);
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   window.scrollTo(0,0);
@@ -3204,9 +3377,15 @@ async function refreshInboxBadge(){
       if(r2.error) throw r2.error;
       n = Number(r2.data)||0;
     } else n = Number(r1.data)||0;
-    el.textContent = n>99 ? '99+' : String(n);
+    const txt = n>99 ? '99+' : String(n);
+    el.textContent = txt;
     el.style.display = n>0 ? 'inline-flex' : 'none';
-  }catch(_){ el.style.display='none'; }   // 미배포 시 조용히 숨김
+    const bb=document.getElementById('botBadge');       // 하단 탭 바 배지도 동기화
+    if(bb){ bb.textContent=txt; bb.style.display = n>0 ? 'flex' : 'none'; }
+  }catch(_){
+    el.style.display='none';
+    const bb=document.getElementById('botBadge'); if(bb) bb.style.display='none';
+  }   // 미배포 시 조용히 숨김
 }
 
 async function renderInbox(target){
@@ -4384,6 +4563,7 @@ function route(){
   const isTrashDoc = key.startsWith('trash/');
   const isQuestion = key.startsWith('q/');
   const isDm = key.startsWith('dm/');
+  setBotnavActive(key);
   const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
