@@ -290,6 +290,32 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .chat-del-prompt .cdp-no{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
 
+
+/* ===== 문서 편집기 v2 (안다 문법) ===== */
+.wk-toolbar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 6px;}
+.wk-toolbar button{background:var(--box-bg);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;}
+.wk-toolbar button:hover{border-color:var(--accent);color:var(--accent);}
+.wk-split{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:stretch;}
+.wk-split textarea{width:100%;min-height:420px;resize:vertical;font-family:ui-monospace,Consolas,monospace;font-size:13.5px;line-height:1.6;}
+.wk-preview{border:1px solid var(--border);border-radius:8px;padding:14px;background:var(--card);overflow:auto;min-height:420px;max-height:70vh;font-size:14.5px;}
+.wk-preview:empty::before{content:'왼쪽에 입력하면 여기에 결과가 실시간으로 보여요.';color:var(--text-dim);font-size:13px;}
+.wk-tabs{display:none;gap:6px;margin:8px 0 0;}
+.wk-tabs button{flex:1;padding:8px;border:1px solid var(--border);border-bottom:none;border-radius:8px 8px 0 0;background:var(--box-bg);color:var(--text-dim);font-weight:700;cursor:pointer;}
+.wk-tabs button.on{background:var(--card);color:var(--text);}
+.wk-help{font-size:12.5px;line-height:2;color:var(--text-dim);}
+.wk-help code{background:var(--box-bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:12px;}
+.doc-img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border);margin:6px 0;}
+.wk-table{border-collapse:collapse;margin:10px 0;max-width:100%;}
+.wk-table th,.wk-table td{border:1px solid var(--border);padding:6px 12px;font-size:14px;}
+.wk-table th{background:var(--box-bg);}
+@media(max-width:900px){
+  .wk-split{grid-template-columns:1fr;}
+  .wk-tabs{display:flex;}
+  .wk-split.prev-mode #wkEditCol{display:none;}
+  .wk-split:not(.prev-mode) #wkPrevCol{display:none;}
+  .wk-split textarea,.wk-preview{min-height:300px;}
+}
+
 /* ===== 알림/쪽지 인박스 (2단계) ===== */
 .nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;margin-left:5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;line-height:1;}
 .inbox-wrap{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:14px;align-items:start;}
@@ -802,7 +828,7 @@ async function renderDoc(key){
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
     <div class="toc-slot"></div>
-    <div class="doc-body">${doc.body||''}</div>
+    <div class="doc-body">${renderDocBody(doc)}</div>
     <div class="footnotes-slot"></div>
     ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
   `;
@@ -851,7 +877,203 @@ function buildFootnotes(){
 }
 
 /* ================== 편집 ================== */
+
+/* ================== 안다 문법 (문서 편집 v2) ==================
+   원칙: 파서가 '허용된 태그만' 생성하므로 XSS가 구조적으로 불가능(정화 라이브러리 불필요).
+   ## 제목  ### 소제목  **굵게** *기울임* ~~취소~~  - 목록  1. 번호  > 인용
+   | 표 | 셀 |   [글자](주소)   ![설명](사진주소)   [[용어|각주 설명]]   $수식$        */
+/* WIKI-PARSER-BEGIN */
+function wEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function wAttr(s){ return String(s).replace(/"/g,'&quot;'); }
+function wUrl(u){
+  u=String(u||'').trim().replace(/"/g,'%22').replace(/'/g,'%27');
+  if(/^data:/i.test(u)) return '#';                       // base64 본문 삽입 금지(용량 재앙 방지)
+  return /^(https?:\/\/|#|\/)/i.test(u) ? u : '#';        // javascript: 등 차단
+}
+function wInline(s){
+  s=s.replace(/\[\[([^|\[\]]+)\|([^\[\]]+)\]\]/g,(m,t,n)=>'<span class="fn" data-note="'+wAttr(n.trim())+'">'+t.trim()+'</span>');
+  s=s.replace(/\[\[각주:\s*([^\[\]]+)\]\]/g,(m,n)=>'<span class="fn" data-note="'+wAttr(n.trim())+'">※</span>');
+  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,(m,a,u)=>'<img class="doc-img" loading="lazy" alt="'+wAttr(a)+'" src="'+wUrl(u)+'">');
+  s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,u)=>{
+    const url=wUrl(u); const ext=/^https?:/i.test(url);
+    return '<a href="'+url+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+t+'</a>';
+  });
+  s=s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
+  s=s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1<i>$2</i>');
+  s=s.replace(/~~([^~]+)~~/g,'<s>$1</s>');
+  return s;
+}
+function wTable(rows){
+  const cells=r=>r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>wInline(c.trim()));
+  const body=rows.slice(); const head=cells(body.shift());
+  if(body.length && /^[\s|:\-]+$/.test(body[0])) body.shift();     // |---|---| 구분줄은 생략 가능
+  let h='<table class="wk-table"><tr>'+head.map(c=>'<th>'+c+'</th>').join('')+'</tr>';
+  body.forEach(r=>{ h+='<tr>'+cells(r).map(c=>'<td>'+c+'</td>').join('')+'</tr>'; });
+  return h+'</table>';
+}
+function wikiToHtml(src){
+  // 1) 수식 보호: 파싱 전에 빼두고 마지막에 복원 — *·_ 가 수식을 망가뜨리는 것을 방지
+  const math=[];
+  src=String(src||'').replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+\$/g, m=>{ math.push(m); return '\uE000'+(math.length-1)+'\uE001'; });
+  // 2) 전부 이스케이프 → 이후 파서가 만든 태그만 존재
+  src=wEsc(src);
+  const lines=src.split(/\r?\n/);
+  const out=[]; let i=0, list=null, para=[];
+  const endPara=()=>{ if(para.length){ out.push('<p>'+para.map(wInline).join('<br>')+'</p>'); para=[]; } };
+  const endList=()=>{ if(list){ out.push('</'+list+'>'); list=null; } };
+  while(i<lines.length){
+    const L=lines[i]; let m;
+    if(/^\s*$/.test(L)){ endPara(); endList(); i++; continue; }
+    if(m=L.match(/^###\s+(.+)/)){ endPara(); endList(); out.push('<h3>'+wInline(m[1])+'</h3>'); i++; continue; }
+    if(m=L.match(/^##\s+(.+)/)){ endPara(); endList(); out.push('<h2>'+wInline(m[1])+'</h2>'); i++; continue; }
+    if(/^---+\s*$/.test(L)){ endPara(); endList(); out.push('<hr>'); i++; continue; }
+    if(/^&gt;/.test(L)){ endPara(); endList(); const q=[];
+      while(i<lines.length && /^&gt;/.test(lines[i])){ q.push(lines[i].replace(/^&gt;\s?/,'')); i++; }
+      out.push('<blockquote>'+q.map(wInline).join('<br>')+'</blockquote>'); continue; }
+    if(m=L.match(/^-\s+(.+)/)){ endPara(); if(list!=='ul'){ endList(); out.push('<ul>'); list='ul'; } out.push('<li>'+wInline(m[1])+'</li>'); i++; continue; }
+    if(m=L.match(/^\d+[.)]\s+(.+)/)){ endPara(); if(list!=='ol'){ endList(); out.push('<ol>'); list='ol'; } out.push('<li>'+wInline(m[1])+'</li>'); i++; continue; }
+    if(/^\|.*\|\s*$/.test(L)){ endPara(); endList(); const rows=[];
+      while(i<lines.length && /^\|.*\|\s*$/.test(lines[i])){ rows.push(lines[i]); i++; }
+      out.push(wTable(rows)); continue; }
+    para.push(L); i++;
+  }
+  endPara(); endList();
+  // 3) 수식 복원(이스케이프해서 — 수식 안 <script> 시도까지 차단). KaTeX는 텍스트 노드를 읽으므로 정상 렌더.
+  return out.join('\n').replace(/\uE000(\d+)\uE001/g,(m,k)=>wEsc(math[+k]));
+}
+/* WIKI-PARSER-END */
+
+/* 문서 렌더 분기: 안전망 — 위키 문서인데 본문이 명백히 HTML(옛 리비전 롤백 등)이면 HTML로 렌더 */
+function looksLikeHtmlBody(b){ return /^\s*<(h[1-6]|p|div|table|ul|ol|aside|blockquote|section|b|i|span|img|a)\b/i.test(String(b||'')); }
+function renderDocBody(doc){
+  const wiki = (doc.format==='wiki') && !looksLikeHtmlBody(doc.body);
+  return wiki ? wikiToHtml(doc.body||'') : (doc.body||'');
+}
+
+/* HTML → 안다 문법 최선 변환 ("차차 변환" 방침용). 결과는 반드시 미리보기로 확인 후 저장. */
+function htmlToWiki(html){
+  let s=String(html||'').replace(/\r/g,'');
+  const strip=t=>String(t).replace(/<[^>]+>/g,'').trim();
+  s=s.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi,(m,inner)=>{
+    const rows=[...inner.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)].map(r=>{
+      const cs=[...r[1].matchAll(/<t[hd][^>]*>([\s\S]*?)<\/t[hd]>/gi)].map(c=>strip(c[1]));
+      return '| '+cs.join(' | ')+' |';
+    });
+    return '\n'+rows.join('\n')+'\n';
+  });
+  s=s.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi,(m,t)=>'\n## '+strip(t)+'\n');
+  s=s.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi,(m,t)=>'\n### '+strip(t)+'\n');
+  s=s.replace(/<span[^>]*data-note="([^"]*)"[^>]*>([\s\S]*?)<\/span>/gi,(m,n,t)=>'[['+strip(t)+'|'+n+']]');
+  s=s.replace(/<(b|strong)[^>]*>([\s\S]*?)<\/\1>/gi,(m,x,t)=>'**'+strip(t)+'**');
+  s=s.replace(/<(i|em)[^>]*>([\s\S]*?)<\/\1>/gi,(m,x,t)=>'*'+strip(t)+'*');
+  s=s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi,(m,inner)=>{ let n=0; return '\n'+inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,(mm,t)=>(++n)+'. '+strip(t)+'\n')+'\n'; });
+  s=s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi,(m,inner)=>'\n'+inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,(mm,t)=>'- '+strip(t)+'\n')+'\n');
+  s=s.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi,(m,t)=>'\n> '+strip(t).split('\n').join('\n> ')+'\n');
+  s=s.replace(/<img[^>]*src="([^"]*)"[^>]*>/gi,(m,u)=>'!['+']('+u+')');
+  s=s.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,(m,u,t)=>'['+strip(t)+']('+u+')');
+  s=s.replace(/<br\s*\/?>/gi,'\n');
+  s=s.replace(/<\/p>\s*/gi,'\n\n').replace(/<p[^>]*>/gi,'');
+  s=s.replace(/<\/?div[^>]*>/gi,'\n');
+  s=s.replace(/<[^>]+>/g,'');
+  s=s.replace(/&nbsp;/g,' ').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
+  return s.replace(/\n{3,}/g,'\n\n').trim();
+}
+
+/* ── 위키 편집기 UI ───────────────────────────────────────── */
+let wkPrevTimer=null, wkDraftTimer=null;
+function wkDraftKey(k){ return 'anda_draft:'+k; }
+function wkRenderPreview(){
+  clearTimeout(wkPrevTimer);
+  wkPrevTimer=setTimeout(()=>{
+    const prev=$('#wkPrev'); const ta=$('#e-body'); if(!prev||!ta) return;
+    prev.innerHTML=wikiToHtml(ta.value);
+    try{ if(window.renderMathInElement) renderMathInElement(prev,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false}); }catch(e){}
+  },250);
+}
+function wkAutosave(key){
+  clearTimeout(wkDraftTimer);
+  wkDraftTimer=setTimeout(()=>{
+    try{ localStorage.setItem(wkDraftKey(key), JSON.stringify({ body:$('#e-body')?$('#e-body').value:'', title:$('#e-title')?$('#e-title').value:'', ts:Date.now() })); }catch(e){}
+  },1500);
+}
+function wkInsert(before, after, ph){
+  const ta=$('#e-body'); if(!ta) return;
+  const st=ta.selectionStart, en=ta.selectionEnd;
+  const sel=ta.value.slice(st,en) || ph;
+  ta.setRangeText(before+sel+after, st, en, 'select');
+  ta.focus(); wkRenderPreview(); wkAutosave(state.key);
+}
+const WK_TOOLBAR=[
+  ['제목',    '\n## ','\n','제목'],
+  ['소제목',  '\n### ','\n','소제목'],
+  ['굵게',    '**','**','굵은 글'],
+  ['기울임',  '*','*','기울인 글'],
+  ['목록',    '\n- ','','항목'],
+  ['표',      '\n| 항목 | 값 |\n| ',' |  |\n','내용'],
+  ['링크',    '[','](https://주소)','표시글자'],
+  ['각주',    '[[','|각주 설명]]','용어'],
+  ['수식',    '$','$','x^2'],
+];
+async function enterWikiEdit(doc, opts){
+  opts=opts||{};
+  state.editFmt='wiki';
+  const catStr = doc.category ? doc.category.join(', ') : '';
+  const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>문서 편집</h1></div>
+    <div class="editor">
+      ${opts.converted?'<div class="notice"><b>HTML → 안다 문법 자동 변환 결과입니다.</b> 오른쪽 미리보기로 확인한 뒤 저장하세요. 저장 전까지 원본은 그대로 남아 있습니다.</div>':''}
+      <label>문서 주소 <span class="hint">(영문 소문자·숫자·-·_, 중복 불가)</span></label>
+      <input id="e-key" value="${escapeAttr(doc.key||'')}">
+      <label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}">
+      <label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}">
+      <label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}">
+      <label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}">
+      <label>본문 <span class="hint">— 문법을 몰라도 아래 버튼만으로 작성할 수 있어요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span></label>
+      <div class="wk-toolbar">${WK_TOOLBAR.map((b,i)=>`<button type="button" data-wk="${i}">${escapeHtml(b[0])}</button>`).join('')}</div>
+      <div class="wk-tabs"><button type="button" id="wkTabE" class="on">작성</button><button type="button" id="wkTabP">미리보기</button></div>
+      <div class="wk-split" id="wkSplit">
+        <div id="wkEditCol"><textarea id="e-body" placeholder="여기에 내용을 쓰세요. 빈 줄로 문단을 나눕니다.">${escapeHtml(doc.body||'')}</textarea></div>
+        <div id="wkPrevCol"><div class="wk-preview" id="wkPrev"></div></div>
+      </div>
+      <details class="adv"><summary>문법 도움말</summary><div class="wk-help">
+        <code>## 제목</code> <code>### 소제목</code> · <code>**굵게**</code> <code>*기울임*</code> <code>~~취소선~~</code><br>
+        <code>- 목록</code> <code>1. 번호목록</code> <code>&gt; 인용</code> <code>---</code> 구분선<br>
+        <code>| 항목 | 값 |</code> 표 · <code>[글자](https://주소)</code> 링크 · <code>[글자](#문서주소)</code> 내부 문서<br>
+        <code>[[용어|설명]]</code> 각주 · <code>$x^2$</code> 수식
+      </div></details>
+      <details class="adv"><summary>정보 틀(인포박스) 고급 편집 · JSON</summary>
+        <textarea id="e-info" style="min-height:160px">${escapeHtml(infoStr)}</textarea>
+      </details>
+      <div class="editor-actions">
+        <button class="btn primary" id="saveBtn" style="width:auto">저장</button>
+        <button class="btn ghost" id="cancelBtn">취소</button>
+        <span class="msg" id="e-msg" style="margin:0"></span>
+      </div>
+    </div>`;
+  document.querySelectorAll('[data-wk]').forEach(b=>{ b.onclick=()=>{ const t=WK_TOOLBAR[+b.dataset.wk]; wkInsert(t[1],t[2],t[3]); }; });
+  $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
+  $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
+  const ta=$('#e-body');
+  ta.addEventListener('input', ()=>{ wkRenderPreview(); wkAutosave(doc.key); });
+  $('#cancelBtn').onclick=()=>renderDoc(doc.key);
+  $('#saveBtn').onclick=()=>saveDoc(doc.key);
+  // 임시저장 복구: 저장 없이 닫혔던 초안이 문서보다 최신이면 제안
+  if(!opts.converted){
+    let d=null; try{ d=JSON.parse(localStorage.getItem(wkDraftKey(doc.key))||'null'); }catch(e){}
+    if(d && d.body && d.body!==(doc.body||'') && d.ts > new Date(doc.updated_at||0).getTime()){
+      const ok=await confirmModal('저장되지 않은 초안이 있어요','이전에 쓰다가 만 내용을 이어서 쓸까요?','이어서 쓰기');
+      if(ok){ ta.value=d.body; if(d.title) $('#e-title').value=d.title; }
+      else { try{ localStorage.removeItem(wkDraftKey(doc.key)); }catch(e){} }
+    }
+  }
+  wkRenderPreview();
+  window.scrollTo(0,0);
+}
+
 function enterEdit(doc){
+  if((doc.format||'html')==='wiki'){ enterWikiEdit(doc); return; }   // 새 문서·변환된 문서 → 새 편집기
+  state.editFmt='html';
   const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
   const catStr = doc.category ? doc.category.join(', ') : '';
   $('#doc').innerHTML = `
@@ -872,11 +1094,17 @@ function enterEdit(doc){
       <div class="editor-actions">
         <button class="btn primary" id="saveBtn" style="width:auto">저장</button>
         <button class="btn ghost" id="cancelBtn">취소</button>
+        <button class="btn ghost" id="toWikiBtn" title="쉬운 문법으로 자동 변환 (저장 전 미리보기로 확인)">✨ 쉬운 문법으로 변환</button>
         <span class="msg" id="e-msg" style="margin:0"></span>
       </div>
     </div>`;
   $('#cancelBtn').onclick=()=>renderDoc(doc.key);
   $('#saveBtn').onclick=()=>saveDoc(doc.key);
+  $('#toWikiBtn').onclick=()=>{
+    const converted = htmlToWiki($('#e-body').value);
+    enterWikiEdit(Object.assign({}, doc, { body:converted, format:'wiki',
+      title:$('#e-title').value, eng:$('#e-eng').value, notice:$('#e-notice').value }), { converted:true });
+  };
   window.scrollTo(0,0);
 }
 async function saveDoc(key){
@@ -893,7 +1121,8 @@ async function saveDoc(key){
     category: cat.length?cat:null,
     infobox: infobox,
     updated_by: state.user.id,
-    updated_at: new Date().toISOString()
+    updated_at: new Date().toISOString(),
+    format: state.editFmt || undefined      // 'wiki' 저장 시 변환 확정, html은 그대로
   };
   $('#saveBtn').disabled=true;
   const { error } = await sb.from('documents').update(payload).eq('key', key);
@@ -911,6 +1140,7 @@ async function saveDoc(key){
     }
   }
   $('#saveBtn').disabled=false;
+  try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
   await loadDocs();
   if(finalKey!==key){ location.hash='#'+finalKey; }   // 주소 변경 시 URL도 갱신(route→renderDoc)
   else { await renderDoc(finalKey); }                  // 저장 시 트리거가 이전 버전을 자동 백업
