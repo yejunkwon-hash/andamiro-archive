@@ -162,7 +162,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .dir-check input{accent-color:var(--accent);}
 .dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:12px;}
 .dir-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);text-decoration:none;color:var(--text);transition:box-shadow .15s,transform .15s,border-color .15s;}
-.dir-card:hover{box-shadow:0 6px 20px rgba(0,0,0,.10);transform:translateY(-2px);border-color:var(--accent);}
+.dir-card:hover{box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);border-color:var(--accent);}
+.dir-card:hover .dir-name{text-decoration:underline;text-underline-offset:3px;}
 .dir-ava{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
 .dir-info{padding:9px 11px 11px;}
 .dir-name{font-weight:800;font-size:14.5px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -300,7 +301,10 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg.mine .msg-imgs{justify-content:flex-end;align-self:flex-end;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
-.msg-del{flex:none;align-self:center;margin-left:auto;border:none;background:transparent;color:var(--text-dim);cursor:pointer;padding:5px 7px;border-radius:6px;display:inline-flex;align-items:center;opacity:.55;transition:all .12s;}
+.msg-del{flex:none;border:none;background:transparent;color:var(--text-dim);cursor:pointer;padding:2px 4px;border-radius:5px;display:inline-flex;align-items:center;opacity:.5;transition:all .12s;}
+/* 시각 + 삭제 버튼 줄 (쪽지함의 .dm-t 와 같은 배치) */
+.msg-foot{display:flex;align-items:center;gap:4px;margin-top:1px;}
+.msg.mine .msg-foot{justify-content:flex-end;}
 .msg-del:hover{opacity:1;color:#fff;background:var(--link-red);}
 .msg-system{text-align:center;color:var(--text-dim);font-size:13.5px;line-height:1.5;margin:10px 0;padding:0 12px;}
 .msg-system span{display:inline-block;background:var(--box-bg);border-radius:12px;padding:4px 12px;max-width:90%;}
@@ -446,6 +450,8 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .hs-path{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;word-break:break-all;}
 .hs-note{font-size:11.5px;color:var(--text-dim);font-weight:400;margin-top:2px;}
 .hs-btn{width:auto;font-size:12px;padding:6px 12px;}
+.lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
+.sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
 .hs-ic{width:18px;height:18px;vertical-align:middle;}
 .hs-ic.ok{color:#2e9e5b;} .hs-ic.bad{color:var(--link-red);} .hs-ic.warn{color:#c98500;}
 .cap-bar{margin:8px 0 12px;}
@@ -860,7 +866,9 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .qb-head h1{margin:0;flex:1;}
 .qb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
 .qb-card{display:block;border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .12s,box-shadow .12s;}
-.qb-card:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.07);}
+.qb-card{transition:border-color .12s, box-shadow .15s, transform .15s;}
+.qb-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);}
+.qb-card:hover .qb-t{text-decoration:underline;text-underline-offset:3px;}
 .qb-t{font-size:15px;font-weight:800;color:var(--text);word-break:break-word;}
 .qb-m{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-dim);margin-top:7px;}
 .qb-ans{background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 9px;font-weight:700;}
@@ -881,7 +889,9 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .docs-sort button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
 .doc-card{display:block;border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--card);cursor:pointer;transition:border-color .12s, box-shadow .12s;}
-.doc-card:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.07);}
+.doc-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);}
+.doc-card{transition:border-color .12s, box-shadow .15s, transform .15s;}
+.doc-card:hover .dc-title{text-decoration:underline;text-underline-offset:3px;}
 .doc-card .dc-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;word-break:break-all;}
 .doc-card .dc-key{font-size:11.5px;color:var(--text-dim);font-family:ui-monospace,Consolas,monospace;}
 .doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
@@ -1183,7 +1193,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
-          <a data-go="health" id="dropHealth" style="display:none">시스템 검사</a>
+          <a data-go="system" id="dropSystem" style="display:none">시스템</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
       </div>
@@ -1471,6 +1481,7 @@ async function onLoggedIn(){
   renderUserbox();
   await loadDocs();
   await loadTracks();          // 계열 목록(칩 색상·선택 목록)
+  await loadLimits();          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
@@ -1487,7 +1498,7 @@ function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
   $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
   $('#dropRequests').style.display = isOwner() ? 'block' : 'none';
-  $('#dropHealth').style.display = isOwner() ? 'block' : 'none';
+  $('#dropSystem').style.display = isOwner() ? 'block' : 'none';
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
   const ui=$('#usericon');   // 계정 아이콘: 상시 내 프로필 사진(없으면 기본 아이콘)
   if(ui){
@@ -1693,12 +1704,21 @@ function bindDmDelete(tid){
       const ok=await confirmModal('이 쪽지를 삭제할까요?','상대방 화면에서도 사라지며 되돌릴 수 없습니다.','삭제');
       if(!ok) return;
       try{
-        const { data, error } = await sb.rpc('delete_dm', { p_id: id });
-        if(error) throw error;
+        let imgs=[];
+        const r = await sb.rpc('delete_dm', { p_id: id });
+        if(r.error){
+          // RPC가 없거나(46/52 미배포) 거부되면 → 본인 쪽지 직접 삭제로 재시도 (52의 RLS 정책)
+          const dr = await sb.from('dm_messages').delete().eq('id', id).eq('sender', state.user.id).select('images');
+          if(dr.error) throw new Error((r.error.message||'')+' / 직접 삭제도 실패: '+dr.error.message+' — 52_limits_and_dm_delete.sql 실행 필요');
+          if(!dr.data || !dr.data.length) throw new Error('본인이 보낸 쪽지만 삭제할 수 있어요.');
+          imgs=(dr.data[0] && dr.data[0].images) || [];
+        } else {
+          imgs = r.data || [];
+        }
         // 첨부 사진도 Storage에서 정리
-        const paths=(data||[]).map(u=>{
+        const paths=(imgs||[]).map(u=>{
           const m=String(u).match(/chat-images\/(.+)$/);
-          return m ? m[1] : null;
+          return m ? m[1].split('?')[0] : null;
         }).filter(Boolean);
         if(paths.length){ try{ await sb.storage.from('chat-images').remove(paths); }catch(_){} }
         inbox.msgIds=new Set();
@@ -1945,60 +1965,73 @@ async function renderDocsPage(){
     }catch(_){}
   }
 
-  const draw=()=>{
-    const lc=k=>(likes[k]&&likes[k].cnt)||0;
-    const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
-    const stubCount=rows.filter(d=>isStub(d.key)).length;
-    let sorted=rows.slice();
-    if(docsPage.sort==='stub') sorted=sorted.filter(d=>isStub(d.key));
-    sorted.sort((a,b)=>{
+  const lc=k=>(likes[k]&&likes[k].cnt)||0;
+  const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
+  const sortedRows=()=>{
+    let out=rows.slice();
+    if(docsPage.sort==='stub') out=out.filter(d=>isStub(d.key));
+    out.sort((a,b)=>{
       if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
       if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key) || new Date(b.updated_at||0)-new Date(a.updated_at||0);
       if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
       return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
-    $('#doc').innerHTML = `
-      <div class="docs-head">
-        <h1>문서 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
-        <div class="docs-sort">
-          <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
-          <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
-          <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
-          ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
-        </div>
-        ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+    return out;
+  };
+  const cardHTML=d=>`
+    <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
+      <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
+      <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
+      <div class="dc-meta">
+        ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
+                       :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
+        ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
+        ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
+        ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
       </div>
-      ${(canEdit() && stubCount) ? `<div class="nudge">
-        <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
-        <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
-      </div>` : ''}
-      ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
-      <div class="docs-grid">
-        ${sorted.map(d=>`
-          <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
-            <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
-            <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
-            <div class="dc-meta">
-              ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
-                             :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
-              ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
-              ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
-              ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
-            </div>
-          </a>`).join('')}
-      </div>`;
-    $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
-      b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
-    });
-    const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
-    const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
+    </a>`;
+
+  /* ★정렬 버튼을 눌러도 화면 전체를 다시 그리지 않는다 — 카드 그리드와 버튼 상태만 갱신.
+     (예전엔 innerHTML을 통째로 바꿔 스크롤·포커스가 튀고 깜빡였다) */
+  const paint=()=>{
+    const sorted=sortedRows();
+    const grid=$('#dpGrid');
+    if(grid) grid.innerHTML = sorted.map(cardHTML).join('');
+    const cnt=$('#dpCount'); if(cnt) cnt.textContent=sorted.length+'개';
+    const empty=$('#dpEmpty'); if(empty) empty.style.display = sorted.length ? 'none' : 'block';
+    $('#doc').querySelectorAll('.docs-sort button').forEach(b=>b.classList.toggle('on', b.dataset.s===docsPage.sort));
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
         location.hash='#//edit/'+encodeURIComponent(b.dataset.edit); };
     });
-    window.scrollTo(0,0);
   };
-  draw();
+
+  const stubCount=rows.filter(d=>isStub(d.key)).length;
+  $('#doc').innerHTML = `
+    <div class="docs-head">
+      <h1>문서 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+      <div class="docs-sort">
+        <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
+        <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
+        <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+        ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
+      </div>
+      ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+    </div>
+    ${(canEdit() && stubCount) ? `<div class="nudge">
+      <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
+      <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
+    </div>` : ''}
+    <div class="qb-empty" id="dpEmpty" style="display:none">조건에 맞는 문서가 없습니다.</div>
+    <div class="docs-grid" id="dpGrid"></div>`;
+
+  $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
+    b.onclick=()=>{ docsPage.sort=b.dataset.s; paint(); };     // ← 카드만 다시 그림
+  });
+  const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
+  const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; paint(); };
+  paint();
+  window.scrollTo(0,0);
 }
 
 async function loadDocs(){
@@ -3309,7 +3342,7 @@ async function renderAdmin(){
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템 검사</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
+      <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
@@ -3324,7 +3357,7 @@ async function renderAdmin(){
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
   $('#backBtn2').onclick=()=>{ location.hash='#//home'; };
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
-  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#//health'; };
+  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#//system'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
@@ -3844,6 +3877,7 @@ function healthTasks(){
       ['add_club / rename_club / delete_club (14)', ()=>chkRpc('add_club / rename_club / delete_club (14)','rename_club',{ p_id:-1, p_new:'__healthcheck__' })],
       ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
       ['public_clubs — 가입화면 동아리 목록 (51)', ()=>chkRpc('public_clubs — 가입화면 동아리 목록 (51)','public_clubs',{})],
+      ['set_app_limit — 상한 설정 (52)', ()=>chkRpc('set_app_limit — 상한 설정 (52)','set_app_limit',{ p_key:'__none__', p_value:1 })],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
       ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
@@ -3867,7 +3901,7 @@ async function renderHealth(){
   const total = groups.reduce((a,g)=>a+g.items.length, 0) + 1;   // +1 = 용량
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템 검사</h1>
-      <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('users')}회원 관리</button></div></div>
+      <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('back')}시스템</button></div></div>
     <div class="doc-meta">모든 자원(테이블·컬럼·RPC·스토리지·엣지 함수)을 하나씩 검사합니다. 문제 줄이 곧 원인입니다.</div>
     <div class="hs-prog" id="hsProg">
       <div class="hs-prog-top"><b id="hsProgLabel">검사 준비 중…</b><span id="hsProgNum">0 / ${total}</span></div>
@@ -3875,7 +3909,7 @@ async function renderHealth(){
     </div>
     <div id="hsSummary"></div>
     <div id="hsBody"></div>`;
-  $('#hBack').onclick=()=>{ location.hash='#//admin'; };
+  $('#hBack').onclick=()=>{ location.hash='#//system'; };
   $('#hReload').onclick=()=>renderHealth();
 
   let done=0, ok=0, bad=0;
@@ -3920,13 +3954,11 @@ async function renderHealth(){
     <div><b>${bad ? `문제 ${bad}건 발견` : '모든 항목 정상'}</b>
       <div class="hs-sum-sub">정상 ${ok} · 문제 ${bad} · 총 ${ok+bad}개 항목</div></div></div>`;
 
-  // 유지보수 섹션
-  renderMaintenance();
 }
 
 /* ── 유지보수: 안 쓰는 문서 사진 / 채팅 사진 자동 정리 ── */
-async function renderMaintenance(){
-  const body=$('#hsBody'); if(!body) return;
+async function renderMaintenance(target){
+  const body=(target && $(target)) || $('#hsBody'); if(!body) return;
   let gcAt=0; try{ gcAt=Number(localStorage.getItem(CHAT_GC_KEY)||0); }catch(e){}
   body.insertAdjacentHTML('beforeend', `
     <section class="hs-sec">
@@ -3987,6 +4019,66 @@ async function renderMaintenance(){
       : `${icOk()} 30일 지난 사진이 없어요 (전체 ${r.scanned}개 검사)`;
   };
 }
+/* ================== 시스템 (owner 전용) ==================
+   · 글자수·사진 용량 상한 조정 (app_settings, set_app_limit RPC)
+   · 시스템 검사 실행 버튼
+   · 유지보수(안 쓰는 문서 사진 / 채팅 사진 30일 정리) */
+const LIMIT_FIELDS = [
+  { group:'커뮤니티 채팅', chars:'lim_chat_chars', kb:'lim_chat_img_kb', kbLabel:'사진 1장' },
+  { group:'질문 답변',     chars:'lim_ans_chars',  kb:'lim_ans_img_kb',  kbLabel:'사진 1장' },
+  { group:'질문 본문',     chars:'lim_q_chars',    kb:'lim_q_img_kb',    kbLabel:'사진 합계' },
+  { group:'쪽지',          chars:'lim_dm_chars',   kb:'lim_dm_img_kb',   kbLabel:'사진 1장' },
+];
+async function renderSystem(){
+  if(!isOwner()){ location.hash='#//home'; return; }
+  await loadLimits();
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>시스템</h1>
+      <div class="tabs">
+        <button id="sysHealth">${ic('check')}시스템 검사</button>
+        <button id="sysBack">${ic('users')}회원 관리</button>
+      </div></div>
+    <div class="doc-meta">owner 전용. 여기서 바꾼 값은 <b>모든 회원에게 즉시</b> 적용됩니다(다음 접속부터).</div>
+
+    <section class="hs-sec">
+      <h2>글자수 · 사진 용량 상한</h2>
+      <table class="hs-table">
+        <tr><th style="width:150px">구분</th><th style="width:180px">최대 글자수</th><th style="width:200px">사진 용량(KB)</th><th>비고</th></tr>
+        ${LIMIT_FIELDS.map(f=>`
+          <tr>
+            <td><b>${escapeHtml(f.group)}</b></td>
+            <td><input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자</td>
+            <td><input class="lim-in" type="number" min="5" max="500" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span></td>
+            <td class="hs-dt">${f.kbLabel==='사진 합계'?'질문 1건의 모든 사진을 합쳐 이 용량에 맞게 자동 압축':'사진 1장을 이 용량에 맞게 자동 압축'}</td>
+          </tr>`).join('')}
+      </table>
+      <div class="sys-actions">
+        <button class="btn primary" id="limSave" style="width:auto;padding:8px 18px">저장</button>
+        <span class="hs-note" id="limMsg"></span>
+      </div>
+      <div class="hs-note">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만, 문서·질문 사진은 영구 보관돼요.</div>
+    </section>
+
+    <div id="sysMaint"></div>`;
+  $('#sysBack').onclick=()=>{ location.hash='#//admin'; };
+  $('#sysHealth').onclick=()=>{ location.hash='#//health'; };
+  $('#limSave').onclick=async()=>{
+    const msg=$('#limMsg'); msg.textContent='저장 중…';
+    const inputs=[...document.querySelectorAll('.lim-in')];
+    let fail='';
+    for(const inp of inputs){
+      const k=inp.dataset.k, v=parseInt(inp.value,10);
+      if(!v || v===LIMITS[k]) continue;                       // 바뀐 값만 전송
+      const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:v });
+      if(error){ fail=error.message||'저장 실패'; break; }
+      LIMITS[k]=v;
+    }
+    msg.textContent = fail ? ('저장 실패: '+fail) : '저장했어요. ✅';
+  };
+  renderMaintenance('#sysMaint');
+  window.scrollTo(0,0);
+}
+
 /* ================== 비밀번호 변경 (로그인 사용자) ================== */
 function renderPassword(){
   const rec = state.recovery;
@@ -4584,7 +4676,7 @@ async function uploadChatImages(files, onMsg){
   const out=[];
   for(let i=0;i<files.length;i++){
     if(onMsg) onMsg(`사진 올리는 중… (${i+1}/${files.length})`);
-    const c = await compressImage(files[i], { mode:'contain', dim:CHAT_IMG_DIM, target:CHAT_IMG_TARGET, minQuality:0.4 });
+    const c = await compressImage(files[i], { mode:'contain', dim:CHAT_IMG_DIM, target:chatImgBytes(), minQuality:0.4 });
     const ext = c.type==='image/webp' ? 'webp' : 'jpg';
     const path = `${state.user.id}/${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}.${ext}`;
     const up = await sb.storage.from('chat-images')
@@ -4936,6 +5028,7 @@ async function openDmThread(tid){
   inbox.msgIds = new Set(msgs.map(m=>m.id));      // 이미 그린 메시지 목록(폴링이 새 것만 추가)
   refreshPresence();                             // 대화 헤더의 접속 표시
   bindDmDelete(tid);
+  typeToFocus('#ipInput');        // 대화를 열고 아무 키나 치면 답장칸으로 포커스
 
   const _self = t && state.user && String(t.other_id)===String(state.user.id);
   const who = t ? `${escapeHtml(t.other_name||'-')}${_self?' <b style="color:var(--accent)">(나)</b>':''} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span>` : '쪽지';
@@ -4951,7 +5044,7 @@ async function openDmThread(tid){
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" maxlength="300" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
+      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈 · 최대 ${LIMITS.lim_dm_chars}자)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
@@ -5006,7 +5099,7 @@ async function openNewDm(uid){
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" maxlength="300" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
+      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈 · 최대 ${LIMITS.lim_dm_chars}자)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#//inbox'; };
@@ -5026,6 +5119,7 @@ async function openNewDm(uid){
   };
   $('#ipSend').onclick=send;
   $('#ipInput').focus();
+  typeToFocus('#ipInput');
   bindChatKeys($('#ipInput'), send);      // Enter=보내기 · Ctrl+Enter=줄바꿈
   initDmImages();
 }
@@ -5178,10 +5272,10 @@ async function renderQuestion(qid){
             </svg>
           </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <textarea id="chatText" maxlength="300" rows="1" placeholder="답변을 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
+          <textarea id="chatText" maxlength="${LIMITS.lim_ans_chars}" rows="1" placeholder="답변을 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
           <button id="chatSend">전송</button>
         </div>
-        <div class="chat-count" id="chatCount">0 / 300</div>
+        <div class="chat-count" id="chatCount"></div>
         <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
       </section>
     </div>`;
@@ -5231,7 +5325,7 @@ function openQuestionCompose(){
     <div class="modal-msg">질문하기</div>
     <div class="modal-sub">이미지는 <b>몇 장이든</b> 올릴 수 있어요. 질문 하나당 합계 <b>100KB</b>가 되도록 자동으로 압축됩니다.</div>
     <input id="qcTitle" type="text" maxlength="200" placeholder="질문 제목" style="width:100%;margin-top:12px;padding:9px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text)">
-    <textarea id="qcBody" rows="5" maxlength="4000" placeholder="궁금한 내용을 자세히 적어주세요…" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--text)"></textarea>
+    <textarea id="qcBody" rows="5" maxlength="${LIMITS.lim_q_chars}" placeholder="궁금한 내용을 자세히 적어주세요… (최대 ${LIMITS.lim_q_chars}자)" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--text)"></textarea>
     <div style="margin-top:8px"><button class="btn ghost" id="qcPick">이미지 추가</button>
       <input type="file" id="qcFile" accept="image/*" multiple style="display:none"></div>
     <div class="qc-thumbs" id="qcThumbs"></div>
@@ -5275,7 +5369,7 @@ function openQuestionCompose(){
       let urls=[];
       if(picked.length){
         msg.textContent='이미지 압축 중…';
-        const outs=await compressImagesToBudget(picked, Q_IMG_BUDGET);
+        const outs=await compressImagesToBudget(picked, LIMITS.lim_q_img_kb*1024);
         const total=outs.reduce((s,o)=>s+o.blob.size,0);
         msg.textContent=`업로드 중… (합계 ${(total/1024).toFixed(0)}KB)`;
         const stamp=Date.now();
@@ -5326,10 +5420,10 @@ async function renderCommunity(){
             </svg>
           </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <textarea id="chatText" maxlength="300" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
+          <textarea id="chatText" maxlength="${LIMITS.lim_chat_chars}" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
           <button id="chatSend">전송</button>
         </div>
-        <div class="chat-count" id="chatCount">0 / 300</div>
+        <div class="chat-count" id="chatCount"></div>
         <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
         <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
@@ -5511,10 +5605,12 @@ function appendMessage(m, doScroll=true){
       ${msgImagesHTML(m.images, m.created_at, mine)}
       <div class="msg-bubble-row">
         ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}
+      </div>
+      <div class="msg-foot">
         <span class="msg-time">${fmtKST(m.created_at)}</span>
         ${canDel?`<button class="msg-del" title="메세지 삭제">${ic('trash')}</button>`:''}
       </div>
-      ${community.qid ? '' : `<div class="msg-reactions" data-mid="${m.id}"></div>`}
+      ${(community.qid || mine) ? '' : `<div class="msg-reactions" data-mid="${m.id}"></div>`}
     </div>`;
   log.appendChild(el);
   if(!mine && m.user_id){   // 본인 제외: 아바타/활동명 클릭 → 해당 회원 프로필
@@ -5527,7 +5623,7 @@ function appendMessage(m, doScroll=true){
   else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
   if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
   renderMath(el.querySelector('.msg-bubble'));
-  if(!community.qid) renderReactions(m.id);   // 질문 답변에는 반응 없음
+  if(!community.qid && !mine) renderReactions(m.id);   // 질문 답변·내 메시지에는 반응 없음(쪽지함과 동일 규칙)
   if(doScroll) scrollChatBottom();
 }
 
@@ -5581,7 +5677,24 @@ document.addEventListener('keyup',e=>{
 });
 
 /* 채팅 입력 공통 키 처리 — Enter=전송, Ctrl(⌘)+Enter=줄바꿈, Shift+Enter도 줄바꿈 */
-const CHAT_MAX = 300;
+/* 상한값 — owner가 [시스템] 탭에서 바꾼다(app_settings). 기본값은 SQL 시드와 동일. */
+const LIMITS = {
+  lim_chat_chars:500, lim_chat_img_kb:40,
+  lim_ans_chars:500,  lim_ans_img_kb:40,
+  lim_q_chars:1000,   lim_q_img_kb:100,
+  lim_dm_chars:500,   lim_dm_img_kb:40
+};
+async function loadLimits(){
+  try{
+    const { data } = await sb.from('app_settings').select('key,value').like('key','lim_%');
+    (data||[]).forEach(r=>{ const v=parseInt(String(r.value),10); if(v) LIMITS[r.key]=v; });
+  }catch(e){}
+  return LIMITS;
+}
+/* 지금 화면(커뮤니티 / 질문 답변)의 글자수 상한 */
+function chatMax(){ return community.qid ? LIMITS.lim_ans_chars : LIMITS.lim_chat_chars; }
+function chatImgBytes(){ return (community.qid ? LIMITS.lim_ans_img_kb : LIMITS.lim_chat_img_kb) * 1024; }
+const CHAT_MAX = 500;   // (구 상수 — bindChatKeys는 chatMax()를 쓴다)
 function bindChatKeys(el, send){
   if(!el) return;
   el.addEventListener('keydown', e=>{
@@ -5589,7 +5702,7 @@ function bindChatKeys(el, send){
     if(e.ctrlKey || e.metaKey || e.shiftKey){             // 줄바꿈
       e.preventDefault();
       const st=el.selectionStart, en=el.selectionEnd, v=el.value;
-      if(v.length >= CHAT_MAX) return;                    // 글자수 상한
+      if(v.length >= chatMax()) return;                   // 글자수 상한
       el.value = v.slice(0,st) + '\n' + v.slice(en);
       el.selectionStart = el.selectionEnd = st+1;
       autoGrow(el); updateCharCount(); updatePreview();
@@ -5606,9 +5719,11 @@ function autoGrow(el){
 function updateCharCount(){
   const el=$('#chatText'), box=$('#chatCount');
   if(!el || !box) return;
+  const max=chatMax();
+  if(String(el.getAttribute('maxlength'))!==String(max)) el.setAttribute('maxlength', max);
   const n=(el.value||'').length;
-  box.textContent = n+' / '+CHAT_MAX;
-  box.classList.toggle('over', n>=CHAT_MAX);
+  box.textContent = n+' / '+max;
+  box.classList.toggle('over', n>=max);
 }
 
 /* 미리보기: 눈동자 아이콘/Ctrl로 입력창 바로 위에 LaTeX 적용된 모습 표시 */
@@ -5723,6 +5838,7 @@ function initChatImages(){
   const b=$('#chatImgBtn');
   if(b) b.onclick=()=>pickChatImages(chatPick, drawChatTray, m=>alert(m));
   bindChatPaste($('#chatText'), chatPick, drawChatTray, (m,ok)=>chatPasteMsg(m,ok));
+  updateCharCount();                      // 상한(LIMITS)에 맞춰 카운터 초기화
 }
 /* 붙여넣기 안내(입력줄 아래 힌트 자리에 잠깐 표시) */
 function chatPasteMsg(text, ok){
@@ -6299,7 +6415,7 @@ function openEventDetail(e){
    시스템 페이지는 전부 '//' 네임스페이스에 산다 → 새 문서를 아무 이름으로 만들어도 시스템을 가리지 않는다.
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
-                   'admin','requests','health','password','me','trash','notfound'];
+                   'admin','requests','health','system','password','me','trash','notfound'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 function isSysKey(k){
   k=String(k||'');
@@ -6366,7 +6482,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
@@ -6393,6 +6509,7 @@ function route(){
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
   if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#//home'; return; }
   if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
+  if(key==='system'){ if(isOwner()) renderSystem(); else location.hash='#//home'; return; }
   if(key==='password'){ renderPassword(); return; }
   if(key==='me'){ renderMe(); return; }
   if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
