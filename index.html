@@ -335,6 +335,7 @@ body.dark .rpill .rtip{background:#3a3d45;} body.dark .rpill .rtip::after{border
 .chat-input textarea{align-self:flex-end;}
 .chat-input{align-items:flex-end;}
 .chat-count{font-size:11px;color:var(--text-dim);padding:2px 12px 0;text-align:right;}
+.dm-count{padding:0 12px 8px;}
 .chat-count.over{color:var(--link-red);font-weight:700;}
 .chat-input button{height:44px;border:none;background:var(--accent);color:#fff;border-radius:6px;padding:0 18px;font-weight:700;cursor:pointer;}
 .chat-input button:hover{filter:brightness(1.08);}
@@ -452,6 +453,36 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .hs-btn{width:auto;font-size:12px;padding:6px 12px;}
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
+/* 권한 없음 팝업 */
+.deny-box{max-width:360px;text-align:center;}
+.deny-ic{color:var(--link-red);display:flex;justify-content:center;margin-bottom:6px;}
+.deny-role{margin-top:8px;font-size:12px;color:var(--text-dim);}
+/* 시스템 메뉴(목록형) */
+.sys-menu{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);max-width:640px;}
+.sys-item{display:flex;align-items:center;gap:12px;padding:15px 16px;border-bottom:1px solid var(--border);cursor:pointer;background:none;border-left:none;border-right:none;border-top:none;text-align:left;color:var(--text);transition:background .1s;}
+.sys-item:last-child{border-bottom:none;}
+.sys-item:hover{background:var(--box-bg);}
+.sys-item:hover .sys-t{text-decoration:underline;text-underline-offset:3px;}
+.sys-ic{width:34px;height:34px;border-radius:9px;background:var(--box-bg);display:flex;align-items:center;justify-content:center;color:var(--accent);flex:none;}
+.sys-t{font-weight:800;font-size:14.5px;}
+.sys-d{font-size:12px;color:var(--text-dim);margin-top:1px;}
+.sys-arrow{margin-left:auto;color:var(--text-dim);}
+.sys-owner-only{font-size:10.5px;font-weight:800;color:var(--accent);border:1px solid var(--accent);border-radius:99px;padding:1px 7px;margin-left:6px;}
+/* 권한 설정 표 */
+.perm-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;}
+.perm-table th{background:var(--table-head);color:var(--text-dim);font-size:11.5px;font-weight:800;padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;}
+.perm-table th:first-child{text-align:left;}
+.perm-table td{padding:6px 10px;border-bottom:1px solid var(--border);text-align:center;}
+.perm-table td:first-child{text-align:left;font-weight:600;}
+.perm-table tr:last-child td{border-bottom:none;}
+.perm-sec td{background:var(--box-bg);font-weight:800;color:var(--accent);font-size:12px;}
+.pseg{display:inline-flex;border:1px solid var(--border-strong);border-radius:99px;overflow:hidden;}
+.pseg button{border:none;background:var(--card);color:var(--text-dim);font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;}
+.pseg button.on{background:var(--accent);color:#fff;}
+.pseg button.off.on{background:var(--border-strong);color:#fff;}
+/* teacher 전용 세그먼트 */
+.seg.seg-teacher{border-color:#7b5ea7;}
+.seg.seg-teacher .seg-opt{background:#7b5ea7;color:#fff;border-color:#7b5ea7;cursor:default;}
 .hs-ic{width:18px;height:18px;vertical-align:middle;}
 .hs-ic.ok{color:#2e9e5b;} .hs-ic.bad{color:var(--link-red);} .hs-ic.warn{color:#c98500;}
 .cap-bar{margin:8px 0 12px;}
@@ -1482,23 +1513,130 @@ async function onLoggedIn(){
   await loadDocs();
   await loadTracks();          // 계열 목록(칩 색상·선택 목록)
   await loadLimits();          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
+  await loadPerms();           // 등급별 권한 매트릭스
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
   setTimeout(()=>{ sb.rpc('dispatch_event_reminders').catch(()=>{}); }, 2500);   // 일정 리마인더(전날·1시간 전) 발송
 }
-const ROLE_RANK={ viewer:0, editor:1, admin:2, owner:3 };
+const ROLE_RANK={ viewer:0, teacher:0, editor:1, admin:2, owner:3 };
 function roleRank(r){ return ROLE_RANK[r] ?? 0; }
 function myRank(){ return roleRank(state.role); }
-function canEdit(){ return myRank() >= ROLE_RANK.editor; }
-function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // owner도 admin 권한 포함(상위 계층)
 function isOwner(){ return state.role==='owner'; }
+function isTeacher(){ return state.role==='teacher'; }
+
+/* ================== 권한 매트릭스 ==================
+   owner가 [시스템 → 권한 설정]에서 등급별로 켜고 끈다. owner는 항상 전권.
+   ※화면 차원의 통제다. 최종 방어선은 여전히 RLS/RPC(서버). 그래서 권한을 넓혀도
+     서버가 막는 동작은 여전히 막힌다 — 안전한 방향으로만 열린다. */
+const PERM_CAPS = [
+  { sec:'문서', items:[
+    ['doc_read',   '문서 열람'],
+    ['doc_edit',   '문서 편집 (역사 복원 포함)'],
+    ['doc_create', '새 문서 생성'],
+    ['doc_delete', '문서 삭제'],
+    ['trash',      '휴지통 접근'],
+  ]},
+  { sec:'소통', items:[
+    ['chat',     '커뮤니티 채팅'],
+    ['q_ask',    '질문 게시판 — 질문 게시'],
+    ['q_answer', '질문 게시판 — 답변'],
+    ['dm',       '쪽지함 채팅'],
+  ]},
+  { sec:'회원 · 조직', items:[
+    ['dir_read',     '회원 조회 열람'],
+    ['admin_access', '회원 관리 접근'],
+    ['admin_role',   '회원 관리 — 등급 조정'],
+    ['admin_club',   '회원 관리 — 소속 변경'],
+    ['club_read',    '동아리 목록 조회'],
+    ['club_edit',    '동아리 목록 수정'],
+    ['track_read',   '계열 조회'],
+    ['track_edit',   '계열 수정'],
+  ]},
+  { sec:'시스템', items:[
+    ['system_access', '시스템 접근'],
+    ['system_limits', '글자수 · 사진 용량 상한 변경'],
+    ['system_maint',  '유지 보수'],
+    ['system_health', '시스템 검사'],
+  ]},
+];
+const PERM_ROLES = ['viewer','teacher','editor','admin'];   // owner는 항상 전권이라 표에 없음
+const DEFAULT_PERMS = {
+  viewer: { doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
+  teacher:{ doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
+  editor: { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
+            chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
+  admin:  { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
+            chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1,
+            admin_access:1, admin_role:1, admin_club:1,
+            club_read:1, club_edit:1, track_read:1, track_edit:1 },
+};
+let PERMS = null;                       // 서버에서 불러온 매트릭스(없으면 기본값)
+function permsFor(role){
+  const base = DEFAULT_PERMS[role] || {};
+  const over = (PERMS && PERMS[role]) || null;
+  return over ? Object.assign({}, base, over) : base;
+}
+function can(cap){
+  if(isOwner()) return true;                        // owner는 전권
+  return !!permsFor(state.role)[cap];
+}
+async function loadPerms(){
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','perms').maybeSingle();
+    const v = data && data.value;
+    PERMS = (v && typeof v==='object' && !Array.isArray(v)) ? v : null;
+  }catch(e){ PERMS = null; }
+  return PERMS;
+}
+function capLabel(cap){
+  for(const g of PERM_CAPS){ const f=g.items.find(i=>i[0]===cap); if(f) return f[1]; }
+  return cap;
+}
+/* 권한 없음 팝업 — [돌아가기]를 누르면 그 행동을 하기 직전 화면으로 되돌아간다. */
+let _denyOpen=false;
+function showDenied(cap, back){
+  if(_denyOpen) return;
+  _denyOpen=true;
+  const ov=document.createElement('div'); ov.className='modal-ov deny-ov';
+  ov.innerHTML=`<div class="modal-box deny-box">
+    <div class="deny-ic">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/><path d="M5.6 5.6 L18.4 18.4"/></svg>
+    </div>
+    <div class="modal-msg">권한이 없습니다</div>
+    <div class="modal-sub">${escapeHtml(capLabel(cap))} 권한이 없어요.<br>필요하면 관리자에게 요청해 주세요.
+      <div class="deny-role">내 등급: <b>${escapeHtml(state.role||'viewer')}</b></div></div>
+    <div class="modal-btns"><button class="modal-ok" id="denyBack">돌아가기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>{ ov.remove(); _denyOpen=false; if(typeof back==='function') back(); };
+  ov.querySelector('#denyBack').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+}
+/* 행동 직전에 호출. 권한이 없으면 팝업을 띄우고 false를 돌려준다. */
+function requirePerm(cap, back){
+  if(can(cap)) return true;
+  showDenied(cap, back);
+  return false;
+}
+/* 페이지 진입 가드: 권한이 없으면 팝업 + 직전 화면으로 복귀 */
+function guardPage(cap){
+  if(can(cap)) return true;
+  const prev = _lastGoodHash || '#//main';
+  showDenied(cap, ()=>{ location.hash = prev; });
+  return false;
+}
+let _lastGoodHash = '#//main';
+
+function canEdit(){ return can('doc_edit'); }
+function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // 서열(메시지 삭제 등) — 권한 매트릭스와 별개
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
   $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
   $('#dropRequests').style.display = isOwner() ? 'block' : 'none';
-  $('#dropSystem').style.display = isOwner() ? 'block' : 'none';
+  $('#dropSystem').style.display = can('system_access') ? 'block' : 'none';
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
   const ui=$('#usericon');   // 계정 아이콘: 상시 내 프로필 사진(없으면 기본 아이콘)
   if(ui){
@@ -2996,7 +3134,7 @@ const DOC_TEMPLATES = {
 
 /* 새 문서 만들기: 템플릿 선택 → 주소·제목 → 생성 후 뼈대 주입 */
 function openNewDocModal(prefill){
-  if(!canEdit()) return;
+  if(!requirePerm('doc_create')) return;
   let pick='free';
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:480px">
@@ -3066,6 +3204,7 @@ function openNewDocModal(prefill){
   [key,title].forEach(inp=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doCreate(); }));
 }
 async function deleteDoc(doc){
+  if(!requirePerm('doc_delete')) return;
   if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
   const { error } = await sb.rpc('trash_document', { p_key: doc.key });
   if(error){ alert('삭제 실패: '+error.message); return; }
@@ -3234,6 +3373,11 @@ function avaCellHTML(name, handle, url){
 }
 function memberSeg(m){
   const base=['viewer','editor','admin'];
+  // teacher는 관리 계층이 아니라 별도 트랙 → 일반 세그먼트에 뜨지 않고, 그 회원에게만 단독 표시
+  if(m.role==='teacher'){
+    return `<div class="seg seg-locked seg-teacher" title="teacher는 별도 등급입니다 (등급 조정은 DB에서)">`
+         + `<button class="seg-opt on" disabled>teacher</button></div>`;
+  }
   const btn=(r,cls,extra)=>`<button class="seg-opt${cls}${r==='owner'?' seg-owner':''}${m.role===r?' on':''}"${extra}>${r}</button>`;
   if(m.id===state.user.id){
     const btns=[...base,'owner'].map(r=>btn(r,'',' disabled')).join('');
@@ -3258,6 +3402,7 @@ function clubCell(id, cur, names){
   return `<select class="club-sel" data-id="${escapeAttr(id)}" data-prev="${escapeAttr(cur)}">${o}</select>`;
 }
 async function setMemberClub(id, club, sel){
+  if(!requirePerm('admin_club')) return;
   const prev = sel.getAttribute('data-prev') || club;
   sel.disabled=true;
   try{
@@ -3353,7 +3498,7 @@ async function renderAdmin(){
     </table>
     </div>
     <div id="clubSection" class="club-sec"></div>
-    ${isOwner()?'<div id="trackSection" class="club-sec"></div>':''}`;
+    ${can('track_edit')?'<div id="trackSection" class="club-sec"></div>':''}`;
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
   $('#backBtn2').onclick=()=>{ location.hash='#//home'; };
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
@@ -3370,13 +3515,13 @@ async function renderAdmin(){
     };
   });
   renderClubSection();
-  if(isOwner()) renderTrackSection();
+  if(can('track_edit')) renderTrackSection();
   window.scrollTo(0,0);
 }
 
 /* ---- 계열 관리 (owner 전용) : 이름 변경 · 추가 · 삭제 · 색 지정 ---- */
 async function renderTrackSection(){
-  const box=$('#trackSection'); if(!box || !isOwner()) return;
+  const box=$('#trackSection'); if(!box || !can('track_edit')) return;
   await loadTracks();
   let profs=[];
   try{ const { data } = await sb.from('profiles').select('id,track'); profs=data||[]; }catch(e){}
@@ -3485,6 +3630,7 @@ async function renderClubSection(){
 
 /* 동아리 목록 수정 모달 (추가 / 이름변경 / 삭제) */
 async function openClubEditor(){
+  if(!requirePerm('club_edit')) return;
   let clubs=[];
   try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
   clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
@@ -3543,6 +3689,7 @@ async function openClubEditor(){
   });
 }
 async function setRole(id, role){
+  if(!requirePerm('admin_role')) return;
   const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
   if(role==='owner'){
     const ok=await confirmModal('이 회원에게 owner 권한을 양도하시겠습니까?', '본인은 admin으로 등급 하향됩니다. (되돌리려면 새 owner가 다시 양도해야 합니다.)', '양도');
@@ -4023,59 +4170,160 @@ async function renderMaintenance(target){
    · 글자수·사진 용량 상한 조정 (app_settings, set_app_limit RPC)
    · 시스템 검사 실행 버튼
    · 유지보수(안 쓰는 문서 사진 / 채팅 사진 30일 정리) */
+/* 시스템 = 메뉴만 보여주는 목록. 각 항목은 자기 주소를 가진다. */
+async function renderSystem(){
+  if(!guardPage('system_access')) return;
+  const items=[
+    { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
+    { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
+    { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
+    { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속, 동아리·계열 목록을 관리합니다.' },
+    { cap:'system_maint',  hash:'#//system/maint',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진 정리, 채팅 사진 30일 정리.' },
+  ].filter(it => it.owner ? isOwner() : can(it.cap));
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>시스템</h1>
+      <div class="tabs"><button id="sysBack">${ic('back')}대문</button></div></div>
+    <div class="doc-meta">관리 기능을 한곳에 모았어요. 항목을 눌러 들어가세요.</div>
+    <div class="sys-menu">
+      ${items.map(it=>`
+        <button class="sys-item" data-go="${escapeAttr(it.hash)}">
+          <span class="sys-ic">${ic(it.ic)}</span>
+          <span><span class="sys-t">${escapeHtml(it.t)}</span>${it.owner?'<span class="sys-owner-only">owner</span>':''}
+            <span class="sys-d">${escapeHtml(it.d)}</span></span>
+          <span class="sys-arrow">›</span>
+        </button>`).join('')}
+    </div>`;
+  $('#sysBack').onclick=()=>{ location.hash='#//main'; };
+  $('#doc').querySelectorAll('.sys-item[data-go]').forEach(b=>{
+    b.onclick=()=>{ location.hash=b.dataset.go; };
+  });
+  window.scrollTo(0,0);
+}
+
+/* 시스템 → 글자수·사진 용량 상한 */
 const LIMIT_FIELDS = [
   { group:'커뮤니티 채팅', chars:'lim_chat_chars', kb:'lim_chat_img_kb', kbLabel:'사진 1장' },
   { group:'질문 답변',     chars:'lim_ans_chars',  kb:'lim_ans_img_kb',  kbLabel:'사진 1장' },
   { group:'질문 본문',     chars:'lim_q_chars',    kb:'lim_q_img_kb',    kbLabel:'사진 합계' },
   { group:'쪽지',          chars:'lim_dm_chars',   kb:'lim_dm_img_kb',   kbLabel:'사진 1장' },
 ];
-async function renderSystem(){
-  if(!isOwner()){ location.hash='#//home'; return; }
+async function renderSysLimits(){
   await loadLimits();
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>시스템</h1>
-      <div class="tabs">
-        <button id="sysHealth">${ic('check')}시스템 검사</button>
-        <button id="sysBack">${ic('users')}회원 관리</button>
-      </div></div>
-    <div class="doc-meta">owner 전용. 여기서 바꾼 값은 <b>모든 회원에게 즉시</b> 적용됩니다(다음 접속부터).</div>
-
+    <div class="doc-head"><h1>글자수 · 사진 용량 상한</h1>
+      <div class="tabs"><button id="slBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta">바꾼 값은 모든 회원에게 <b>다음 접속부터</b> 적용됩니다.</div>
     <section class="hs-sec">
-      <h2>글자수 · 사진 용량 상한</h2>
       <table class="hs-table">
-        <tr><th style="width:150px">구분</th><th style="width:180px">최대 글자수</th><th style="width:200px">사진 용량(KB)</th><th>비고</th></tr>
+        <tr><th style="width:150px">구분</th><th style="width:180px">최대 글자수</th><th style="width:220px">사진 용량(KB)</th><th>비고</th></tr>
         ${LIMIT_FIELDS.map(f=>`
           <tr>
             <td><b>${escapeHtml(f.group)}</b></td>
             <td><input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자</td>
             <td><input class="lim-in" type="number" min="5" max="500" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span></td>
-            <td class="hs-dt">${f.kbLabel==='사진 합계'?'질문 1건의 모든 사진을 합쳐 이 용량에 맞게 자동 압축':'사진 1장을 이 용량에 맞게 자동 압축'}</td>
+            <td class="hs-dt">${f.kbLabel==='사진 합계'?'질문 1건의 사진을 합쳐 이 용량에 맞게 자동 압축':'사진 1장을 이 용량에 맞게 자동 압축'}</td>
           </tr>`).join('')}
       </table>
       <div class="sys-actions">
         <button class="btn primary" id="limSave" style="width:auto;padding:8px 18px">저장</button>
         <span class="hs-note" id="limMsg"></span>
       </div>
-      <div class="hs-note">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만, 문서·질문 사진은 영구 보관돼요.</div>
-    </section>
-
-    <div id="sysMaint"></div>`;
-  $('#sysBack').onclick=()=>{ location.hash='#//admin'; };
-  $('#sysHealth').onclick=()=>{ location.hash='#//health'; };
+      <div class="hs-note">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만 문서·질문 사진은 영구 보관돼요.</div>
+    </section>`;
+  $('#slBack').onclick=()=>{ location.hash='#//system'; };
   $('#limSave').onclick=async()=>{
     const msg=$('#limMsg'); msg.textContent='저장 중…';
-    const inputs=[...document.querySelectorAll('.lim-in')];
     let fail='';
-    for(const inp of inputs){
+    for(const inp of [...document.querySelectorAll('.lim-in')]){
       const k=inp.dataset.k, v=parseInt(inp.value,10);
-      if(!v || v===LIMITS[k]) continue;                       // 바뀐 값만 전송
+      if(!v || v===LIMITS[k]) continue;
       const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:v });
       if(error){ fail=error.message||'저장 실패'; break; }
       LIMITS[k]=v;
     }
     msg.textContent = fail ? ('저장 실패: '+fail) : '저장했어요. ✅';
   };
+  window.scrollTo(0,0);
+}
+
+/* 시스템 → 유지 보수 */
+async function renderSysMaint(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>유지 보수</h1>
+      <div class="tabs"><button id="smBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta">저장 공간을 정리합니다. 채팅 사진은 관리자가 접속하면 하루 한 번 자동 정리돼요.</div>
+    <div id="sysMaint"></div>`;
+  $('#smBack').onclick=()=>{ location.hash='#//system'; };
   renderMaintenance('#sysMaint');
+  window.scrollTo(0,0);
+}
+
+/* 시스템 → 권한 설정 (owner 전용) */
+async function renderSysPerms(){
+  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; }
+  await loadPerms();
+  const cur = {};
+  PERM_ROLES.forEach(r=>{ cur[r] = Object.assign({}, permsFor(r)); });
+  const seg=(role,cap)=>{
+    const on = !!cur[role][cap];
+    return `<span class="pseg" data-role="${role}" data-cap="${cap}">
+      <button class="allow ${on?'on':''}" data-v="1">허용</button>
+      <button class="off ${on?'':'on'}" data-v="0">차단</button></span>`;
+  };
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>권한 설정</h1>
+      <div class="tabs">
+        <button id="spReset">${ic('restore')}기본값</button>
+        <button id="spBack">${ic('back')}시스템</button>
+      </div></div>
+    <div class="doc-meta">등급별로 무엇을 할 수 있는지 정합니다. <b>owner는 항상 전권</b>이라 표에 없어요.
+      권한이 없는 회원이 해당 동작을 하면 “권한이 없습니다” 안내가 뜹니다.</div>
+    <div class="table-scroll">
+      <table class="perm-table">
+        <tr><th style="width:230px">항목</th>${PERM_ROLES.map(r=>`<th>${r}</th>`).join('')}</tr>
+        ${PERM_CAPS.map(g=>`
+          <tr class="perm-sec"><td colspan="${PERM_ROLES.length+1}">${escapeHtml(g.sec)}</td></tr>
+          ${g.items.map(([cap,label])=>`
+            <tr><td>${escapeHtml(label)}</td>
+              ${PERM_ROLES.map(r=>`<td>${seg(r,cap)}</td>`).join('')}
+            </tr>`).join('')}
+        `).join('')}
+      </table>
+    </div>
+    <div class="sys-actions">
+      <button class="btn primary" id="spSave" style="width:auto;padding:8px 18px">저장</button>
+      <span class="hs-note" id="spMsg"></span>
+    </div>`;
+  $('#spBack').onclick=()=>{ location.hash='#//system'; };
+  $('#doc').querySelectorAll('.pseg').forEach(sg=>{
+    sg.querySelectorAll('button').forEach(b=>{
+      b.onclick=()=>{
+        const role=sg.dataset.role, cap=sg.dataset.cap, v=b.dataset.v==='1';
+        cur[role][cap]= v ? 1 : 0;
+        sg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+      };
+    });
+  });
+  $('#spReset').onclick=async()=>{
+    const ok=await confirmModal('기본값으로 되돌릴까요?','모든 등급의 권한이 초기 설정으로 돌아갑니다. (저장을 눌러야 확정)','되돌리기');
+    if(!ok) return;
+    PERMS=null; renderSysPerms();
+  };
+  $('#spSave').onclick=async()=>{
+    const msg=$('#spMsg'); msg.textContent='저장 중…';
+    const payload={};
+    PERM_ROLES.forEach(r=>{
+      payload[r]={};
+      PERM_CAPS.forEach(g=>g.items.forEach(([cap])=>{ payload[r][cap]= cur[r][cap] ? 1 : 0; }));
+    });
+    try{
+      const { error } = await sb.rpc('set_perms', { p_perms: payload });
+      if(error) throw error;
+      PERMS=payload;
+      msg.textContent='저장했어요. ✅ (회원들은 다음 접속부터 적용)';
+      renderUserbox();
+    }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (53_teacher_and_perms.sql 실행 확인)'; }
+  };
   window.scrollTo(0,0);
 }
 
@@ -4672,11 +4920,11 @@ function msgImagesHTML(images, createdAt, mine){
   ).join('')}</div>`;
 }
 /* 선택한 파일들을 40KB로 압축해 chat-images에 올리고 URL 배열 반환 */
-async function uploadChatImages(files, onMsg){
+async function uploadChatImages(files, onMsg, targetBytes){
   const out=[];
   for(let i=0;i<files.length;i++){
     if(onMsg) onMsg(`사진 올리는 중… (${i+1}/${files.length})`);
-    const c = await compressImage(files[i], { mode:'contain', dim:CHAT_IMG_DIM, target:chatImgBytes(), minQuality:0.4 });
+    const c = await compressImage(files[i], { mode:'contain', dim:CHAT_IMG_DIM, target:(targetBytes||chatImgBytes()), minQuality:0.4 });
     const ext = c.type==='image/webp' ? 'webp' : 'jpg';
     const path = `${state.user.id}/${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}.${ext}`;
     const up = await sb.storage.from('chat-images')
@@ -5044,20 +5292,22 @@ async function openDmThread(tid){
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈 · 최대 ${LIMITS.lim_dm_chars}자)"></textarea>
+      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
-    </div>`;
+    </div>
+    <div class="chat-count dm-count" id="dmCount"></div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
   $('#ipClose').onclick=()=>{ inbox.sel=null; inbox.msgIds=new Set();
     pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
     $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
   const send=async()=>{
+    if(!requirePerm('dm')) return;
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
     if((!body && !dmPick.length) || !t) return;
     const btn=$('#ipSend'); btn.disabled=true;
     try{
       let images=[];
-      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; });
+      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; }, LIMITS.lim_dm_img_kb*1024);
       const { error } = await sb.rpc('send_dm', { p_to: t.other_id, p_body: body, p_images: images });
       if(error) throw error;
       ta.value=''; dmPick=[]; drawDmTray();
@@ -5099,17 +5349,19 @@ async function openNewDm(uid){
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
-      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈 · 최대 ${LIMITS.lim_dm_chars}자)"></textarea>
+      <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
-    </div>`;
+    </div>
+    <div class="chat-count dm-count" id="dmCount"></div>`;
   $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#//inbox'; };
   const send=async()=>{
+    if(!requirePerm('dm')) return;
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
     if(!body && !dmPick.length) return;
     const btn=$('#ipSend'); btn.disabled=true;
     try{
       let images=[];
-      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; });
+      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; }, LIMITS.lim_dm_img_kb*1024);
       const { data, error } = await sb.rpc('send_dm', { p_to: uid, p_body: body, p_images: images });   // 여기서 스레드 생성
       if(error) throw error;
       dmPick=[]; drawDmTray();
@@ -5319,6 +5571,7 @@ async function deleteQuestion(qid, images){
 
 /* 질문 작성 모달 (정중앙) — 제목 + 내용 + 이미지 여러 장(합계 100KB 자동 압축) */
 function openQuestionCompose(){
+  if(!requirePerm('q_ask')) return;
   let picked=[];
   const ov=document.createElement('div'); ov.className='qc-ov';
   ov.innerHTML=`<div class="qc-drawer">
@@ -5716,6 +5969,14 @@ function autoGrow(el){
   el.style.height='auto';
   el.style.height=Math.min(el.scrollHeight, 132)+'px';
 }
+function updateDmCount(){
+  const el=$('#ipInput'), box=$('#dmCount');
+  if(!el || !box) return;
+  const max=LIMITS.lim_dm_chars;
+  const n=(el.value||'').length;
+  box.textContent = n+' / '+max;
+  box.classList.toggle('over', n>=max);
+}
 function updateCharCount(){
   const el=$('#chatText'), box=$('#chatCount');
   if(!el || !box) return;
@@ -5800,6 +6061,7 @@ function openLatexGuide(){
 }
 
 async function sendMessage(){
+  if(!requirePerm(community.qid ? 'q_answer' : 'chat')) return;
   const inp=$('#chatText'); if(!inp || !state.user) return;
   const body=inp.value.trim();
   if(!body && !chatPick.length) return;              // 글도 사진도 없으면 무시
@@ -5830,6 +6092,8 @@ function initDmImages(){
   const b=$('#dmImgBtn');
   if(b) b.onclick=()=>pickChatImages(dmPick, drawDmTray, m=>alert(m));
   bindChatPaste($('#ipInput'), dmPick, drawDmTray, (m,ok)=>chatPasteMsg(m,ok));
+  const ip=$('#ipInput');
+  if(ip){ ip.addEventListener('input', updateDmCount); updateDmCount(); }
 }
 
 /* 채팅 화면(커뮤니티·질문)의 사진 배선 */
@@ -6415,7 +6679,8 @@ function openEventDetail(e){
    시스템 페이지는 전부 '//' 네임스페이스에 산다 → 새 문서를 아무 이름으로 만들어도 시스템을 가리지 않는다.
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
-                   'admin','requests','health','system','password','me','trash','notfound'];
+                   'admin','requests','health','system','system/limits','system/maint','system/perms',
+                   'password','me','trash','notfound'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 function isSysKey(k){
   k=String(k||'');
@@ -6482,8 +6747,18 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
+    const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
+                     admin:'admin_access', trash:'trash', health:'system_health', system:'system_access' };
+    const cap = PAGE_CAP[key] || (key.startsWith('q/')?'q_ask':null) || (key.startsWith('dm/')?'dm':null)
+              || (key.startsWith('trash/')?'trash':null) || (key.startsWith('edit/')?'doc_edit':null)
+              || (key.startsWith('member/')?'dir_read':null) || (key.startsWith('system/')?'system_access':null);
+    if(cap && !guardPage(cap)) return;
+  }
+  if(!sys && key && !guardPage('doc_read')) return;        // 문서 열람 권한
+  _lastGoodHash = location.hash || '#//main';
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
   if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#//home'; return; }
@@ -6509,7 +6784,10 @@ function route(){
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
   if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#//home'; return; }
   if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
-  if(key==='system'){ if(isOwner()) renderSystem(); else location.hash='#//home'; return; }
+  if(key==='system'){ renderSystem(); return; }
+  if(key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
+  if(key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
+  if(key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
   if(key==='password'){ renderPassword(); return; }
   if(key==='me'){ renderMe(); return; }
   if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
