@@ -291,6 +291,35 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
 
 
+
+
+/* ===== 편집기 상단 레이아웃 정리 ===== */
+.wk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:4px;}
+.wk-head h1{margin:0;}
+.wk-keybox{display:flex;align-items:center;gap:5px;flex:none;padding-top:4px;}
+.wk-keybox label{margin:0;font-size:11px;color:var(--text-dim);font-weight:700;white-space:nowrap;}
+.wk-keybox input{width:150px;padding:4px 8px !important;font-size:12px !important;font-family:ui-monospace,Consolas,monospace;}
+.wk-row2{display:grid;grid-template-columns:2fr 1fr;gap:10px;}
+.wk-row2 > div{min-width:0;}
+.wk-row3{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.wk-tipbtn{background:var(--box-bg);border:1px solid var(--border);color:var(--accent);font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;margin-left:auto;}
+.wk-tipbtn:hover{background:var(--accent);color:#fff;border-color:var(--accent);}
+@media(max-width:700px){
+  .wk-head{flex-direction:column;gap:6px;}
+  .wk-keybox{padding-top:0;} .wk-keybox input{width:100%;}
+  .wk-row2,.wk-row3{grid-template-columns:1fr;}
+}
+
+/* ===== 새 문서 템플릿 선택 ===== */
+.tpl-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin:6px 0 4px;}
+.tpl-card{display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 6px;border:1px solid var(--border);border-radius:8px;background:var(--card);cursor:pointer;text-align:center;}
+.tpl-card:hover{border-color:var(--accent);background:var(--box-bg);}
+.tpl-card.on{border-color:var(--accent);border-width:2px;background:var(--box-bg);}
+.tpl-ic{font-size:19px;line-height:1;}
+.tpl-nm{font-size:12px;font-weight:700;color:var(--text);}
+.tpl-desc{font-size:11.5px;color:var(--text-dim);margin:2px 0 8px;min-height:15px;}
+@media(max-width:520px){ .tpl-grid{grid-template-columns:repeat(2,1fr);} }
+
 /* ===== 문서 편집기 v2 (안다 문법) ===== */
 .wk-toolbar{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0 6px;}
 .wk-toolbar button{background:var(--box-bg);border:1px solid var(--border);color:var(--text);font-size:12px;font-weight:700;padding:5px 10px;border-radius:6px;cursor:pointer;}
@@ -979,6 +1008,191 @@ function htmlToWiki(html){
   return s.replace(/\n{3,}/g,'\n\n').trim();
 }
 
+
+/* ================== 문서 작성 팁 (새 탭 가이드) ==================
+   ★핵심 설계: 예시의 '결과' 칸을 실제 wikiToHtml() 로 렌더한다.
+     → 문법이 바뀌어도 가이드가 저절로 따라옴. 문서와 코드가 어긋날 수 없다. */
+function openWritingGuide(){
+  const ex = (code, desc) =>
+    `<tr><td class="c"><code>${escapeHtml(code)}</code></td><td class="r">${wikiToHtml(code)}</td><td class="d">${escapeHtml(desc)}</td></tr>`;
+
+  const html = `<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>안다 아카이브 · 문서 작성 팁</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"><\/script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"><\/script>
+<style>
+ body{max-width:920px;margin:0 auto;padding:32px 22px 80px;font-family:system-ui,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;line-height:1.75;color:#222;background:#fff;}
+ h1{font-size:26px;border-bottom:3px solid #c0392b;padding-bottom:10px;margin-bottom:4px;}
+ .sub{color:#777;font-size:13.5px;margin-bottom:26px;}
+ h2{font-size:20px;margin:38px 0 10px;padding:7px 12px;background:#f6f2f2;border-left:5px solid #c0392b;}
+ h3{font-size:16px;margin:24px 0 8px;color:#c0392b;}
+ p,li{font-size:14.5px;}
+ table{border-collapse:collapse;width:100%;margin:12px 0 18px;table-layout:fixed;}
+ th,td{border:1px solid #ddd;padding:9px 11px;vertical-align:top;font-size:13.5px;}
+ th{background:#f6f2f2;font-size:12.5px;text-align:left;}
+ td.c{width:34%;background:#fbfafa;} td.r{width:38%;} td.d{width:28%;color:#666;font-size:12.5px;}
+ code{background:#f2efef;border:1px solid #e2dcdc;border-radius:4px;padding:1px 6px;font-size:12.5px;font-family:ui-monospace,Consolas,monospace;white-space:pre-wrap;}
+ .tip{background:#fdf6f5;border:1px solid #f0d8d5;border-left:5px solid #c0392b;border-radius:0 6px 6px 0;padding:12px 15px;margin:14px 0;font-size:13.5px;}
+ .warn{background:#fffbe9;border:1px solid #f0e3b0;border-left:5px solid #d9a300;border-radius:0 6px 6px 0;padding:12px 15px;margin:14px 0;font-size:13.5px;}
+ .nav{position:sticky;top:0;background:#fff;border-bottom:1px solid #eee;padding:10px 0;margin-bottom:18px;font-size:13px;}
+ .nav a{color:#c0392b;text-decoration:none;margin-right:14px;font-weight:700;}
+ .nav a:hover{text-decoration:underline;}
+ .r h2,.r h3{all:revert;font-size:15px;margin:2px 0;padding:0;background:none;border:none;color:#222;}
+ .r p{margin:2px 0;} .r ul,.r ol{margin:2px 0 2px 18px;padding:0;}
+ .r table{margin:2px 0;} .r th,.r td{padding:3px 7px;font-size:12px;}
+ .r blockquote{margin:2px 0;padding:2px 10px;border-left:3px solid #ddd;color:#555;}
+ .r img{max-width:100%;}
+ kbd{background:#eee;border:1px solid #ccc;border-bottom-width:2px;border-radius:4px;padding:1px 6px;font-size:12px;}
+ .steps{counter-reset:s;list-style:none;padding:0;}
+ .steps li{counter-increment:s;position:relative;padding:8px 0 8px 38px;border-bottom:1px dashed #eee;}
+ .steps li::before{content:counter(s);position:absolute;left:0;top:8px;width:24px;height:24px;border-radius:50%;background:#c0392b;color:#fff;font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center;}
+</style></head><body>
+
+<h1>문서 작성 팁</h1>
+<div class="sub">안다 아카이브 · 문법을 몰라도 <b>버튼만으로</b> 문서를 쓸 수 있습니다. 이 창을 옆에 띄워두고 보세요.</div>
+
+<div class="nav">
+  <a href="#p1">1. 시작하기</a><a href="#p2">2. 문법 전부</a><a href="#p3">3. 잘 쓰는 법</a>
+</div>
+
+<h2 id="p1">1장 · 시작하기 — 5분이면 충분합니다</h2>
+
+<h3>가장 중요한 것: 버튼을 쓰세요</h3>
+<p>본문 위의 <b>도구 버튼</b>(제목·굵게·목록·표·링크·각주·수식)이 문법을 대신 써줍니다. <b>문법을 하나도 몰라도 됩니다.</b></p>
+<ol class="steps">
+  <li>본문에서 글자를 <b>드래그해서 선택</b>합니다.</li>
+  <li>도구 버튼(예: <b>굵게</b>)을 누릅니다.</li>
+  <li>선택한 글자가 <code>**이렇게**</code> 감싸지고, 오른쪽 <b>미리보기</b>에 <b>굵게</b> 나타납니다.</li>
+  <li>아무것도 선택하지 않고 눌러도 됩니다 — 예시 글자가 들어가니 그 위에 덮어쓰면 됩니다.</li>
+</ol>
+
+<div class="tip"><b>실수해도 괜찮습니다.</b> 모든 저장은 <b>역사</b>에 기록됩니다. 문서 상단의 <b>역사</b> 버튼에서 예전 버전을 언제든 되돌릴 수 있어요. 마음 편히 고치세요.</div>
+<div class="tip"><b>쓰다 만 글은 자동 저장됩니다.</b> 실수로 창을 닫아도, 다시 편집에 들어오면 <b>“저장되지 않은 초안이 있어요”</b>라고 물어봅니다.</div>
+
+<h3>화면 보는 법</h3>
+<p><b>컴퓨터</b>에서는 왼쪽에 쓰고 오른쪽에 결과가 <b>실시간</b>으로 보입니다. <b>휴대폰</b>에서는 화면이 좁아서 <b>[작성] / [미리보기]</b> 탭으로 나뉩니다 — 쓰다가 [미리보기]를 눌러 확인하세요.</p>
+
+<h3>문단 나누기 — 딱 하나만 기억하세요</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('첫째 줄\n둘째 줄', '한 번 줄바꿈 = 같은 문단 안에서 줄만 바뀜')}
+  ${ex('첫째 문단\n\n둘째 문단', '빈 줄 = 새 문단 (한 줄 띄우기)')}
+</table>
+
+<h2 id="p2">2장 · 문법 전부 — 이게 전부입니다</h2>
+
+<h3>제목 (목차가 자동으로 만들어집니다)</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('## 큰 제목', '문서의 章. 목차에 표시됨')}
+  ${ex('### 작은 제목', '章 안의 節. 목차에 함께 표시됨')}
+</table>
+<div class="tip"><b>#은 두 개부터</b> 씁니다. 문서 제목은 이미 맨 위에 있으니, 본문은 <code>##</code>부터 시작하세요.</div>
+
+<h3>글자 꾸미기</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('**굵게**', '중요한 부분')}
+  ${ex('*기울임*', '강조·인용어')}
+  ${ex('~~취소선~~', '지워진 내용')}
+</table>
+
+<h3>목록과 인용</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('- 첫째\n- 둘째', '순서 없는 목록')}
+  ${ex('1. 첫째\n2. 둘째', '순서 있는 목록')}
+  ${ex('> 인용한 말', '인용문·강조 상자')}
+  ${ex('---', '구분선')}
+</table>
+
+<h3>표 — 연혁·명단에 유용합니다</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('| 연도 | 내용 |\n| 2016 | 창립 |\n| 2020 | 첫 대회 |', '첫 줄이 제목 칸이 됩니다')}
+</table>
+<div class="tip">칸 수만 맞추면 됩니다. 줄마다 <code>|</code> 로 시작하고 <code>|</code> 로 끝내세요.</div>
+
+<h3>링크</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('[안다 홈페이지](https://example.com)', '바깥 사이트 (새 탭으로 열림)')}
+  ${ex('[동아리 역사](#history)', '아카이브 안의 다른 문서')}
+</table>
+<div class="tip"><b>내부 문서 링크</b>는 <code>#</code> 뒤에 그 문서의 <b>주소</b>를 씁니다. 주소는 편집 화면 오른쪽 위 <code>주소 /</code> 칸에서 확인할 수 있어요.</div>
+
+<h3>각주 — 용어 설명에 씁니다</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('[[안다|알고리즘과 다양성]]', '용어에 밑줄, 마우스를 올리면 설명이 뜸')}
+</table>
+<p><code>[[보여줄 글자|설명 내용]]</code> — 세로줄(<code>|</code>)로 나눕니다.</p>
+
+<h3>수식</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('피타고라스: $a^2+b^2=c^2$', '문장 안 수식')}
+  ${ex('$$\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}$$', '가운데 정렬 큰 수식')}
+</table>
+<p>자세한 수식 기호는 커뮤니티 채팅의 <b>“LaTeX 사용법”</b> 안내를 참고하세요.</p>
+
+<h3>사진</h3>
+<table>
+  <tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
+  ${ex('![창립 사진](https://example.com/a.webp)', '대괄호 안은 설명, 괄호 안은 주소')}
+</table>
+<div class="warn"><b>사진은 직접 주소를 쓰지 마세요.</b> 곧 추가될 <b>📷 사진</b> 버튼을 쓰면 자동으로 올라가고 주소가 삽입됩니다. (용량을 아끼려고 자동으로 압축됩니다)</div>
+
+<h2 id="p3">3장 · 잘 쓰는 법</h2>
+
+<h3>문서의 기본 구조</h3>
+<p>새 문서를 만들 때 <b>종류(인물·행사·개념·역사·안내)</b>를 고르면 뼈대가 자동으로 채워집니다. 백지에서 시작하지 마세요.</p>
+<ul>
+  <li><b>개요</b>를 맨 앞에 — 이 문서가 무엇인지 <b>한두 문장</b>으로.</li>
+  <li>그 다음 <b>본론</b>을 <code>##</code> 제목으로 나눕니다.</li>
+  <li><b>정보 틀(인포박스)</b>에는 날짜·인원 같은 <b>사실</b>만 넣습니다.</li>
+</ul>
+
+<h3>좋은 문서 · 아쉬운 문서</h3>
+<table>
+  <tr><th>아쉬운 예</th><th>좋은 예</th><th>왜</th></tr>
+  <tr><td class="c">한 문단에 전부 몰아쓰기</td><td class="r"><code>##</code> 제목으로 나누기</td><td class="d">목차가 생겨 찾기 쉬움</td></tr>
+  <tr><td class="c">“여러 활동을 했다”</td><td class="r">목록으로 하나씩</td><td class="d">구체적일수록 오래 남음</td></tr>
+  <tr><td class="c">기억나는 대로 날짜 추측</td><td class="r">모르면 비워두기</td><td class="d">아카이브는 <b>사실</b>이 생명</td></tr>
+  <tr><td class="c">완벽해질 때까지 저장 안 함</td><td class="r">조금씩 자주 저장</td><td class="d">역사가 남아 안전함</td></tr>
+</table>
+
+<div class="tip"><b>혼자 완성하려 하지 마세요.</b> 아카이브는 여럿이 조금씩 채워가는 곳입니다. 아는 만큼만 쓰고 저장하면, 다음 사람이 이어서 씁니다.</div>
+
+<h3>편집이 겹칠 때</h3>
+<p>다른 회원이 같은 문서를 동시에 고치고 있을 수 있습니다. 저장 전에 <b>미리보기</b>로 확인하고, 이상하면 <b>역사</b>에서 이전 버전과 비교해 보세요.</p>
+
+<h3>자주 겪는 문제</h3>
+<table>
+  <tr><th>증상</th><th>원인 / 해결</th><th></th></tr>
+  <tr><td class="c">굵게가 안 먹어요</td><td class="r">별표가 <b>두 개씩</b>인지 확인: <code>**굵게**</code></td><td class="d"></td></tr>
+  <tr><td class="c">줄이 안 나뉘어요</td><td class="r">문단을 나누려면 <b>빈 줄</b>을 넣으세요</td><td class="d"></td></tr>
+  <tr><td class="c">표가 깨져요</td><td class="r">줄마다 <code>|</code>로 시작하고 끝나야 하고, 칸 수가 같아야 합니다</td><td class="d"></td></tr>
+  <tr><td class="c">수식이 이상해요</td><td class="r">달러 기호 <code>$</code>로 <b>앞뒤를 모두</b> 감쌌는지 확인하세요</td><td class="d"></td></tr>
+</table>
+
+<p style="margin-top:40px;color:#999;font-size:12.5px;text-align:center">모르는 게 있으면 <b>커뮤니티</b>나 <b>질문 게시판</b>에 물어보세요.</p>
+
+  <script>
+  window.addEventListener('load',function(){
+    if(window.renderMathInElement) renderMathInElement(document.body,{
+    delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});
+});
+<\/script>
+</body></html>`;
+
+  const w=window.open('','_blank');
+  if(!w){ alert('팝업이 차단되었습니다. 브라우저에서 팝업을 허용해 주세요.'); return; }
+  w.document.write(html); w.document.close();
+}
+
 /* ── 위키 편집기 UI ───────────────────────────────────────── */
 let wkPrevTimer=null, wkDraftTimer=null;
 function wkDraftKey(k){ return 'anda_draft:'+k; }
@@ -1020,28 +1234,33 @@ async function enterWikiEdit(doc, opts){
   const catStr = doc.category ? doc.category.join(', ') : '';
   const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>문서 편집</h1></div>
+    <div class="wk-head">
+      <h1>문서 편집</h1>
+      <div class="wk-keybox">
+        <label for="e-key" title="영문 소문자·숫자·-·_ · 중복 불가 · 변경 시 링크가 바뀝니다">주소 /</label>
+        <input id="e-key" value="${escapeAttr(doc.key||'')}" spellcheck="false">
+      </div>
+    </div>
     <div class="editor">
-      ${opts.converted?'<div class="notice"><b>HTML → 안다 문법 자동 변환 결과입니다.</b> 오른쪽 미리보기로 확인한 뒤 저장하세요. 저장 전까지 원본은 그대로 남아 있습니다.</div>':''}
-      <label>문서 주소 <span class="hint">(영문 소문자·숫자·-·_, 중복 불가)</span></label>
-      <input id="e-key" value="${escapeAttr(doc.key||'')}">
-      <label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}">
-      <label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}">
-      <label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}">
-      <label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}">
-      <label>본문 <span class="hint">— 문법을 몰라도 아래 버튼만으로 작성할 수 있어요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span></label>
+      ${opts.converted?'<div class="notice"><b>HTML → 안다 문법 자동 변환 결과입니다.</b> 미리보기로 확인한 뒤 저장하세요. 저장 전까지 원본은 그대로 남아 있습니다.</div>':''}
+      <div class="wk-row2">
+        <div><label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}"></div>
+        <div><label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}"></div>
+      </div>
+      <div class="wk-row3">
+        <div><label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}"></div>
+        <div><label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}"></div>
+      </div>
+      <label style="display:flex;align-items:center;gap:8px">본문
+        <span class="hint">— 버튼만 눌러도 작성돼요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span>
+        <button type="button" class="wk-tipbtn" id="wkTipBtn">📖 문서 작성 팁</button>
+      </label>
       <div class="wk-toolbar">${WK_TOOLBAR.map((b,i)=>`<button type="button" data-wk="${i}">${escapeHtml(b[0])}</button>`).join('')}</div>
       <div class="wk-tabs"><button type="button" id="wkTabE" class="on">작성</button><button type="button" id="wkTabP">미리보기</button></div>
       <div class="wk-split" id="wkSplit">
         <div id="wkEditCol"><textarea id="e-body" placeholder="여기에 내용을 쓰세요. 빈 줄로 문단을 나눕니다.">${escapeHtml(doc.body||'')}</textarea></div>
         <div id="wkPrevCol"><div class="wk-preview" id="wkPrev"></div></div>
       </div>
-      <details class="adv"><summary>문법 도움말</summary><div class="wk-help">
-        <code>## 제목</code> <code>### 소제목</code> · <code>**굵게**</code> <code>*기울임*</code> <code>~~취소선~~</code><br>
-        <code>- 목록</code> <code>1. 번호목록</code> <code>&gt; 인용</code> <code>---</code> 구분선<br>
-        <code>| 항목 | 값 |</code> 표 · <code>[글자](https://주소)</code> 링크 · <code>[글자](#문서주소)</code> 내부 문서<br>
-        <code>[[용어|설명]]</code> 각주 · <code>$x^2$</code> 수식
-      </div></details>
       <details class="adv"><summary>정보 틀(인포박스) 고급 편집 · JSON</summary>
         <textarea id="e-info" style="min-height:160px">${escapeHtml(infoStr)}</textarea>
       </details>
@@ -1052,6 +1271,7 @@ async function enterWikiEdit(doc, opts){
       </div>
     </div>`;
   document.querySelectorAll('[data-wk]').forEach(b=>{ b.onclick=()=>{ const t=WK_TOOLBAR[+b.dataset.wk]; wkInsert(t[1],t[2],t[3]); }; });
+  $('#wkTipBtn').onclick=openWritingGuide;
   $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
   $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
   const ta=$('#e-body');
@@ -1145,13 +1365,48 @@ async function saveDoc(key){
   if(finalKey!==key){ location.hash='#'+finalKey; }   // 주소 변경 시 URL도 갱신(route→renderDoc)
   else { await renderDoc(finalKey); }                  // 저장 시 트리거가 이전 버전을 자동 백업
 }
-/* 새 문서 만들기: 화면 중앙 모달(주소+제목). 주소 중복 불가(서버 create_document가 최종 검증). admin·owner. */
+/* ================== 새 문서 템플릿 (백지 제거) ==================
+   비용 0원(정적 데이터). AI와 달리 사실을 지어내지 않고 '뼈대'만 제공한다.
+   본문은 안다 문법, 인포박스는 채울 항목만 미리 깔아 둔다. */
+const DOC_TEMPLATES = {
+  free: { icon:'📄', name:'자유 형식', desc:'빈 문서로 시작합니다.', body:'', infobox:null },
+
+  person: { icon:'👤', name:'인물', desc:'회원·선배 등 사람에 대한 문서입니다.',
+    body:'## 개요\n(어떤 사람인지 한두 문장으로 소개해 주세요.)\n\n## 활동\n- \n- \n\n## 여담\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'', rows:[['기수',''],['소속',''],['활동 기간',''],['한마디','']] } },
+
+  event: { icon:'🎪', name:'행사·활동', desc:'대회·MT·세미나 등 행사 기록입니다.',
+    body:'## 개요\n(언제, 어디서, 무엇을 했는지 한두 문장.)\n\n## 진행\n- \n- \n\n## 결과\n- \n\n## 사진\n(편집기의 사진 버튼으로 추가할 수 있어요.)\n',
+    infobox:{ title:'{{TITLE}}', sub:'', rows:[['일시',''],['장소',''],['참가 인원',''],['주최','']] } },
+
+  concept: { icon:'💡', name:'개념·용어', desc:'용어·이론 등 지식 문서입니다.',
+    body:'## 정의\n(한 문장으로 정의해 주세요.)\n\n## 자세한 설명\n(수식이 필요하면 $x^2$ 처럼 쓰면 됩니다.)\n\n## 예시\n- \n\n## 관련 문서\n- [문서 이름](#문서주소)\n',
+    infobox:{ title:'{{TITLE}}', sub:'', rows:[['분야',''],['관련 개념','']] } },
+
+  history: { icon:'📜', name:'동아리 역사', desc:'연혁·회칙 등 동아리 공식 기록입니다.',
+    body:'## 개요\n(이 문서가 다루는 범위를 적어주세요.)\n\n## 연표\n| 시기 | 내용 |\n| 2016 |  |\n|  |  |\n\n## 상세\n### 초기\n\n### 이후\n',
+    infobox:{ title:'{{TITLE}}', sub:'', rows:[['시작',''],['현재',''],['비고','']] } },
+
+  guide: { icon:'📘', name:'안내·규정', desc:'사용법·규칙 등 안내 문서입니다.',
+    body:'## 요약\n> (가장 중요한 내용을 한 줄로.)\n\n## 내용\n1. \n2. \n\n## 주의사항\n- \n',
+    infobox:null }
+};
+
+/* 새 문서 만들기: 템플릿 선택 → 주소·제목 → 생성 후 뼈대 주입 */
 function openNewDocModal(){
   if(!canEdit()) return;
+  let pick='free';
   const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box">
+  ov.innerHTML=`<div class="modal-box" style="max-width:480px">
     <div class="modal-msg">새 문서 만들기</div>
-    <div class="modal-sub">문서 주소는 영문 소문자·숫자·-·_ 만 쓸 수 있고, 다른 문서와 중복될 수 없어요.</div>
+    <div class="modal-sub">어떤 문서인가요? 고르면 <b>기본 뼈대가 자동으로 채워집니다</b>.</div>
+    <div class="tpl-grid" id="ndTpl">
+      ${Object.entries(DOC_TEMPLATES).map(([k,t])=>`
+        <div class="tpl-card ${k==='free'?'on':''}" data-tpl="${k}">
+          <span class="tpl-ic">${t.icon}</span><span class="tpl-nm">${escapeHtml(t.name)}</span>
+        </div>`).join('')}
+    </div>
+    <div class="tpl-desc" id="ndDesc">${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
     <label class="nd-label">문서 주소</label>
     <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off">
     <label class="nd-label">문서 제목</label>
@@ -1161,10 +1416,19 @@ function openNewDocModal(){
   </div>`;
   document.body.appendChild(ov);
   const close=()=>ov.remove();
-  const key=ov.querySelector('#ndKey'), title=ov.querySelector('#ndTitle'), msg=ov.querySelector('#ndMsg'), okb=ov.querySelector('.modal-ok');
+  const key=ov.querySelector('#ndKey'), title=ov.querySelector('#ndTitle'),
+        msg=ov.querySelector('#ndMsg'), okb=ov.querySelector('.modal-ok'), desc=ov.querySelector('#ndDesc');
   key.focus();
   ov.querySelector('.modal-cancel').onclick=close;
   ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  ov.querySelectorAll('.tpl-card').forEach(c=>{
+    c.onclick=()=>{
+      pick=c.dataset.tpl;
+      ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x===c));
+      desc.textContent=DOC_TEMPLATES[pick].desc;
+    };
+  });
+
   const doCreate=async()=>{
     const k=key.value.trim().toLowerCase(), t=title.value.trim();
     msg.className='he-msg';
@@ -1172,10 +1436,22 @@ function openNewDocModal(){
     if(!t){ msg.className='he-msg err'; msg.textContent='문서 제목을 입력하세요.'; return; }
     okb.disabled=true; okb.textContent='만드는 중…';
     try{
-      const { data:ex } = await sb.from('documents').select('key').eq('key', k).maybeSingle();   // 빠른 중복 확인
+      const { data:ex } = await sb.from('documents').select('key').eq('key', k).maybeSingle();
       if(ex){ throw { message:'address already exists' }; }
       const { error } = await sb.rpc('create_document', { p_key:k, p_title:t });
       if(error) throw error;
+
+      // 템플릿 뼈대 주입 (create_document 는 빈 문서만 만들므로 생성 직후 채운다)
+      const tpl=DOC_TEMPLATES[pick];
+      if(tpl && (tpl.body || tpl.infobox)){
+        const info = tpl.infobox
+          ? { title:(tpl.infobox.title||'').replace('{{TITLE}}', t), sub:tpl.infobox.sub||'',
+              rows: tpl.infobox.rows.map(r=>[r[0], r[1]]) }
+          : null;
+        const { error:uerr } = await sb.from('documents')
+          .update({ body: tpl.body || '', infobox: info, format:'wiki' }).eq('key', k);
+        if(uerr) throw uerr;   // 문서는 이미 생성됨 — 실패해도 빈 문서로 열림
+      }
       close(); await loadDocs(); location.hash='#'+k;
     }catch(e){
       const dup=/exist|taken|duplicate|unique|중복|이미/i.test(e.message||'');
