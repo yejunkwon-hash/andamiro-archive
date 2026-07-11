@@ -53,6 +53,9 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .seg-opt.on{background:var(--accent);color:#fff;}
 .seg-opt:not(.on):not(:disabled):hover{background:var(--box-bg);color:var(--text);}
 .seg-locked .seg-opt{cursor:not-allowed;opacity:.8;}
+/* 등급별 고유색 — 선택된 칸이 그 등급의 색으로 채워진다 */
+.seg-opt.on{background:var(--rc,var(--accent)) !important;color:#fff !important;border-color:var(--rc,var(--accent));}
+.seg-opt:not(.on):hover{background:color-mix(in srgb, var(--rc,#888) 14%, transparent);color:var(--rc,var(--text));}
 .seg-me{font-size:11px;color:var(--text-dim);margin-left:6px;vertical-align:middle;}
 .club-sel{max-width:140px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text);font-size:12.5px;font-family:inherit;cursor:pointer;}
 .club-sel:hover{border-color:var(--accent);}
@@ -167,12 +170,23 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .ce-list{max-height:300px;overflow:auto;border:1px solid var(--border);border-radius:8px;margin-top:6px;}
 .ce-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
 .track-chip,.tk-chip{display:inline-block;font-size:12px;font-weight:800;color:#fff;background:var(--tc,#8a9099);border-radius:99px;padding:2px 10px;}
-.tk-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-bottom:1px solid var(--border);}
-.tk-row .tk-color{width:34px;height:26px;padding:0;border:1px solid var(--border-strong);border-radius:6px;background:none;cursor:pointer;flex:none;}
-.tk-row .tk-cnt{margin-left:auto;font-size:12px;color:var(--text-dim);}
-.tk-row .ce-btns{margin-left:8px;}
-.tk-add{display:flex;gap:6px;align-items:center;}
-.tk-add input[type=color]{width:38px;height:32px;padding:0;border:1px solid var(--border-strong);border-radius:6px;background:none;cursor:pointer;flex:none;}
+.tk-row{border-bottom:1px solid var(--border);}
+.tk-row:last-child{border-bottom:none;}
+.tk-row.editing{background:var(--box-bg);}
+.tk-view,.tk-edit-box,.tk-confirm{display:flex;align-items:center;gap:9px;padding:9px 12px;}
+.tk-view[hidden],.tk-edit-box[hidden],.tk-confirm[hidden]{display:none;}
+.tk-swatch{width:14px;height:14px;border-radius:4px;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
+.tk-cnt{margin-left:auto;font-size:12px;color:var(--text-dim);}
+.tk-acts{display:inline-flex;gap:5px;margin-left:8px;}
+.tk-color{width:32px;height:32px;padding:0;border:1px solid var(--border-strong);border-radius:8px;background:none;cursor:pointer;flex:none;}
+.tk-name{flex:1;min-width:0;padding:7px 10px;border:1px solid var(--border-strong);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;}
+.tk-name:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
+.tk-cf-txt{font-size:13px;color:var(--text);}
+.tk-confirm{background:color-mix(in srgb, var(--link-red) 8%, transparent);}
+.tk-add{display:flex;gap:7px;align-items:center;margin-bottom:8px;}
+.tk-add input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--border-strong);border-radius:9px;background:none;cursor:pointer;flex:none;}
+.tk-add #tkNew{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border-strong);border-radius:9px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;}
+.tk-add #tkNew:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
 .ce-row:last-child{border-bottom:none;}
 .ce-name{font-weight:600;color:var(--text);}
 .ce-btns{margin-left:auto;display:flex;gap:6px;}
@@ -295,7 +309,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
   .q-panel{width:100%;position:static;max-height:none;order:-1;}
   .q-list{max-height:210px;}
 }
-.chat{flex:1;min-width:0;display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
+.chat{flex:1;min-width:0;display:flex;flex-direction:column;height:calc((100vh - 180px) * 1.2);min-height:504px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
 .chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .chat-size{display:inline-flex;gap:5px;}
 .csz-btn{width:22px;height:22px;border:1px solid rgba(255,255,255,.5);background:rgba(255,255,255,.16);color:#fff;border-radius:5px;cursor:pointer;font-weight:800;font-size:14px;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;}
@@ -510,6 +524,32 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .abtn.danger{color:var(--link-red);border-color:var(--border-strong);}
 .abtn.danger:hover{background:var(--link-red);border-color:var(--link-red);color:#fff;}
 .abtn-group{display:inline-flex;gap:6px;}
+/* 아이콘 전용 소형 버튼 (표 안의 편집·삭제 등) */
+.ibtn{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;flex:none;
+  background:var(--card);border:1px solid var(--border);border-radius:8px;color:var(--text-dim);cursor:pointer;padding:0;
+  transition:background .12s,border-color .12s,color .12s,transform .1s;}
+.ibtn:hover{border-color:var(--accent);color:var(--accent);background:var(--box-bg);transform:translateY(-1px);}
+.ibtn.danger:hover{border-color:var(--link-red);background:var(--link-red);color:#fff;}
+.ibtn.ok:hover{border-color:#2e9e5b;background:#2e9e5b;color:#fff;}
+.ibtn .ic16{width:15px;height:15px;}
+
+/* ===== 통일 셀렉트 =====
+   기본 <select>의 OS 화살표를 없애고 직접 그린다. 소속·계열 선택 전부 여기에 맞춘다. */
+.usel{position:relative;display:inline-flex;align-items:center;}
+.usel select{appearance:none;-webkit-appearance:none;
+  background:var(--card);color:var(--text);border:1px solid var(--border-strong);border-radius:9px;
+  padding:8px 32px 8px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;width:100%;
+  transition:border-color .12s, box-shadow .12s;}
+.usel select:hover{border-color:var(--accent);}
+.usel select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
+.usel select:disabled{opacity:.55;cursor:default;}
+.usel::after{content:'';position:absolute;right:12px;top:50%;width:7px;height:7px;pointer-events:none;
+  border-right:2px solid var(--text-dim);border-bottom:2px solid var(--text-dim);
+  transform:translateY(-70%) rotate(45deg);border-radius:1px;}
+.usel.ok select{border-color:#2e9e5b;box-shadow:0 0 0 3px rgba(46,158,91,.16);}
+.usel.sm select{padding:5px 26px 5px 9px;font-size:12.5px;border-radius:7px;}
+.usel.sm::after{right:9px;width:6px;height:6px;}
+.usel.block{display:flex;width:100%;}
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
 /* ===== 피드백 ===== */
@@ -572,9 +612,12 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .perm-table tr:last-child td{border-bottom:none;}
 .perm-sec td{background:var(--box-bg);font-weight:800;color:var(--accent);font-size:12px;}
 .pseg{display:inline-flex;border:1px solid var(--border-strong);border-radius:99px;overflow:hidden;}
-.pseg button{border:none;background:var(--card);color:var(--text-dim);font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;}
-.pseg button.on{background:var(--accent);color:#fff;}
-.pseg button.off.on{background:var(--border-strong);color:#fff;}
+.pseg button{border:none;background:var(--card);color:var(--text-dim);font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;transition:background .12s,color .12s;}
+.pseg button:hover{background:var(--box-bg);}
+.pseg button.allow.on{background:#2e9e5b;color:#fff;}     /* 허용 = 초록 */
+.pseg button.off.on{background:var(--link-red);color:#fff;} /* 차단 = 빨강 */
+/* 권한표 등급 열 머리글도 등급색으로 */
+.perm-table th.pr-h{color:var(--rc,var(--text-dim));font-weight:900;}
 /* teacher 전용 세그먼트 */
 /* teacher 등급: 어떤 테마색과도 어울리는 앰버(금색) */
 .seg.seg-teacher{border-color:var(--teacher);}
@@ -729,7 +772,12 @@ body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
 .ip-reply{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);}
 .ip-reply textarea{flex:1;resize:none;min-height:38px;max-height:120px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
 .ip-empty{margin:auto;color:var(--text-dim);font-size:13.5px;padding:30px;text-align:center;}
-.dm-btn{border:1px solid var(--border-strong);background:var(--card);color:var(--text);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.dm-btn{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--border-strong);background:var(--card);color:var(--text);
+  border-radius:99px;padding:4px 12px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;text-decoration:none;
+  transition:background .12s,border-color .12s,color .12s,transform .1s,box-shadow .12s;}
+.dm-btn:hover{background:var(--accent);border-color:var(--accent);color:#fff;text-decoration:none;
+  transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.12);}
+.dm-btn .ic16{width:13px;height:13px;}
 .dm-btn:hover{background:var(--box-bg);border-color:var(--accent);color:var(--accent);}
 .dir-metarow .dm-btn{margin-left:6px;}
 @media(max-width:820px){ .inbox-wrap{grid-template-columns:1fr;} }
@@ -762,6 +810,13 @@ body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
 .handle-cell{display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .handle-edit{flex:none;display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border:1px solid var(--border);border-radius:7px;background:var(--card);color:var(--text-dim);cursor:pointer;padding:0;transition:border-color .15s,color .15s,background .15s;}
 .handle-edit:hover{border-color:var(--accent);color:var(--accent);background:var(--box-bg);}
+/* 표 안 인라인 편집 */
+.inl-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.inl-in{flex:1;min-width:120px;}
+input.inl-in{padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);}
+input.inl-in:focus{outline:none;}
+.inl-msg{flex:1 1 100%;font-size:11.5px;color:var(--link-red);}
 .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
 .modal-btns button{border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;}
 .modal-cancel{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
@@ -1073,6 +1128,14 @@ body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
 .doc-views{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-dim);margin-right:6px;white-space:nowrap;}
 .eye-ic{flex:none;}
 @media(max-width:640px){ .docs-grid{grid-template-columns:1fr;} }
+/* 폰: 제목이 정렬 버튼에 밀려 두 줄로 접히던 문제 — 제목을 한 줄 전용으로 두고 버튼은 아래 줄로 */
+@media(max-width:768px){
+  .docs-head{flex-wrap:wrap;gap:8px;}
+  .docs-head h1{flex:1 1 100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0;font-size:22px;}
+  .docs-sort{flex:1 1 100%;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+  .docs-sort button{flex:none;}
+  .docs-head .btn.primary{width:100%;justify-content:center;}
+}
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
@@ -1176,7 +1239,7 @@ footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--te
 .login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
 .login-card label{display:block;font-size:12.5px;color:var(--text-dim);margin:12px 0 4px;font-weight:700;}
 .login-card input{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 11px;font-size:14px;background:var(--card);color:var(--text);}
-.login-card select{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 8px;font-size:14px;background:var(--card);color:var(--text);}
+.login-card .usel{width:100%;margin-top:2px;}
 .pin-input{text-align:center;letter-spacing:.55em;font-size:22px !important;font-weight:800;height:52px !important;font-family:ui-monospace,Consolas,monospace;padding-left:.55em !important;}
 .pin-timer{font-size:12px;color:var(--text-dim);text-align:center;margin:8px 0 10px;}
 .pin-timer.expired{color:var(--link-red);font-weight:700;}
@@ -1298,7 +1361,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
     <input id="su-handle" type="text" placeholder="gildong">
     <label>소속 <span style="color:var(--text-dim);font-weight:400">(동아리 목록에서 선택)</span></label>
-    <select id="su-club"><option value="무소속">무소속</option></select>
+    <span class="usel block"><select id="su-club"><option value="무소속">무소속</option></select></span>
     <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">신청하기</button>
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
@@ -1855,6 +1918,16 @@ function guardPage(cap){
   return false;
 }
 let _lastGoodHash = '#//main';
+let _prevHash = '';                  // 직전 화면 (시스템에서 왔는지 판단용)
+/* 시스템 버튼 — 시스템 탭에서 왔으면 ← 화살표, 아니면 심장박동(i-check) 아이콘 */
+function sysBtnHTML(){
+  if(!can('system_access')) return '';
+  const fromSys = String(_prevHash||'').indexOf('#//system') === 0;
+  return `<button id="sysGoBtn" title="시스템">${fromSys ? ic('back') : ic('check')}시스템</button>`;
+}
+function bindSysBtn(){
+  const b=$('#sysGoBtn'); if(b) b.onclick=()=>{ location.hash='#//system'; };
+}
 
 function canEdit(){ return can('doc_edit'); }
 function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // 서열(메시지 삭제 등) — 권한 매트릭스와 별개
@@ -3861,14 +3934,15 @@ function avaCellHTML(name, handle, url){
   const av=avatarFor(name, handle);
   return `<div class="ava-cell" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
 }
+function segStyle(r){ return `--rc:${ROLE_COLOR[r]||'var(--text-dim)'}`; }
 function memberSeg(m){
   const base=['viewer','editor','admin'];
   // teacher는 관리 계층이 아니라 별도 트랙 → 일반 세그먼트에 뜨지 않고, 그 회원에게만 단독 표시
   if(m.role==='teacher'){
     return `<div class="seg seg-locked seg-teacher" title="teacher는 별도 등급입니다 (등급 조정은 DB에서)">`
-         + `<button class="seg-opt on" disabled>teacher</button></div>`;
+         + `<button class="seg-opt on" style="${segStyle('teacher')}" disabled>teacher</button></div>`;
   }
-  const btn=(r,cls,extra)=>`<button class="seg-opt${cls}${r==='owner'?' seg-owner':''}${m.role===r?' on':''}"${extra}>${r}</button>`;
+  const btn=(r,cls,extra)=>`<button class="seg-opt${cls}${r==='owner'?' seg-owner':''}${m.role===r?' on':''}" style="${segStyle(r)}"${extra}>${r}</button>`;
   if(m.id===state.user.id){
     const btns=[...base,'owner'].map(r=>btn(r,'',' disabled')).join('');
     return `<div class="seg seg-locked" title="본인 등급은 바꿀 수 없어요">${btns}</div> <span class="seg-me">(나)</span>`;
@@ -3889,7 +3963,7 @@ function clubCell(id, cur, names){
   if(!isOwner()) return escapeHtml(cur);
   const opts = names.includes(cur) ? names : [...names, cur];   // '목록 외' 값도 선택 유지
   const o = opts.map(n=>`<option value="${escapeAttr(n)}"${n===cur?' selected':''}>${escapeHtml(n)}</option>`).join('');
-  return `<select class="club-sel" data-id="${escapeAttr(id)}" data-prev="${escapeAttr(cur)}">${o}</select>`;
+  return `<span class="usel sm club-selw"><select class="club-sel" data-id="${escapeAttr(id)}" data-prev="${escapeAttr(cur)}">${o}</select></span>`;
 }
 async function setMemberClub(id, club, sel){
   if(!requirePerm('admin_club')) return;
@@ -3899,7 +3973,7 @@ async function setMemberClub(id, club, sel){
     const { error } = await sb.rpc('set_member_club', { p_target:id, p_club:club });
     if(error) throw error;
     sel.setAttribute('data-prev', club);
-    sel.classList.add('ok'); setTimeout(()=>sel.classList.remove('ok'), 1200);
+    const w=sel.closest('.usel')||sel; w.classList.add('ok'); setTimeout(()=>w.classList.remove('ok'), 1200);
   }catch(e){
     sel.value=prev;
     alert('소속 변경 실패: owner 권한과 동아리 목록을 확인하세요. (20_member_club.sql 실행 여부도 확인)');
@@ -3977,7 +4051,7 @@ async function renderAdmin(){
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs">${can('signup_review')?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button>`:''}${can('system_access')?`<button id="healthBtn">${ic('check')}시스템</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
+      <div class="tabs">${can('signup_review')?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button>`:''}${sysBtnHTML()}</div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
@@ -3990,9 +4064,8 @@ async function renderAdmin(){
     <div id="clubSection" class="club-sec"></div>
     ${can('track_edit')?'<div id="trackSection" class="club-sec"></div>':''}`;
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
-  $('#backBtn2').onclick=()=>{ location.hash='#//home'; };
+  bindSysBtn();
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
-  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#//system'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
@@ -4009,175 +4082,138 @@ async function renderAdmin(){
   window.scrollTo(0,0);
 }
 
-/* ---- 계열 관리 (owner 전용) : 이름 변경 · 추가 · 삭제 · 색 지정 ---- */
+/* ---- 계열 관리 (track_edit) : 인라인 편집 ----
+   팝업(모달·confirm)을 쓰지 않는다. 행 안에서 바로 고치고, 삭제도 그 자리에서 한 번 더 확인한다.
+   ★한 번에 한 행만 편집 모드 — 다른 행을 열면 앞의 편집은 자동 취소된다. */
+let tkEditing = null;                       // 편집 중인 계열 id (동시 1개)
 async function renderTrackSection(){
   const box=$('#trackSection'); if(!box || !can('track_edit')) return;
   await loadTracks();
   let profs=[];
   try{ const { data } = await sb.from('profiles').select('id,track'); profs=data||[]; }catch(e){}
   const cnt={}; profs.forEach(p=>{ if(p.track) cnt[p.track]=(cnt[p.track]||0)+1; });
-  const rows=(state.tracks||[]).map(t=>`
-    <div class="tk-row" data-id="${t.id}" data-name="${escapeAttr(t.name)}">
-      <input type="color" class="tk-color" value="${escapeAttr(t.color)}" title="색 지정 (owner)">
-      <span class="tk-chip" style="--tc:${escapeAttr(t.color)}">${escapeHtml(t.name)}</span>
-      <span class="tk-cnt">${cnt[t.name]||0}명</span>
-      <span class="ce-btns"><button class="tk-rename">이름변경</button><button class="tk-del">삭제</button></span>
-    </div>`).join('');
+
+  const rowHTML=(t)=>`
+    <div class="tk-row" data-id="${t.id}" data-name="${escapeAttr(t.name)}" data-color="${escapeAttr(t.color)}">
+      <span class="tk-view">
+        <span class="tk-swatch" style="background:${escapeAttr(t.color)}"></span>
+        <span class="tk-chip" style="--tc:${escapeAttr(t.color)}">${escapeHtml(t.name)}</span>
+        <span class="tk-cnt">${cnt[t.name]||0}명</span>
+        <span class="tk-acts">
+          <button class="ibtn tk-edit" title="수정">${ic('edit')}</button>
+          <button class="ibtn danger tk-del" title="삭제">${ic('trash')}</button>
+        </span>
+      </span>
+      <span class="tk-edit-box" hidden>
+        <input type="color" class="tk-color" value="${escapeAttr(t.color)}" title="색">
+        <input class="tk-name" type="text" value="${escapeAttr(t.name)}" maxlength="20" autocomplete="off">
+        <span class="tk-acts">
+          <button class="ibtn ok tk-save" title="저장">${ic('check')}</button>
+          <button class="ibtn tk-cancel" title="취소">✕</button>
+        </span>
+      </span>
+      <span class="tk-confirm" hidden>
+        <span class="tk-cf-txt"><b>${escapeHtml(t.name)}</b> 삭제할까요? <span class="muted">이 계열이던 회원은 '없음'이 됩니다.</span></span>
+        <span class="tk-acts">
+          <button class="abtn danger tk-del-yes">삭제</button>
+          <button class="abtn tk-del-no">취소</button>
+        </span>
+      </span>
+    </div>`;
+
   box.innerHTML=`
-    <div class="club-sec-head"><h2>계열 관리 <span class="muted" style="font-size:12px;font-weight:400">owner 전용</span></h2></div>
-    <div class="ce-add tk-add"><input id="tkNew" type="text" placeholder="새 계열 이름 (예: 수학)" maxlength="20" autocomplete="off">
-      <input id="tkNewColor" type="color" value="#8a9099" title="색"><button id="tkAdd">추가</button></div>
+    <div class="club-sec-head"><h2>계열 관리 <span class="muted" style="font-size:12px;font-weight:400">한 번에 한 개씩 수정</span></h2></div>
+    <div class="tk-add">
+      <input type="color" id="tkNewColor" value="#8a9099" title="색">
+      <input id="tkNew" type="text" placeholder="새 계열 이름 (예: 수학)" maxlength="20" autocomplete="off">
+      <button class="abtn primary" id="tkAdd">${ic('plus')}추가</button>
+    </div>
     <div class="ce-msg" id="tkSecMsg"></div>
-    <div class="ce-list">${rows||'<div class="club-empty" style="padding:10px">계열이 없습니다.</div>'}</div>
-    <div class="doc-meta">계열은 회원이 [계정 정보]에서 직접 고릅니다. 색은 회원 프로필·목록의 계열 표시에 쓰여요. 계열을 삭제하면 그 계열이던 회원은 '없음'이 됩니다.</div>`;
-  const setMsg=(t,ok)=>{ const m=$('#tkSecMsg'); if(!m) return; m.textContent=t||''; m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
-  const reload=()=>renderTrackSection();
+    <div class="ce-list">${(state.tracks||[]).map(rowHTML).join('') || '<div class="club-empty" style="padding:10px">계열이 없습니다.</div>'}</div>
+    <div class="doc-meta">계열은 회원이 [계정 정보]에서 직접 고릅니다. 색은 회원 프로필·목록의 계열 표시에 쓰여요.</div>`;
+
+  const setMsg=(t,ok)=>{ const m=$('#tkSecMsg'); if(!m) return;
+    m.innerHTML = ok ? (icOk()+' '+escapeHtml(t||'')) : escapeHtml(t||'');
+    m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
+  const reload=()=>{ tkEditing=null; renderTrackSection(); };
+
+  const closeAll=()=>{                       // 다른 행의 편집·확인 상태를 모두 접는다
+    box.querySelectorAll('.tk-row').forEach(r=>{
+      r.classList.remove('editing');
+      r.querySelector('.tk-view').hidden=false;
+      r.querySelector('.tk-edit-box').hidden=true;
+      r.querySelector('.tk-confirm').hidden=true;
+    });
+    tkEditing=null;
+  };
 
   $('#tkAdd').onclick=async()=>{
-    const name=($('#tkNew').value||'').trim(); if(!name){ setMsg('계열 이름을 입력하세요.'); return; }
+    const name=($('#tkNew').value||'').trim();
+    if(!name){ setMsg('계열 이름을 입력하세요.'); return; }
     const { error }=await sb.rpc('add_track',{ p_name:name, p_color:$('#tkNewColor').value });
-    if(error){ setMsg(error.message||'추가 실패'); return; }
+    if(error){ if(!handleErr(error,'track_edit')) setMsg(error.message||'추가 실패'); return; }
     reload();
   };
   $('#tkNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#tkAdd').click(); } });
 
-  box.querySelectorAll('.tk-color').forEach(inp=>{
-    inp.onchange=async()=>{
-      const row=inp.closest('.tk-row');
-      const { error }=await sb.rpc('set_track_color',{ p_id:Number(row.dataset.id), p_color:inp.value });
-      if(error){ setMsg(error.message||'색 변경 실패'); return; }
-      setMsg('색을 저장했어요.', true); reload();
+  box.querySelectorAll('.tk-row').forEach(row=>{
+    const id=Number(row.dataset.id);
+    const view=row.querySelector('.tk-view'), edit=row.querySelector('.tk-edit-box'), conf=row.querySelector('.tk-confirm');
+
+    row.querySelector('.tk-edit').onclick=()=>{
+      closeAll();                            // ★동시 1개만
+      tkEditing=id;
+      row.classList.add('editing');
+      view.hidden=true; edit.hidden=false;
+      const nm=row.querySelector('.tk-name'); nm.focus(); nm.select();
     };
-  });
-  box.querySelectorAll('.tk-del').forEach(b=>b.onclick=async()=>{
-    const row=b.closest('.tk-row'); const id=row.dataset.id, name=row.dataset.name;
-    const ok=await confirmModal('"'+name+'" 계열을 삭제할까요?','이 계열이던 회원의 계열은 \'없음\'이 됩니다.');
-    if(!ok) return;
-    showBlockingLoader('삭제하는 중…');
-    const { error }=await sb.rpc('delete_track',{ p_id:Number(id) });
-    hideBlockingLoader();
-    if(error){ setMsg(error.message||'삭제 실패'); return; }
-    reload();
-  });
-  box.querySelectorAll('.tk-rename').forEach(b=>b.onclick=()=>{
-    const row=b.closest('.tk-row'); const id=row.dataset.id, name=row.dataset.name;
-    row.innerHTML=`<input class="ce-edit" type="text" value="${escapeAttr(name)}" maxlength="20" autocomplete="off"><span class="ce-btns"><button class="tk-save">저장</button><button class="tk-cancel">취소</button></span>`;
-    const inp=row.querySelector('.ce-edit'); inp.focus();
-    row.querySelector('.tk-cancel').onclick=reload;
+    row.querySelector('.tk-cancel').onclick=()=>{ closeAll(); setMsg(''); };
     const doSave=async()=>{
-      const nn=(inp.value||'').trim(); if(!nn){ setMsg('이름을 입력하세요.'); return; }
-      showBlockingLoader('이름을 변경하는 중…');
-      const { error }=await sb.rpc('rename_track',{ p_id:Number(id), p_new:nn });
-      hideBlockingLoader();
-      if(error){ setMsg(error.message||'변경 실패'); return; }
-      reload();
+      const nn=(row.querySelector('.tk-name').value||'').trim();
+      const cc=row.querySelector('.tk-color').value;
+      if(!nn){ setMsg('이름을 입력하세요.'); return; }
+      const btn=row.querySelector('.tk-save'); btn.disabled=true;
+      try{
+        if(nn !== row.dataset.name){
+          const { error }=await sb.rpc('rename_track',{ p_id:id, p_new:nn });
+          if(error) throw error;
+        }
+        if(cc.toLowerCase() !== String(row.dataset.color).toLowerCase()){
+          const { error }=await sb.rpc('set_track_color',{ p_id:id, p_color:cc });
+          if(error) throw error;
+        }
+        await loadTracks();
+        reload();
+        setMsg('저장했어요.', true);
+      }catch(e){
+        btn.disabled=false;
+        if(!handleErr(e,'track_edit')) setMsg((e&&e.message)||'저장 실패');
+      }
     };
     row.querySelector('.tk-save').onclick=doSave;
-    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doSave(); } });
-  });
-}
+    row.querySelector('.tk-name').addEventListener('keydown',e=>{
+      if(e.key==='Enter'){ e.preventDefault(); doSave(); }
+      if(e.key==='Escape'){ closeAll(); }
+    });
 
-/* ---- 동아리 목록 (admin) : 펼치면 소속 회원 프로필 링크 · 무소속 맨 아래 ---- */
-async function renderClubSection(){
-  const box=$('#clubSection'); if(!box) return;
-  let clubs=[], profs=[];
-  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
-  try{ const { data } = await sb.from('profiles').select('id,member_no,name,handle,club,avatar_url'); profs=data||[]; }catch(e){}
-  const byClub={}; profs.forEach(p=>{ const c=p.club||'무소속'; (byClub[c]=byClub[c]||[]).push(p); });
-  const tableByName={}; clubs.forEach(c=>{ tableByName[c.name]=c; });
-  const allNames=new Set([...clubs.map(c=>c.name), ...profs.map(p=>p.club||'무소속')]);
-  const names=[...allNames].filter(n=>n!=='무소속').sort((a,b)=>String(a).localeCompare(String(b),'ko'));
-  names.push('무소속');
-  const items=names.map(n=>{
-    const t=tableByName[n]; const inTable=!!t;
-    const mem=(byClub[n]||[]).slice().sort((a,b)=>(a.member_no||1e9)-(b.member_no||1e9));
-    const memHtml = mem.length ? mem.map(m=>{
-      const av=avatarFor(m.name,m.handle);
-      const ava = m.avatar_url
-        ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
-        : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
-      return `<a class="club-mem" href="#//member/${m.id}">${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
-    }).join('') : '<div class="club-empty">소속 회원이 없습니다.</div>';
-    return `<div class="club-item">
-      <div class="club-row">
-        <span class="club-caret">▸</span>
-        <span class="club-name">${escapeHtml(n)}</span>${(!inTable && n!=='무소속')?'<span class="club-tag">목록 외</span>':''}
-        <span class="club-count">${mem.length}명</span>
-      </div>
-      <div class="club-members" style="display:none">${memHtml}</div>
-    </div>`;
-  }).join('');
-  box.innerHTML=`
-    <div class="club-sec-head"><h2>동아리 목록</h2><button class="btn ghost" id="clubEditBtn">동아리 목록 수정</button></div>
-    <div class="club-list">${items}</div>
-    <div class="doc-meta">동아리명을 눌러 소속 회원을 펼쳐볼 수 있어요. '목록 외'는 회원이 가입 때 직접 적었지만 목록에 아직 없는 이름이에요 — 수정에서 추가하면 관리됩니다.</div>`;
-  box.querySelectorAll('.club-row').forEach(r=>r.onclick=()=>{
-    const m=r.parentElement.querySelector('.club-members'); const open=m.style.display!=='none';
-    m.style.display=open?'none':'block'; r.querySelector('.club-caret').textContent=open?'▸':'▾';
-  });
-  $('#clubEditBtn').onclick=openClubEditor;
-}
-
-/* 동아리 목록 수정 모달 (추가 / 이름변경 / 삭제) */
-async function openClubEditor(){
-  if(!requirePerm('club_edit')) return;
-  let clubs=[];
-  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
-  clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
-  const rows=clubs.map(c=>c.is_none
-    ? `<div class="ce-row"><span class="ce-name">${escapeHtml(c.name)}</span><span class="ce-lock">고정</span></div>`
-    : `<div class="ce-row" data-id="${c.id}" data-name="${escapeAttr(c.name)}">
-         <span class="ce-name">${escapeHtml(c.name)}</span>
-         <span class="ce-btns"><button class="ce-rename">이름변경</button><button class="ce-del">삭제</button></span>
-       </div>`).join('');
-  const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box ce-box">
-    <div class="modal-msg">동아리 목록 수정</div>
-    <div class="ce-add"><input id="ceNew" type="text" placeholder="새 동아리 이름" maxlength="40" autocomplete="off"><button id="ceAdd">추가</button></div>
-    <div class="ce-msg" id="ceMsg"></div>
-    <div class="ce-list">${rows||'<div class="club-empty" style="padding:10px">동아리가 없습니다.</div>'}</div>
-    <div class="modal-btns"><button class="modal-cancel" id="ceClose">닫기</button></div>
-  </div>`;
-  document.body.appendChild(ov);
-  const reopen=()=>{ ov.remove(); openClubEditor(); };
-  const close=()=>{ ov.remove(); renderClubSection(); };
-  const setMsg=(t,ok)=>{ const m=$('#ceMsg'); if(!m)return; m.textContent=t||''; m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
-  $('#ceClose').onclick=close;
-  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
-  $('#ceAdd').onclick=async()=>{
-    const name=($('#ceNew').value||'').trim(); if(!name){ setMsg('이름을 입력하세요.'); return; }
-    const { error }=await sb.rpc('add_club',{ p_name:name });
-    if(error){ setMsg(error.message||'추가 실패'); return; }
-    reopen();
-  };
-  $('#ceNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#ceAdd').click(); } });
-  ov.querySelectorAll('.ce-del').forEach(b=>b.onclick=async()=>{
-    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
-    const ok=await confirmModal('"'+name+'" 동아리를 삭제할까요?','소속 회원은 모두 무소속으로 이동합니다.');
-    if(!ok) return;
-    showBlockingLoader('삭제하는 중…');
-    const { error }=await sb.rpc('delete_club',{ p_id:Number(id) });
-    hideBlockingLoader();
-    if(error){ setMsg(error.message||'삭제 실패'); return; }
-    reopen();
-  });
-  ov.querySelectorAll('.ce-rename').forEach(b=>b.onclick=()=>{
-    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
-    row.innerHTML=`<input class="ce-edit" type="text" value="${escapeAttr(name)}" maxlength="40" autocomplete="off"><span class="ce-btns"><button class="ce-save">저장</button><button class="ce-cancel">취소</button></span>`;
-    const inp=row.querySelector('.ce-edit'); inp.focus();
-    row.querySelector('.ce-cancel').onclick=reopen;
-    const doSave=async()=>{
-      const nn=(inp.value||'').trim(); if(!nn){ setMsg('이름을 입력하세요.'); return; }
-      showBlockingLoader('이름을 변경하는 중…');
-      const { error }=await sb.rpc('rename_club',{ p_id:Number(id), p_new:nn });
-      hideBlockingLoader();
-      if(error){ setMsg(error.message||'변경 실패'); return; }
-      reopen();
+    // 삭제: 팝업 대신 그 행에서 인라인 확인
+    row.querySelector('.tk-del').onclick=()=>{
+      closeAll();
+      view.hidden=true; conf.hidden=false;
+      row.classList.add('editing');
     };
-    row.querySelector('.ce-save').onclick=doSave;
-    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doSave(); } });
+    row.querySelector('.tk-del-no').onclick=()=>{ closeAll(); };
+    row.querySelector('.tk-del-yes').onclick=async()=>{
+      const btn=row.querySelector('.tk-del-yes'); btn.disabled=true; btn.textContent='삭제 중…';
+      const { error }=await sb.rpc('delete_track',{ p_id:id });
+      if(error){ btn.disabled=false; btn.textContent='삭제';
+        if(!handleErr(error,'track_edit')) setMsg(error.message||'삭제 실패'); return; }
+      await loadTracks();
+      reload(); setMsg('삭제했어요.', true);
+    };
   });
 }
+
 async function setRole(id, role){
   if(!requirePerm('admin_role')) return;
   const note=$('#doc').querySelector('.ck[data-for="'+id+'"]');
@@ -4215,11 +4251,12 @@ async function renderRequests(){
     </div>`).join('') || '<p>대기 중인 가입 신청이 없습니다.</p>';
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>가입 신청</h1>
-      <div class="tabs"><button id="backAdmin">${ic('users')}회원 관리</button></div></div>
+      <div class="tabs"><button id="backAdmin">${ic('users')}회원 관리</button>${sysBtnHTML()}</div></div>
     <div class="doc-meta">대기 중 ${data?data.length:0}건</div>
     <div class="notice">승인은 <b>2단계</b>예요: ① 여기서 [승인] → ② Supabase 대시보드 <b>Authentication → Invite user</b>로 그 이메일 초대. 초대받은 사람이 비밀번호를 설정해 로그인하면 기수·이름·활동명이 자동으로 채워집니다.</div>
     <div class="history">${rows}</div>`;
   $('#backAdmin').onclick=()=>{ location.hash='#//admin'; };
+  bindSysBtn();
   $('#doc').querySelectorAll('button[data-approve]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.approve,'approved',b.dataset.email));
   $('#doc').querySelectorAll('button[data-reject]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.reject,'rejected'));
   window.scrollTo(0,0);
@@ -4307,6 +4344,25 @@ async function chkTable(label, fn){
   try{ const { error } = await fn();
     return error ? hsRow(label,'bad',error.message) : hsRow(label,'ok','읽기 정상'); }
   catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+}
+/* ★부작용 없는 함수 존재 확인 — 함수를 '호출'하지 않고 카탈로그에서 이름만 본다.
+   (예전엔 set_my_bio('')를 실제로 불러서 검사할 때마다 한 줄 소개가 지워졌다.) */
+async function chkFn(label, ...names){
+  try{
+    const results = [];
+    for(const n of names){
+      const { data, error } = await sb.rpc('rpc_exists', { p_name: n });
+      if(error){
+        // 61번 미배포 → 최후 수단으로만 옛 방식(호출) 사용. 단 '쓰기 함수'는 절대 부르지 않는다.
+        return hsRow(label, 'warn', 'rpc_exists 미배포 (61_rpc_exists.sql 실행 필요)');
+      }
+      results.push([n, !!data]);
+    }
+    const missing = results.filter(r=>!r[1]).map(r=>r[0]);
+    return missing.length
+      ? hsRow(label, 'bad', '미배포: ' + missing.join(', '))
+      : hsRow(label, 'ok', '배포됨');
+  }catch(e){ return hsRow(label, 'bad', String((e&&e.message)||e)); }
 }
 async function chkRpc(label, name, args){
   try{
@@ -4491,47 +4547,47 @@ function healthTasks(){
       ['documents.created_at (45)',       ()=>chkTable('documents.created_at (45)', ()=>sb.from('documents').select('created_at').limit(1))],
     ]},
     { sec:'함수(RPC) 배포 여부', items:[
-      ['is_editor (25)',              ()=>chkRpc('is_editor (25)','is_editor',{})],
-      ['set_member_role (17·26)',     ()=>chkRpc('set_member_role (17·26)','set_member_role',{ p_target:NIL, p_role:'viewer' })],
-      ['transfer_owner (17)',         ()=>chkRpc('transfer_owner (17)','transfer_owner',{ p_target:NIL })],
-      ['set_my_handle (21)',          ()=>chkRpc('set_my_handle (21)','set_my_handle',{ p_handle:'' })],
-      ['set_my_name / set_my_club (45)', ()=>chkRpc('set_my_name / set_my_club (45)','set_my_name',{ p_name:'' })],
-      ['set_my_bio (42)',             ()=>chkRpc('set_my_bio (42)','set_my_bio',{ p_bio:'' })],
-      ['set_my_track — 계열 선택 (47)', ()=>chkRpc('set_my_track — 계열 선택 (47)','set_my_track',{ p_track:'__healthcheck__' })],
-      ['add_track / rename_track / delete_track (47)', ()=>chkRpc('add_track / rename_track / delete_track (47)','rename_track',{ p_id:-1, p_new:'__healthcheck__' })],
-      ['set_track_color (47, owner)',  ()=>chkRpc('set_track_color (47, owner)','set_track_color',{ p_id:-1, p_color:'#000000' })],
-      ['admin_list_members (26·27)',  ()=>chkRpc('admin_list_members (26·27)','admin_list_members',{})],
-      ['member_profile',              ()=>chkRpc('member_profile','member_profile',{ target:NIL })],
-      ['heartbeat / go_offline (26·42)', ()=>chkRpc('heartbeat / go_offline (26·42)','heartbeat',{ p_add:0, p_new:false })],
-      ['create_document (25)',        ()=>chkRpc('create_document (25)','create_document',{ p_key:'', p_title:'' })],
-      ['rename_document (25)',        ()=>chkRpc('rename_document (25)','rename_document',{ p_old:'__healthcheck_none__', p_new:'__healthcheck_none__' })],
-      ['rollback_document',           ()=>chkRpc('rollback_document','rollback_document',{ p_key:'__healthcheck_none__', p_revision_id:-1 })],
-      ['trash / restore_document (23·45)', ()=>chkRpc('trash / restore_document (23·45)','restore_document',{ p_id:-1 })],
-      ['prune_revisions (33)',        ()=>chkRpc('prune_revisions (33)','prune_revisions',{ p_key:'__healthcheck_none__' })],
-      ['toggle_doc_like / doc_like_counts (40)', ()=>chkRpc('toggle_doc_like / doc_like_counts (40)','doc_like_counts',{})],
-      ['send_dm / get_dm_thread (30·38)', ()=>chkRpc('send_dm / get_dm_thread (30·38)','get_dm_thread',{ p_thread_id:-1 })],
-      ['delete_dm (46)',              ()=>chkRpc('delete_dm (46)','delete_dm',{ p_id:-1 })],
-      ['list_inbox / inbox_unread_total (32)', ()=>chkRpc('list_inbox / inbox_unread_total (32)','list_inbox',{})],
-      ['mark_notification_read (32)', ()=>chkRpc('mark_notification_read (32)','mark_notification_read',{ p_id:-1 })],
-      ['create_question / get_question (31)', ()=>chkRpc('create_question / get_question (31)','get_question',{ p_id:-1 })],
-      ['delete_question (31)',        ()=>chkRpc('delete_question (31)','delete_question',{ p_id:-1 })],
-      ['delete_message (22)',         ()=>chkRpc('delete_message (22)','delete_message',{ p_id:-1 })],
-      ['set_my_avatar (13)',          ()=>chkRpc('set_my_avatar (13)','set_my_avatar',{ p_url: state.avatar_url || null })],
-      ['add_club / rename_club / delete_club (14)', ()=>chkRpc('add_club / rename_club / delete_club (14)','rename_club',{ p_id:-1, p_new:'__healthcheck__' })],
-      ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
-      ['public_clubs — 가입화면 동아리 목록 (51)', ()=>chkRpc('public_clubs — 가입화면 동아리 목록 (51)','public_clubs',{})],
-      ['set_app_limit — 상한 설정 (52)', ()=>chkRpc('set_app_limit — 상한 설정 (52)','set_app_limit',{ p_key:'__none__', p_value:1 })],
-      ['set_perms — 권한 매트릭스 (53)', ()=>chkRpc('set_perms — 권한 매트릭스 (53)','set_perms',{ p_perms:null })],
-      ['perm — 서버 권한 판정 (54)',     ()=>chkRpc('perm — 서버 권한 판정 (54)','perm',{ p_cap:'doc_read' })],
-      ['ensure_owner — owner 자동 복구 (55)', ()=>chkRpc('ensure_owner — owner 자동 복구 (55)','ensure_owner',{})],
-      ['set_perms_default — 기본값 프리셋 (56)', ()=>chkRpc('set_perms_default — 기본값 프리셋 (56)','set_perms_default',{ p_perms:null })],
-      ['delete_message — 메시지 삭제 (22·57)', ()=>chkRpc('delete_message — 메시지 삭제 (22·57)','delete_message',{ p_id:-1 })],
-      ['submit_feedback / list_feedback (59)', ()=>chkRpc('submit_feedback / list_feedback (59)','feedback_left_today',{})],
-      ['submit_contact — 관리자 문의 (50·55)', ()=>chkRpc('submit_contact — 관리자 문의 (50·55)','submit_contact',{ p_email:null, p_body:'' })],
-      ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
-      ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
-      ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
-      ['submit_contact — 관리자 문의 (50)', ()=>chkRpc('submit_contact — 관리자 문의 (50)','submit_contact',{ p_email:null, p_body:'' })],
+      ['is_editor (25)',              ()=>chkFn('is_editor (25)','is_editor')],
+      ['set_member_role (17·26)',     ()=>chkFn('set_member_role (17·26)','set_member_role')],
+      ['transfer_owner (17)',         ()=>chkFn('transfer_owner (17)','transfer_owner')],
+      ['set_my_handle (21)',          ()=>chkFn('set_my_handle (21)','set_my_handle')],
+      ['set_my_name / set_my_club (45)', ()=>chkFn('set_my_name / set_my_club (45)','set_my_name')],
+      ['set_my_bio (42)',             ()=>chkFn('set_my_bio (42)','set_my_bio')],
+      ['set_my_track — 계열 선택 (47)', ()=>chkFn('set_my_track — 계열 선택 (47)','set_my_track')],
+      ['add_track / rename_track / delete_track (47)', ()=>chkFn('add_track / rename_track / delete_track (47)','rename_track')],
+      ['set_track_color (47, owner)',  ()=>chkFn('set_track_color (47, owner)','set_track_color')],
+      ['admin_list_members (26·27)',  ()=>chkFn('admin_list_members (26·27)','admin_list_members')],
+      ['member_profile',              ()=>chkFn('member_profile','member_profile')],
+      ['heartbeat / go_offline (26·42)', ()=>chkFn('heartbeat / go_offline (26·42)','heartbeat')],
+      ['create_document (25)',        ()=>chkFn('create_document (25)','create_document')],
+      ['rename_document (25)',        ()=>chkFn('rename_document (25)','rename_document')],
+      ['rollback_document',           ()=>chkFn('rollback_document','rollback_document')],
+      ['trash / restore_document (23·45)', ()=>chkFn('trash / restore_document (23·45)','restore_document')],
+      ['prune_revisions (33)',        ()=>chkFn('prune_revisions (33)','prune_revisions')],
+      ['toggle_doc_like / doc_like_counts (40)', ()=>chkFn('toggle_doc_like / doc_like_counts (40)','doc_like_counts')],
+      ['send_dm / get_dm_thread (30·38)', ()=>chkFn('send_dm / get_dm_thread (30·38)','get_dm_thread')],
+      ['delete_dm (46)',              ()=>chkFn('delete_dm (46)','delete_dm')],
+      ['list_inbox / inbox_unread_total (32)', ()=>chkFn('list_inbox / inbox_unread_total (32)','list_inbox')],
+      ['mark_notification_read (32)', ()=>chkFn('mark_notification_read (32)','mark_notification_read')],
+      ['create_question / get_question (31)', ()=>chkFn('create_question / get_question (31)','get_question')],
+      ['delete_question (31)',        ()=>chkFn('delete_question (31)','delete_question')],
+      ['delete_message (22)',         ()=>chkFn('delete_message (22)','delete_message')],
+      ['set_my_avatar (13)',          ()=>chkFn('set_my_avatar (13)','set_my_avatar')],
+      ['add_club / rename_club / delete_club (14)', ()=>chkFn('add_club / rename_club / delete_club (14)','rename_club')],
+      ['keep_alive (28)',             ()=>chkFn('keep_alive (28)','keep_alive')],
+      ['public_clubs — 가입화면 동아리 목록 (51)', ()=>chkFn('public_clubs — 가입화면 동아리 목록 (51)','public_clubs')],
+      ['set_app_limit — 상한 설정 (52)', ()=>chkFn('set_app_limit — 상한 설정 (52)','set_app_limit')],
+      ['set_perms — 권한 매트릭스 (53)', ()=>chkFn('set_perms — 권한 매트릭스 (53)','set_perms')],
+      ['perm — 서버 권한 판정 (54)',     ()=>chkFn('perm — 서버 권한 판정 (54)','perm')],
+      ['ensure_owner — owner 자동 복구 (55)', ()=>chkFn('ensure_owner — owner 자동 복구 (55)','ensure_owner')],
+      ['set_perms_default — 기본값 프리셋 (56)', ()=>chkFn('set_perms_default — 기본값 프리셋 (56)','set_perms_default')],
+      ['delete_message — 메시지 삭제 (22·57)', ()=>chkFn('delete_message — 메시지 삭제 (22·57)','delete_message')],
+      ['submit_feedback / list_feedback (59)', ()=>chkFn('submit_feedback / list_feedback (59)','feedback_left_today')],
+      ['submit_contact — 관리자 문의 (50·55)', ()=>chkFn('submit_contact — 관리자 문의 (50·55)','submit_contact')],
+      ['set_my_event_prefs (49)',     ()=>chkFn('set_my_event_prefs (49)','set_my_event_prefs')],
+      ['dispatch_event_reminders (49)', ()=>chkFn('dispatch_event_reminders (49)','dispatch_event_reminders')],
+      ['toggle_event_done (50)',      ()=>chkFn('toggle_event_done (50)','toggle_event_done')],
+      ['submit_contact — 관리자 문의 (50)', ()=>chkFn('submit_contact — 관리자 문의 (50)','submit_contact')],
     ]},
     { sec:'스토리지 버킷', items:[
       ['avatars (프로필 사진)',        ()=>chkBucket('avatars (프로필 사진)','avatars')],
@@ -4805,7 +4861,7 @@ async function renderSysPerms(){
       권한이 없는 회원이 해당 동작을 하면 “권한이 없습니다” 안내가 뜹니다.</div>
     <div class="table-scroll">
       <table class="perm-table">
-        <tr><th style="width:230px">항목</th>${PERM_ROLES.map(r=>`<th>${r}</th>`).join('')}</tr>
+        <tr><th style="width:230px">항목</th>${PERM_ROLES.map(r=>`<th class="pr-h" style="${segStyle(r)}">${r}</th>`).join('')}</tr>
         ${PERM_CAPS.map(g=>`
           <tr class="perm-sec"><td colspan="${PERM_ROLES.length+1}">${escapeHtml(g.sec)}</td></tr>
           ${g.items.map(([cap,label])=>`
@@ -4996,7 +5052,7 @@ async function renderFeedbackReview(){
   };
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>피드백 검토 <span class="muted" style="font-size:14px;font-weight:400">${total}건</span></h1>
-      <div class="tabs"><button id="frBack">${ic('back')}피드백</button></div></div>
+      <div class="tabs"><button id="frBack">${ic('back')}피드백</button>${sysBtnHTML()}</div></div>
 
     <div class="fb-summary">
       <div class="fb-avg">
@@ -5019,6 +5075,7 @@ async function renderFeedbackReview(){
       </button>`).join('')}</div>`
       : '<div class="qb-empty">아직 받은 피드백이 없어요.</div>'}`;
   $('#frBack').onclick=()=>{ location.hash='#//feedback'; };
+  bindSysBtn();
   $('#doc').querySelectorAll('.fb-item').forEach(b=>{
     b.onclick=()=>{
       const f=rows.find(x=>String(x.id)===String(b.dataset.id));
@@ -5104,17 +5161,17 @@ async function renderMe(){
       <table class="wtable me-table" style="max-width:480px">
         <tr><th style="width:110px">회원번호</th><td>#${p.member_no??'-'}</td></tr>
         <tr><th>이메일</th><td>${escapeHtml(p.email||state.email||'-')}</td></tr>
-        <tr><th>이름</th><td><div class="handle-cell"><span id="meNameText">${escapeHtml(p.name||'-')}</span><button class="handle-edit" id="meNameBtn" title="이름 변경">${ic('edit')}</button></div></td></tr>
-        <tr><th>활동명</th><td><div class="handle-cell"><span>${escapeHtml(p.handle||'-')}</span><button class="handle-edit" id="meHandleBtn" title="활동명 변경" aria-label="활동명 변경"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div></td></tr>
-        <tr><th>소속</th><td><div class="handle-cell"><span id="meClubText">${escapeHtml(p.club||'무소속')}</span><button class="handle-edit" id="meClubBtn" title="소속 변경">${ic('edit')}</button></div></td></tr>
-        <tr><th>계열</th><td><div class="handle-cell"><span id="meTrackText">${trackChipHTML(p.track)}</span><button class="handle-edit" id="meTrackBtn" title="계열 변경">${ic('edit')}</button></div></td></tr>
+        <tr><th>이름</th><td id="meNameCell"><div class="handle-cell"><span id="meNameText">${escapeHtml(p.name||'-')}</span><button class="handle-edit" id="meNameBtn" title="이름 변경">${ic('edit')}</button></div></td></tr>
+        <tr><th>활동명</th><td id="meHandleCell"><div class="handle-cell"><span id="meHandleText">${escapeHtml(p.handle||'-')}</span><button class="handle-edit" id="meHandleBtn" title="활동명 변경">${ic('edit')}</button></div></td></tr>
+        <tr><th>소속</th><td id="meClubCell"><div class="handle-cell"><span id="meClubText">${escapeHtml(p.club||'무소속')}</span><button class="handle-edit" id="meClubBtn" title="소속 변경">${ic('edit')}</button></div></td></tr>
+        <tr><th>계열</th><td id="meTrackCell"><div class="handle-cell"><span id="meTrackText">${trackChipHTML(p.track)}</span><button class="handle-edit" id="meTrackBtn" title="계열 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
         <tr><th>등급</th><td>${roleText(p.role||state.role)}</td></tr>
         <tr><th>가입일</th><td>${joined}</td></tr>
-        <tr><th>한 줄 소개</th><td>
+        <tr><th>한 줄 소개</th><td id="meBioCell">
           <div class="handle-cell">
             <span id="meBioText">${p.bio?escapeHtml(p.bio):'<span class="muted">아직 한 줄 소개가 없어요.</span>'}</span>
-            <button class="handle-edit" id="meBioBtn" title="한 줄 소개 수정" aria-label="한 줄 소개 수정">${ic('edit')}</button>
+            <button class="handle-edit" id="meBioBtn" title="한 줄 소개 수정">${ic('edit')}</button>
           </div>
         </td></tr>
       </table>
@@ -5131,11 +5188,120 @@ async function renderMe(){
     <div class="doc-meta">이름·기수 수정이 필요하면 관리자에게 문의하세요. <b>활동명</b>은 위 [활동명 변경]에서 직접 바꿀 수 있어요(다른 회원과 중복 불가). 비밀번호는 상단 메뉴 → 비밀번호 변경에서, 프로필 사진은 <b>아무 이미지나</b> 올리면 자동으로 정사각형·작은 용량으로 맞춰집니다.</div>`;
   $('#meBack').onclick=()=>{ location.hash='#//home'; };
   $('#meProfile').onclick=()=>{ location.hash='#//member/'+state.user.id; };
-  $('#meHandleBtn').onclick=()=>openHandleEditor(p.handle||'');
-  $('#meBioBtn').onclick=()=>openBioEditor(p.bio||'');
-  $('#meNameBtn').onclick=()=>openNameEditor(p.name||'');
-  $('#meClubBtn').onclick=()=>openClubPicker(p.club||'무소속');
-  $('#meTrackBtn').onclick=()=>openTrackPicker(p.track||'');
+
+  /* ── 인라인 편집 (팝업 없이 표 안에서 바로 수정) ──
+     한 번에 한 칸만 편집 모드. Enter=저장 · Esc=취소. */
+  let meEditing = null;
+  const meCancel = ()=>{ if(meEditing){ meEditing.restore(); meEditing=null; } };
+
+  function inlineEdit(cellId, opts){
+    const cell = document.getElementById(cellId);
+    if(!cell) return;
+    meCancel();                                    // ★동시 1개만
+    const html = cell.innerHTML;
+    const restore = ()=>{ cell.innerHTML = html; bindCellButtons(); };
+    meEditing = { restore };
+
+    const input = opts.select
+      ? `<span class="usel sm inl-in"><select id="inlIn">${opts.options}</select></span>`
+      : `<input id="inlIn" class="inl-in" type="text" maxlength="${opts.max||60}" value="${escapeAttr(opts.value||'')}" placeholder="${escapeAttr(opts.ph||'')}">`;
+    cell.innerHTML = `<div class="inl-wrap">${input}
+      <button class="ibtn ok" id="inlSave" title="저장">${ic('check')}</button>
+      <button class="ibtn" id="inlCancel" title="취소">✕</button>
+      <span class="inl-msg" id="inlMsg"></span></div>`;
+
+    const el = document.getElementById('inlIn');
+    el.focus(); if(el.select) el.select();
+    document.getElementById('inlCancel').onclick = ()=>{ meCancel(); };
+    const save = async()=>{
+      const v = (el.value||'').trim();
+      const msg = document.getElementById('inlMsg');
+      const btn = document.getElementById('inlSave'); btn.disabled = true;
+      try{
+        const shown = await opts.save(v);
+        meEditing = null;
+        cell.innerHTML = opts.render(shown!==undefined ? shown : v);
+        bindCellButtons();
+      }catch(e){
+        btn.disabled = false;
+        if(!handleErr(e, opts.cap)) { msg.textContent = (e&&e.message) || '저장 실패'; }
+      }
+    };
+    document.getElementById('inlSave').onclick = save;
+    el.addEventListener('keydown', e=>{
+      if(e.key==='Enter'){ e.preventDefault(); save(); }
+      if(e.key==='Escape'){ e.preventDefault(); meCancel(); }
+    });
+  }
+
+  const cellHTML = (id, inner, btnId, title) =>
+    `<div class="handle-cell"><span id="${id}">${inner}</span>
+      <button class="handle-edit" id="${btnId}" title="${title}">${ic('edit')}</button></div>`;
+
+  function bindCellButtons(){
+    const nb=$('#meNameBtn');
+    if(nb) nb.onclick=()=>inlineEdit('meNameCell', {
+      value: p.name||'', max:20, ph:'이름',
+      save: async v=>{ if(!v) throw new Error('이름을 입력해 주세요.');
+        const { data, error } = await sb.rpc('set_my_name', { p_name:v }); if(error) throw error;
+        p.name = data || v; state.name = p.name;
+        if(state.user && nameCache[state.user.id]) nameCache[state.user.id].name = p.name;
+        renderUserbox(); return p.name; },
+      render: v=>cellHTML('meNameText', escapeHtml(v||'-'), 'meNameBtn', '이름 변경')
+    });
+
+    const hb=$('#meHandleBtn');
+    if(hb) hb.onclick=()=>inlineEdit('meHandleCell', {
+      value: p.handle||'', max:20, ph:'활동명',
+      save: async v=>{ if(!v) throw new Error('활동명을 입력해 주세요.');
+        if(RESERVED_HANDLES.includes(v.toLowerCase())) throw new Error('사용할 수 없는 활동명이에요.');
+        const { data, error } = await sb.rpc('set_my_handle', { p_handle:v }); if(error) throw error;
+        p.handle = data || v; state.handle = p.handle;
+        if(state.user && nameCache[state.user.id]) nameCache[state.user.id].handle = p.handle;
+        renderUserbox(); return p.handle; },
+      render: v=>cellHTML('meHandleText', escapeHtml(v||'-'), 'meHandleBtn', '활동명 변경')
+    });
+
+    const cb=$('#meClubBtn');
+    if(cb) cb.onclick=async()=>{
+      let clubs=[];
+      try{ const { data } = await sb.from('clubs').select('name,is_none'); clubs=data||[]; }catch(e){}
+      if(!clubs.length) clubs=[{name:'무소속', is_none:true}];
+      clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
+      const cur = p.club || '무소속';
+      inlineEdit('meClubCell', {
+        select:true,
+        options: clubs.map(c=>`<option value="${escapeAttr(c.name)}" ${c.name===cur?'selected':''}>${escapeHtml(c.name)}</option>`).join(''),
+        save: async v=>{ const { data, error } = await sb.rpc('set_my_club', { p_club:v }); if(error) throw error;
+          p.club = data || v; return p.club; },
+        render: v=>cellHTML('meClubText', escapeHtml(v||'무소속'), 'meClubBtn', '소속 변경')
+      });
+    };
+
+    const tb=$('#meTrackBtn');
+    if(tb) tb.onclick=async()=>{
+      await loadTracks();
+      const cur = p.track || '';
+      inlineEdit('meTrackCell', {
+        select:true,
+        options: `<option value="" ${!cur?'selected':''}>— 없음 —</option>`
+          + (state.tracks||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${t.name===cur?'selected':''}>${escapeHtml(t.name)}</option>`).join(''),
+        save: async v=>{ const { data, error } = await sb.rpc('set_my_track', { p_track:v }); if(error) throw error;
+          p.track = data || null; state.track = p.track; return p.track || ''; },
+        render: v=>cellHTML('meTrackText', trackChipHTML(v||null), 'meTrackBtn', '계열 변경')
+      });
+    };
+
+    const bb=$('#meBioBtn');
+    if(bb) bb.onclick=()=>inlineEdit('meBioCell', {
+      value: p.bio||'', max:100, ph:'예: 광학 좋아하는 22기',
+      cap:'',
+      save: async v=>{ const { data, error } = await sb.rpc('set_my_bio', { p_bio:v }); if(error) throw error;
+        p.bio = data || (v||null); state.bio = p.bio; return p.bio || ''; },
+      render: v=>cellHTML('meBioText', v?escapeHtml(v):'<span class="muted">아직 한 줄 소개가 없어요.</span>', 'meBioBtn', '한 줄 소개 수정')
+    });
+  }
+  bindCellButtons();
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
@@ -5355,7 +5521,7 @@ async function renderMemberProfile(id){
             <div class="profile-name">${escapeHtml(p.name||'-')} <span class="profile-handle">@${escapeHtml(p.handle||'-')}</span></div>
             <div class="profile-sub">회원번호 #${p.member_no??'-'} · ${roleChip(p.role)}</div>
           </div>
-          <button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:6px 14px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">${(state.user && id===state.user.id)?'나에게 쪽지':'메시지'}</button>
+          <button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:7px 16px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">${ic('mail')}${(state.user && id===state.user.id)?'나에게 쪽지':'메시지'}</button>
         </div>
         <div class="bio-bubble${p.bio?'':' empty'}">
           <span class="bio-quote">“</span>${p.bio?escapeHtml(p.bio):'아직 한 줄 소개가 없어요.'}<span class="bio-quote">”</span>
@@ -5430,8 +5596,8 @@ async function renderDirectory(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 조회</h1>
       <div class="dir-top">
-        ${isOwner()?`<button id="dirAdminBtn" class="btn ghost">${ic('user')}회원 관리</button>`:''}
-        <button id="dirFilterBtn" class="btn ghost">필터</button>
+        ${can('admin_access')?`<button id="dirAdminBtn" class="abtn">${ic('users')}회원 관리</button>`:''}
+        <button id="dirFilterBtn" class="abtn">${ic('docs')}필터</button>
         <div class="dir-searchwrap">
           <svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><line x1="13.5" y1="13.5" x2="18" y2="18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           <input id="dirSearch" type="text" placeholder="이름 · 활동명 · 회원번호 검색" autocomplete="off">
@@ -5527,7 +5693,7 @@ function renderDirGrid(){
       <div class="dir-info">
         <div class="dir-name">${escapeHtml(m.name||'-')}</div>
         <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
-        <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span><button class="dm-btn" data-dm="${escapeAttr(m.id)}" data-dmname="${escapeAttr(m.name||'회원')}">${(state.user&&m.id===state.user.id)?'나에게':'메시지'}</button></div>
+        <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span><button class="dm-btn" data-dm="${escapeAttr(m.id)}" data-dmname="${escapeAttr(m.name||'회원')}">${ic('mail')}${(state.user&&m.id===state.user.id)?'나에게':'메시지'}</button></div>
         <div class="dir-bio" data-bio="${escapeAttr(m.id)}"></div>
         <div class="mc-credit" data-credit="${escapeAttr(m.id)}"></div>
       </div>
@@ -6038,7 +6204,7 @@ async function openDmThread(tid){
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
       <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
-      <button class="btn" id="ipSend">보내기</button>
+      <button class="abtn primary" id="ipSend">${ic('mail')}보내기</button>
     </div>
     <div class="chat-count dm-count" id="dmCount"></div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
@@ -6096,7 +6262,7 @@ async function openNewDm(uid){
     <div class="ip-reply">
       <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
       <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
-      <button class="btn" id="ipSend">보내기</button>
+      <button class="abtn primary" id="ipSend">${ic('mail')}보내기</button>
     </div>
     <div class="chat-count dm-count" id="dmCount"></div>`;
   openInboxPane();                                        // 폰: 화면 중앙 팝업으로
@@ -7493,6 +7659,7 @@ function route(){
      · 시스템 페이지  = '#//커뮤니티' 처럼 **이중 슬래시**로 시작 → 문서 주소와 절대 충돌하지 않는다.
      · 문서           = '#문서주소' (슬래시 금지)
      · 옛 링크(#community 등)는 같은 이름의 문서가 없으면 '#//community' 로 자동 이전한다. */
+  _prevHash = _lastGoodHash;                    // 직전 화면 기억
   const raw=(location.hash||'#//main').slice(1);
   let sys=false, key=raw;
   if(raw.startsWith('//')){ sys=true; key=raw.slice(2); }
