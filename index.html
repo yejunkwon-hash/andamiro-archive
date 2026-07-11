@@ -73,6 +73,10 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .profile-sub{font-size:13px;color:var(--text-dim);margin-top:5px;display:flex;align-items:center;gap:6px;}
 .role-chip{background:var(--accent);color:#fff;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;}
 .profile-table{max-width:520px;}
+.qgo-btn{width:auto;font-size:11.5px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
+.uq-table .uq-row{cursor:pointer;}
+.uq-table .uq-row:hover{background:var(--box-bg);}
+.uq-table .uq-t{font-weight:700;color:var(--accent);}
 /* 한 줄 소개 말풍선 (표 위) */
 .bio-bubble{position:relative;max-width:520px;margin:14px 0 16px;padding:12px 16px;background:var(--box-bg);
   border:1px solid var(--border);border-radius:14px;font-size:14.5px;line-height:1.6;color:var(--text);word-break:break-word;}
@@ -180,6 +184,9 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .usermenu-drop a+a{border-top:1px solid var(--border);}
 .usermenu-drop a:hover{background:var(--box-bg);text-decoration:none;}
 .usermenu-drop a.danger{color:var(--link-red);}
+/* 회원 조회: PC엔 상단 네비 버튼이 있으므로 드롭다운엔 폰에서만 노출 */
+.usermenu-drop a.drop-mobile{display:none;}
+@media(max-width:768px){ .usermenu-drop a.drop-mobile{display:block;} }
 @media(max-width:860px){ #userlabel{display:none;} }
 
 /* 페이지 전환 애니메이션 */
@@ -296,7 +303,7 @@ body.dark .rpill .rtip{background:#3a3d45;} body.dark .rpill .rtip::after{border
 .react-opt:hover{background:var(--box-bg);}
 .react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
-.chat-input input,.chat-input textarea{flex:1;min-height:44px;max-height:132px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
+.chat-input input,.chat-input textarea{flex:1 1 auto;min-width:0;min-height:44px;max-height:132px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
 .chat-input textarea{align-self:flex-end;}
 .chat-input{align-items:flex-end;}
 .chat-count{font-size:11px;color:var(--text-dim);padding:2px 12px 0;text-align:right;}
@@ -688,6 +695,18 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
   /* 채팅: 전체가 보이도록 (하단 바 + 상단 2줄 감안, 주소창 때문에 vh 대신 dvh) */
   .chat{ height:auto; min-height:0; max-width:100%; }
   .chat-log{ max-height:calc(100dvh - 300px); min-height:280px; overflow-x:hidden; }
+
+  /* ★입력줄이 화면을 벗어나던 문제:
+     textarea의 기본 최소 너비(약 20자)가 flex 축소를 막아 버튼들이 화면 밖으로 밀렸다.
+     → min-width:0 으로 축소를 허용하고, 아이콘 버튼을 폰 크기에 맞게 줄인다. */
+  .chat-input{ gap:6px; padding:8px; flex-wrap:nowrap; width:100%; max-width:100%; box-sizing:border-box; }
+  .chat-input textarea, .chat-input input{ min-width:0; flex:1 1 auto; }
+  .chat-input button{ flex:none; }
+  .chat-input .eye-btn{ width:40px; height:44px; }
+  .chat-input .eye-btn svg{ width:30px; height:22px; }
+  .chat-input .cimg-btn{ padding:0 2px; }
+  .chat-input #chatSend{ padding:0 12px; font-size:13px; }
+  .chat, .chat-log, .chat-preview, .preview-hint, .chat-count{ max-width:100%; box-sizing:border-box; }
   .msg{ max-width:100%; }
   .msg-bubble{ max-width:86% !important; }
   .msg-imgs img{ max-width:60vw; }
@@ -1034,6 +1053,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-3.8 3.5-6 7.5-6s7.5 2.2 7.5 6"/></svg>
         </button>
         <div class="usermenu-drop" id="userdrop">
+          <a data-go="directory" class="drop-mobile">회원 조회</a>
           <a data-go="me">계정 정보</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
@@ -3635,7 +3655,7 @@ async function savePassword(){
 /* ================== 개인정보 (본인) ================== */
 async function renderMe(){
   let p={};
-  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club,track').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club,track,bio').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
   const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
   const av=avatarFor(p.name, p.handle);
   const avaInner = p.avatar_url
@@ -3683,6 +3703,48 @@ async function renderMe(){
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
+  window.scrollTo(0,0);
+}
+
+/* ── 회원별 질문 목록 (#uq/<uid>) — 표에서 행을 누르면 그 질문 스레드로 ── */
+async function renderUserQuestions(uid){
+  $('#doc').innerHTML=`<div class="doc-head"><h1>회원 질문</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let who='회원';
+  try{
+    const { data } = await sb.from('members_public').select('name,handle').eq('id', uid).single();
+    if(data) who = (data.name||'') + (data.handle?` @${data.handle}`:'');
+  }catch(e){}
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_questions');     // 전체 목록 → 이 회원 것만 추림
+    if(error) throw error;
+    rows=(data||[]).filter(q=>String(q.author)===String(uid));
+  }catch(e){
+    $('#doc').innerHTML='<div class="doc-head"><h1>회원 질문</h1></div><p>질문 목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>';
+    return;
+  }
+  rows.sort((a,b)=> new Date(b.created_at||0) - new Date(a.created_at||0));
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>${escapeHtml(who)}님의 질문 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+      <div class="tabs">
+        <button id="uqProfile">${ic('user')}프로필</button>
+        <button id="uqBack">${ic('back')}뒤로</button>
+      </div></div>
+    <div class="doc-meta">행을 누르면 해당 질문으로 이동합니다. <b>삭제된 질문은 표시되지 않습니다.</b></div>
+    ${rows.length ? `<div class="table-scroll"><table class="wtable uq-table">
+      <tr><th style="width:52px">번호</th><th>제목</th><th style="width:90px">답변</th><th style="width:170px">작성일</th></tr>
+      ${rows.map((q,i)=>`<tr class="uq-row" data-qid="${escapeAttr(q.id)}">
+        <td class="y">${rows.length-i}</td>
+        <td class="uq-t">${escapeHtml(q.title||'-')}</td>
+        <td class="y"><span class="qb-ans ${Number(q.answers)>0?'hot':''}">${q.answers||0}</span></td>
+        <td class="y">${escapeHtml(fmtKST(q.created_at))}</td>
+      </tr>`).join('')}
+    </table></div>` : '<div class="qb-empty">등록된 질문이 없습니다.</div>'}`;
+  $('#uqBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#questions'; };
+  $('#uqProfile').onclick=()=>{ location.hash='#member/'+uid; };
+  $('#doc').querySelectorAll('.uq-row').forEach(tr=>{
+    tr.onclick=()=>{ location.hash='#q/'+tr.dataset.qid; };
+  });
   window.scrollTo(0,0);
 }
 
@@ -3873,6 +3935,8 @@ async function renderMemberProfile(id){
           <tr><th>마지막 활동</th><td>${(lastActive||p.last_active_at)?fmtKST(lastActive||p.last_active_at):(p.last_sign_in_at?fmtKST(p.last_sign_in_at):'-')}</td></tr>
           <tr><th>회원번호</th><td>#${p.member_no??'-'}</td></tr>
           <tr><th>문서 기여</th><td id="mpCredit"><span class="muted">불러오는 중…</span></td></tr>
+          <tr><th>질문 수</th><td id="mpQ"><span class="muted">불러오는 중…</span></td></tr>
+          <tr><th>답변 수</th><td id="mpA"><span class="muted">불러오는 중…</span></td></tr>
         </table>
       </section>
       <aside class="profile-side">
@@ -3892,6 +3956,33 @@ async function renderMemberProfile(id){
     const t=creditText(cs[id]);
     el.innerHTML = t ? `<span class="credit-line">${t}</span>`
                      : '<span class="muted">아직 문서 기여가 없어요.</span>';
+  })();
+
+  (async()=>{                                   // 질문 게시판 활동
+    // 질문 수: questions 테이블을 그때그때 센다 → 질문을 지우면 즉시 줄어든다.
+    // 답변 수: profiles.answer_count(트리거 누적) → 질문·답변이 삭제돼도 남는다. (48)
+    const qEl=document.getElementById('mpQ'), aEl=document.getElementById('mpA');
+    let qn=null, an=null;
+    try{
+      const r = await sb.from('questions').select('id',{count:'exact',head:true}).eq('author', id);
+      qn = r.count||0;
+    }catch(e){}
+    try{
+      const { data } = await sb.from('profiles').select('answer_count').eq('id', id).single();
+      an = data ? Number(data.answer_count||0) : null;
+    }catch(e){}
+    if(qEl){
+      qEl.innerHTML = (qn===null) ? '<span class="muted">불러오지 못했어요.</span>'
+        : (qn ? `<b>${qn}</b>개 <button class="btn ghost qgo-btn" id="mpQGo">질문 보기</button>`
+              : '<span class="muted">아직 질문이 없어요.</span>');
+      const gb=document.getElementById('mpQGo');
+      if(gb) gb.onclick=()=>{ location.hash='#uq/'+id; };
+    }
+    if(aEl){
+      aEl.innerHTML = (an===null) ? '<span class="muted">불러오지 못했어요. (48_answer_count.sql 필요)</span>'
+        : (an ? `<b>${an}</b>개 <span class="muted">(삭제된 질문의 답변 포함)</span>`
+              : '<span class="muted">아직 답변이 없어요.</span>');
+    }
   })();
 
   window.scrollTo(0,0);
@@ -5544,14 +5635,16 @@ function route(){
   const isMember = key.startsWith('member/');
   const isTrashDoc = key.startsWith('trash/');
   const isQuestion = key.startsWith('q/');
+  const isUserQ = key.startsWith('uq/');          // 회원별 질문 목록
   const isDm = key.startsWith('dm/');
   const isRev = key.startsWith('rev/');
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
   const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions'];
-  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
+  if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
   if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#home'; return; }
   if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#home'; return; }
   if(key==='directory'){ renderDirectory(); return; }
