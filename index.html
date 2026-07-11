@@ -525,6 +525,32 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .alldocs-sec{margin-top:16px;}
 .ad-count{font-weight:700;opacity:.85;font-size:13px;}
 .alldocs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));}
+/* ===== 기여 크레딧 · 좋아요 ===== */
+.like-bar{display:flex;align-items:center;gap:10px;margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--border);}
+.like-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border-strong);color:var(--text-dim);border-radius:99px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;}
+.like-btn:hover{border-color:var(--link-red);color:var(--link-red);}
+.like-btn.on{background:var(--link-red);border-color:var(--link-red);color:#fff;}
+.like-btn .lh{font-size:14px;line-height:1;}
+.like-hint{font-size:12px;color:var(--text-dim);}
+.credit-line{font-size:12px;color:var(--text-dim);}
+.credit-line b{color:var(--accent);}
+.dc-like{font-size:11.5px;color:var(--link-red);font-weight:700;}
+.mc-credit{font-size:11px;color:var(--text-dim);margin-top:3px;}
+
+/* ===== 문서 탭 (#docs) ===== */
+.docs-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
+.docs-head h1{margin:0;flex:1;}
+.docs-sort{display:flex;gap:4px;}
+.docs-sort button{background:var(--box-bg);border:1px solid var(--border);color:var(--text-dim);font-size:12px;font-weight:700;padding:6px 12px;border-radius:99px;cursor:pointer;}
+.docs-sort button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
+.doc-card{display:block;border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--card);cursor:pointer;transition:border-color .12s, box-shadow .12s;}
+.doc-card:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.07);}
+.doc-card .dc-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;word-break:break-all;}
+.doc-card .dc-key{font-size:11.5px;color:var(--text-dim);font-family:ui-monospace,Consolas,monospace;}
+.doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
+.doc-card .dc-cat{font-size:11px;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
+@media(max-width:640px){ .docs-grid{grid-template-columns:1fr;} }
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
@@ -725,6 +751,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
+    <button class="navbtn" id="docsBtn">문서</button>
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
     <button class="navbtn" id="inboxBtn">쪽지함<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
@@ -879,6 +906,141 @@ function renderUserbox(){
 }
 
 /* ================== 문서 목록/로드 ================== */
+
+
+/* ================== 문서 좋아요 · 기여 크레딧 ==================
+   좋아요는 1인 1개(취소 가능), 싫어요는 만들지 않는다 — 작은 동아리에서 부정 피드백은
+   편집 의욕만 꺾는다. 크레딧은 profiles의 누적 컬럼(33번 리비전 정리와 무관하게 영구). */
+let likeCache = null;                       // {key:{cnt,liked}} — 문서 탭 정렬용
+
+async function loadLikeCounts(force){
+  if(likeCache && !force) return likeCache;
+  const map={};
+  try{
+    const { data, error } = await sb.rpc('doc_like_counts');
+    if(error) throw error;
+    (data||[]).forEach(r=>{ map[r.doc_key]={ cnt:Number(r.cnt)||0, liked:!!r.liked }; });
+  }catch(e){ /* 미배포 시 조용히 0 */ }
+  likeCache=map;
+  return map;
+}
+/* 문서 하단 좋아요 바 */
+async function renderLikeBar(key){
+  const slot=document.getElementById('likeSlot'); if(!slot) return;
+  const map=await loadLikeCounts(true);
+  const cur=map[key]||{cnt:0,liked:false};
+  const draw=(c)=>{
+    slot.innerHTML=`<div class="like-bar">
+        <button class="like-btn ${c.liked?'on':''}" id="likeBtn">
+          <span class="lh">${c.liked?'❤️':'🤍'}</span><span id="likeCnt">${c.cnt}</span>
+        </button>
+        <span class="like-hint">${c.cnt?'이 문서가 도움이 됐다면 눌러주세요.':'첫 좋아요를 눌러보세요.'}</span>
+      </div>`;
+    const b=document.getElementById('likeBtn');
+    if(b) b.onclick=async()=>{
+      b.disabled=true;
+      try{
+        const { data, error } = await sb.rpc('toggle_doc_like', { p_key:key });
+        if(error) throw error;
+        const r=(data&&data[0])||{cnt:c.cnt,liked:!c.liked};
+        const nc={ cnt:Number(r.cnt)||0, liked:!!r.liked };
+        if(likeCache) likeCache[key]=nc;
+        draw(nc);
+      }catch(e){ b.disabled=false; }
+    };
+  };
+  draw(cur);
+}
+/* 회원 크레딧 (문서 N개 · 편집 M회) */
+async function fetchCredits(ids){
+  const out={};
+  if(!ids || !ids.length) return out;
+  try{
+    const { data, error } = await sb.from('member_credits')
+      .select('id,doc_count,edit_count').in('id', ids);
+    if(error) throw error;
+    (data||[]).forEach(r=>{ out[r.id]={ d:Number(r.doc_count)||0, e:Number(r.edit_count)||0 }; });
+  }catch(e){ /* 미배포 시 조용히 생략 */ }
+  return out;
+}
+function creditText(c){
+  if(!c || (!c.d && !c.e)) return '';
+  const p=[];
+  if(c.d) p.push(`문서 <b>${c.d}</b>개 생성`);
+  if(c.e) p.push(`<b>${c.e}</b>회 편집`);
+  return p.join(' · ');
+}
+
+/* ================== 문서 탭 (#docs) — 문서의 정문 ==================
+   전체 문서 카드 + 정렬(최근 수정/가나다) + [＋ 새 문서] + [🎲 아무 문서나] */
+const docsPage = { sort: 'recent' };
+async function renderDocsPage(){
+  $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let rows=[];
+  try{
+    const { data, error } = await sb.from('documents')
+      .select('key,title,eng,category,updated_at,updated_by');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ $('#doc').innerHTML='<h1>문서</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
+
+  // 수정자 이름 (members_public 일괄 조회)
+  const likes = await loadLikeCounts(true);
+  const uids=[...new Set(rows.map(r=>r.updated_by).filter(Boolean))];
+  const names={};
+  if(uids.length){
+    try{
+      const { data:ps } = await sb.from('members_public').select('id,handle,name').in('id', uids);
+      (ps||[]).forEach(p=>{ names[p.id]=p.handle||p.name||''; });
+    }catch(_){}
+  }
+
+  const draw=()=>{
+    const lc=k=>(likes[k]&&likes[k].cnt)||0;
+    const sorted=rows.slice().sort((a,b)=>{
+      if(docsPage.sort==='recent') return new Date(b.updated_at||0) - new Date(a.updated_at||0);
+      if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key) || new Date(b.updated_at||0)-new Date(a.updated_at||0);
+      return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
+    });
+    $('#doc').innerHTML = `
+      <div class="docs-head">
+        <h1>문서 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+        <div class="docs-sort">
+          <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
+          <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
+          <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+        </div>
+        <button class="btn ghost" id="dpRandom" title="아무 문서나 열기">🎲 아무 문서나</button>
+        ${canEdit()?'<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">＋ 새 문서</button>':''}
+      </div>
+      <div class="docs-grid">
+        ${sorted.map(d=>`
+          <a class="doc-card" href="#${escapeAttr(d.key)}">
+            <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
+            <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
+            <div class="dc-meta">
+              <span>${escapeHtml(fmtKST(d.updated_at))}</span>
+              ${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}
+              ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
+              ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
+            </div>
+          </a>`).join('')}
+      </div>`;
+    $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
+      b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
+    });
+    const rd=$('#dpRandom');
+    if(rd) rd.onclick=()=>{
+      if(!rows.length) return;
+      const pick=rows[Math.floor(Math.random()*rows.length)];
+      location.hash='#'+pick.key;
+    };
+    const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
+    window.scrollTo(0,0);
+  };
+  draw();
+}
+
 async function loadDocs(){
   const { data, error } = await sb.from('documents').select('key,title');
   if(error){ $('#doc').innerHTML='<p>문서 목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
@@ -945,10 +1107,12 @@ async function renderDoc(key){
     <div class="toc-slot"></div>
     <div class="doc-body">${renderDocBody(doc)}</div>
     <div class="footnotes-slot"></div>
+    <div id="likeSlot"></div>
     ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
   `;
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
+  renderLikeBar(key);
   if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
   $('#histBtn').onclick=()=>showHistory(key);
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
@@ -2687,6 +2851,7 @@ async function renderMemberProfile(id){
           <tr><th>마지막 활동</th><td>${(lastActive||p.last_active_at)?fmtKST(lastActive||p.last_active_at):(p.last_sign_in_at?fmtKST(p.last_sign_in_at):'-')}</td></tr>
           <tr><th>회원번호</th><td>#${p.member_no??'-'}</td></tr>
           <tr><th>한줄 소개</th><td>${p.bio?escapeHtml(p.bio):'<span class="muted">아직 한줄 소개가 없어요.</span>'}</td></tr>
+          <tr><th>문서 기여</th><td id="mpCredit"><span class="muted">불러오는 중…</span></td></tr>
         </table>
       </section>
       <aside class="profile-side">
@@ -2699,6 +2864,14 @@ async function renderMemberProfile(id){
       </aside>
     </div>`;
   $('#mpBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
+  (async()=>{                                   // 문서 기여 크레딧
+    const cs=await fetchCredits([id]);
+    const el=document.getElementById('mpCredit'); if(!el) return;
+    const t=creditText(cs[id]);
+    el.innerHTML = t ? `<span class="credit-line">${t}</span>`
+                     : '<span class="muted">아직 문서 기여가 없어요.</span>';
+  })();
+
   window.scrollTo(0,0);
 }
 
@@ -2777,6 +2950,14 @@ function renderDirGrid(){
   else if(dir.sort==='name_asc') arr.sort(byName);
   else if(dir.sort==='name_desc') arr.sort((x,y)=>byName(y,x));
   const cnt=$('#dirCount'); if(cnt) cnt.textContent='전체 '+dir.data.length+'명'+(arr.length!==dir.data.length?(' · 표시 '+arr.length+'명'):'');
+  setTimeout(async()=>{                          // 카드에 기여 크레딧 채우기(비차단)
+    const ids=arr.map(m=>m.id);
+    const cs=await fetchCredits(ids);
+    document.querySelectorAll('[data-credit]').forEach(el=>{
+      const t=creditText(cs[el.dataset.credit]);
+      if(t) el.innerHTML=t;
+    });
+  },0);
   if(!arr.length){ grid.innerHTML='<div class="club-empty" style="padding:16px">조건에 맞는 회원이 없습니다.</div>'; return; }
   grid.innerHTML=arr.map(m=>{
     const av=avatarFor(m.name, m.handle);
@@ -2789,6 +2970,7 @@ function renderDirGrid(){
         <div class="dir-name">${escapeHtml(m.name||'-')}</div>
         <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
         <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span>${(state.user&&m.id===state.user.id)?'':`<button class="dm-btn" data-dm="${escapeAttr(m.id)}" data-dmname="${escapeAttr(m.name||'회원')}">메시지</button>`}</div>
+        <div class="mc-credit" data-credit="${escapeAttr(m.id)}"></div>
       </div>
     </a>`;
   }).join('');
@@ -4202,7 +4384,7 @@ function route(){
   const isTrashDoc = key.startsWith('trash/');
   const isQuestion = key.startsWith('q/');
   const isDm = key.startsWith('dm/');
-  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox'];
+  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='trash'){ if(isAdmin()) renderTrash(); else location.hash='#home'; return; }
@@ -4211,6 +4393,7 @@ function route(){
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
   if(isQuestion){ renderQuestion(Number(key.slice(2))); return; }
+  if(key==='docs'){ renderDocsPage(); return; }
   if(key==='inbox'){ renderInbox(); return; }
   if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
@@ -4262,6 +4445,7 @@ $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ locatio
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); stopHeartbeat(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#community'; };
+  $('#docsBtn').onclick=()=>{ location.hash='#docs'; };
 $('#directoryBtn').onclick=()=>{ location.hash='#directory'; };
 /* 테마(야간/주간): 저장값 적용 + 토글 시 저장 후 새로고침 */
 try{ if(localStorage.getItem('anda_theme')==='dark') document.body.classList.add('dark'); }catch(e){}
