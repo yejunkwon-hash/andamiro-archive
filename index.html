@@ -205,8 +205,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .qh-body{font-size:14px;color:var(--text);margin-top:7px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
 .qh-imgs{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
 .qh-imgs img{width:104px;height:104px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:zoom-in;background:var(--card);}
-.qh-del{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;}
-.qh-del:hover{color:var(--link-red);}
+.qh-del{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;padding:5px 7px;border-radius:6px;display:inline-flex;align-items:center;opacity:.55;transition:all .12s;}
+.qh-del:hover{opacity:1;color:#fff;background:var(--link-red);}
 .qc-thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
 .qc-thumb{position:relative;}
 .qc-thumb img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border);}
@@ -468,6 +468,9 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .dm-b.me{align-self:flex-end;background:var(--accent);color:#fff;}
 .dm-t{font-size:10.5px;color:var(--text-dim);margin-top:3px;}
 .dm-t.me{align-self:flex-end;}
+.dm-t{display:inline-flex;align-items:center;gap:5px;}
+.dm-del{border:none;background:none;color:var(--text-dim);cursor:pointer;padding:2px 3px;border-radius:5px;display:inline-flex;opacity:.45;transition:all .12s;}
+.dm-del:hover{opacity:1;color:#fff;background:var(--link-red);}
 .msg-imgs.mine{align-self:flex-end;justify-content:flex-end;}
 .ip-reply{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);}
 .ip-reply textarea{flex:1;resize:none;min-height:38px;max-height:120px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
@@ -541,6 +544,10 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 /* ===== 아이콘 (인라인 SVG 스프라이트) ===== */
 .ic16,.ic18,.ic20{fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex:none;}
 .ic16{width:15px;height:15px;}
+/* 휴지통 아이콘만 15% 크게 (삭제는 눈에 잘 띄어야 함) */
+.msg-del .ic16, .dm-del .ic16, .qh-del .ic16,
+.trash-btn .ic16, #delBtn .ic16, .img-tools .del .ic16,
+#gcBtn .ic16, #gcChatBtn .ic16{width:17.3px;height:17.3px;}
 .ic18{width:17px;height:17px;}
 .ic20{width:19px;height:19px;}
 .ic-dice .dot{fill:currentColor;stroke:none;}
@@ -951,7 +958,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <button class="navbtn" id="docsBtn">문서</button>
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
-    <button class="navbtn" id="qBtn">질문게시판</button>
+    <button class="navbtn" id="qBtn">질문 게시판</button>
     <button class="navbtn" id="inboxBtn">쪽지함<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn"><svg class="ic16"><use href="#i-moon"/></svg> 야간</button>
     <div class="usermenu" id="usermenu">
@@ -1263,6 +1270,34 @@ function openBioEditor(cur){
 }
 
 
+
+/* 쪽지 삭제 — 본인이 보낸 것만 (관리자도 남의 쪽지는 못 지운다: 사적인 1:1 대화이므로) */
+function bindDmDelete(tid){
+  const box=$('#ipMsgs'); if(!box) return;
+  box.querySelectorAll('[data-del]').forEach(b=>{
+    if(b._bound) return; b._bound=true;
+    b.onclick=async(e)=>{
+      e.stopPropagation();
+      const id=Number(b.dataset.del);
+      const ok=await confirmModal('이 쪽지를 삭제할까요?','상대방 화면에서도 사라지며 되돌릴 수 없습니다.','삭제');
+      if(!ok) return;
+      try{
+        const { data, error } = await sb.rpc('delete_dm', { p_id: id });
+        if(error) throw error;
+        // 첨부 사진도 Storage에서 정리
+        const paths=(data||[]).map(u=>{
+          const m=String(u).match(/chat-images\/(.+)$/);
+          return m ? m[1] : null;
+        }).filter(Boolean);
+        if(paths.length){ try{ await sb.storage.from('chat-images').remove(paths); }catch(_){} }
+        inbox.msgIds=new Set();
+        await openDmThread(tid);
+        await loadInbox(true);
+      }catch(err){ alert('삭제 실패: '+((err&&err.message)||err)); }
+    };
+  });
+}
+
 /* 쪽지함 접속 표시 — list_inbox의 반환 타입을 바꾸지 않는다(반환 타입 변경은 DROP이 필요해 사고가 잦다).
    members_public 에 이미 last_active_at 이 있으므로 그것만 따로 조회한다. */
 let presTimer = null;
@@ -1442,21 +1477,21 @@ function creditText(c){
 }
 
 
-/* ================== 질문게시판 (#questions) — 커뮤니티에서 분리 ================== */
+/* ================== 질문 게시판 (#questions) — 커뮤니티에서 분리 ================== */
 async function renderQuestions(){
-  $('#doc').innerHTML=`<div class="qb-head"><h1>질문게시판</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML=`<div class="qb-head"><h1>질문 게시판</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
   try{
     const { data, error } = await sb.rpc('list_questions');
     if(error) throw error;
     rows=data||[];
   }catch(e){
-    $('#doc').innerHTML='<h1>질문게시판</h1><p>질문 기능이 아직 배포되지 않았습니다. (31_questions.sql 실행 필요)</p>';
+    $('#doc').innerHTML='<h1>질문 게시판</h1><p>질문 기능이 아직 배포되지 않았습니다. (31_questions.sql 실행 필요)</p>';
     return;
   }
   $('#doc').innerHTML=`
     <div class="qb-head">
-      <h1>질문게시판 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+      <h1>질문 게시판 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
       <button class="btn primary" id="qbAsk" style="width:auto;padding:8px 16px">${ic('plus')} 질문하기</button>
     </div>
     <div class="doc-meta" style="margin-bottom:12px">모르는 건 편하게 물어보세요. 답변은 채팅처럼 이어집니다.</div>
@@ -1548,8 +1583,7 @@ async function renderDocsPage(){
     const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
-        state.pendingEdit=b.dataset.edit;          // 문서를 연 뒤 바로 편집기로
-        location.hash='#'+b.dataset.edit; };
+        location.hash='#edit/'+encodeURIComponent(b.dataset.edit); };
     });
     window.scrollTo(0,0);
   };
@@ -1643,12 +1677,8 @@ async function renderDoc(key){
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   renderLikeBar(key);
-  if(state.pendingEdit===key){                       // 문서 탭의 [편집] 버튼으로 들어온 경우
-    state.pendingEdit=null;
-    if(canEdit()) { enterEdit(doc); return; }
-  }
-  if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
-  $('#histBtn').onclick=()=>showHistory(key);
+  if(canEdit()) $('#editBtn').onclick=()=>{ location.hash='#edit/'+encodeURIComponent(key); };
+  $('#histBtn').onclick=()=>{ location.hash='#hist/'+encodeURIComponent(key); };
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
@@ -2331,7 +2361,7 @@ async function enterWikiEdit(doc, opts){
   $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
   const ta=$('#e-body');
   ta.addEventListener('input', ()=>{ wkRenderPreview(); wkAutosave(doc.key); });
-  $('#cancelBtn').onclick=()=>renderDoc(doc.key);
+  $('#cancelBtn').onclick=()=>{ location.hash='#'+doc.key; };
   $('#saveBtn').onclick=()=>saveDoc(doc.key);
   // 임시저장 복구: 저장 없이 닫혔던 초안이 문서보다 최신이면 제안
   if(!opts.converted){
@@ -2344,6 +2374,16 @@ async function enterWikiEdit(doc, opts){
   }
   wkRenderPreview();
   window.scrollTo(0,0);
+}
+
+
+/* 편집 화면을 '별도 경로'(#edit/<key>)로 — 새로고침해도 편집기가 유지되고,
+   뒤로가기가 문서로 돌아간다. (예전엔 같은 해시에서 화면만 바뀌어 새로고침하면 날아갔다) */
+async function openEditRoute(key){
+  const { data: doc, error } = await sb.from('documents').select('*').eq('key', key).single();
+  if(error || !doc){ $('#doc').innerHTML='<h1>문서 없음</h1><p>존재하지 않는 문서입니다.</p>'; return; }
+  state.key = key;
+  enterEdit(doc);
 }
 
 function enterEdit(doc){
@@ -2430,8 +2470,8 @@ async function saveDoc(key){
   state.editBase = payload.updated_at;                            // 기준 시각 갱신
   try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
   await loadDocs();
-  if(finalKey!==key){ location.hash='#'+finalKey; }   // 주소 변경 시 URL도 갱신(route→renderDoc)
-  else { await renderDoc(finalKey); }                  // 저장 시 트리거가 이전 버전을 자동 백업
+  location.hash = '#' + finalKey;   // 저장 후 문서 화면으로 (편집 경로에 머물지 않게)
+  if((location.hash||'').slice(1) === finalKey) await renderDoc(finalKey);   // 해시가 이미 같으면 직접 렌더
 }
 /* ================== 새 문서 템플릿 (백지 제거) ==================
    비용 0원(정적 데이터). AI와 달리 사실을 지어내지 않고 '뼈대'만 제공한다.
@@ -2641,7 +2681,7 @@ async function showHistory(key){
       <div class="tabs"><button id="backBtn">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">30일 이내 버전만 되돌릴 수 있습니다. 되돌려도 과거 기록은 지워지지 않습니다. <b>[열람]</b>은 그 시점의 내용을 읽기 전용으로 보여줍니다.</div>
     <div class="history">${body}</div>`;
-  $('#backBtn').onclick=()=>renderDoc(key);
+  $('#backBtn').onclick=()=>{ location.hash='#'+key; };
   $('#doc').querySelectorAll('.history button[data-id]').forEach(b=>b.onclick=()=>doRollback(key, Number(b.dataset.id)));
   $('#doc').querySelectorAll('.history button[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#rev/'+encodeURIComponent(key)+'/'+b.dataset.view; });
   window.scrollTo(0,0);
@@ -2678,7 +2718,7 @@ async function renderRevView(key, revId){
       <div class="doc-body">${renderDocBody(doc)}</div>
     </div>`;
   renderMath($('#doc').querySelector('.doc-body'));
-  $('#rvBack').onclick=()=>{ document.body.classList.remove('trash-view'); showHistory(key); };
+  $('#rvBack').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#hist/'+encodeURIComponent(key); };
   $('#rvDoc').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#'+key; };
   window.scrollTo(0,0);
 }
@@ -3981,12 +4021,15 @@ async function refreshOpenThread(){
       const node=wrap.firstElementChild; if(node) box.appendChild(node);
     }
     const t=document.createElement('div');
-    t.className='dm-t'+(m.from_me?' me':''); t.textContent=dmTime(m.created_at);
+    t.className='dm-t'+(m.from_me?' me':'');
+    t.innerHTML = escapeHtml(dmTime(m.created_at))
+      + (m.from_me ? `<button class="dm-del" data-del="${m.id}" title="쪽지 삭제">${ic('trash')}</button>` : '');
     box.appendChild(t);
     added=true;
   });
   if(added){
     if(atBottom) box.scrollTop=box.scrollHeight;          // 맨 아래를 보고 있었을 때만 따라감
+    bindDmDelete(tid);                                    // 새로 붙은 메시지의 삭제 버튼도 배선
     refreshInboxBadge();
   }
 }
@@ -4035,6 +4078,7 @@ async function openDmThread(tid){
   }catch(e){ pane.innerHTML='<div class="ip-empty">불러오지 못했습니다.</div>'; return; }
   inbox.msgIds = new Set(msgs.map(m=>m.id));      // 이미 그린 메시지 목록(폴링이 새 것만 추가)
   refreshPresence();                             // 대화 헤더의 접속 표시
+  bindDmDelete(tid);
 
   const _self = t && state.user && String(t.other_id)===String(state.user.id);
   const who = t ? `${escapeHtml(t.other_name||'-')}${_self?' <b style="color:var(--accent)">(나)</b>':''} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span>` : '쪽지';
@@ -4045,7 +4089,7 @@ async function openDmThread(tid){
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
-      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, m.from_me)}<div class="dm-t ${m.from_me?'me':''}">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
+      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, m.from_me)}<div class="dm-t ${m.from_me?'me':''}">${escapeHtml(dmTime(m.created_at))}${m.from_me?`<button class="dm-del" data-del="${m.id}" title="쪽지 삭제">${ic('trash')}</button>`:''}</div>`).join('')}
     </div>
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
@@ -4138,7 +4182,7 @@ document.addEventListener('click', e=>{
 });
 
 
-/* ============ '입력 중' 표시 (커뮤니티 · 질문게시판) ============
+/* ============ '입력 중' 표시 (커뮤니티 · 질문 게시판) ============
    ★DB에 쓰지 않는다. Realtime broadcast(휘발성)로만 주고받아 저장 0바이트.
    쪽지함은 제외 — 상대에게 '지금 보고 있음'이 노출되는 걸 원치 않기로 합의. */
 const typing = { peers:new Map(), lastSent:0, idleTimer:null, tick:null };
@@ -4212,7 +4256,7 @@ async function compressImagesToBudget(files, budget=Q_IMG_BUDGET){
 
 async function loadQuestionPanel(){
   const list=$('#qList');
-  if(!list){ if(location.hash==='#questions') renderQuestions(); return; }   // 패널이 없으면 질문게시판 페이지 갱신
+  if(!list){ if(location.hash==='#questions') renderQuestions(); return; }   // 패널이 없으면 질문 게시판 페이지 갱신
   let rows=[];
   try{
     const { data, error } = await sb.rpc('list_questions');
@@ -4250,11 +4294,11 @@ async function renderQuestion(qid){
     <div class="community">
       <section class="chat">
         <div class="qh">
-          <a class="dm-btn" href="#questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문게시판</a>
+          <a class="dm-btn" href="#questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문 게시판</a>
           <div class="qh-top">
             ${ava}
             <div class="qh-who">${escapeHtml(q.author_name||'-')} <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
-            ${canDel?'<button class="qh-del" id="qDel" title="질문 삭제">🗑</button>':''}
+            ${canDel?`<button class="qh-del" id="qDel" title="질문 삭제">${ic('trash')}</button>`:''}
           </div>
           <h2 class="qh-title">${escapeHtml(q.title||'')}</h2>
           ${q.body?`<div class="qh-body">${escapeHtml(q.body)}</div>`:''}
@@ -5091,9 +5135,11 @@ function route(){
   const isQuestion = key.startsWith('q/');
   const isDm = key.startsWith('dm/');
   const isRev = key.startsWith('rev/');
+  const isHist = key.startsWith('hist/');
+  const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
   const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions'];
-  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm && !isRev);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#home'; return; }
   if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#home'; return; }
@@ -5104,6 +5150,11 @@ function route(){
   if(key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
     const parts=key.slice(4).split('/');
     if(parts.length>=2){ renderRevView(decodeURIComponent(parts[0]), parts[1]); return; }
+  }
+  if(isHist){ showHistory(decodeURIComponent(key.slice(5))); return; }      // #hist/<key>
+  if(isEdit){                                                              // #edit/<key>
+    if(!canEdit()){ location.hash='#'+decodeURIComponent(key.slice(5)); return; }
+    openEditRoute(decodeURIComponent(key.slice(5))); return;
   }
   if(key==='docs'){ renderDocsPage(); return; }
   if(key==='questions'){ renderQuestions(); return; }
