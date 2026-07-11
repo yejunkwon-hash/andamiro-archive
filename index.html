@@ -123,7 +123,16 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .club-mem-ava{width:26px;height:26px;border-radius:50% !important;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;overflow:hidden;}
 .org-mem-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .org-empty{padding:10px 14px 10px 30px;font-size:12.5px;color:var(--text-dim);}
-.qgo-btn{width:auto;font-size:11.5px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
+/* 질문 보기 — 알약(pill) 버튼 */
+.btn.ghost.qgo-btn{width:auto;display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:800;
+  padding:4px 13px;margin-left:8px;vertical-align:middle;border-radius:99px;
+  color:var(--accent);border:1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  background:color-mix(in srgb, var(--accent) 7%, transparent);
+  transition:background .15s,color .15s,box-shadow .15s,transform .12s;}
+.btn.ghost.qgo-btn::after{content:'→';font-weight:800;transition:transform .15s;}
+.btn.ghost.qgo-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent);
+  box-shadow:0 3px 10px color-mix(in srgb, var(--accent) 40%, transparent);transform:translateY(-1px);}
+.btn.ghost.qgo-btn:hover::after{transform:translateX(2px);}
 .uq-table .uq-row{cursor:pointer;}
 .uq-table .uq-row:hover{background:var(--box-bg);}
 .uq-table .uq-t{font-weight:700;color:var(--accent);}
@@ -307,7 +316,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .dst-row{display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
 .dst-row .ic16{width:12px;height:12px;flex:none;opacity:.8;}
 .dst-row b{color:var(--text);}
-.dir-card:hover{box-shadow:0 10px 26px rgba(0,0,0,.16);transform:translateY(-4px);border-color:var(--accent);text-decoration:none;}
+.dir-card:hover{transform:translateY(-4px);text-decoration:none;border-color:var(--cv,var(--accent));
+  box-shadow:0 10px 26px rgba(0,0,0,.16), 0 0 0 2.5px var(--cv,var(--accent));}   /* ★그 회원의 커버색 윤곽 */
 .dir-card:hover .dir-name{text-decoration:underline;text-underline-offset:3px;}
 .dir-ava{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
 .dir-info{padding:9px 11px 11px;}
@@ -390,8 +400,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 /* 질문 작성자: 이름·사진 어느 쪽에 올려도 둘 다 떠오른다 (밑줄 없음) */
 .qh-top .qh-ava{transition:transform .12s, box-shadow .12s;}
 .qh-top .qh-name{transition:transform .12s, color .12s;display:inline-block;}
-.qh-top.hov-profile .qh-ava{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--accent);}
-.qh-top.hov-profile .qh-name{color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+.qh-top.hov-profile .qh-ava{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--cv,var(--accent));}
+.qh-top.hov-profile .qh-name{color:var(--cv,var(--accent));transform:translateY(-1px);text-decoration:none;}
 .qh-title{font-size:16px;font-weight:800;color:var(--text);margin:9px 0 0;line-height:1.45;}
 .qh-body{font-size:14px;color:var(--text);margin-top:7px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
 .qh-imgs{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
@@ -438,8 +448,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 /* 이름·프로필 사진: 어느 쪽에 올려도 둘 다 '떠오르는' 효과. 밑줄은 치지 않는다. */
 .msg-main .msg-who.go-profile{cursor:pointer;transition:transform .12s, color .12s;}
 .msg .msg-avatar.go-profile{cursor:pointer;transition:transform .12s, box-shadow .12s;}
-.msg.hov-profile .msg-who.go-profile{color:var(--accent);transform:translateY(-1px);text-decoration:none;}
-.msg.hov-profile .msg-avatar.go-profile{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--accent);}
+.msg.hov-profile .msg-who.go-profile{color:var(--cv,var(--accent));transform:translateY(-1px);text-decoration:none;}
+.msg.hov-profile .msg-avatar.go-profile{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--cv,var(--accent));}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
 .msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:70%;max-width:70cqw;box-shadow:0 1px 2px rgba(0,0,0,.05);}
 /* ★말풍선은 내용을 따라 '가로로' 먼저 자란다 — 채팅방 폭의 70%에 닿으면 그때부터 줄바꿈.
@@ -2243,8 +2253,9 @@ async function orgSectionHTML(){
   try{ const { data } = await sb.from('members_public').select('id,member_no,name,handle,club,avatar_url'); members=data||[]; }catch(e){}
   let trackOf={};
   if(showTrack){
-    try{ const { data } = await sb.from('profiles').select('id,track');
-      (data||[]).forEach(p=>{ if(p.track) trackOf[p.id]=p.track; }); }catch(e){}
+    try{ let r = await sb.from('member_extras').select('id,track');
+      if(r.error) r = await sb.from('profiles').select('id,track');   // 65 미적용 폴백
+      (r.data||[]).forEach(p=>{ if(p.track) trackOf[p.id]=p.track; }); }catch(e){}
     if(!(state.tracks||[]).length){ try{ await loadTracks(); }catch(e){} }
   }
   let clubs=[];
@@ -2455,8 +2466,11 @@ async function ensureCovers(ids){
   const need=[...new Set((ids||[]).filter(id=>id && !(id in coverCache)))];
   if(!need.length) return coverCache;
   try{
-    const { data } = await sb.from('profiles').select('id,cover_color').in('id', need);
-    (data||[]).forEach(p=>{ coverCache[p.id]=p.cover_color||null; });
+    /* ★일반 회원은 profiles의 타인 행을 못 읽는다(RLS) → 공개 뷰 member_extras(65)에서 읽는다.
+       65 미적용 환경 폴백: profiles 직접(admin+ 는 통과). */
+    let r = await sb.from('member_extras').select('id,cover_color').in('id', need);
+    if(r.error) r = await sb.from('profiles').select('id,cover_color').in('id', need);
+    (r.data||[]).forEach(p=>{ coverCache[p.id]=p.cover_color||null; });
   }catch(e){}
   need.forEach(id=>{ if(!(id in coverCache)) coverCache[id]=null; });
   return coverCache;
@@ -4550,7 +4564,9 @@ async function renderTrackSection(){
   const box=$('#trackSection'); if(!box || !can('track_edit')) return;
   await loadTracks();
   let profs=[];
-  try{ const { data } = await sb.from('profiles').select('id,track'); profs=data||[]; }catch(e){}
+  try{ let r = await sb.from('member_extras').select('id,track');
+    if(r.error) r = await sb.from('profiles').select('id,track');   // 65 미적용 폴백
+    profs=r.data||[]; }catch(e){}
   const cnt={}; profs.forEach(p=>{ if(p.track) cnt[p.track]=(cnt[p.track]||0)+1; });
 
   const rowHTML=(t)=>`
@@ -6207,13 +6223,15 @@ async function renderMemberProfile(id){
   try{ const { data:h } = await sb.from('handle_history').select('handle,changed_at').eq('user_id', id).order('changed_at',{ascending:true}); hist=h||[]; }catch(e){}
   let lastActive=null;
   try{ const { data:mp } = await sb.from('members_public').select('last_active_at').eq('id', id).single(); lastActive = mp && mp.last_active_at; }catch(e){}
-  try{ const { data:pt } = await sb.from('profiles').select('track,cover_color').eq('id', id).single();
-    if(pt){ p.track = pt.track; coverCache[id] = pt.cover_color||null; } }catch(e){}   // 계열·커버색(별도 조회)
+  try{ let r = await sb.from('member_extras').select('track,cover_color,answer_count').eq('id', id).single();
+    if(r.error) r = await sb.from('profiles').select('track,cover_color,answer_count').eq('id', id).single();  // 65 미적용 폴백
+    if(r.data){ p.track = r.data.track; coverCache[id] = r.data.cover_color||null; p._answer = r.data.answer_count; } }catch(e){}   // 계열·커버색·답변수(공개 뷰 65 — RLS 우회)
+  const cv = coverCache[id] || null;             // 이 회원의 커버색 (없으면 기본 accent)
   const av=avatarFor(p.name, p.handle);
   const histRows = (hist.length ? hist : [{handle:p.handle, changed_at:p.created_at}]).map((h,i)=>
     `<tr><td class="y">${fmtKST(h.changed_at)}</td><td>${escapeHtml(h.handle||'-')}${i===0?' <span class="hh-first">가입</span>':''}</td></tr>`).join('');
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>회원 프로필</h1>
+    <div class="doc-head"${cv?` style="border-bottom-color:${escapeAttr(cv)}"`:''}><h1>회원 프로필</h1>
       <div class="tabs">
         ${(state.user && id===state.user.id) ? `<button id="mpEdit">${ic('edit')}계정 정보 수정</button>` : ''}
         <button id="mpBack">${ic('back')}뒤로</button>
@@ -6232,7 +6250,7 @@ async function renderMemberProfile(id){
           <button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:7px 16px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">${ic('mail')}${(state.user && id===state.user.id)?'나에게 쪽지':'메시지'}</button>
         </div>
         <div class="bio-bubble${p.bio?'':' empty'}">
-          <span class="bio-quote">“</span>${p.bio?escapeHtml(p.bio):'아직 한 줄 소개가 없어요.'}<span class="bio-quote">”</span>
+          <span class="bio-quote"${cv?` style="color:${escapeAttr(cv)}"`:''}>“</span>${p.bio?escapeHtml(p.bio):'아직 한 줄 소개가 없어요.'}<span class="bio-quote"${cv?` style="color:${escapeAttr(cv)}"`:''}>”</span>
         </div>
         <table class="wtable profile-table">
           <tr><th style="width:120px">이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
@@ -6278,9 +6296,11 @@ async function renderMemberProfile(id){
       const r = await sb.from('questions').select('id',{count:'exact',head:true}).eq('author', id);
       qn = r.count||0;
     }catch(e){}
-    try{
-      const { data } = await sb.from('profiles').select('answer_count').eq('id', id).single();
-      an = data ? Number(data.answer_count||0) : null;
+    if(p._answer!==undefined && p._answer!==null){ an = Number(p._answer)||0; }
+    else try{
+      let r = await sb.from('member_extras').select('answer_count').eq('id', id).single();
+      if(r.error) r = await sb.from('profiles').select('answer_count').eq('id', id).single();
+      an = r.data ? Number(r.data.answer_count||0) : null;
     }catch(e){}
     if(qEl){
       qEl.innerHTML = (qn===null) ? '<span class="muted">불러오지 못했어요.</span>'
@@ -6290,7 +6310,7 @@ async function renderMemberProfile(id){
       if(gb) gb.onclick=()=>{ location.hash='#//uq/'+id; };
     }
     if(aEl){
-      aEl.innerHTML = (an===null) ? '<span class="muted">불러오지 못했어요. (48_answer_count.sql 필요)</span>'
+      aEl.innerHTML = (an===null) ? '<span class="muted">불러오지 못했어요. (48·65 SQL 적용 필요)</span>'
         : (an ? `<b>${an}</b>개 <span class="muted">(삭제된 질문의 답변 포함)</span>`
               : '<span class="muted">아직 답변이 없어요.</span>');
     }
@@ -6383,8 +6403,9 @@ function renderDirGrid(){
     const cs=await fetchCredits(ids);
     // 답변 수(48) — profiles에서 한 번에
     const ans={};
-    try{ const { data } = await sb.from('profiles').select('id,answer_count').in('id', ids);
-      (data||[]).forEach(p0=>{ ans[p0.id]=Number(p0.answer_count)||0; }); }catch(e){}
+    try{ let r = await sb.from('member_extras').select('id,answer_count').in('id', ids);
+      if(r.error) r = await sb.from('profiles').select('id,answer_count').in('id', ids);   // 65 미적용 폴백
+      (r.data||[]).forEach(p0=>{ ans[p0.id]=Number(p0.answer_count)||0; }); }catch(e){}
     document.querySelectorAll('[data-credit]').forEach(el=>{
       const c=cs[el.dataset.credit] || {};
       const a=ans[el.dataset.credit] || 0;
@@ -6407,8 +6428,8 @@ function renderDirGrid(){
       ? `<div class="dir-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></div>`
       : `<div class="dir-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
     const me = state.user && m.id===state.user.id;
-    return `<div class="dir-card" data-open="${escapeAttr(m.id)}">
-      <div class="dir-banner" data-cover="${escapeAttr(m.id)}"></div>
+    return `<div class="dir-card" data-open="${escapeAttr(m.id)}" data-cover="${escapeAttr(m.id)}">
+      <div class="dir-banner"></div>
       <span class="dir-ava-wrap">${avaInner}<span class="pres-dot" data-pres="${escapeAttr(m.id)}" title="접속 중"></span></span>
       <div class="dir-body">
         <div class="dir-name">${escapeHtml(m.name||'-')}</div>
@@ -7185,7 +7206,7 @@ async function renderQuestion(qid){
       <section class="chat">
         <div class="qh">
           <a class="dm-btn" href="#//questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문 게시판</a>
-          <div class="qh-top${qAuthor?' qh-clickable':''}" ${qAuthor?`data-author="${escapeAttr(qAuthor)}"`:''}>
+          <div class="qh-top${qAuthor?' qh-clickable':''}" ${qAuthor?`data-author="${escapeAttr(qAuthor)}" data-cover="${escapeAttr(qAuthor)}"`:''}>
             ${ava}
             <div class="qh-who"><b class="qh-name">${escapeHtml(q.author_name||'-')}</b> <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
             ${canDel?`<button class="qh-del" id="qDel" title="질문 삭제">${ic('trash')}</button>`:''}
@@ -7526,6 +7547,7 @@ async function loadMessages(){
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
     await loadReactions(rows.map(m=>m.id));
     await prefetchAvatars(rows.map(m=>m.user_id));
+    await ensureCovers(rows.map(m=>m.user_id));    // hover 커버색 일괄 선로딩(개별 조회 방지)
     await prefetchRoles(rows.map(m=>m.user_id));   // 작성자 등급(삭제 권한 판정용)
     rows.forEach(m=>appendMessage(m,false));
     scrollChatBottom();
@@ -7601,6 +7623,8 @@ function appendMessage(m, doScroll=true){
       x.classList.add('go-profile'); x.onclick=go;
       x.addEventListener('mouseenter', on); x.addEventListener('mouseleave', off);
     });
+    el.dataset.cover = m.user_id;                              // hover 색 = 그 회원의 커버색
+    ensureCovers([m.user_id]).then(()=>applyCovers(el));       // 초기 로드는 캐시 히트라 추가 조회 0
   }
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
   else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
