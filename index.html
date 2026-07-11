@@ -9,12 +9,14 @@
 <style>
 /* ===== 기본 토큰 (wiki.html과 동일) ===== */
 :root{
+  --teacher:#d99a0b;
   --accent:#C00000; --accent-soft:#d64a42; --bg:#eef1f5; --card:#ffffff;
   --text:#202124; --text-dim:#5f6368; --border:#e3e6ea; --border-strong:#c9ced6;
   --link:#1e6be0; --link-red:#cc2b2b; --box-bg:#f6f8fa; --infobox-head:#C00000;
   --table-head:#eef1f7; --shadow:0 1px 3px rgba(0,0,0,.08);
 }
 body.dark{
+  --teacher:#f0b93b;
   --accent:#e05a52; --accent-soft:#ea7d76; --bg:#17181c; --card:#232429;
   --text:#e4e6eb; --text-dim:#9aa0ab; --border:#33353c; --border-strong:#44464e;
   --link:#6ba4ff; --link-red:#ff6b6b; --box-bg:#2a2c33; --infobox-head:#a83232;
@@ -252,6 +254,11 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .qh-top{display:flex;align-items:center;gap:9px;}
 .qh-ava{width:32px;height:32px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;}
 .qh-who{font-size:12.5px;color:var(--text-dim);}
+/* 질문 작성자: 이름·사진 어느 쪽에 올려도 둘 다 떠오른다 (밑줄 없음) */
+.qh-top .qh-ava{transition:transform .12s, box-shadow .12s;}
+.qh-top .qh-name{transition:transform .12s, color .12s;display:inline-block;}
+.qh-top.hov-profile .qh-ava{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--accent);}
+.qh-top.hov-profile .qh-name{color:var(--accent);transform:translateY(-1px);text-decoration:none;}
 .qh-title{font-size:16px;font-weight:800;color:var(--text);margin:9px 0 0;line-height:1.45;}
 .qh-body{font-size:14px;color:var(--text);margin-top:7px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
 .qh-imgs{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
@@ -294,10 +301,11 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
 .msg-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;}
 .msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
-.msg-who.go-profile{cursor:pointer;}
-.msg-who.go-profile:hover{color:var(--accent);text-decoration:underline;}
-.msg-avatar.go-profile{cursor:pointer;}
-.msg-avatar.go-profile:hover{filter:brightness(1.05);box-shadow:0 0 0 2px var(--accent);}
+/* 이름·프로필 사진: 어느 쪽에 올려도 둘 다 '떠오르는' 효과. 밑줄은 치지 않는다. */
+.msg-main .msg-who.go-profile{cursor:pointer;transition:transform .12s, color .12s;}
+.msg .msg-avatar.go-profile{cursor:pointer;transition:transform .12s, box-shadow .12s;}
+.msg.hov-profile .msg-who.go-profile{color:var(--accent);transform:translateY(-1px);text-decoration:none;}
+.msg.hov-profile .msg-avatar.go-profile{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--accent);}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
 .msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:min(78%,560px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
 /* 긴 글: 말풍선이 세로로 늘어나고 시각·삭제 버튼은 아래쪽에 붙는다 */
@@ -493,8 +501,11 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .pseg button.on{background:var(--accent);color:#fff;}
 .pseg button.off.on{background:var(--border-strong);color:#fff;}
 /* teacher 전용 세그먼트 */
-.seg.seg-teacher{border-color:#7b5ea7;}
-.seg.seg-teacher .seg-opt{background:#7b5ea7;color:#fff;border-color:#7b5ea7;cursor:default;}
+/* teacher 등급: 어떤 테마색과도 어울리는 앰버(금색) */
+.seg.seg-teacher{border-color:var(--teacher);}
+.seg.seg-teacher .seg-opt{background:var(--teacher);color:#fff;border-color:var(--teacher);cursor:default;}
+.role-teacher{color:var(--teacher) !important;font-weight:800;}
+.role-chip.role-teacher{background:var(--teacher);color:#fff !important;border-color:var(--teacher);}
 .hs-ic{width:18px;height:18px;vertical-align:middle;}
 .hs-ic.ok{color:#2e9e5b;} .hs-ic.bad{color:var(--link-red);} .hs-ic.warn{color:#c98500;}
 .cap-bar{margin:8px 0 12px;}
@@ -1452,9 +1463,18 @@ async function verifyPin(){
   if(pinExpired()){ pinMsg('인증번호가 만료되었어요. [재발송]으로 새 번호를 받아주세요.','err'); return; }
   const btn=$('#pin-verify'); btn.disabled=true; btn.textContent='확인 중…';
   try{
-    const { data, error } = await sb.auth.verifyOtp({ email: pinFlow.email, token: code, type:'email' });
-    if(error) throw error;
-    if(!data || !data.session) throw new Error('세션을 만들지 못했어요.');
+    /* ★Supabase는 같은 6자리 코드라도 '어떤 흐름으로 보냈는지'에 따라 검증 타입이 다르다.
+       signInWithOtp가 기존 회원에게 보낸 메일은 magiclink 타입인 경우가 많아 type:'email'로는 거부된다.
+       세 가지를 순서대로 시도해 실제로 통과하는 것을 쓴다. */
+    /* ⚠️Supabase는 '타입이 틀린' 경우에도 "Token has expired or is invalid" 라고 답한다.
+       그래서 메시지만 보고 중단하면 안 되고, 세 타입을 모두 시도해야 한다. */
+    let data=null, lastErr=null;
+    for(const t of ['email','magiclink','signup']){
+      const r = await sb.auth.verifyOtp({ email: pinFlow.email, token: code, type: t });
+      if(!r.error && r.data && r.data.session){ data=r.data; lastErr=null; break; }
+      lastErr = r.error || new Error('세션을 만들지 못했어요.');
+    }
+    if(!data) throw (lastErr || new Error('인증에 실패했어요.'));
     stopPinTimer();
     pinMsg('확인됐어요! 새 비밀번호를 설정해 주세요.','ok');
     state.recovery = true;              // ★비번을 바꿀 때까지 다른 화면으로 못 나간다
@@ -1541,6 +1561,15 @@ function roleRank(r){ return ROLE_RANK[r] ?? 0; }
 function myRank(){ return roleRank(state.role); }
 function isOwner(){ return state.role==='owner'; }
 function isTeacher(){ return state.role==='teacher'; }
+/* 등급 표시 — teacher는 앰버색으로 (모든 화면 공통) */
+function roleText(r){
+  r = r || 'viewer';
+  return r==='teacher' ? `<span class="role-teacher">teacher</span>` : escapeHtml(r);
+}
+function roleChip(r){
+  r = r || 'viewer';
+  return `<span class="role-chip${r==='teacher'?' role-teacher':''}">${escapeHtml(r)}</span>`;
+}
 
 /* ================== 권한 매트릭스 ==================
    owner가 [시스템 → 권한 설정]에서 등급별로 켜고 끈다. owner는 항상 전권.
@@ -1559,6 +1588,7 @@ const PERM_CAPS = [
     ['q_ask',    '질문 게시판 — 질문 게시'],
     ['q_answer', '질문 게시판 — 답변'],
     ['dm',       '쪽지함 채팅'],
+    ['msg_delete','자기보다 낮은 등급 회원의 메시지 삭제 (쪽지 제외)'],
   ]},
   { sec:'회원 · 조직', items:[
     ['dir_read',     '회원 조회 열람'],
@@ -1585,7 +1615,7 @@ const DEFAULT_PERMS = {
   editor: { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
             chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
   admin:  { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
-            chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1,
+            chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, msg_delete:1,
             admin_access:1, admin_role:1, admin_club:1,
             club_read:1, club_edit:1, track_read:1, track_edit:1 },
 };
@@ -1704,7 +1734,7 @@ function canEdit(){ return can('doc_edit'); }
 function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // 서열(메시지 삭제 등) — 권한 매트릭스와 별개
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
-  $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge" style="background:rgba(255,255,255,.22)">${state.role}</span>`;
+  $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge${state.role==='teacher'?' role-badge-teacher':''}" style="background:${state.role==='teacher'?'var(--teacher)':'rgba(255,255,255,.22)'}">${escapeHtml(state.role)}</span>`;
   $('#dropRequests').style.display = isOwner() ? 'block' : 'none';
   $('#dropSystem').style.display = can('system_access') ? 'block' : 'none';
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
@@ -4154,6 +4184,7 @@ function healthTasks(){
       ['perm — 서버 권한 판정 (54)',     ()=>chkRpc('perm — 서버 권한 판정 (54)','perm',{ p_cap:'doc_read' })],
       ['ensure_owner — owner 자동 복구 (55)', ()=>chkRpc('ensure_owner — owner 자동 복구 (55)','ensure_owner',{})],
       ['set_perms_default — 기본값 프리셋 (56)', ()=>chkRpc('set_perms_default — 기본값 프리셋 (56)','set_perms_default',{ p_perms:null })],
+      ['delete_message — 메시지 삭제 (22·57)', ()=>chkRpc('delete_message — 메시지 삭제 (22·57)','delete_message',{ p_id:-1 })],
       ['submit_contact — 관리자 문의 (50·55)', ()=>chkRpc('submit_contact — 관리자 문의 (50·55)','submit_contact',{ p_email:null, p_body:'' })],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
@@ -4558,7 +4589,7 @@ async function renderMe(){
         <tr><th>소속</th><td><div class="handle-cell"><span id="meClubText">${escapeHtml(p.club||'무소속')}</span><button class="handle-edit" id="meClubBtn" title="소속 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>계열</th><td><div class="handle-cell"><span id="meTrackText">${trackChipHTML(p.track)}</span><button class="handle-edit" id="meTrackBtn" title="계열 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
-        <tr><th>등급</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
+        <tr><th>등급</th><td>${roleText(p.role||state.role)}</td></tr>
         <tr><th>가입일</th><td>${joined}</td></tr>
         <tr><th>한 줄 소개</th><td>
           <div class="handle-cell">
@@ -4802,7 +4833,7 @@ async function renderMemberProfile(id){
             : `<div class="profile-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`}
           <div class="profile-headline">
             <div class="profile-name">${escapeHtml(p.name||'-')} <span class="profile-handle">@${escapeHtml(p.handle||'-')}</span></div>
-            <div class="profile-sub">회원번호 #${p.member_no??'-'} · <span class="role-chip">${escapeHtml(p.role||'viewer')}</span></div>
+            <div class="profile-sub">회원번호 #${p.member_no??'-'} · ${roleChip(p.role)}</div>
           </div>
           <button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:6px 14px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">${(state.user && id===state.user.id)?'나에게 쪽지':'메시지'}</button>
         </div>
@@ -4815,7 +4846,7 @@ async function renderMemberProfile(id){
           <tr><th>소속</th><td>${escapeHtml(p.club||'무소속')}</td></tr>
           <tr><th>계열</th><td>${trackChipHTML(p.track)}</td></tr>
           <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
-          <tr><th>등급</th><td>${escapeHtml(p.role||'viewer')}</td></tr>
+          <tr><th>등급</th><td>${roleText(p.role)}</td></tr>
           <tr><th>가입일</th><td>${fmtKST(p.created_at)}</td></tr>
           <tr><th>마지막 활동</th><td>${(lastActive||p.last_active_at)?fmtKST(lastActive||p.last_active_at):(p.last_sign_in_at?fmtKST(p.last_sign_in_at):'-')}</td></tr>
           <tr><th>회원번호</th><td>#${p.member_no??'-'}</td></tr>
@@ -5448,8 +5479,6 @@ async function openDmThread(tid){
   }catch(e){ pane.innerHTML='<div class="ip-empty">불러오지 못했습니다.</div>'; return; }
   inbox.msgIds = new Set(msgs.map(m=>m.id));      // 이미 그린 메시지 목록(폴링이 새 것만 추가)
   refreshPresence();                             // 대화 헤더의 접속 표시
-  bindDmDelete(tid);
-  typeToFocus('#ipInput');        // 대화를 열고 아무 키나 치면 답장칸으로 포커스
 
   const _self = t && state.user && String(t.other_id)===String(state.user.id);
   const who = t ? `${escapeHtml(t.other_name||'-')}${_self?' <b style="color:var(--accent)">(나)</b>':''} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span>` : '쪽지';
@@ -5470,6 +5499,8 @@ async function openDmThread(tid){
     </div>
     <div class="chat-count dm-count" id="dmCount"></div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
+  bindDmDelete(tid);              // ★반드시 innerHTML 이후 — 예전엔 렌더 전에 불러서 버튼에 배선이 안 됐다
+  typeToFocus('#ipInput');        // 대화를 열고 아무 키나 치면 답장칸으로 포커스
   $('#ipClose').onclick=()=>{ inbox.sel=null; inbox.msgIds=new Set();
     pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
     $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
@@ -5663,6 +5694,7 @@ async function renderQuestion(qid){
   const ava = q.author_avatar
     ? `<div class="qh-ava" style="background-image:url('${escapeAttr(q.author_avatar)}')"></div>`
     : `<div class="qh-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+  const qAuthor = q.author || null;
   const canDel = (state.user && q.author===state.user.id) || isAdmin();
   const imgs=(q.images||[]).map(u=>`<img src="${escapeAttr(u)}" alt="첨부 이미지" loading="lazy">`).join('');
 
@@ -5671,9 +5703,9 @@ async function renderQuestion(qid){
       <section class="chat">
         <div class="qh">
           <a class="dm-btn" href="#//questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문 게시판</a>
-          <div class="qh-top">
+          <div class="qh-top${qAuthor?' qh-clickable':''}" ${qAuthor?`data-author="${escapeAttr(qAuthor)}"`:''}>
             ${ava}
-            <div class="qh-who">${escapeHtml(q.author_name||'-')} <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
+            <div class="qh-who"><b class="qh-name">${escapeHtml(q.author_name||'-')}</b> <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
             ${canDel?`<button class="qh-del" id="qDel" title="질문 삭제">${ic('trash')}</button>`:''}
           </div>
           <h2 class="qh-title">${escapeHtml(q.title||'')}</h2>
@@ -5714,6 +5746,16 @@ async function renderQuestion(qid){
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();
   if(canDel) $('#qDel').onclick=()=>deleteQuestion(qid, q.images||[]);
+  const qTop=$('#doc').querySelector('.qh-top[data-author]');
+  if(qTop){
+    const goP=(e)=>{ if(e.target.closest('.qh-del')) return; location.hash='#//member/'+qTop.dataset.author; };
+    const ava2=qTop.querySelector('.qh-ava'), nm=qTop.querySelector('.qh-name');
+    [ava2, nm].forEach(x=>{ if(!x) return;
+      x.style.cursor='pointer'; x.onclick=goP;
+      x.addEventListener('mouseenter', ()=>qTop.classList.add('hov-profile'));
+      x.addEventListener('mouseleave', ()=>qTop.classList.remove('hov-profile'));
+    });
+  }
   document.querySelectorAll('.qh-imgs img').forEach(im=>im.onclick=()=>openLightbox(im.src));
   await loadQuestionPanel();
   await loadMessages();      // community.qid 가 걸려 있어 이 질문의 답변만 로드됨
@@ -5913,9 +5955,9 @@ async function ensureRole(uid){
 function canDeleteMsg(m){
   if(!m || !m.user_id) return false;
   if(state.user && m.user_id===state.user.id) return true;   // 본인 메세지는 등급 무관 항상 삭제 가능
-  if(!isAdmin()) return false;                                // 남의 메세지는 admin·owner만
+  if(!can('msg_delete')) return false;                        // 남의 메세지 = msg_delete 권한 필요 (쪽지 제외)
   const r=roleCache[m.user_id]; if(r===undefined) return false;
-  return myRank() > roleRank(r);                              // 내 서열 > 작성자 서열
+  return myRank() > roleRank(r);                              // 그래도 '내 서열 > 작성자 서열'은 유지
 }
 /* 작성자 등급이 뒤늦게 확인됐을 때, 해당 사용자의 메세지들에 삭제버튼을 추가/제거 */
 function refreshMsgDelete(uid){
@@ -6042,8 +6084,12 @@ function appendMessage(m, doScroll=true){
   if(!mine && m.user_id){   // 본인 제외: 아바타/활동명 클릭 → 해당 회원 프로필
     const go=()=>{ location.hash='#//member/'+m.user_id; };
     const av=el.querySelector('.msg-avatar'), wh=el.querySelector('.msg-who');
-    if(av){ av.classList.add('go-profile'); av.onclick=go; }
-    if(wh){ wh.classList.add('go-profile'); wh.onclick=go; }
+    const on=()=>el.classList.add('hov-profile'), off=()=>el.classList.remove('hov-profile');
+    [av, wh].forEach(x=>{
+      if(!x) return;
+      x.classList.add('go-profile'); x.onclick=go;
+      x.addEventListener('mouseenter', on); x.addEventListener('mouseleave', off);
+    });
   }
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
   else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
@@ -6937,7 +6983,7 @@ function route(){
   if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#//home'; return; }
   if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#//home'; return; }
   if(key==='directory'){ renderDirectory(); return; }
-  if(key==='main'){ renderLanding(); return; }
+  if(key==='main' || key==='home'){ renderLanding(); return; }   // 폰 하단바의 '홈'도 대문으로
   if(key==='community'){ renderCommunity(); return; }
   if(isQuestion){ renderQuestion(Number(key.slice(2))); return; }
   if(key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
