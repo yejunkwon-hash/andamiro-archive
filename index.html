@@ -172,6 +172,15 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .ui-photo{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .online-dot{color:#2e9e5b;font-size:11px;font-weight:800;margin-left:6px;white-space:nowrap;}
 .ava-cell{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex:none;}
+/* 회원 관리 표: 사진+이름+활동명을 한 칸에 · 행 전체가 프로필 링크 */
+.admin-table .mem-row{cursor:pointer;transition:background .1s;}
+.admin-table .mem-row:hover{background:var(--box-bg);}
+.admin-table .mem-cell{padding-top:8px;padding-bottom:8px;}
+.mem-who{display:flex;align-items:center;gap:10px;}
+.mem-who .ava-cell{width:38px;height:38px;font-size:14px;}
+.mem-txt{line-height:1.3;}
+.mem-name{font-weight:700;color:var(--text);font-size:13.5px;}
+.mem-handle{font-size:12px;color:var(--text-dim);}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;}
 .table-hint{display:none;font-size:11.5px;color:var(--text-dim);margin:0 0 5px;}
 .admin-table th,.admin-table td{white-space:nowrap;}
@@ -593,6 +602,49 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .cal-save{background:var(--accent);color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:12px;font-weight:700;}
 .cal-save:hover{filter:brightness(1.08);}
 .cal-yr:hover{border-color:var(--accent);}
+/* 커뮤니티 캘린더 위젯: 통째로 클릭 → 캘린더 탭 */
+.cal-clickable{cursor:pointer;transition:box-shadow .12s,transform .1s;}
+.cal-clickable:hover{box-shadow:0 4px 16px rgba(0,0,0,.12);transform:translateY(-1px);}
+.cal-foot{font-size:11.5px;color:var(--text-dim);text-align:center;padding:7px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:center;gap:5px;}
+.cal-dots{display:flex;gap:2px;margin-top:2px;flex-wrap:wrap;}
+.cal-dot{width:5px;height:5px;border-radius:50%;display:inline-block;}
+
+/* ===== 캘린더 탭 ===== */
+.cp-wrap{display:flex;gap:16px;align-items:flex-start;}
+.cp-main{flex:1;min-width:0;}
+.cp-side{width:250px;flex:none;}
+.cp-bar{display:flex;align-items:center;justify-content:space-between;background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px 8px 0 0;}
+.cp-title{font-weight:800;font-size:16px;}
+.cp-nav{width:30px;height:28px;}
+.cp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;}
+.cp-dow{background:var(--box-bg);text-align:center;font-size:12px;font-weight:800;padding:7px 0;color:var(--text-dim);}
+.cp-dow.sun{color:#d33;} .cp-dow.sat{color:#37c;}
+.cp-cell{background:var(--card);min-height:96px;padding:5px 5px 6px;font-size:12px;cursor:pointer;transition:background .1s;display:flex;flex-direction:column;gap:3px;}
+.cp-cell:hover{background:var(--box-bg);}
+.cp-cell.empty{background:var(--box-bg);cursor:default;}
+.cp-num{font-weight:700;color:var(--text);font-size:12.5px;}
+.cp-cell.sun .cp-num{color:#d33;} .cp-cell.sat .cp-num{color:#37c;}
+.cp-cell.today .cp-num{background:var(--accent);color:#fff;border-radius:50%;padding:1px 6px;align-self:flex-start;}
+.cp-ev{border-radius:5px;padding:2px 6px;font-size:11px;color:#2b2b33;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cp-ev:hover{filter:brightness(.95);}
+.cp-ev b{font-weight:800;margin-right:2px;}
+.cp-more{font-size:10.5px;color:var(--text-dim);}
+.cp-chk{display:flex;align-items:flex-start;gap:8px;font-size:13px;padding:7px 0;color:var(--text);cursor:pointer;}
+.cp-chk input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;}
+.cp-hint{font-size:11.5px;color:var(--text-dim);margin-top:6px;line-height:1.5;}
+.cp-up{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.cp-up-dot{width:10px;height:10px;border-radius:3px;margin-top:4px;flex:none;}
+.cp-up-t{font-size:11.5px;color:var(--text-dim);}
+.ev-colors{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 2px;}
+.ev-color{width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;}
+.ev-color.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card) inset;}
+.ev-head{height:6px;border-radius:6px;margin-bottom:10px;}
+@media(max-width:768px){
+  .cp-wrap{flex-direction:column;}
+  .cp-side{width:100%;}
+  .cp-cell{min-height:72px;}
+  .cp-ev{font-size:10px;padding:1px 4px;}
+}
 .cal-range{color:var(--text-dim);font-size:11px;}
 .doclist-head{background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;cursor:pointer;user-select:none;}
@@ -1202,6 +1254,7 @@ async function onLoggedIn(){
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
+  setTimeout(()=>{ sb.rpc('dispatch_event_reminders').catch(()=>{}); }, 2500);   // 일정 리마인더(전날·1시간 전) 발송
 }
 const ROLE_RANK={ viewer:0, editor:1, admin:2, owner:3 };
 function roleRank(r){ return ROLE_RANK[r] ?? 0; }
@@ -2963,11 +3016,17 @@ async function renderAdmin(){
     const la=m.last_active_at||null;
     const actCell = activityCellHTML(m);
     return `
-    <tr>
-      <td><a class="mlink" href="#member/${m.id}">${avaCellHTML(m.name, m.handle, ex.avatar_url)}</a></td>
+    <tr class="mem-row" data-member="${escapeAttr(m.id)}">
+      <td class="mem-cell">
+        <div class="mem-who">
+          ${avaCellHTML(m.name, m.handle, ex.avatar_url)}
+          <div class="mem-txt">
+            <div class="mem-name">${escapeHtml(m.name||'-')}</div>
+            <div class="mem-handle">@${escapeHtml(m.handle||'-')}</div>
+          </div>
+        </div>
+      </td>
       <td>${escapeHtml(m.email||'')}</td>
-      <td><a class="mlink" href="#member/${m.id}">${escapeHtml(m.name||'-')}</a></td>
-      <td>${escapeHtml(m.handle||'-')}</td>
       <td>${m.cohort!=null?m.cohort:'-'}</td>
       <td>${clubCell(m.id, ex.club, clubNames)}</td>
       <td>${trackChipHTML(ex.track)}</td>
@@ -2984,7 +3043,7 @@ async function renderAdmin(){
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
     <div class="table-scroll">
     <table class="wtable admin-table">
-      <tr><th>사진</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>계열</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
+      <tr><th>회원</th><th>이메일</th><th>기수</th><th>소속</th><th>계열</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
       ${rows}
     </table>
     </div>
@@ -2998,6 +3057,13 @@ async function renderAdmin(){
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
   $('#doc').querySelectorAll('.club-sel').forEach(sel=>sel.onchange=()=>setMemberClub(sel.dataset.id, sel.value, sel));
+  // 행 클릭 → 회원 프로필 (등급 버튼·소속 드롭다운 등 조작 요소는 제외)
+  $('#doc').querySelectorAll('.mem-row[data-member]').forEach(tr=>{
+    tr.onclick=(e)=>{
+      if(e.target.closest('button,select,input,a')) return;
+      location.hash='#member/'+tr.dataset.member;
+    };
+  });
   renderClubSection();
   if(isOwner()) renderTrackSection();
   window.scrollTo(0,0);
@@ -3433,6 +3499,7 @@ function healthTasks(){
       ['dm_messages (쪽지 30)',       ()=>chkTable('dm_messages (쪽지 30)', ()=>sb.from('dm_messages').select('id').limit(1))],
       ['notifications (알림 32)',     ()=>chkTable('notifications (알림 32)', ()=>sb.from('notifications').select('id').limit(1))],
       ['doc_likes (좋아요 40)',       ()=>chkTable('doc_likes (좋아요 40)', ()=>sb.from('doc_likes').select('doc_key').limit(1))],
+      ['events (일정 49)',            ()=>chkTable('events (일정 49)', ()=>sb.from('events').select('id,title,at,color').limit(1))],
       ['signup_requests (가입 신청)', ()=>chkTable('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1))],
       ['app_settings (설정)',         ()=>chkTable('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1))],
     ]},
@@ -3444,6 +3511,8 @@ function healthTasks(){
       ['profiles.session_seconds (27)',   ()=>chkTable('profiles.session_seconds (27)', ()=>sb.from('profiles').select('session_seconds').limit(1))],
       ['profiles.bio (42)',               ()=>chkTable('profiles.bio (42)', ()=>sb.from('profiles').select('bio').limit(1))],
       ['profiles.track — 계열 (47)',      ()=>chkTable('profiles.track — 계열 (47)', ()=>sb.from('profiles').select('track').limit(1))],
+      ['profiles.answer_count (48)',      ()=>chkTable('profiles.answer_count (48)', ()=>sb.from('profiles').select('answer_count').limit(1))],
+      ['profiles.notify_* — 일정 알림 (49)', ()=>chkTable('profiles.notify_* — 일정 알림 (49)', ()=>sb.from('profiles').select('notify_day_before,notify_hour_before').limit(1))],
       ['documents.format (36)',           ()=>chkTable('documents.format (36)', ()=>sb.from('documents').select('format').limit(1))],
       ['documents.created_at (45)',       ()=>chkTable('documents.created_at (45)', ()=>sb.from('documents').select('created_at').limit(1))],
     ]},
@@ -3476,6 +3545,8 @@ function healthTasks(){
       ['set_my_avatar (13)',          ()=>chkRpc('set_my_avatar (13)','set_my_avatar',{ p_url: state.avatar_url || null })],
       ['add_club / rename_club / delete_club (14)', ()=>chkRpc('add_club / rename_club / delete_club (14)','rename_club',{ p_id:-1, p_new:'__healthcheck__' })],
       ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
+      ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
+      ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
     ]},
     { sec:'스토리지 버킷', items:[
       ['avatars (프로필 사진)',        ()=>chkBucket('avatars (프로필 사진)','avatars')],
@@ -4932,7 +5003,7 @@ async function renderCommunity(){
         <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
         <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
-      <aside class="calendar-wrap" id="calWrap"></aside>
+      <aside class="calendar-wrap" id="calWrap" title="눌러서 캘린더 탭 열기"></aside>
     </div>`;
   await loadBaseYear();
   community.viewY=community.baseYear;
@@ -5578,6 +5649,37 @@ async function setBaseYear(y){
     renderCalendar();
   }catch(e){ alert('기준연도 변경 실패: admin 권한/DB 설정을 확인하세요.'); }
 }
+/* 일정 색상 8종 (파스텔) */
+const EVENT_COLORS = ['#AEC6F6','#BFE3C8','#FFD9A8','#F7C0C7','#D7C4F2','#A9E4E4','#F5E6A3','#D9D9E3'];
+
+const calState = { events: [], loaded:false };
+
+/* 일정 로드 — 보고 있는 달 ±1개월 */
+async function loadEvents(y, m){
+  try{
+    const from = new Date(y, m-1, 1).toISOString();
+    const to   = new Date(y, m+2, 1).toISOString();
+    const { data, error } = await sb.from('events')
+      .select('id,title,at,color,note,created_by')
+      .gte('at', from).lt('at', to).order('at',{ascending:true});
+    if(error) throw error;
+    calState.events = data||[]; calState.loaded=true;
+  }catch(e){ calState.events=[]; calState.loaded=false; }
+  return calState.events;
+}
+function eventsOn(y, m, d){
+  return (calState.events||[]).filter(ev=>{
+    const t=new Date(ev.at);
+    return t.getFullYear()===y && t.getMonth()===m && t.getDate()===d;
+  });
+}
+function evTime(at){
+  const t=new Date(at);
+  const hh=String(t.getHours()).padStart(2,'0'), mm=String(t.getMinutes()).padStart(2,'0');
+  return hh+':'+mm;
+}
+
+/* ── 캘린더(작은 위젯: 커뮤니티 우측) ── */
 function renderCalendar(){
   const wrap=$('#calWrap'); if(!wrap) return;
   const y=community.viewY, m=community.viewM;
@@ -5592,28 +5694,206 @@ function renderCalendar(){
   for(let d=1;d<=days;d++){
     const isToday=(t.getFullYear()===y && t.getMonth()===m && t.getDate()===d);
     const dow=(startDow+d-1)%7;
-    cells+=`<div class="cal-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}"><span class="cal-num">${d}</span></div>`;
+    const evs=eventsOn(y,m,d);
+    const dots=evs.slice(0,3).map(e=>`<span class="cal-dot" style="background:${escapeAttr(e.color)}"></span>`).join('');
+    cells+=`<div class="cal-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}">
+      <span class="cal-num">${d}</span>${dots?`<div class="cal-dots">${dots}</div>`:''}</div>`;
   }
-  const admin = isAdmin()
-    ? `<div class="cal-admin">기준연도 <input class="cal-yr-input" id="byInput" type="number" value="${community.baseYear}" min="2000" max="2100"><button class="cal-save" id="bySave">저장</button> <span class="cal-range">(${minY}~${maxY})</span></div>`
-    : `<div class="cal-admin muted">기준연도 ${community.baseYear} · 이동범위 ${minY}~${maxY}</div>`;
   wrap.innerHTML=`
-    <div class="cal">
+    <div class="cal cal-clickable" id="calGo">
       <div class="cal-topbar">
         <button class="cal-nav" id="calPrev" ${atMin?'disabled':''} aria-label="이전 달">▲</button>
         <div class="cal-title">${y}년 ${m+1}월</div>
         <button class="cal-nav" id="calNext" ${atMax?'disabled':''} aria-label="다음 달">▼</button>
       </div>
       <div class="cal-grid">${cells}</div>
-      ${admin}
+      <div class="cal-foot">${ic('calendar')} 눌러서 캘린더 열기</div>
     </div>`;
   const p=$('#calPrev'), n=$('#calNext');
-  if(p) p.onclick=()=>calMove(-1);
-  if(n) n.onclick=()=>calMove(1);
-  if(isAdmin()){ const sv=$('#bySave'), inp=$('#byInput');
-    if(sv) sv.onclick=()=>{ const v=parseInt(inp.value,10); if(v) setBaseYear(v); };
-    if(inp) inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ const v=parseInt(inp.value,10); if(v) setBaseYear(v); } });
+  if(p) p.onclick=(e)=>{ e.stopPropagation(); calMove(-1); };
+  if(n) n.onclick=(e)=>{ e.stopPropagation(); calMove(1); };
+  const go=$('#calGo');
+  if(go) go.onclick=()=>{ location.hash='#calendar'; };      // ★캘린더 클릭 → 캘린더 탭
+  if(!calState.loaded) loadEvents(y,m).then(()=>{ if($('#calWrap')) renderCalendar(); });
+}
+
+/* ── 캘린더 탭 (#calendar) ── */
+const calPage = { y:(new Date()).getFullYear(), m:(new Date()).getMonth(), inited:false };
+async function renderCalendarPage(){
+  if(!calPage.inited){ calPage.y=(new Date()).getFullYear(); calPage.m=(new Date()).getMonth(); calPage.inited=true; }
+  $('#doc').innerHTML=`<div class="doc-head"><h1>캘린더</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  await loadEvents(calPage.y, calPage.m);
+  let prefs={ notify_day_before:true, notify_hour_before:true };
+  try{
+    const { data } = await sb.from('profiles').select('notify_day_before,notify_hour_before').eq('id', state.user.id).single();
+    if(data) prefs=data;
+  }catch(e){}
+  drawCalendarPage(prefs);
+  try{ await sb.rpc('dispatch_event_reminders'); }catch(e){}   // 들어온 김에 밀린 알림 발송
+}
+function drawCalendarPage(prefs){
+  const y=calPage.y, m=calPage.m;
+  const startDow=new Date(y,m,1).getDay();
+  const days=new Date(y,m+1,0).getDate();
+  const wd=['일','월','화','수','목','금','토'];
+  const t=new Date();
+  let cells=wd.map((d,i)=>`<div class="cp-dow${i===0?' sun':''}${i===6?' sat':''}">${d}</div>`).join('');
+  for(let i=0;i<startDow;i++) cells+='<div class="cp-cell empty"></div>';
+  for(let d=1;d<=days;d++){
+    const isToday=(t.getFullYear()===y && t.getMonth()===m && t.getDate()===d);
+    const dow=(startDow+d-1)%7;
+    const evs=eventsOn(y,m,d);
+    const chips=evs.slice(0,4).map(e=>
+      `<div class="cp-ev" data-ev="${e.id}" style="background:${escapeAttr(e.color)}" title="${escapeAttr(evTime(e.at)+' '+(e.title||''))}">
+         <b>${escapeHtml(evTime(e.at))}</b> ${escapeHtml(e.title||'')}</div>`).join('');
+    const more = evs.length>4 ? `<div class="cp-more">+${evs.length-4}</div>` : '';
+    cells+=`<div class="cp-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}" data-day="${d}">
+      <span class="cp-num">${d}</span>${chips}${more}</div>`;
   }
+  const upcoming=(calState.events||[]).filter(e=>new Date(e.at)>=new Date()).slice(0,6);
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>캘린더</h1>
+      <div class="tabs">
+        <button id="cpToday">${ic('calendar')}오늘</button>
+        <button id="cpBack">${ic('back')}커뮤니티</button>
+      </div></div>
+    <div class="doc-meta">${canEdit()?'빈 칸을 누르면 그 날짜에 <b>일정을 추가</b>할 수 있어요.':'일정 추가는 편집 권한(editor+)이 필요합니다.'} 일정을 누르면 상세가 열립니다.</div>
+    <div class="cp-wrap">
+      <section class="cp-main">
+        <div class="cp-bar">
+          <button class="cal-nav cp-nav" id="cpPrev" aria-label="이전 달">◀</button>
+          <div class="cp-title">${y}년 ${m+1}월</div>
+          <button class="cal-nav cp-nav" id="cpNext" aria-label="다음 달">▶</button>
+        </div>
+        <div class="cp-grid">${cells}</div>
+      </section>
+      <aside class="cp-side">
+        <div class="side-head">알림 설정</div>
+        <label class="cp-chk"><input type="checkbox" id="cpDay" ${prefs.notify_day_before!==false?'checked':''}>
+          <span>일정 <b>전날</b>에 시스템 쪽지 받기</span></label>
+        <label class="cp-chk"><input type="checkbox" id="cpHour" ${prefs.notify_hour_before!==false?'checked':''}>
+          <span>일정 <b>1시간 전</b>에 시스템 쪽지 받기</span></label>
+        <div class="cp-hint" id="cpPrefMsg">알림은 쪽지함의 <b>시스템</b> 대화로 도착합니다.</div>
+        <div class="side-head" style="margin-top:16px">다가오는 일정</div>
+        ${upcoming.length ? upcoming.map(e=>`
+          <div class="cp-up" data-ev="${e.id}">
+            <span class="cp-up-dot" style="background:${escapeAttr(e.color)}"></span>
+            <div><b>${escapeHtml(e.title||'')}</b><div class="cp-up-t">${escapeHtml(fmtKST(e.at))}</div></div>
+          </div>`).join('') : '<div class="cp-hint">예정된 일정이 없습니다.</div>'}
+      </aside>
+    </div>`;
+  $('#cpBack').onclick=()=>{ location.hash='#community'; };
+  $('#cpToday').onclick=()=>{ const n=new Date(); calPage.y=n.getFullYear(); calPage.m=n.getMonth(); renderCalendarPage(); };
+  $('#cpPrev').onclick=()=>{ const tot=calPage.y*12+calPage.m-1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
+  $('#cpNext').onclick=()=>{ const tot=calPage.y*12+calPage.m+1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
+  $('#doc').querySelectorAll('.cp-cell[data-day]').forEach(c=>{
+    c.onclick=(ev)=>{
+      if(ev.target.closest('.cp-ev')) return;                       // 일정 칩은 상세로
+      if(!canEdit()) return;
+      openEventModal(new Date(y, m, Number(c.dataset.day)));
+    };
+  });
+  $('#doc').querySelectorAll('[data-ev]').forEach(el=>{
+    el.onclick=(ev)=>{ ev.stopPropagation();
+      const e=(calState.events||[]).find(x=>String(x.id)===String(el.dataset.ev));
+      if(e) openEventDetail(e);
+    };
+  });
+  const savePrefs=async()=>{
+    const d=$('#cpDay').checked, h=$('#cpHour').checked;
+    const msg=$('#cpPrefMsg');
+    try{
+      const { error } = await sb.rpc('set_my_event_prefs', { p_day:d, p_hour:h });
+      if(error) throw error;
+      if(msg) msg.innerHTML='설정을 저장했어요. ✅';
+    }catch(e){ if(msg) msg.innerHTML='저장 실패: '+escapeHtml((e&&e.message)||String(e)); }
+  };
+  $('#cpDay').onchange=savePrefs;
+  $('#cpHour').onchange=savePrefs;
+  window.scrollTo(0,0);
+}
+
+/* 일정 추가 모달 — 시간 · 이름 · 색(파스텔 8종) */
+function openEventModal(dateObj){
+  if(!canEdit()) return;
+  let color=EVENT_COLORS[0];
+  const yy=dateObj.getFullYear(), mm=String(dateObj.getMonth()+1).padStart(2,'0'), dd=String(dateObj.getDate()).padStart(2,'0');
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:420px">
+    <div class="modal-msg">일정 추가</div>
+    <div class="modal-sub">${yy}년 ${Number(mm)}월 ${Number(dd)}일</div>
+    <label class="nd-label">일정 이름</label>
+    <input class="he-input" id="evTitle" type="text" maxlength="60" placeholder="예: 정기 실험 세미나" autocomplete="off">
+    <label class="nd-label">시간</label>
+    <input class="he-input" id="evTime" type="time" value="18:00">
+    <label class="nd-label">색깔</label>
+    <div class="ev-colors" id="evColors">
+      ${EVENT_COLORS.map((c,i)=>`<button type="button" class="ev-color${i===0?' on':''}" data-c="${c}" style="background:${c}" aria-label="색 ${i+1}"></button>`).join('')}
+    </div>
+    <div class="he-msg" id="evMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">추가</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  ov.querySelector('#evTitle').focus();
+  ov.querySelectorAll('.ev-color').forEach(b=>b.onclick=()=>{
+    color=b.dataset.c;
+    ov.querySelectorAll('.ev-color').forEach(x=>x.classList.toggle('on', x===b));
+  });
+  const ok=ov.querySelector('.modal-ok'), msg=ov.querySelector('#evMsg');
+  ok.onclick=async()=>{
+    const title=(ov.querySelector('#evTitle').value||'').trim();
+    const time=(ov.querySelector('#evTime').value||'').trim();
+    if(!title){ msg.className='he-msg err'; msg.textContent='일정 이름을 입력하세요.'; return; }
+    if(!/^\d{2}:\d{2}$/.test(time)){ msg.className='he-msg err'; msg.textContent='시간을 입력하세요.'; return; }
+    ok.disabled=true; ok.textContent='추가 중…';
+    try{
+      const at=new Date(`${yy}-${mm}-${dd}T${time}:00`);           // 로컬(KST) → ISO
+      const { error } = await sb.from('events').insert({
+        title, at: at.toISOString(), color, created_by: state.user.id });
+      if(error) throw error;
+      close();
+      await loadEvents(calPage.y, calPage.m);
+      renderCalendarPage();
+    }catch(e){
+      ok.disabled=false; ok.textContent='추가';
+      msg.className='he-msg err'; msg.textContent='추가 실패: '+((e&&e.message)||e)+' (49_events.sql 실행 여부 확인)';
+    }
+  };
+}
+
+/* 일정 상세 — 작성자·관리자는 삭제 가능 */
+function openEventDetail(e){
+  const canDel = isAdmin() || (state.user && e.created_by===state.user.id);
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:380px">
+    <div class="ev-head" style="background:${escapeAttr(e.color)}"></div>
+    <div class="modal-msg">${escapeHtml(e.title||'')}</div>
+    <div class="modal-sub">${escapeHtml(fmtKST(e.at))}</div>
+    <div class="he-msg" id="edMsg"></div>
+    <div class="modal-btns">
+      ${canDel?'<button class="modal-cancel danger" id="edDel">삭제</button>':''}
+      <button class="modal-ok" id="edClose">닫기</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('#edClose').onclick=close;
+  ov.addEventListener('click',ev=>{ if(ev.target===ov) close(); });
+  const del=ov.querySelector('#edDel');
+  if(del) del.onclick=async()=>{
+    const ok=await confirmModal('일정을 삭제할까요?', `"${e.title}" 일정이 사라집니다.`, '삭제');
+    if(!ok) return;
+    try{
+      const { error } = await sb.from('events').delete().eq('id', e.id);
+      if(error) throw error;
+      close();
+      await loadEvents(calPage.y, calPage.m);
+      renderCalendarPage();
+    }catch(err){ const m=ov.querySelector('#edMsg'); if(m){ m.className='he-msg err'; m.textContent='삭제 실패: '+((err&&err.message)||err); } }
+  };
 }
 
 /* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
@@ -5641,7 +5921,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions'];
+  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
@@ -5662,6 +5942,7 @@ function route(){
   }
   if(key==='docs'){ renderDocsPage(); return; }
   if(key==='questions'){ renderQuestions(); return; }
+  if(key==='calendar'){ renderCalendarPage(); return; }
   if(key==='inbox'){ renderInbox(); return; }
   if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
