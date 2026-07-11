@@ -1615,6 +1615,39 @@ function showDenied(cap, back){
   ov.querySelector('#denyBack').onclick=close;
   ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
 }
+/* 서버(트리거·RPC)가 막은 경우도 같은 팝업으로 — 화면 통제와 서버 통제의 메시지를 통일한다.
+   54_perm_enforcement.sql 의 트리거들이 '권한이 없습니다: OO' 형태로 예외를 던진다. */
+function isPermError(e){
+  const m = (e && (e.message || e.error_description || e.details)) || String(e||'');
+  return /권한이 없습니다/.test(m) || /permission denied|violates row-level security/i.test(m);
+}
+function showServerDenied(e, cap){
+  const m = (e && e.message) || '';
+  const mm = m.match(/권한이 없습니다:\s*(.+)$/);
+  if(_denyOpen) return;
+  _denyOpen=true;
+  const ov=document.createElement('div'); ov.className='modal-ov deny-ov';
+  ov.innerHTML=`<div class="modal-box deny-box">
+    <div class="deny-ic">
+      <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="9"/><path d="M5.6 5.6 L18.4 18.4"/></svg>
+    </div>
+    <div class="modal-msg">권한이 없습니다</div>
+    <div class="modal-sub">${escapeHtml(mm ? mm[1] : capLabel(cap||''))} 권한이 없어요.<br>필요하면 관리자에게 요청해 주세요.
+      <div class="deny-role">내 등급: <b>${escapeHtml(state.role||'viewer')}</b></div></div>
+    <div class="modal-btns"><button class="modal-ok" id="denyBack">돌아가기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>{ ov.remove(); _denyOpen=false; };
+  ov.querySelector('#denyBack').onclick=close;
+  ov.addEventListener('click',ev=>{ if(ev.target===ov) close(); });
+}
+/* 어떤 에러든 여기로 흘려보내면, 권한 문제면 팝업 / 아니면 false를 돌려준다. */
+function handleErr(e, cap){
+  if(isPermError(e)){ showServerDenied(e, cap); return true; }
+  return false;
+}
+
 /* 행동 직전에 호출. 권한이 없으면 팝업을 띄우고 false를 돌려준다. */
 function requirePerm(cap, back){
   if(can(cap)) return true;
@@ -3083,7 +3116,9 @@ async function saveDoc(key){
   }
 
   const { error } = await sb.from('documents').update(payload).eq('key', key);
-  if(error){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
+  if(error){ $('#saveBtn').disabled=false;
+    if(handleErr(error,'doc_edit')) return;
+    msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
   // 주소(key) 변경: editor·admin·owner, 값이 바뀐 경우
   let finalKey = key;
   const keyEl = $('#e-key');
@@ -3207,7 +3242,7 @@ async function deleteDoc(doc){
   if(!requirePerm('doc_delete')) return;
   if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
   const { error } = await sb.rpc('trash_document', { p_key: doc.key });
-  if(error){ alert('삭제 실패: '+error.message); return; }
+  if(error){ if(!handleErr(error,'doc_delete')) alert('삭제 실패: '+error.message); return; }
   await loadDocs(); location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home';
 }
 
@@ -4025,6 +4060,8 @@ function healthTasks(){
       ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
       ['public_clubs — 가입화면 동아리 목록 (51)', ()=>chkRpc('public_clubs — 가입화면 동아리 목록 (51)','public_clubs',{})],
       ['set_app_limit — 상한 설정 (52)', ()=>chkRpc('set_app_limit — 상한 설정 (52)','set_app_limit',{ p_key:'__none__', p_value:1 })],
+      ['set_perms — 권한 매트릭스 (53)', ()=>chkRpc('set_perms — 권한 매트릭스 (53)','set_perms',{ p_perms:null })],
+      ['perm — 서버 권한 판정 (54)',     ()=>chkRpc('perm — 서버 권한 판정 (54)','perm',{ p_cap:'doc_read' })],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
       ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
@@ -6077,7 +6114,7 @@ async function sendMessage(){
     if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨
   }catch(e){
     inp.value=body; chatPick=files; drawChatTray();
-    alert('전송 실패: '+((e&&e.message)||e));
+    if(!handleErr(e, community.qid?'q_answer':'chat')) alert('전송 실패: '+((e&&e.message)||e));
   }finally{ if(btn){ btn.disabled=false; btn.textContent='전송'; } }
 }
 
