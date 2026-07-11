@@ -760,8 +760,25 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .doc-class{display:flex;gap:6px;flex-wrap:wrap;margin:8px 0 0;}
 .doc-class .dc-track{font-size:12px;}
 .doc-class .dc-type,.doc-class .dc-club{font-size:12px;}
-/* 테마 전환 서클 리빌 */
-#themeReveal{position:fixed;inset:0;z-index:9999;pointer-events:none;}
+/* 테마 전환 이펙트: 고리(가운데가 뚫린 원)가 퍼지고, 그 주위로 화면이 일렁인다 */
+#themeReveal{position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;}
+#themeReveal .tr-glow{position:absolute;inset:0;}
+#themeReveal .tr-warp{position:absolute;inset:0;backdrop-filter:blur(4px) saturate(1.3);
+  -webkit-backdrop-filter:blur(4px) saturate(1.3);will-change:mask-image,opacity;}
+
+/* 상단 계열 선택 바 (모든 화면 상시) — 사이트 테마색을 정한다. 문서 필터와는 별개. */
+.trackbar{position:sticky;top:48px;z-index:45;display:flex;align-items:center;gap:6px;
+  background:var(--card);border-bottom:1px solid var(--border);padding:6px 18px;overflow-x:auto;
+  box-shadow:0 1px 3px rgba(0,0,0,.04);-webkit-overflow-scrolling:touch;}
+.trackbar .tb-lb{font-size:11px;font-weight:800;color:var(--text-dim);flex:none;margin-right:2px;letter-spacing:.03em;}
+.tb-btn{flex:none;display:inline-flex;align-items:center;gap:6px;cursor:pointer;background:transparent;
+  border:1px solid var(--border);border-radius:99px;padding:4px 11px;font-size:12.5px;font-weight:700;color:var(--text);
+  transition:background .12s,border-color .12s,transform .1s;}
+.tb-btn:hover{border-color:var(--tc,var(--border-strong));transform:translateY(-1px);}
+.tb-btn .tb-dot{width:9px;height:9px;border-radius:50%;background:var(--tc,var(--border-strong));flex:none;}
+.tb-btn.on{background:var(--tc,var(--accent));border-color:var(--tc,var(--accent));color:#fff;}
+.tb-btn.on .tb-dot{background:#fff;}
+@media(max-width:768px){ .trackbar{top:0;position:static;padding:6px 10px;} .trackbar .tb-lb{display:none;} }
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .ad-empty{padding:14px 16px;color:var(--text-dim);font-size:13px;}
@@ -1020,6 +1037,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
       </div>
     </div>
   </div>
+  <div class="trackbar" id="trackbar"></div>
   <div class="layout">
     <main class="content">
       <div class="doc" id="doc"></div>
@@ -1069,14 +1087,15 @@ function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile
 const ORDER = ['home','kypt','method','stats','topics','tools'];
 
 const state = { user:null, role:'viewer', email:'', name:'', handle:'', docs:[], key:null, recovery:false,
-                tracks:[], trackSel:null, docTypes:[], clubs:[] };
+                tracks:[], themeTrack:null, docTypes:[], clubs:[] };
 
 /* ================== 계열(track) + 테마 엔진 ==================
    계열 7종은 DB(tracks)에 고정 시드. 색만 owner가 바꾼다(set_track_color).
    선택한 계열은 localStorage에 저장 → 새로고침·다른 탭에서도 사이트 전체 테마색이 유지된다.
    admin이 아무 RGB나 고를 수 있으므로 (1) 상단바 흰 글자 대비 가드 (2) 야간모드 자동 보정을 둔다. */
 const DEFAULT_ACCENT = '#C00000';          // 계열 미선택 시 기본색(안다미로 빨강)
-const TRACK_LS_KEY   = 'anda_track';
+const NEUTRAL_GRAY   = '#8a9099';          // 문서 레일의 '전체 문서'·'미분류' 버튼 색(테마와 무관)
+const TRACK_LS_KEY   = 'anda_track';       // 상단 계열 바에서 고른 '테마 계열'
 
 function _hex2rgb(h){ const s=String(h||'').replace('#',''); 
   return [parseInt(s.slice(0,2),16)||0, parseInt(s.slice(2,4),16)||0, parseInt(s.slice(4,6),16)||0]; }
@@ -1126,46 +1145,120 @@ function applyThemeColor(hex){
   if(meta) meta.setAttribute('content', base);
 }
 function trackBySlug(slug){ return (state.tracks||[]).find(t=>t.slug===slug) || null; }
-function currentTrackColor(){ const t = trackBySlug(state.trackSel); return t ? t.color : DEFAULT_ACCENT; }
+function currentTrackColor(){ const t = trackBySlug(state.themeTrack); return t ? t.color : DEFAULT_ACCENT; }
 function applyCurrentTheme(){ applyThemeColor(currentTrackColor()); }
 
-/* 서클 리빌: 클릭 지점에서 새 색이 화면 전체로 퍼진다 */
+/* 서클 리빌 → 고리 + 물결
+   색은 클릭 즉시 적용한다. 고리는 가운데가 뚫려 있어서, 고리가 지나간 안쪽에는
+   '이미 색이 바뀐 화면'이 그대로 보인다. 고리 주변은 backdrop blur로 일렁인다. 총 0.8초. */
+const REVEAL_MS = 800;
 function revealTheme(hex, ev){
-  const dark = document.body.classList.contains('dark');
-  const shown = dark ? darkVariant(hex) : safeAccent(hex);
+  applyThemeColor(hex);                                  // ① 색 즉시 적용 (고리 안쪽 = 새 색)
+  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
   let x = window.innerWidth/2, y = window.innerHeight/2;
   if(ev && typeof ev.clientX === 'number' && (ev.clientX || ev.clientY)){ x = ev.clientX; y = ev.clientY; }
-  const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduce){ applyThemeColor(hex); return; }
-  const far = Math.hypot(Math.max(x, window.innerWidth-x), Math.max(y, window.innerHeight-y));
-  const ov = document.createElement('div');
-  ov.id = 'themeReveal';
-  ov.style.background = shown;
-  ov.style.clipPath = `circle(0px at ${x}px ${y}px)`;
-  ov.style.transition = 'clip-path .5s cubic-bezier(.4,0,.2,1), opacity .25s ease .38s';
-  document.body.appendChild(ov);
-  requestAnimationFrame(()=>{
-    ov.style.clipPath = `circle(${far}px at ${x}px ${y}px)`;
-    ov.style.opacity  = '0';
-  });
-  setTimeout(()=>{ applyThemeColor(hex); }, 170);   // 원이 퍼지는 도중 실제 색 교체 → 이음매가 안 보인다
-  setTimeout(()=>{ ov.remove(); }, 800);
+
+  const dark  = document.body.classList.contains('dark');
+  const shown = dark ? darkVariant(hex) : safeAccent(hex);
+  const rgb   = _hex2rgb(shown).join(',');
+  const far   = Math.hypot(Math.max(x, window.innerWidth-x), Math.max(y, window.innerHeight-y)) + 40;
+
+  const old = document.getElementById('themeReveal'); if(old) old.remove();   // 연타 대비
+  const ov = document.createElement('div'); ov.id='themeReveal';
+  const warp = document.createElement('div'); warp.className='tr-warp';       // 일렁임(화면 왜곡)
+  const glow = document.createElement('div'); glow.className='tr-glow';       // 고리 + 잔물결
+  ov.appendChild(warp); ov.appendChild(glow); document.body.appendChild(ov);
+
+  const t0 = (window.performance && performance.now) ? performance.now() : Date.now();
+  const at = r => Math.max(0, r);
+  function frame(now){
+    const p = Math.min(1, (now - t0) / REVEAL_MS);
+    const e = 1 - Math.pow(1-p, 3);                       // easeOutCubic — 처음 빠르고 끝에서 느슨하게
+    const R = far * e;
+    const fade = 1 - p*p;                                 // 뒤로 갈수록 옅어짐
+    const w = Math.max(7, 26 * (1 - e*0.55));             // 고리 두께
+    // 본 고리 + 뒤따르는 잔물결 2겹 → 물결파처럼 보인다
+    const r2 = R*0.80, r3 = R*0.62;
+    glow.style.background =
+      `radial-gradient(circle ${R+w*2}px at ${x}px ${y}px,`
+      + ` rgba(${rgb},0) ${at(r3-w*0.8)}px,`
+      + ` rgba(${rgb},${(0.10*fade).toFixed(3)}) ${at(r3)}px,`
+      + ` rgba(${rgb},0) ${at(r3+w*0.8)}px,`
+      + ` rgba(${rgb},0) ${at(r2-w*0.9)}px,`
+      + ` rgba(${rgb},${(0.20*fade).toFixed(3)}) ${at(r2)}px,`
+      + ` rgba(${rgb},0) ${at(r2+w*0.9)}px,`
+      + ` rgba(${rgb},0) ${at(R-w*1.6)}px,`
+      + ` rgba(${rgb},${(0.55*fade).toFixed(3)}) ${at(R)}px,`
+      + ` rgba(${rgb},${(0.14*fade).toFixed(3)}) ${at(R+w)}px,`
+      + ` rgba(${rgb},0) ${at(R+w*2)}px)`;
+    // 일렁임: 고리 부근만 마스크로 뚫어 backdrop blur를 적용 → 물결이 지나가며 화면이 흔들린다
+    const m = `radial-gradient(circle at ${x}px ${y}px,`
+      + ` transparent ${at(R-w*1.9)}px,`
+      + ` rgba(0,0,0,${(0.85*fade).toFixed(3)}) ${at(R-w*0.5)}px,`
+      + ` rgba(0,0,0,${(0.85*fade).toFixed(3)}) ${at(R+w*0.5)}px,`
+      + ` transparent ${at(R+w*1.9)}px)`;
+    warp.style.webkitMaskImage = m; warp.style.maskImage = m;
+    warp.style.opacity = String(fade);
+    if(p < 1) requestAnimationFrame(frame);
+    else ov.remove();
+  }
+  requestAnimationFrame(frame);
 }
 
-/* 계열 선택 (null = 전체) */
-function setTrack(slug, ev){
-  state.trackSel = slug || null;
+/* ── 테마 계열 (상단 계열 바) — 사이트 전체 색. 저장됨. ── */
+function setThemeTrack(slug, ev){
+  state.themeTrack = slug || null;
   try{ if(slug) localStorage.setItem(TRACK_LS_KEY, slug); else localStorage.removeItem(TRACK_LS_KEY); }catch(e){}
   revealTheme(currentTrackColor(), ev);
-  route();                                          // 현재 화면만 다시 그림(필터·버튼 상태 반영)
+  renderTrackBar();
+}
+function renderTrackBar(){
+  const bar = document.getElementById('trackbar'); if(!bar) return;
+  const btn = (slug, name, color) => {
+    const on = (state.themeTrack||null) === (slug||null);
+    return `<button class="tb-btn ${on?'on':''}" data-tb="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
+      <span class="tb-dot"></span>${escapeHtml(name)}</button>`;
+  };
+  bar.innerHTML = `<span class="tb-lb">계열</span>`
+    + btn('', '기본', DEFAULT_ACCENT)
+    + (state.tracks||[]).map(t=>btn(t.slug, t.name, t.color)).join('');
+  bar.querySelectorAll('.tb-btn[data-tb]').forEach(b=>{
+    b.onclick = (ev)=>{ setThemeTrack(b.dataset.tb || null, ev); };
+  });
+}
+
+/* ── 문서 목록의 계열 레일 — 필터 전용(테마색을 건드리지 않는다) ── */
+function trackRailHTML(counts, opts){
+  const o = opts || {};
+  const sel = docsPage.track || null;
+  const btn = (slug, name, color, cnt) => {
+    const on = sel === (slug||null);
+    return `<button class="tr-btn ${on?'on':''}" data-track="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
+      <span class="tr-dot"></span><span>${escapeHtml(name)}</span>
+      ${cnt!==undefined?`<span class="tr-cnt">${cnt}</span>`:''}
+    </button>`;
+  };
+  return `<aside class="trackrail">
+    <div class="tr-head">계열</div>
+    ${btn('', '전체 문서', NEUTRAL_GRAY, o.total)}
+    ${(state.tracks||[]).map(x=>btn(x.slug, x.name, x.color, counts ? (counts[x.slug]||0) : undefined)).join('')}
+    ${o.showNone ? btn('__none','미분류', NEUTRAL_GRAY, counts ? (counts.__none||0) : undefined) : ''}
+  </aside>`;
+}
+function bindTrackRail(root, onPick){
+  (root||document).querySelectorAll('.tr-btn[data-track]').forEach(b=>{
+    b.onclick = ()=>{ docsPage.track = b.dataset.track || null; if(onPick) onPick(); };
+  });
 }
 async function loadTracks(){
   try{
     const { data } = await sb.from('tracks').select('slug,name,color,sort').order('sort',{ascending:true});
     state.tracks = data || [];
   }catch(e){ state.tracks = []; }
-  try{ const saved = localStorage.getItem(TRACK_LS_KEY); if(saved && (saved==='__none' || trackBySlug(saved))) state.trackSel = saved; }catch(e){}
+  try{ const saved = localStorage.getItem(TRACK_LS_KEY); if(saved && trackBySlug(saved)) state.themeTrack = saved; }catch(e){}
   applyCurrentTheme();
+  renderTrackBar();
 }
 async function loadDocTypes(){
   try{
@@ -1174,30 +1267,6 @@ async function loadDocTypes(){
   }catch(e){ state.docTypes = []; }
 }
 
-/* 계열 레일 HTML (대문·문서 탭 공용). counts = {slug:개수}, unclassified 포함 */
-function trackRailHTML(counts, opts){
-  const o = opts || {};
-  const t = state.tracks || [];
-  const btn = (slug, name, color, cnt) => {
-    const on = (state.trackSel||null) === (slug||null);
-    return `<button class="tr-btn ${on?'on':''}" data-track="${escapeAttr(slug||'')}" style="--tc:${escapeAttr(color)}">
-      <span class="tr-dot"></span><span>${escapeHtml(name)}</span>
-      ${cnt!==undefined?`<span class="tr-cnt">${cnt}</span>`:''}
-    </button>`;
-  };
-  const total = o.total!==undefined ? o.total : undefined;
-  return `<aside class="trackrail">
-    <div class="tr-head">계열</div>
-    ${btn('', '전체', DEFAULT_ACCENT, total)}
-    ${t.map(x=>btn(x.slug, x.name, x.color, counts ? (counts[x.slug]||0) : undefined)).join('')}
-    ${o.showNone ? btn('__none','미분류','#9aa0ab', counts ? (counts.__none||0) : undefined) : ''}
-  </aside>`;
-}
-function bindTrackRail(root){
-  (root||document).querySelectorAll('.tr-btn[data-track]').forEach(b=>{
-    b.onclick = (ev)=>{ setTrack(b.dataset.track || null, ev); };
-  });
-}
 async function loadClubList(){
   try{
     const { data } = await sb.from('clubs').select('name,is_none').order('name',{ascending:true});
@@ -1723,7 +1792,7 @@ async function renderQuestions(){
 
 /* ================== 문서 탭 (#docs) — 문서의 정문 ==================
    전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
-const docsPage = { sort: 'recent', club: '', type: '' };
+const docsPage = { sort: 'recent', club: '', type: '', track: null };   // track = 문서 목록 필터(테마와 무관)
 async function renderDocsPage(){
   $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
@@ -1755,8 +1824,8 @@ async function renderDocsPage(){
     const counts={__none:0}; rows.forEach(d=>{ if(d.track) counts[d.track]=(counts[d.track]||0)+1; else counts.__none++; });
 
     let base=rows.slice();
-    if(state.trackSel==='__none')   base=base.filter(d=>!d.track);
-    else if(state.trackSel)         base=base.filter(d=>d.track===state.trackSel);
+    if(docsPage.track==='__none')   base=base.filter(d=>!d.track);
+    else if(docsPage.track)         base=base.filter(d=>d.track===docsPage.track);
     if(docsPage.club) base=base.filter(d=>d.club===docsPage.club);
     if(docsPage.type) base=base.filter(d=>d.doc_type===docsPage.type);
 
@@ -1769,8 +1838,8 @@ async function renderDocsPage(){
       if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
       return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
-    const selTrack = trackBySlug(state.trackSel);
-    const heading = state.trackSel==='__none' ? '미분류 문서' : (selTrack ? selTrack.name+' 문서' : '문서');
+    const selTrack = trackBySlug(docsPage.track);
+    const heading = docsPage.track==='__none' ? '미분류 문서' : (selTrack ? selTrack.name+' 문서' : '전체 문서');
 
     $('#doc').innerHTML = `
     <div class="with-rail">
@@ -1795,7 +1864,7 @@ async function renderDocsPage(){
             <option value="">동아리 전체</option>
             ${clubList.map(c=>`<option value="${escapeAttr(c)}" ${docsPage.club===c?'selected':''}>${escapeHtml(c)}</option>`).join('')}
           </select>
-          ${(docsPage.type||docsPage.club||state.trackSel)?`<button class="btn ghost" id="dpClear" style="width:auto;font-size:12px;padding:6px 12px">필터 해제</button>`:''}
+          ${(docsPage.type||docsPage.club||docsPage.track)?`<button class="btn ghost" id="dpClear" style="width:auto;font-size:12px;padding:6px 12px">필터 해제</button>`:''}
         </div>
         ${(canEdit() && stubCount) ? `<div class="nudge">
           <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
@@ -1820,14 +1889,13 @@ async function renderDocsPage(){
         </div>
       </div>
     </div>`;
-    bindTrackRail($('#doc'));
+    bindTrackRail($('#doc'), draw);
     $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
       b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
     });
     const ty=$('#dpType'); if(ty) ty.onchange=()=>{ docsPage.type=ty.value; draw(); };
     const cb=$('#dpClub'); if(cb) cb.onchange=()=>{ docsPage.club=cb.value; draw(); };
-    const cl=$('#dpClear'); if(cl) cl.onclick=(ev)=>{ docsPage.type=''; docsPage.club='';
-      if(state.trackSel) setTrack(null, ev); else draw(); };
+    const cl=$('#dpClear'); if(cl) cl.onclick=()=>{ docsPage.type=''; docsPage.club=''; docsPage.track=null; draw(); };
     const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
     const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
@@ -1938,9 +2006,7 @@ async function renderDoc(key){
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
   // 문서의 계열 배지를 누르면 그 계열로 테마 전환 + 문서 탭 필터
   $('#doc').querySelectorAll('[data-goTrack]').forEach(b=>{
-    b.onclick=(ev)=>{ const s=b.getAttribute('data-goTrack');
-      state.trackSel=s; try{ localStorage.setItem(TRACK_LS_KEY,s); }catch(e){}
-      revealTheme(currentTrackColor(), ev); location.hash='#docs'; };
+    b.onclick=()=>{ docsPage.track=b.getAttribute('data-goTrack'); location.hash='#docs'; };
   });
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
@@ -2788,7 +2854,7 @@ function openNewDocModal(){
     <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off">
     <label class="nd-label">문서 제목</label>
     <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
-    ${classSelectsHTML('nd', { track: (state.trackSel && state.trackSel!=='__none') ? state.trackSel : '' })}
+    ${classSelectsHTML('nd', { track: (docsPage.track && docsPage.track!=='__none') ? docsPage.track : (state.themeTrack||'') })}
     <div class="he-msg" id="ndMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
   </div>`;
