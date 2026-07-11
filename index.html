@@ -1884,7 +1884,9 @@ async function sendPin(resend){
     $('#pin-step2').style.display='block';
     $('#pin-code').value=''; $('#pin-code').focus();
     startPinTimer();
-    pinMsg(`${email} 로 6자리 인증번호를 보냈어요. 메일을 확인하고 아래에 입력해 주세요. (스팸함도 확인)`, 'ok');
+    pinMsg(`${email} 로 6자리 인증번호를 보냈어요. ${resend
+      ? '★이전에 받은 번호는 무효가 됐어요 — 가장 최근에 도착한 메일의 번호를 입력해 주세요. (Gmail은 같은 제목 메일을 묶어 보여주니 스레드 맨 아래 최신 메일 확인)'
+      : '메일을 확인하고 아래에 입력해 주세요. (스팸함도 확인)'}`, 'ok');
   }catch(e){
     const m=(e&&e.message)||String(e);
     pinMsg(/rate|limit|too many/i.test(m)
