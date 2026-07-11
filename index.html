@@ -473,6 +473,42 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .hs-btn{width:auto;font-size:12px;padding:6px 12px;}
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
+/* ===== 피드백 ===== */
+:root{ --star-on:#f5b301; --star-off:#e3e6ea; --star-edge:#d8a400; }
+body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
+.stars{display:inline-flex;gap:2px;vertical-align:middle;}
+.star{display:block;}
+.fb-card{max-width:620px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow);}
+.fb-label{font-size:15px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.fb-stars{display:flex;gap:4px;margin:4px 0 2px;}
+.fb-star{background:none;border:none;padding:2px;cursor:pointer;line-height:0;transition:transform .1s;}
+.fb-star:hover{transform:scale(1.12);}
+.fb-rate-txt{font-size:13px;color:var(--text-dim);font-weight:700;margin-bottom:14px;min-height:18px;}
+.fb-summary{display:flex;gap:22px;align-items:center;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 22px;box-shadow:var(--shadow);margin-bottom:16px;flex-wrap:wrap;}
+.fb-avg{text-align:center;min-width:150px;}
+.fb-avg-num{font-size:38px;font-weight:900;color:var(--text);line-height:1;margin-bottom:6px;}
+.fb-avg-sub{font-size:11.5px;color:var(--text-dim);margin-top:6px;}
+.fb-bars{flex:1;min-width:220px;display:flex;flex-direction:column;gap:4px;}
+.fb-bar-row{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text-dim);}
+.fb-bar-n{width:26px;font-weight:700;}
+.fb-bar{flex:1;height:8px;border-radius:99px;background:var(--box-bg);border:1px solid var(--border);overflow:hidden;}
+.fb-bar-in{display:block;height:100%;background:var(--star-on);}
+.fb-bar-c{width:28px;text-align:right;font-variant-numeric:tabular-nums;}
+.fb-list{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);}
+.fb-item{display:flex;align-items:center;gap:12px;padding:12px 14px;border:none;border-bottom:1px solid var(--border);background:none;cursor:pointer;text-align:left;color:var(--text);transition:background .1s;}
+.fb-item:last-child{border-bottom:none;}
+.fb-item:hover{background:var(--box-bg);}
+.fb-item:hover .fb-item-prev{text-decoration:underline;text-underline-offset:3px;}
+.fb-item-stars{flex:none;}
+.fb-item-body{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
+.fb-item-who{font-size:12px;color:var(--text-dim);font-weight:700;}
+.fb-item-prev{font-size:13.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.fb-item-t{flex:none;font-size:11.5px;color:var(--text-dim);}
+.fb-anon{font-size:11px;font-weight:800;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
+.fb-detail-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.fb-detail-r{font-weight:900;font-size:18px;color:var(--text);}
+.fb-detail-body{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.65;color:var(--text);background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:10px 0;max-height:40vh;overflow-y:auto;}
+@media(max-width:640px){ .fb-item-t{display:none;} .fb-summary{gap:14px;} }
 /* 권한 없음 팝업 */
 .deny-box{max-width:360px;text-align:center;}
 .deny-ic{color:var(--link-red);display:flex;justify-content:center;margin-bottom:6px;}
@@ -635,6 +671,23 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .dm-btn:hover{background:var(--box-bg);border-color:var(--accent);color:var(--accent);}
 .dir-metarow .dm-btn{margin-left:6px;}
 @media(max-width:820px){ .inbox-wrap{grid-template-columns:1fr;} }
+/* ★폰: 대화를 열면 목록 아래에 붙는 대신 화면 한가운데 팝업으로 띄운다 */
+@media(max-width:768px){
+  .inbox-pane{ display:none; }
+  .inbox-wrap.pane-open .inbox-pane{
+    display:flex; position:fixed; z-index:96;
+    left:50%; top:50%; transform:translate(-50%,-50%);
+    width:min(94vw, 460px); max-height:82vh;
+    border-radius:16px; box-shadow:0 18px 50px rgba(0,0,0,.35);
+    animation:ibPop .18s ease-out;
+  }
+  .inbox-wrap.pane-open .ip-msgs{ max-height:none; flex:1; overflow-y:auto; }
+  .ib-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:95;
+    -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
+  .inbox-pane .ip-close{ font-size:22px; padding:2px 8px; }
+}
+@keyframes ibPop{ from{ opacity:0; transform:translate(-50%,-46%) scale(.96); }
+                  to  { opacity:1; transform:translate(-50%,-50%) scale(1); } }
 .modal-box{background:var(--card);border-radius:12px;padding:22px 22px 18px;max-width:340px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.35);}
 .modal-msg{font-size:16px;font-weight:800;color:var(--text);line-height:1.5;}
 .modal-sub{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
@@ -1249,8 +1302,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <a data-go="me">계정 정보</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
-          <a data-go="requests" id="dropRequests" style="display:none">가입 신청 검토</a>
           <a data-go="system" id="dropSystem" style="display:none">시스템</a>
+          <a data-go="feedback" id="dropFeedback">피드백</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
       </div>
@@ -1599,6 +1652,8 @@ const PERM_CAPS = [
     ['club_edit',    '동아리 목록 수정'],
     ['track_read',   '계열 조회'],
     ['track_edit',   '계열 수정'],
+    ['signup_review','가입 신청 검토'],
+    ['feedback_read','피드백 검토 열람'],
   ]},
   { sec:'시스템', items:[
     ['system_access', '시스템 접근'],
@@ -1617,7 +1672,9 @@ const DEFAULT_PERMS = {
   admin:  { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
             chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, msg_delete:1,
             admin_access:1, admin_role:1, admin_club:1,
-            club_read:1, club_edit:1, track_read:1, track_edit:1 },
+            club_read:1, club_edit:1, track_read:1, track_edit:1,
+            signup_review:1, feedback_read:1,
+            system_access:1 },     // ★시스템 탭 진입은 admin도 (안의 항목은 각자 권한대로 필터)
 };
 let PERMS = null;                       // 서버에서 불러온 매트릭스(없으면 기본값)
 function permsFor(role){
@@ -1735,8 +1792,7 @@ function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // 서열(메시지 
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
   $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge${state.role==='teacher'?' role-badge-teacher':''}" style="background:${state.role==='teacher'?'var(--teacher)':'rgba(255,255,255,.22)'}">${escapeHtml(state.role)}</span>`;
-  $('#dropRequests').style.display = isOwner() ? 'block' : 'none';
-  $('#dropSystem').style.display = can('system_access') ? 'block' : 'none';
+  $('#dropSystem').style.display = can('system_access') ? 'block' : 'none';   // 피드백은 전 등급 노출(별도 제어 없음)
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
   const ui=$('#usericon');   // 계정 아이콘: 상시 내 프로필 사진(없으면 기본 아이콘)
   if(ui){
@@ -3642,7 +3698,7 @@ async function renderAdmin(){
     </tr>`; }).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
+      <div class="tabs">${can('signup_review')?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button>`:''}${can('system_access')?`<button id="healthBtn">${ic('check')}시스템</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
@@ -4132,6 +4188,7 @@ function healthTasks(){
       ['notifications (알림 32)',     ()=>chkTable('notifications (알림 32)', ()=>sb.from('notifications').select('id').limit(1))],
       ['doc_likes (좋아요 40)',       ()=>chkTable('doc_likes (좋아요 40)', ()=>sb.from('doc_likes').select('doc_key').limit(1))],
       ['events (일정 49)',            ()=>chkTable('events (일정 49)', ()=>sb.from('events').select('id,title,at,color').limit(1))],
+      ['feedback (피드백 59)',        ()=>chkTable('feedback (피드백 59)', ()=>sb.from('feedback').select('id,rating').limit(1))],
       ['events.is_todo / done (50)',  ()=>chkTable('events.is_todo / done (50)', ()=>sb.from('events').select('is_todo,done').limit(1))],
       ['signup_requests (가입 신청)', ()=>chkTable('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1))],
       ['app_settings (설정)',         ()=>chkTable('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1))],
@@ -4185,6 +4242,7 @@ function healthTasks(){
       ['ensure_owner — owner 자동 복구 (55)', ()=>chkRpc('ensure_owner — owner 자동 복구 (55)','ensure_owner',{})],
       ['set_perms_default — 기본값 프리셋 (56)', ()=>chkRpc('set_perms_default — 기본값 프리셋 (56)','set_perms_default',{ p_perms:null })],
       ['delete_message — 메시지 삭제 (22·57)', ()=>chkRpc('delete_message — 메시지 삭제 (22·57)','delete_message',{ p_id:-1 })],
+      ['submit_feedback / list_feedback (59)', ()=>chkRpc('submit_feedback / list_feedback (59)','feedback_left_today',{})],
       ['submit_contact — 관리자 문의 (50·55)', ()=>chkRpc('submit_contact — 관리자 문의 (50·55)','submit_contact',{ p_email:null, p_body:'' })],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
@@ -4339,6 +4397,8 @@ async function renderSystem(){
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
     { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속, 동아리·계열 목록을 관리합니다.' },
+    { cap:'signup_review', hash:'#//requests',      ic:'inbox', t:'가입 신청 검토',          d:'가입 신청을 승인하면 계정이 만들어지고 초대 메일이 갑니다.' },
+    { cap:'feedback_read', hash:'#//feedback/review', ic:'heart', t:'피드백 검토',           d:'회원들이 보낸 별점·의견을 모아 봅니다.' },
     { cap:'system_maint',  hash:'#//system/maint',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진 정리, 채팅 사진 30일 정리.' },
   ].filter(it => it.owner ? isOwner() : can(it.cap));
   $('#doc').innerHTML=`
@@ -4528,6 +4588,182 @@ async function renderSysPerms(){
     }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (53_teacher_and_perms.sql 실행 확인)'; }
   };
   window.scrollTo(0,0);
+}
+
+
+/* ================== 피드백 ==================
+   · 제출: 별 1~5 + 내용 + 익명 여부. 하루 3회 제한(서버가 강제).
+   · 검토: feedback_read 권한자만. 평균 별점을 '부분 채움'으로 표시. */
+function starSVG(fill, size, id){          // fill: 0~1 (부분 채움), id: 그라디언트 고유 id
+  const pct = Math.max(0, Math.min(1, fill)) * 100;
+  const gid = 'sg'+id;
+  return `<svg class="star" viewBox="0 0 24 24" width="${size}" height="${size}" aria-hidden="true">
+    <defs><linearGradient id="${gid}" x1="0" x2="1" y1="0" y2="0">
+      <stop offset="${pct}%" stop-color="var(--star-on)"/>
+      <stop offset="${pct}%" stop-color="var(--star-off)"/>
+    </linearGradient></defs>
+    <path fill="url(#${gid})" stroke="var(--star-edge)" stroke-width="1"
+      d="M12 2.6l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.4 6.2 20.5l1.1-6.5L2.6 9.4l6.5-.9z"/>
+  </svg>`;
+}
+function starsHTML(value, size, key){      // value: 0~5 (소수 가능)
+  let out='';
+  for(let i=0;i<5;i++){
+    const f = Math.max(0, Math.min(1, value - i));
+    out += starSVG(f, size||18, (key||'k')+'_'+i);
+  }
+  return `<span class="stars">${out}</span>`;
+}
+
+const feedbackState = { rating:0 };
+async function renderFeedback(){
+  let left = null;
+  try{ const { data } = await sb.rpc('feedback_left_today'); left = (data==null?null:Number(data)); }catch(e){}
+  feedbackState.rating = 0;
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>피드백</h1>
+      <div class="tabs">
+        ${can('feedback_read')?`<button id="fbReview">${ic('inbox')}피드백 검토</button>`:''}
+        <button id="fbBack">${ic('back')}대문</button>
+      </div></div>
+    <div class="doc-meta">사이트를 쓰면서 느낀 점을 알려주세요. <b>하루 3회</b>까지 보낼 수 있어요.
+      ${left!==null?`(오늘 <b>${left}회</b> 남음)`:''}</div>
+
+    <div class="fb-card">
+      <div class="fb-label">이 사이트, 어떤가요?</div>
+      <div class="fb-stars" id="fbStars">
+        ${[1,2,3,4,5].map(n=>`<button class="fb-star" data-n="${n}" aria-label="별 ${n}개">${starSVG(0,34,'p'+n)}</button>`).join('')}
+      </div>
+      <div class="fb-rate-txt" id="fbRateTxt">별을 눌러 점수를 매겨주세요</div>
+
+      <label class="nd-label">피드백 내용</label>
+      <textarea class="ct-ta" id="fbBody" maxlength="1000" placeholder="좋았던 점, 불편했던 점, 있었으면 하는 기능… (5~1000자)"></textarea>
+
+      <label class="cp-chk" style="margin-top:8px">
+        <input type="checkbox" id="fbAnon">
+        <span><b>익명으로 제출</b>하시겠습니까? <span class="muted">체크하면 검토 화면에 이름이 표시되지 않아요.</span></span>
+      </label>
+
+      <div class="he-msg" id="fbMsg"></div>
+      <div class="sys-actions">
+        <button class="btn primary" id="fbSend" style="width:auto;padding:9px 22px" ${left===0?'disabled':''}>
+          ${left===0?'오늘은 다 보냈어요':'보내기'}
+        </button>
+      </div>
+    </div>`;
+  $('#fbBack').onclick=()=>{ location.hash='#//main'; };
+  const rv=$('#fbReview'); if(rv) rv.onclick=()=>{ location.hash='#//feedback/review'; };
+
+  const RATE_TXT=['','별로예요','아쉬워요','괜찮아요','좋아요','최고예요'];
+  const paint=()=>{
+    $('#doc').querySelectorAll('.fb-star').forEach(b=>{
+      const n=Number(b.dataset.n);
+      b.innerHTML = starSVG(feedbackState.rating >= n ? 1 : 0, 34, 'p'+n);
+      b.classList.toggle('on', feedbackState.rating >= n);
+    });
+    $('#fbRateTxt').textContent = feedbackState.rating ? RATE_TXT[feedbackState.rating] : '별을 눌러 점수를 매겨주세요';
+  };
+  $('#doc').querySelectorAll('.fb-star').forEach(b=>{
+    b.onclick=()=>{ feedbackState.rating=Number(b.dataset.n); paint(); };
+  });
+
+  $('#fbSend').onclick=async()=>{
+    const msg=$('#fbMsg'), btn=$('#fbSend');
+    const body=($('#fbBody').value||'').trim();
+    if(!feedbackState.rating){ msg.className='he-msg err'; msg.textContent='별점을 먼저 골라주세요.'; return; }
+    if(body.length<5){ msg.className='he-msg err'; msg.textContent='내용을 5자 이상 적어주세요.'; return; }
+    btn.disabled=true; btn.textContent='보내는 중…';
+    try{
+      const { error } = await sb.rpc('submit_feedback', {
+        p_rating: feedbackState.rating, p_body: body, p_anon: $('#fbAnon').checked });
+      if(error) throw error;
+      msg.className='he-msg'; msg.innerHTML = icOk()+' 보냈어요. 소중한 의견 고마워요!';
+      $('#fbBody').value=''; feedbackState.rating=0; paint();
+      setTimeout(()=>renderFeedback(), 1200);          // 남은 횟수 갱신
+    }catch(e){
+      btn.disabled=false; btn.textContent='보내기';
+      msg.className='he-msg err'; msg.textContent='보내기 실패: '+((e&&e.message)||e);
+    }
+  };
+  window.scrollTo(0,0);
+}
+
+/* 피드백 검토 (feedback_read) */
+async function renderFeedbackReview(){
+  $('#doc').innerHTML=`<div class="doc-head"><h1>피드백 검토</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let rows=[], st=null;
+  try{
+    const r1 = await sb.rpc('list_feedback');   if(r1.error) throw r1.error;
+    rows = r1.data || [];
+    const r2 = await sb.rpc('feedback_stats');  if(!r2.error) st = Array.isArray(r2.data) ? r2.data[0] : r2.data;
+  }catch(e){
+    if(handleErr(e,'feedback_read')) return;
+    $('#doc').innerHTML='<div class="doc-head"><h1>피드백 검토</h1></div><p>불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+' (59_feedback.sql 실행 확인)</p>';
+    return;
+  }
+  const avg = st ? Number(st.avg_rating||0) : 0;
+  const total = st ? Number(st.total||0) : rows.length;
+  const bar=(n)=>{
+    const c = st ? Number(st['c'+n]||0) : 0;
+    const pct = total ? (c/total*100) : 0;
+    return `<div class="fb-bar-row"><span class="fb-bar-n">${n}★</span>
+      <span class="fb-bar"><span class="fb-bar-in" style="width:${pct.toFixed(1)}%"></span></span>
+      <span class="fb-bar-c">${c}</span></div>`;
+  };
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>피드백 검토 <span class="muted" style="font-size:14px;font-weight:400">${total}건</span></h1>
+      <div class="tabs"><button id="frBack">${ic('back')}피드백</button></div></div>
+
+    <div class="fb-summary">
+      <div class="fb-avg">
+        <div class="fb-avg-num">${avg.toFixed(2)}</div>
+        ${starsHTML(avg, 26, 'avg')}
+        <div class="fb-avg-sub">평균 별점 · 총 ${total}건</div>
+      </div>
+      <div class="fb-bars">${[5,4,3,2,1].map(bar).join('')}</div>
+    </div>
+
+    ${rows.length ? `<div class="fb-list">${rows.map(f=>`
+      <button class="fb-item" data-id="${f.id}">
+        <span class="fb-item-stars">${starsHTML(Number(f.rating), 15, 'i'+f.id)}</span>
+        <span class="fb-item-body">
+          <span class="fb-item-who">${f.anonymous ? '<span class="fb-anon">익명</span>'
+            : `${escapeHtml(f.author_name||'-')} <span class="muted">@${escapeHtml(f.author_handle||'-')}</span>`}</span>
+          <span class="fb-item-prev">${escapeHtml(String(f.body||'').slice(0,60))}${String(f.body||'').length>60?'…':''}</span>
+        </span>
+        <span class="fb-item-t">${escapeHtml(fmtKST(f.created_at))}</span>
+      </button>`).join('')}</div>`
+      : '<div class="qb-empty">아직 받은 피드백이 없어요.</div>'}`;
+  $('#frBack').onclick=()=>{ location.hash='#//feedback'; };
+  $('#doc').querySelectorAll('.fb-item').forEach(b=>{
+    b.onclick=()=>{
+      const f=rows.find(x=>String(x.id)===String(b.dataset.id));
+      if(f) openFeedbackDetail(f);
+    };
+  });
+  window.scrollTo(0,0);
+}
+function openFeedbackDetail(f){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:460px;text-align:left">
+    <div class="fb-detail-top">
+      ${starsHTML(Number(f.rating), 22, 'd'+f.id)}
+      <span class="fb-detail-r">${f.rating}.0</span>
+    </div>
+    <div class="modal-sub" style="text-align:left">
+      ${f.anonymous ? '<span class="fb-anon">익명</span>'
+        : (f.author_id
+            ? `<a href="#//member/${escapeAttr(f.author_id)}">${escapeHtml(f.author_name||'-')} <span class="muted">@${escapeHtml(f.author_handle||'-')}</span></a>`
+            : escapeHtml(f.author_name||'-'))}
+      · ${escapeHtml(fmtKST(f.created_at))}
+    </div>
+    <div class="fb-detail-body">${escapeHtml(f.body||'')}</div>
+    <div class="modal-btns"><button class="modal-ok" id="fdClose">닫기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('#fdClose').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
 }
 
 /* ================== 비밀번호 변경 (로그인 사용자) ================== */
@@ -5452,13 +5688,36 @@ async function openSystemThread(){
     </div>
     <div class="ip-msgs" id="ipMsgs">${body}</div>`;
   const msgs=$('#ipMsgs'); if(msgs) msgs.scrollTop=msgs.scrollHeight;
-  $('#ipClose').onclick=()=>{ inbox.sel=null; pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
-    $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
+  openInboxPane();                // 폰: 화면 중앙 팝업으로
+  $('#ipClose').onclick=closeInboxPane;
   // 안 읽은 알림 전부 읽음 처리
   for(const n of notices){
     if(Number(n.unread)>0){ try{ await sb.rpc('mark_notification_read', { p_id: Number(n.ref) }); }catch(_){} }
   }
   refreshInboxBadge();
+}
+
+/* 폰에서 대화창을 팝업으로 띄우고 내린다 (PC에선 아무 일도 하지 않음) */
+function isPhone(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches; }
+function openInboxPane(){
+  const wrap=document.querySelector('.inbox-wrap'); if(!wrap) return;
+  wrap.classList.add('pane-open');
+  if(!isPhone()) return;
+  if(!document.querySelector('.ib-backdrop')){
+    const bd=document.createElement('div'); bd.className='ib-backdrop';
+    bd.onclick=closeInboxPane;
+    document.body.appendChild(bd);
+  }
+}
+function closeInboxPane(){
+  const wrap=document.querySelector('.inbox-wrap');
+  if(wrap) wrap.classList.remove('pane-open');
+  const bd=document.querySelector('.ib-backdrop'); if(bd) bd.remove();
+  inbox.sel=null; inbox.msgIds=new Set();
+  const pane=$('#ibPane');
+  if(pane) pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
+  const list=$('#ibList');
+  if(list) list.querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on'));
 }
 
 async function openDmThread(tid){
@@ -5499,11 +5758,10 @@ async function openDmThread(tid){
     </div>
     <div class="chat-count dm-count" id="dmCount"></div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
+  openInboxPane();                // 폰: 화면 중앙 팝업으로
   bindDmDelete(tid);              // ★반드시 innerHTML 이후 — 예전엔 렌더 전에 불러서 버튼에 배선이 안 됐다
   typeToFocus('#ipInput');        // 대화를 열고 아무 키나 치면 답장칸으로 포커스
-  $('#ipClose').onclick=()=>{ inbox.sel=null; inbox.msgIds=new Set();
-    pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
-    $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
+  $('#ipClose').onclick=closeInboxPane;
   const send=async()=>{
     if(!requirePerm('dm')) return;
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
@@ -5557,7 +5815,8 @@ async function openNewDm(uid){
       <button class="btn" id="ipSend">보내기</button>
     </div>
     <div class="chat-count dm-count" id="dmCount"></div>`;
-  $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#//inbox'; };
+  openInboxPane();                                        // 폰: 화면 중앙 팝업으로
+  $('#ipClose').onclick=()=>{ closeInboxPane(); location.hash='#//inbox'; };
   const send=async()=>{
     if(!requirePerm('dm')) return;
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
@@ -6899,7 +7158,7 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'password','me','trash','notfound'];
+                   'feedback','feedback/review','password','me','trash','notfound'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 function isSysKey(k){
   k=String(k||'');
@@ -6945,6 +7204,7 @@ function route(){
   stopAdminPresence();     // 회원관리를 떠나면 상태 갱신 중지
   stopPresence();          // 접속 표시 갱신 중지 (해당 화면에서 다시 시작)
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
+  const _bd=document.querySelector('.ib-backdrop'); if(_bd) _bd.remove();   // 쪽지 팝업 뒷배경 잔상 제거
   /* ★주소 체계 (2단계 개편)
      · 시스템 페이지  = '#//커뮤니티' 처럼 **이중 슬래시**로 시작 → 문서 주소와 절대 충돌하지 않는다.
      · 문서           = '#문서주소' (슬래시 금지)
@@ -6966,11 +7226,13 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','feedback','feedback/review','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
-                     admin:'admin_access', trash:'trash', health:'system_health', system:'system_access' };
+                     admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
+                     requests:'signup_review' };
+    if(key==='feedback') { /* 피드백 제출은 전 등급 */ }
     const cap = PAGE_CAP[key] || (key.startsWith('q/')?'q_ask':null) || (key.startsWith('dm/')?'dm':null)
               || (key.startsWith('trash/')?'trash':null) || (key.startsWith('edit/')?'doc_edit':null)
               || (key.startsWith('member/')?'dir_read':null) || (key.startsWith('system/')?'system_access':null);
@@ -7001,7 +7263,9 @@ function route(){
   if(key==='inbox'){ renderInbox(); return; }
   if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
-  if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#//home'; return; }
+  if(key==='requests'){ if(!guardPage('signup_review')) return; renderRequests(); return; }
+  if(key==='feedback'){ renderFeedback(); return; }                        // 전 등급
+  if(key==='feedback/review'){ if(!guardPage('feedback_read')) return; renderFeedbackReview(); return; }
   if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
   if(key==='system'){ renderSystem(); return; }
   if(key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
