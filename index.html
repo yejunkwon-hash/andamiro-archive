@@ -580,7 +580,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="spacer"></div>
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
-    <button class="navbtn" id="inboxBtn">알림<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
+    <button class="navbtn" id="inboxBtn">메세지<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <div class="usermenu" id="usermenu">
       <span id="userlabel"></span>
@@ -1901,7 +1901,22 @@ function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;',
 /* ================== 알림 · 쪽지 인박스 (2단계) ==================
    A안(메일형): 받은 쪽지를 인박스에서 읽는다. 좌측 목록 → 클릭 시 우측 상세.
    3단계에서 이 목록에 '질문 답변·등급 변경' 등 다른 알림 종류가 합류한다. */
-const inbox = { threads:[], sel:null };
+const inbox = { threads:[], sel:null, timer:null, sig:'', msgIds:new Set() };
+const INBOX_POLL_MS = 5000;
+
+/* 목록의 '내용 지문'. 이게 그대로면 DOM을 아예 건드리지 않는다 → 깜빡임·재등장 애니메이션 없음 */
+function inboxSig(rows){
+  return (rows||[]).map(t=>[t.kind,t.ref,t.at,t.unread,t.preview].join('\u0001')).join('\u0002');
+}
+function startInboxPolling(){
+  stopInboxPolling();
+  inbox.timer = setInterval(async ()=>{
+    if(document.hidden) return;              // 탭이 백그라운드면 건너뜀(불필요한 요청 차단)
+    await loadInbox(true);                   // quiet=true : 변경 있을 때만 다시 그림
+    await refreshOpenThread();               // 열어둔 대화엔 새 메시지만 덧붙임
+  }, INBOX_POLL_MS);
+}
+function stopInboxPolling(){ if(inbox.timer){ clearInterval(inbox.timer); inbox.timer=null; } }
 
 function dmTime(ts){
   if(!ts) return '';
@@ -1913,9 +1928,13 @@ function dmTime(ts){
 async function refreshInboxBadge(){
   const el=$('#inboxBadge'); if(!el) return;
   try{
-    const { data, error } = await sb.rpc('dm_unread_total');
-    if(error) throw error;
-    const n=Number(data)||0;
+    let n=0;
+    const r1 = await sb.rpc('inbox_unread_total');          // 쪽지 + 알림
+    if(r1.error){
+      const r2 = await sb.rpc('dm_unread_total');           // 알림 미배포 시 쪽지만
+      if(r2.error) throw r2.error;
+      n = Number(r2.data)||0;
+    } else n = Number(r1.data)||0;
     el.textContent = n>99 ? '99+' : String(n);
     el.style.display = n>0 ? 'inline-flex' : 'none';
   }catch(_){ el.style.display='none'; }   // 미배포 시 조용히 숨김
@@ -1923,9 +1942,9 @@ async function refreshInboxBadge(){
 
 async function renderInbox(){
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>알림</h1>
+    <div class="doc-head"><h1>메세지</h1>
       <div class="tabs"><button id="ibRefresh">[새로고침]</button><button id="ibBack">[문서로]</button></div></div>
-    <div class="doc-meta">받은 쪽지를 여기서 확인해요. 회원에게 쪽지를 보내려면 <b>회원 조회</b>에서 [메시지] 버튼을 누르세요.</div>
+    <div class="doc-meta">받은 <b>쪽지</b>와 <b>알림</b>(내 질문의 답변, 등급 변경)을 한 곳에서 확인해요. 쪽지를 보내려면 <b>회원 조회</b>에서 [메시지] 버튼을 누르세요.</div>
     <div class="inbox-wrap">
       <div class="inbox-list" id="ibList"><div class="ip-empty">불러오는 중…</div></div>
       <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
@@ -1933,50 +1952,138 @@ async function renderInbox(){
   $('#ibBack').onclick=()=>{ location.hash='#home'; };
   $('#ibRefresh').onclick=()=>loadInbox();
   await loadInbox();
+  startInboxPolling();          // 5초마다 조용히 갱신 (변경 있을 때만 DOM 수정)
 }
 
-async function loadInbox(){
+async function loadInbox(quiet=false){
   const list=$('#ibList'); if(!list) return;
   let rows=[];
   try{
-    const { data, error } = await sb.rpc('list_dm_threads');
-    if(error) throw error;
-    rows=data||[];
+    const r = await sb.rpc('list_inbox');                   // 쪽지 + 알림 통합
+    if(r.error) throw r.error;
+    rows=(r.data||[]);
   }catch(e){
-    list.innerHTML='<div class="ip-empty">쪽지 기능이 아직 배포되지 않았습니다.<br>(30_dm.sql 실행 필요)</div>';
-    return;
+    try{                                                    // 알림 미배포 시 쪽지만이라도 표시
+      const r2 = await sb.rpc('list_dm_threads');
+      if(r2.error) throw r2.error;
+      rows=(r2.data||[]).map(t=>({ kind:'dm', ref:String(t.thread_id), title:t.other_name,
+        preview:(t.last_from_me?'나: ':'')+(t.last_body||''), at:t.last_at, unread:t.unread,
+        other_id:t.other_id, other_name:t.other_name, other_handle:t.other_handle, other_avatar:t.other_avatar, link:null }));
+    }catch(e2){
+      if(quiet) return;                       // 폴링 중 일시적 실패는 조용히 무시(화면 유지)
+      list.innerHTML='<div class="ip-empty">쪽지·알림 기능이 아직 배포되지 않았습니다.<br>(30_dm.sql · 32_notifications.sql 실행 필요)</div>';
+      return;
+    }
   }
   inbox.threads=rows;
-  if(!rows.length){ list.innerHTML='<div class="ip-empty">받은 쪽지가 없습니다.</div>'; return; }
+  const sig=inboxSig(rows);
+  if(quiet && sig===inbox.sig){ return; }     // ★ 변경 없음 → 다시 그리지 않음(깜빡임 방지)
+  inbox.sig=sig;
+  const keepScroll=list.scrollTop;            // 목록 스크롤 위치 보존
+  if(!rows.length){ list.innerHTML='<div class="ip-empty">받은 쪽지·알림이 없습니다.</div>'; return; }
+  const ICON={ answer:'💬', role:'🎖', notice:'📢' };
   list.innerHTML=rows.map(t=>{
-    const av=avatarFor(t.other_name, t.other_handle);
-    const ava = t.other_avatar
-      ? `<div class="ib-ava" style="background-image:url('${escapeAttr(t.other_avatar)}')"></div>`
-      : `<div class="ib-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
-    const prev=(t.last_from_me?'나: ':'')+(t.last_body||'');
+    const isDm = t.kind==='dm';
     const un=Number(t.unread)||0;
-    return `<div class="ib-item ${un?'unread':''} ${inbox.sel===t.thread_id?'on':''}" data-tid="${t.thread_id}">
+    const key=t.kind+':'+t.ref;
+    let ava;
+    if(isDm){
+      const av=avatarFor(t.other_name, t.other_handle);
+      ava = t.other_avatar
+        ? `<div class="ib-ava" style="background-image:url('${escapeAttr(t.other_avatar)}')"></div>`
+        : `<div class="ib-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+    }else{
+      ava = `<div class="ib-ava" style="background:var(--box-bg);color:var(--text)">${ICON[t.kind]||'🔔'}</div>`;
+    }
+    const name = isDm
+      ? `${escapeHtml(t.other_name||'-')} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span>`
+      : escapeHtml(t.title||'알림');
+    return `<div class="ib-item ${un?'unread':''} ${inbox.sel===key?'on':''}" data-key="${escapeAttr(key)}">
       ${ava}
       <div class="ib-body">
-        <div class="ib-top"><span class="ib-name">${escapeHtml(t.other_name||'-')} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span></span><span class="ib-time">${escapeHtml(dmTime(t.last_at))}</span></div>
-        <div class="ib-prev">${escapeHtml(prev)}</div>
+        <div class="ib-top"><span class="ib-name">${name}</span><span class="ib-time">${escapeHtml(dmTime(t.at))}</span></div>
+        <div class="ib-prev">${escapeHtml(t.preview||'')}</div>
       </div>
       ${un?'<span class="ib-dot" title="안 읽음"></span>':''}
     </div>`;
   }).join('');
   list.querySelectorAll('.ib-item').forEach(el=>{
-    el.onclick=()=>openDmThread(Number(el.dataset.tid));
+    el.onclick=()=>{
+      const item=inbox.threads.find(x=>(x.kind+':'+x.ref)===el.dataset.key);
+      if(!item) return;
+      if(item.kind==='dm') openDmThread(Number(item.ref));
+      else openNotice(item);
+    };
   });
+  list.scrollTop=keepScroll;
+  refreshInboxBadge();
+}
+
+/* 열어둔 대화에 새 메시지가 오면 '그 창에서 즉시' 반영.
+   전체를 다시 그리지 않고 새 메시지만 덧붙여서 → 입력 중인 답장·스크롤이 보존된다. */
+async function refreshOpenThread(){
+  if(!inbox.sel || inbox.sel.indexOf('dm:')!==0) return;
+  const tid=Number(inbox.sel.slice(3));
+  const box=$('#ipMsgs'); if(!box) return;
+  let msgs=[];
+  try{
+    const { data, error } = await sb.rpc('get_dm_thread', { p_thread_id: tid });
+    if(error) throw error;
+    msgs=data||[];
+  }catch(_){ return; }                                    // 실패는 조용히 무시
+  const atBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 48;
+  let added=false;
+  msgs.forEach(m=>{
+    if(inbox.msgIds.has(m.id)) return;                    // 이미 그린 건 건너뜀
+    inbox.msgIds.add(m.id);
+    const b=document.createElement('div');
+    b.className='dm-b '+(m.from_me?'me':'them');
+    b.textContent=m.body||'';                             // textContent → XSS 안전
+    const t=document.createElement('div');
+    t.className='dm-t'; t.textContent=dmTime(m.created_at);
+    box.appendChild(b); box.appendChild(t);
+    added=true;
+  });
+  if(added){
+    if(atBottom) box.scrollTop=box.scrollHeight;          // 맨 아래를 보고 있었을 때만 따라감
+    refreshInboxBadge();
+  }
+}
+
+/* 알림 상세 (쪽지가 아닌 항목) — 우측 패널에 펼치고 읽음 처리 */
+async function openNotice(item){
+  const key=item.kind+':'+item.ref;
+  inbox.sel=key;
+  inbox.msgIds=new Set();
+  const pane=$('#ibPane'); if(!pane) return;
+  $('#ibList').querySelectorAll('.ib-item').forEach(el=>{
+    el.classList.toggle('on', el.dataset.key===key);
+    if(el.dataset.key===key){ el.classList.remove('unread'); const d=el.querySelector('.ib-dot'); if(d) d.remove(); }
+  });
+  pane.innerHTML=`
+    <div class="ip-head">
+      <span class="ip-title">${escapeHtml(item.title||'알림')}</span>
+      <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
+    </div>
+    <div class="ip-msgs">
+      <div style="font-size:12px;color:var(--text-dim)">${escapeHtml(fmtKST(item.at))}</div>
+      <div style="font-size:14px;line-height:1.65;white-space:pre-wrap;word-break:break-word;color:var(--text)">${escapeHtml(item.preview||'')}</div>
+      ${item.link?`<div style="margin-top:10px"><a class="btn" href="${escapeAttr(item.link)}">바로 가기</a></div>`:''}
+    </div>`;
+  $('#ipClose').onclick=()=>{ inbox.sel=null; pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
+    $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
+  try{ await sb.rpc('mark_notification_read', { p_id: Number(item.ref) }); }catch(_){}
   refreshInboxBadge();
 }
 
 async function openDmThread(tid){
-  inbox.sel=tid;
-  const t=inbox.threads.find(x=>Number(x.thread_id)===tid);
+  const key='dm:'+tid;
+  inbox.sel=key;
+  const t=inbox.threads.find(x=>x.kind==='dm' && String(x.ref)===String(tid));
   const pane=$('#ibPane'); if(!pane) return;
   $('#ibList').querySelectorAll('.ib-item').forEach(el=>{
-    el.classList.toggle('on', Number(el.dataset.tid)===tid);
-    if(Number(el.dataset.tid)===tid){ el.classList.remove('unread'); const d=el.querySelector('.ib-dot'); if(d) d.remove(); }
+    el.classList.toggle('on', el.dataset.key===key);
+    if(el.dataset.key===key){ el.classList.remove('unread'); const d=el.querySelector('.ib-dot'); if(d) d.remove(); }
   });
   pane.innerHTML='<div class="ip-empty">불러오는 중…</div>';
   let msgs=[];
@@ -1985,6 +2092,7 @@ async function openDmThread(tid){
     if(error) throw error;
     msgs=data||[];
   }catch(e){ pane.innerHTML='<div class="ip-empty">불러오지 못했습니다.</div>'; return; }
+  inbox.msgIds = new Set(msgs.map(m=>m.id));      // 이미 그린 메시지 목록(폴링이 새 것만 추가)
 
   const who = t ? `${t.other_name||'-'} <span class="muted">@${t.other_handle||'-'}</span>` : '쪽지';
   pane.innerHTML=`
@@ -2001,7 +2109,8 @@ async function openDmThread(tid){
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
-  $('#ipClose').onclick=()=>{ inbox.sel=null; pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
+  $('#ipClose').onclick=()=>{ inbox.sel=null; inbox.msgIds=new Set();
+    pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
     $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
   const send=async()=>{
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
@@ -2011,8 +2120,9 @@ async function openDmThread(tid){
       const { error } = await sb.rpc('send_dm', { p_to: t.other_id, p_body: body });
       if(error) throw error;
       ta.value='';
-      await loadInbox();
-      await openDmThread(tid);
+      await refreshOpenThread();        // 다시 그리지 않고 내 메시지만 덧붙임
+      await loadInbox(true);            // 목록 미리보기 갱신(변경 있을 때만)
+      btn.disabled=false; ta.focus();
     }catch(e){ alert('보내지 못했습니다: '+((e&&e.message)||e)); btn.disabled=false; }
   };
   $('#ipSend').onclick=send;
@@ -2815,6 +2925,7 @@ function route(){
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   refreshInboxBadge();     // 안 읽은 쪽지 개수 갱신 (네비 배지)
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
+  stopInboxPolling();      // 메세지 탭을 떠나면 폴링 중지
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
