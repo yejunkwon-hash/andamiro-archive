@@ -395,7 +395,30 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .wk-tabs button.on{background:var(--card);color:var(--text);}
 .wk-help{font-size:12.5px;line-height:2;color:var(--text-dim);}
 .wk-help code{background:var(--box-bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:12px;}
-.doc-img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border);margin:6px 0;}
+/* ===== 문서 이미지: 띄우기(float) + 글 흘리기 ===== */
+.doc-img{max-width:100%;height:auto;border-radius:8px;border:1px solid var(--border);}
+.doc-img.al-center{display:block;margin:12px auto;}
+.doc-img.al-left{float:left;margin:6px 16px 10px 0;}
+.doc-img.al-right{float:right;margin:6px 0 10px 16px;}
+/* 제목·구분선은 떠 있는 이미지를 넘어가지 않도록 */
+.doc-body h2,.doc-body h3,.doc-body hr,.wk-preview h2,.wk-preview h3,.wk-preview hr{clear:both;}
+.doc-body::after,.wk-preview::after{content:'';display:block;clear:both;}
+@media(max-width:640px){
+  /* 좁은 화면에선 띄우기를 풀고 전체폭 — 글자와 겹치지 않게 */
+  .doc-img.al-left,.doc-img.al-right{float:none;display:block;margin:12px auto;width:100% !important;}
+}
+/* 미리보기에서 선택·조작 */
+.wk-preview{position:relative;}
+.wk-preview .doc-img{cursor:pointer;}
+.wk-preview .doc-img.sel{outline:2px solid var(--accent);outline-offset:2px;}
+.img-handle{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--accent);border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.3);cursor:nwse-resize;z-index:5;touch-action:none;}
+.img-tools{position:absolute;display:flex;align-items:center;gap:1px;background:var(--card);border:1px solid var(--border-strong);border-radius:8px;padding:3px;box-shadow:0 4px 14px rgba(0,0,0,.2);z-index:6;white-space:nowrap;}
+.img-tools button{border:none;background:none;font-size:12px;padding:4px 7px;border-radius:5px;cursor:pointer;color:var(--text);line-height:1;}
+.img-tools button:hover{background:var(--box-bg);}
+.img-tools button.on{background:var(--accent);color:#fff;}
+.img-tools button.del:hover{background:var(--link-red);color:#fff;}
+.img-tools .sep{width:1px;align-self:stretch;background:var(--border);margin:0 3px;}
+.img-tools .wlab{font-size:11px;color:var(--text-dim);padding:0 4px;min-width:34px;text-align:center;}
 .wk-table{border-collapse:collapse;margin:10px 0;max-width:100%;}
 .wk-table th,.wk-table td{border:1px solid var(--border);padding:6px 12px;font-size:14px;}
 .wk-table th{background:var(--box-bg);}
@@ -433,7 +456,8 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .dm-b.them{align-self:flex-start;background:var(--box-bg);border:1px solid var(--border);color:var(--text);}
 .dm-b.me{align-self:flex-end;background:var(--accent);color:#fff;}
 .dm-t{font-size:10.5px;color:var(--text-dim);margin-top:3px;}
-.dm-b.me + .dm-t{align-self:flex-end;}
+.dm-t.me{align-self:flex-end;}
+.msg-imgs.mine{align-self:flex-end;justify-content:flex-end;}
 .ip-reply{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);}
 .ip-reply textarea{flex:1;resize:none;min-height:38px;max-height:120px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
 .ip-empty{margin:auto;color:var(--text-dim);font-size:13.5px;padding:30px;text-align:center;}
@@ -975,6 +999,28 @@ function buildFootnotes(){
    ## 제목  ### 소제목  **굵게** *기울임* ~~취소~~  - 목록  1. 번호  > 인용
    | 표 | 셀 |   [글자](주소)   ![설명](사진주소)   [[용어|각주 설명]]   $수식$        */
 /* WIKI-PARSER-BEGIN */
+/* 이미지 옵션: {w=60, align=right}  — 크기(%)와 정렬(left/center/right)을 문법에 담는다.
+   ★본문(마크다운)이 항상 원본(source of truth). 미리보기에서 드래그하면 이 문법이 자동으로 고쳐진다.
+   → 리비전·HTML변환 체계가 그대로 유지되고, 절대좌표가 아니라 '띄우기'라서 휴대폰에서도 안 깨진다. */
+let _imgN = 0;
+const IMG_ALIGNS = ['left','center','right'];
+function parseImgOpt(opt){
+  const o = { w:100, align:'center' };
+  if(!opt) return o;
+  String(opt).split(',').forEach(kv=>{
+    const m=kv.split('=');
+    if(m.length!==2) return;
+    const k=m[0].trim().toLowerCase(), v=m[1].trim().toLowerCase();
+    if(k==='w'){ const n=parseInt(v,10); if(!isNaN(n)) o.w=Math.max(10, Math.min(100, n)); }
+    else if(k==='align' && IMG_ALIGNS.includes(v)) o.align=v;
+  });
+  return o;
+}
+function imgOptStr(o){
+  if(o.w>=100 && o.align==='center') return '';       // 기본값이면 문법을 지저분하게 하지 않는다
+  return '{w='+Math.round(o.w)+', align='+o.align+'}';
+}
+
 function wEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function wAttr(s){ return String(s).replace(/"/g,'&quot;'); }
 function wUrl(u){
@@ -985,7 +1031,12 @@ function wUrl(u){
 function wInline(s){
   s=s.replace(/\[\[([^|\[\]]+)\|([^\[\]]+)\]\]/g,(m,t,n)=>'<span class="fn" data-note="'+wAttr(n.trim())+'">'+t.trim()+'</span>');
   s=s.replace(/\[\[각주:\s*([^\[\]]+)\]\]/g,(m,n)=>'<span class="fn" data-note="'+wAttr(n.trim())+'">※</span>');
-  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g,(m,a,u)=>'<img class="doc-img" loading="lazy" alt="'+wAttr(a)+'" src="'+wUrl(u)+'">');
+  s=s.replace(/!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?/g,(m,a,u,opt)=>{
+    const o=parseImgOpt(opt);
+    const cls='doc-img al-'+o.align;
+    const st=(o.w && o.w<100) ? ' style="width:'+o.w+'%"' : '';
+    return '<img class="'+cls+'" data-i="'+(_imgN++)+'" loading="lazy" alt="'+wAttr(a)+'" src="'+wUrl(u)+'"'+st+'>';
+  });
   s=s.replace(/\[([^\]]+)\]\(([^)\s]+)\)/g,(m,t,u)=>{
     const url=wUrl(u); const ext=/^https?:/i.test(url);
     return '<a href="'+url+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+t+'</a>';
@@ -1004,6 +1055,7 @@ function wTable(rows){
   return h+'</table>';
 }
 function wikiToHtml(src){
+  _imgN = 0;
   // 1) 수식 보호: 파싱 전에 빼두고 마지막에 복원 — *·_ 가 수식을 망가뜨리는 것을 방지
   const math=[];
   src=String(src||'').replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+\$/g, m=>{ math.push(m); return '\uE000'+(math.length-1)+'\uE001'; });
@@ -1061,7 +1113,13 @@ function htmlToWiki(html){
   s=s.replace(/<ol[^>]*>([\s\S]*?)<\/ol>/gi,(m,inner)=>{ let n=0; return '\n'+inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,(mm,t)=>(++n)+'. '+strip(t)+'\n')+'\n'; });
   s=s.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi,(m,inner)=>'\n'+inner.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi,(mm,t)=>'- '+strip(t)+'\n')+'\n');
   s=s.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi,(m,t)=>'\n> '+strip(t).split('\n').join('\n> ')+'\n');
-  s=s.replace(/<img[^>]*src="([^"]*)"[^>]*>/gi,(m,u)=>'!['+']('+u+')');
+  s=s.replace(/<img([^>]*)src="([^"]*)"([^>]*)>/gi,(m,pre,u,post)=>{
+    const all=pre+post;
+    const wm=all.match(/width\s*:\s*(\d+)%/i) || all.match(/width\s*=\s*"?(\d+)%/i);
+    const fl=all.match(/float\s*:\s*(left|right)/i);
+    const o={ w: wm?Math.max(10,Math.min(100,parseInt(wm[1],10))):100, align: fl?fl[1].toLowerCase():'center' };
+    return '![]('+u+')'+imgOptStr(o);
+  });
   s=s.replace(/<a[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/gi,(m,u,t)=>'['+strip(t)+']('+u+')');
   s=s.replace(/<br\s*\/?>/gi,'\n');
   s=s.replace(/<\/p>\s*/gi,'\n\n').replace(/<p[^>]*>/gi,'');
@@ -1224,6 +1282,7 @@ const TIP_ROWS = {
     ['$a^2+b^2=c^2$',      '문장 안 수식'],
     ['$$\\frac{n(n+1)}{2}$$', '가운데 큰 수식'],
     ['![설명](주소)',       '사진 — 📷 버튼이 자동 삽입'],
+    ['![설명](주소){w=50, align=right}', '오른쪽에 띄우고 폭 50% (글이 옆으로 흐름)'],
   ],
   '문단': [
     ['첫 줄\n둘째 줄',      '한 번 줄바꿈 = 줄만 바뀜'],
@@ -1237,6 +1296,7 @@ const TIP_FAQ = [
   ['수식이 이상해요',    '<code>$</code>로 <b>앞뒤 모두</b> 감쌌는지'],
   ['실수했어요',         '문서 상단 <b>역사</b>에서 되돌리기'],
   ['쓰다 창이 닫혔어요', '자동 저장됨 — 다시 열면 이어쓰기 제안'],
+  ['사진 크기·위치',     '미리보기의 사진을 <b>클릭</b> → 모서리를 <b>끌어서 크기</b>, 툴바로 <b>좌/중/우 띄우기·문단 이동</b>'],
 ];
 function tipPaneHTML(){
   const row = (code, desc) =>
@@ -1324,6 +1384,162 @@ function toggleTipPane(){
   });
 }
 
+
+/* ================== 문서 이미지 조작 (미리보기에서 직접) ==================
+   미리보기의 이미지를 클릭 → 선택 → 모서리 드래그로 크기, 툴바로 정렬·이동·삭제.
+   ★모든 조작은 본문(마크다운)의 {w=..,align=..} 를 고쳐 쓴다 = 본문이 항상 원본.
+     절대좌표가 아니라 '띄우기(float)'라서 휴대폰에서 글자와 겹치지 않는다. */
+const IMG_MD_RE = () => /!\[([^\]]*)\]\(([^)\s]+)\)(?:\{([^}]*)\})?/g;
+let wkSel = null;                       // 선택된 이미지 인덱스
+
+/* 본문의 모든 이미지 토큰을 순회하며 치환 */
+function eachImgToken(fn){
+  const ta=$('#e-body'); if(!ta) return;
+  let n=0;
+  ta.value = ta.value.replace(IMG_MD_RE(), (m,a,u,opt)=>fn(n++, a, u, opt, m));
+  wkRenderPreview(); wkAutosave(state.key);
+}
+function currentImgOpt(idx){
+  const ta=$('#e-body'); if(!ta) return { w:100, align:'center' };
+  let n=0, out={ w:100, align:'center' }, m;
+  const re=IMG_MD_RE();
+  while((m=re.exec(ta.value))!==null){ if(n++===idx){ out=parseImgOpt(m[3]); break; } }
+  return out;
+}
+function updateImgOpt(idx, patch){
+  eachImgToken((i,a,u,opt,m)=>{
+    if(i!==idx) return m;
+    const o=Object.assign(parseImgOpt(opt), patch);
+    return `![${a}](${u})${imgOptStr(o)}`;
+  });
+}
+function deleteImg(idx){
+  wkSel=null;
+  eachImgToken((i,a,u,opt,m)=> i===idx ? '' : m);
+}
+
+/* 이미지가 들어있는 줄 번호 찾기 */
+function findImgLine(lines, idx){
+  let n=0;
+  for(let i=0;i<lines.length;i++){
+    const re=IMG_MD_RE(); let c=0;
+    while(re.exec(lines[i])!==null) c++;
+    if(idx < n+c) return i;
+    n+=c;
+  }
+  return -1;
+}
+/* 문단 사이로 이동 (dir=-1 위 / +1 아래) */
+function moveImgBlock(idx, dir){
+  const ta=$('#e-body'); if(!ta) return;
+  const lines=ta.value.split('\n');
+  const li=findImgLine(lines, idx); if(li<0) return;
+  const line=lines[li];
+  const one=/!\[[^\]]*\]\([^)\s]+\)(?:\{[^}]*\})?/;
+  const tok=(line.match(one)||[])[0];
+  if(!tok) return;
+
+  // 문단 안에 글과 섞여 있으면 → 먼저 독립된 줄로 빼낸다
+  if(line.replace(one,'').trim() !== ''){
+    const rest=line.replace(one,'').trim();
+    lines.splice(li, 1, ...(dir<0 ? [tok, rest] : [rest, tok]));
+    ta.value=lines.join('\n'); wkRenderPreview(); wkAutosave(state.key); return;
+  }
+
+  lines.splice(li,1);                       // 이미지 줄 떼어내기
+  let t;
+  if(dir<0){
+    t=li-1;
+    while(t>=0 && lines[t].trim()==='') t--;             // 빈 줄 건너뛰고
+    while(t>=0 && lines[t].trim()!=='') t--;             // 앞 블록의 시작까지
+    t=Math.max(0, t+1);
+  }else{
+    t=li;
+    while(t<lines.length && lines[t].trim()==='') t++;   // 빈 줄 건너뛰고
+    while(t<lines.length && lines[t].trim()!=='') t++;   // 뒤 블록의 끝까지
+    t=Math.min(lines.length, t);
+  }
+  lines.splice(t, 0, line);
+  ta.value=lines.join('\n');
+  wkRenderPreview(); wkAutosave(state.key);
+}
+
+/* 선택 해제 */
+function wkClearImgSel(){
+  wkSel=null;
+  const p=$('#wkPrev'); if(!p) return;
+  p.querySelectorAll('.doc-img.sel').forEach(i=>i.classList.remove('sel'));
+  p.querySelectorAll('.img-handle,.img-tools').forEach(e=>e.remove());
+}
+/* 선택 + 툴바·핸들 배치 */
+function wkSelectImg(idx){
+  const p=$('#wkPrev'); if(!p) return;
+  const img=p.querySelector('.doc-img[data-i="'+idx+'"]');
+  wkClearImgSel();
+  if(!img) return;
+  wkSel=idx; img.classList.add('sel');
+  const o=currentImgOpt(idx);
+
+  const tb=document.createElement('div'); tb.className='img-tools';
+  tb.innerHTML=
+    `<button data-a="left"   class="${o.align==='left'?'on':''}"   title="왼쪽에 띄우기(글이 옆으로 흐름)">◧</button>`+
+    `<button data-a="center" class="${o.align==='center'?'on':''}" title="가운데">▣</button>`+
+    `<button data-a="right"  class="${o.align==='right'?'on':''}"  title="오른쪽에 띄우기(글이 옆으로 흐름)">◨</button>`+
+    `<span class="sep"></span>`+
+    `<button data-w="30">작게</button><button data-w="50">보통</button>`+
+    `<button data-w="75">크게</button><button data-w="100">전체</button>`+
+    `<span class="wlab">${o.w}%</span>`+
+    `<span class="sep"></span>`+
+    `<button data-m="-1" title="위 문단으로">↑</button><button data-m="1" title="아래 문단으로">↓</button>`+
+    `<button data-del="1" class="del" title="삭제">🗑</button>`;
+  p.appendChild(tb);
+
+  const hd=document.createElement('div'); hd.className='img-handle'; hd.title='끌어서 크기 조절';
+  p.appendChild(hd);
+
+  const place=()=>{
+    tb.style.left = Math.max(2, Math.min(p.clientWidth - tb.offsetWidth - 2, img.offsetLeft)) + 'px';
+    tb.style.top  = Math.max(2, img.offsetTop - tb.offsetHeight - 6) + 'px';
+    hd.style.left = (img.offsetLeft + img.offsetWidth  - 7) + 'px';
+    hd.style.top  = (img.offsetTop  + img.offsetHeight - 7) + 'px';
+  };
+  place();
+  if(!img.complete) img.addEventListener('load', place, { once:true });
+
+  tb.querySelectorAll('[data-a]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); updateImgOpt(idx,{ align:b.dataset.a }); });
+  tb.querySelectorAll('[data-w]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); updateImgOpt(idx,{ w:+b.dataset.w }); });
+  tb.querySelectorAll('[data-m]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); moveImgBlock(idx, +b.dataset.m); });
+  tb.querySelector('[data-del]').onclick=e=>{ e.stopPropagation(); deleteImg(idx); };
+
+  // 모서리 드래그 → 폭(%) 변경. 드래그 중엔 미리보기만 갱신하고, 놓을 때 본문에 확정.
+  hd.addEventListener('pointerdown', e=>{
+    e.preventDefault(); e.stopPropagation();
+    const sx=e.clientX, ow=img.offsetWidth, cw=p.clientWidth||1;
+    hd.setPointerCapture(e.pointerId);
+    let pct=o.w;
+    const mv=ev=>{
+      pct = Math.max(10, Math.min(100, Math.round((ow + (ev.clientX - sx)) / cw * 100)));
+      img.style.width = pct + '%';
+      const lab=tb.querySelector('.wlab'); if(lab) lab.textContent = pct + '%';
+      place();
+    };
+    const up=()=>{
+      hd.removeEventListener('pointermove', mv); hd.removeEventListener('pointerup', up);
+      updateImgOpt(idx, { w:pct });        // 본문 문법에 확정 → 리비전에 남는다
+    };
+    hd.addEventListener('pointermove', mv); hd.addEventListener('pointerup', up);
+  });
+}
+/* 미리보기 클릭: 이미지면 선택, 빈 곳이면 해제 */
+function bindPreviewImages(){
+  const p=$('#wkPrev'); if(!p) return;
+  p.onclick=e=>{
+    const im=e.target.closest('.doc-img');
+    if(im && im.dataset.i!=null) wkSelectImg(+im.dataset.i);
+    else if(!e.target.closest('.img-tools')) wkClearImgSel();
+  };
+}
+
 /* ── 위키 편집기 UI ───────────────────────────────────────── */
 let wkPrevTimer=null, wkDraftTimer=null;
 function wkDraftKey(k){ return 'anda_draft:'+k; }
@@ -1333,6 +1549,9 @@ function wkRenderPreview(){
     const prev=$('#wkPrev'); const ta=$('#e-body'); if(!prev||!ta) return;
     prev.innerHTML=wikiToHtml(ta.value);
     renderMath(prev);
+    bindPreviewImages();
+    if(wkSel!=null) wkSelectImg(wkSel);      // 다시 그린 뒤에도 선택 유지
+  
   },250);
 }
 function wkAutosave(key){
@@ -1363,6 +1582,7 @@ async function enterWikiEdit(doc, opts){
   opts=opts||{};
   state.editFmt='wiki';
   state.editBase = doc.updated_at || null;      // 충돌 감지 기준 시각
+  wkSel = null;
   const catStr = doc.category ? doc.category.join(', ') : '';
   const infoStr = doc.infobox ? JSON.stringify(doc.infobox, null, 2) : '';
   $('#doc').innerHTML=`
@@ -2678,11 +2898,12 @@ function expiredBoxHTML(){
   return `<div class="img-expired"><b>사진이 만료되었습니다</b><span>보관 기간 ${CHAT_IMG_KEEP_DAYS}일</span></div>`;
 }
 /* 메시지의 사진 렌더. 30일 지났으면 회색 상자. */
-function msgImagesHTML(images, createdAt){
+function msgImagesHTML(images, createdAt, mine){
   const arr=images||[];
   if(!arr.length) return '';
-  if(isExpired(createdAt)) return `<div class="msg-imgs">${expiredBoxHTML()}</div>`;
-  return `<div class="msg-imgs">${arr.map(u=>
+  const cls = 'msg-imgs' + (mine ? ' mine' : '');
+  if(isExpired(createdAt)) return `<div class="${cls}">${expiredBoxHTML()}</div>`;
+  return `<div class="${cls}">${arr.map(u=>
     `<img src="${escapeAttr(u)}" alt="첨부 사진" loading="lazy" data-full="${escapeAttr(u)}"
       onerror="this.outerHTML='<div class=&quot;img-expired&quot;><b>사진이 만료되었습니다</b><span>보관 기간 ${CHAT_IMG_KEEP_DAYS}일</span></div>'">`
   ).join('')}</div>`;
@@ -2908,12 +3129,20 @@ async function refreshOpenThread(){
   msgs.forEach(m=>{
     if(inbox.msgIds.has(m.id)) return;                    // 이미 그린 건 건너뜀
     inbox.msgIds.add(m.id);
-    const b=document.createElement('div');
-    b.className='dm-b '+(m.from_me?'me':'them');
-    b.textContent=m.body||'';                             // textContent → XSS 안전
+    if(m.body){
+      const b=document.createElement('div');
+      b.className='dm-b '+(m.from_me?'me':'them');
+      b.textContent=m.body;                               // textContent → XSS 안전
+      box.appendChild(b);
+    }
+    if(m.images && m.images.length){                      // 실시간으로 온 사진도 표시
+      const wrap=document.createElement('div');
+      wrap.innerHTML=msgImagesHTML(m.images, m.created_at, m.from_me);
+      const node=wrap.firstElementChild; if(node) box.appendChild(node);
+    }
     const t=document.createElement('div');
-    t.className='dm-t'; t.textContent=dmTime(m.created_at);
-    box.appendChild(b); box.appendChild(t);
+    t.className='dm-t'+(m.from_me?' me':''); t.textContent=dmTime(m.created_at);
+    box.appendChild(t);
     added=true;
   });
   if(added){
@@ -2974,7 +3203,7 @@ async function openDmThread(tid){
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
-      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at)}<div class="dm-t">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
+      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, m.from_me)}<div class="dm-t ${m.from_me?'me':''}">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
     </div>
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
@@ -3534,7 +3763,7 @@ function appendMessage(m, doScroll=true){
     <div class="msg-main">
       <div class="msg-who">${who}</div>
       <div class="msg-bubble-row">
-        <div class="msg-bubble">${escapeHtml(m.body)}</div>${msgImagesHTML(m.images, m.created_at)}
+        ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, mine)}
         <span class="msg-time">${fmtKST(m.created_at)}</span>
         ${canDel?'<button class="msg-del" title="메세지 삭제">🗑</button>':''}
       </div>
