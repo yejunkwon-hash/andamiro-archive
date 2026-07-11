@@ -293,6 +293,12 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 
 
 
+/* ===== 문서 사진 업로드 ===== */
+.wk-split.drag #e-body{outline:2px dashed var(--accent);outline-offset:-3px;background:var(--box-bg);}
+.wk-upmsg{font-size:12px;color:var(--text-dim);min-height:16px;margin-top:2px;}
+.wk-upmsg.err{color:var(--link-red);font-weight:700;}
+.orph-row{display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;border-bottom:1px solid var(--border);}
+
 /* ===== 편집기 상단 레이아웃 정리 ===== */
 .wk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:4px;}
 .wk-head h1{margin:0;}
@@ -1193,6 +1199,74 @@ function openWritingGuide(){
   w.document.write(html); w.document.close();
 }
 
+
+/* ── 문서 사진 업로드 ─────────────────────────────────────────
+   압축(1600px/150KB) → doc-images 업로드 → 본문에 ![](URL) 삽입.
+   경로 3가지: 📷 버튼 · 드래그&드롭 · Ctrl+V 붙여넣기(스크린샷) */
+const DOC_IMG_DIM = 1600;
+const DOC_IMG_TARGET = 150*1024;   // 장당 상한 — Storage 1GB 안에서 문서 300개×8장이 안전한 수치
+
+function wkUpMsg(t, err){
+  const el=$('#wkUpMsg'); if(!el) return;
+  el.className='wk-upmsg'+(err?' err':''); el.textContent=t||'';
+}
+async function wkUploadImages(files){
+  const ta=$('#e-body'); if(!ta || !state.user) return;
+  const imgs=[...files].filter(f=>/^image\//.test(f.type||''));
+  if(!imgs.length) return;
+
+  for(const f of imgs){
+    if(f.size > IMG_RAW_MAX){ wkUpMsg('25MB 이하 이미지만 올릴 수 있어요.', true); continue; }
+    // 자리표시자를 커서에 먼저 넣어, 업로드 중에도 어디에 들어갈지 보이게 한다
+    const token = '![업로드 중…](uploading-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+')';
+    const st=ta.selectionStart;
+    ta.setRangeText('\n'+token+'\n', st, ta.selectionEnd, 'end');
+    wkRenderPreview();
+    try{
+      wkUpMsg('압축 중…');
+      const out = await compressImage(f, { mode:'contain', dim:DOC_IMG_DIM, target:DOC_IMG_TARGET, minQuality:0.45 });
+      wkUpMsg(`업로드 중… (${(out.blob.size/1024).toFixed(0)}KB)`);
+      const ext = out.type==='image/webp' ? 'webp' : 'jpg';
+      const path = `${state.user.id}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+      const up = await sb.storage.from('doc-images')
+        .upload(path, out.blob, { contentType: out.type, cacheControl:'31536000', upsert:false });
+      if(up.error) throw up.error;
+      const pub = sb.storage.from('doc-images').getPublicUrl(path);
+      const url = pub.data.publicUrl;
+      const alt = (f.name||'사진').replace(/\.[^.]+$/,'').replace(/[\[\]()]/g,'').slice(0,40);
+      ta.value = ta.value.replace(token, `![${alt}](${url})`);
+      wkUpMsg(`올렸어요 · ${(out.blob.size/1024).toFixed(0)}KB`);
+    }catch(e){
+      ta.value = ta.value.replace(token, '');       // 실패한 자리표시자는 제거
+      wkUpMsg('업로드 실패: '+((e&&e.message)||e), true);
+    }
+    wkRenderPreview(); wkAutosave(state.key);
+  }
+}
+function wkPickImage(){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*'; inp.multiple=true;
+  inp.onchange=()=>{ wkUploadImages(inp.files||[]); };
+  inp.click();
+}
+/* 편집기에 드래그&드롭 · 붙여넣기 배선 */
+function wkBindImageDrop(){
+  const ta=$('#e-body'), split=$('#wkSplit'); if(!ta) return;
+  ['dragenter','dragover'].forEach(ev=>ta.addEventListener(ev, e=>{
+    if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); split.classList.add('drag'); }
+  }));
+  ['dragleave','drop'].forEach(ev=>ta.addEventListener(ev, ()=>split.classList.remove('drag')));
+  ta.addEventListener('drop', e=>{
+    const fs=e.dataTransfer && e.dataTransfer.files;
+    if(fs && fs.length){ e.preventDefault(); wkUploadImages(fs); }
+  });
+  ta.addEventListener('paste', e=>{
+    const items=(e.clipboardData && e.clipboardData.items) || [];
+    const files=[...items].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
+    if(files.length){ e.preventDefault(); wkUploadImages(files); }   // 스크린샷 붙여넣기
+  });
+}
+
 /* ── 위키 편집기 UI ───────────────────────────────────────── */
 let wkPrevTimer=null, wkDraftTimer=null;
 function wkDraftKey(k){ return 'anda_draft:'+k; }
@@ -1255,7 +1329,8 @@ async function enterWikiEdit(doc, opts){
         <span class="hint">— 버튼만 눌러도 작성돼요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span>
         <button type="button" class="wk-tipbtn" id="wkTipBtn">📖 문서 작성 팁</button>
       </label>
-      <div class="wk-toolbar">${WK_TOOLBAR.map((b,i)=>`<button type="button" data-wk="${i}">${escapeHtml(b[0])}</button>`).join('')}</div>
+      <div class="wk-toolbar">${WK_TOOLBAR.map((b,i)=>`<button type="button" data-wk="${i}">${escapeHtml(b[0])}</button>`).join('')}<button type="button" id="wkImgBtn" title="사진 올리기 (드래그&드롭·Ctrl+V 도 가능)">📷 사진</button></div>
+      <div class="wk-upmsg" id="wkUpMsg"></div>
       <div class="wk-tabs"><button type="button" id="wkTabE" class="on">작성</button><button type="button" id="wkTabP">미리보기</button></div>
       <div class="wk-split" id="wkSplit">
         <div id="wkEditCol"><textarea id="e-body" placeholder="여기에 내용을 쓰세요. 빈 줄로 문단을 나눕니다.">${escapeHtml(doc.body||'')}</textarea></div>
@@ -1272,6 +1347,8 @@ async function enterWikiEdit(doc, opts){
     </div>`;
   document.querySelectorAll('[data-wk]').forEach(b=>{ b.onclick=()=>{ const t=WK_TOOLBAR[+b.dataset.wk]; wkInsert(t[1],t[2],t[3]); }; });
   $('#wkTipBtn').onclick=openWritingGuide;
+  $('#wkImgBtn').onclick=wkPickImage;
+  wkBindImageDrop();
   $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
   $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
   const ta=$('#e-body');
@@ -1329,6 +1406,14 @@ function enterEdit(doc){
 }
 async function saveDoc(key){
   const msg=$('#e-msg'); msg.className='msg';
+  // ★용량 방어: 본문에 base64(data:) 이미지가 들어오면 리비전이 편집마다 사진 전체를 복사한다.
+  //   (10년 78GB → DB 한도의 160배). 사진은 반드시 Storage로.
+  const bodyVal=$('#e-body') ? $('#e-body').value : '';
+  if(/!\[[^\]]*\]\(\s*data:/i.test(bodyVal) || /<img[^>]+src\s*=\s*["']?\s*data:/i.test(bodyVal)){
+    msg.className='msg err';
+    msg.textContent='본문에 이미지 데이터를 직접 붙여넣을 수 없어요. [📷 사진] 버튼이나 드래그&드롭을 사용하세요. (용량 보호)';
+    return;
+  }
   let infobox=null;
   const rawInfo=$('#e-info').value.trim();
   if(rawInfo){ try{ infobox=JSON.parse(rawInfo); }catch(e){ msg.className='msg err'; msg.textContent='정보 틀 JSON 형식 오류: '+e.message; return; } }
@@ -1939,6 +2024,44 @@ function usageBar(label, used, limit){
     </div>
   </div>`;
 }
+
+/* 문서 사진 GC — 현재 본문에도, 살아남은 리비전 어디에도 없는 사진만 삭제 대상.
+   (옛 리비전이 참조 중인 사진을 지우면 역사가 깨지므로 반드시 리비전까지 확인한다) */
+async function scanOrphanImages(){
+  const msg=document.getElementById('gcMsg'), list=document.getElementById('gcList');
+  if(!msg||!list) return;
+  msg.textContent='검사 중…'; list.innerHTML='';
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_orphan_doc_images');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); return; }
+
+  if(!rows.length){ msg.textContent='정리할 사진이 없습니다. ✅'; return; }
+  const total=rows.reduce((a,r)=>a+(Number(r.bytes)||0),0);
+  msg.textContent=`${rows.length}개 · ${fmtBytes(total)} 회수 가능`;
+  list.innerHTML = rows.slice(0,20).map(r=>
+      `<div class="orph-row"><span style="flex:1;overflow:hidden;text-overflow:ellipsis">${escapeHtml(r.path)}</span><span>${escapeHtml(fmtBytes(Number(r.bytes)||0))}</span></div>`).join('')
+    + (rows.length>20?`<div class="orph-row"><span>… 외 ${rows.length-20}개</span></div>`:'')
+    + `<button class="btn" id="gcDel" style="margin-top:8px;font-size:12px;padding:6px 12px">${rows.length}개 삭제</button>`;
+
+  document.getElementById('gcDel').onclick=async()=>{
+    const ok=await confirmModal('안 쓰는 사진을 삭제할까요?',
+      `${rows.length}개 · ${fmtBytes(total)}. 현재 문서와 남아있는 역사(리비전) 어디에도 쓰이지 않는 사진입니다.`, '삭제');
+    if(!ok) return;
+    msg.textContent='삭제 중…';
+    try{
+      const paths=rows.map(r=>r.path);
+      for(let i=0;i<paths.length;i+=100){                       // 100개씩 나눠 요청
+        const { error } = await sb.storage.from('doc-images').remove(paths.slice(i,i+100));
+        if(error) throw error;
+      }
+      list.innerHTML=''; msg.textContent=`${rows.length}개 삭제 완료 · ${fmtBytes(total)} 회수 ✅`;
+    }catch(e){ msg.textContent='삭제 실패: '+((e&&e.message)||e); }
+  };
+}
+
 async function capacityCheck(){
   try{
     const { data, error } = await sb.rpc('capacity_usage');
@@ -1954,6 +2077,8 @@ async function capacityCheck(){
     }
     const worst = Math.max(d.db_bytes/d.db_limit, d.storage_bytes/d.storage_limit)*100;
     if(worst>=90) html += `<div class="notice" style="border-left-color:var(--link-red);margin-top:8px"><b>⚠ 한도의 90%를 넘었습니다 — 정리 또는 플랜 상향이 필요합니다.</b></div>`;
+    html += `<div style="margin-top:10px"><button class="btn ghost" id="gcBtn" style="font-size:12px;padding:5px 10px">🧹 안 쓰는 문서 사진 찾기</button> <span id="gcMsg" style="font-size:12px;color:var(--text-dim)"></span></div><div id="gcList"></div>`;
+    setTimeout(()=>{ const b=document.getElementById('gcBtn'); if(b) b.onclick=scanOrphanImages; },0);
     return html;
   }catch(e){
     return healthRow('용량 조회 (capacity_usage)', false, '함수 미배포 또는 권한 없음 · '+String((e&&e.message)||e));
