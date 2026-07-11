@@ -251,6 +251,41 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .chat-del-prompt .cdp-yes{background:var(--accent);color:#fff;}
 .chat-del-prompt .cdp-no{background:var(--box-bg);color:var(--text);border:1px solid var(--border);}
 .modal-ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:1000;}
+
+/* ===== 알림/쪽지 인박스 (2단계) ===== */
+.nav-badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;padding:0 4px;margin-left:5px;border-radius:9px;background:var(--accent);color:#fff;font-size:11px;font-weight:800;line-height:1;}
+.inbox-wrap{display:grid;grid-template-columns:minmax(0,340px) minmax(0,1fr);gap:14px;align-items:start;}
+.inbox-list{border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden;}
+.ib-item{display:flex;gap:10px;padding:11px 12px;border-bottom:1px solid var(--border);cursor:pointer;background:var(--card);}
+.ib-item:last-child{border-bottom:none;}
+.ib-item:hover{background:var(--box-bg);}
+.ib-item.on{background:var(--box-bg);box-shadow:inset 3px 0 0 var(--accent);}
+.ib-item.unread .ib-name{font-weight:800;}
+.ib-item.unread .ib-prev{color:var(--text);font-weight:600;}
+.ib-ava{width:36px;height:36px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;}
+.ib-body{min-width:0;flex:1;}
+.ib-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
+.ib-name{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ib-time{font-size:11px;color:var(--text-dim);flex:none;}
+.ib-prev{font-size:12.5px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;}
+.ib-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex:none;align-self:center;}
+.inbox-pane{border:1px solid var(--border);border-radius:10px;background:var(--card);min-height:320px;display:flex;flex-direction:column;box-shadow:var(--shadow);}
+.ip-head{display:flex;align-items:center;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);}
+.ip-title{font-weight:800;font-size:15px;color:var(--text);}
+.ip-close{margin-left:auto;background:none;border:none;font-size:20px;line-height:1;cursor:pointer;color:var(--text-dim);}
+.ip-msgs{padding:14px;display:flex;flex-direction:column;gap:10px;overflow-y:auto;max-height:52vh;}
+.dm-b{max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.55;white-space:pre-wrap;word-break:break-word;}
+.dm-b.them{align-self:flex-start;background:var(--box-bg);border:1px solid var(--border);color:var(--text);}
+.dm-b.me{align-self:flex-end;background:var(--accent);color:#fff;}
+.dm-t{font-size:10.5px;color:var(--text-dim);margin-top:3px;}
+.dm-b.me + .dm-t{align-self:flex-end;}
+.ip-reply{display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);}
+.ip-reply textarea{flex:1;resize:none;min-height:38px;max-height:120px;padding:8px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
+.ip-empty{margin:auto;color:var(--text-dim);font-size:13.5px;padding:30px;text-align:center;}
+.dm-btn{border:1px solid var(--border-strong);background:var(--card);color:var(--text);border-radius:6px;padding:3px 9px;font-size:11.5px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.dm-btn:hover{background:var(--box-bg);border-color:var(--accent);color:var(--accent);}
+.dir-metarow .dm-btn{margin-left:6px;}
+@media(max-width:820px){ .inbox-wrap{grid-template-columns:1fr;} }
 .modal-box{background:var(--card);border-radius:12px;padding:22px 22px 18px;max-width:340px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.35);}
 .modal-msg{font-size:16px;font-weight:800;color:var(--text);line-height:1.5;}
 .modal-sub{font-size:13px;color:var(--text-dim);margin-top:8px;line-height:1.5;}
@@ -510,6 +545,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="spacer"></div>
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
+    <button class="navbtn" id="inboxBtn">알림<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn">🌙 야간</button>
     <div class="usermenu" id="usermenu">
       <span id="userlabel"></span>
@@ -1365,7 +1401,7 @@ async function capacityCheck(){
              + usageBar('Storage (사진)', d.storage_bytes, d.storage_limit);
     const tb = d.tables||[];
     if(tb.length){
-      html += `<div style="font-size:12px;color:var(--muted,#666);margin-top:6px">무거운 테이블: `
+      html += `<div style="font-size:12px;color:var(--text-dim);margin-top:6px">무거운 테이블: `
             + tb.slice(0,5).map(t=>`${escapeHtml(t.name)} ${escapeHtml(fmtBytes(t.bytes))}`).join(' · ')
             + `</div>`;
     }
@@ -1641,6 +1677,7 @@ async function renderMemberProfile(id){
             <div class="profile-name">${escapeHtml(p.name||'-')} <span class="profile-handle">@${escapeHtml(p.handle||'-')}</span></div>
             <div class="profile-sub">회원번호 #${p.member_no??'-'} · <span class="role-chip">${escapeHtml(p.role||'viewer')}</span></div>
           </div>
+          ${(state.user && id===state.user.id) ? '' : `<button class="dm-btn" style="margin-left:auto;align-self:flex-start;padding:6px 14px;font-size:13px" data-dm="${escapeAttr(id)}" data-dmname="${escapeAttr(p.name||'회원')}">메시지</button>`}
         </div>
         <table class="wtable profile-table">
           <tr><th style="width:120px">이름</th><td>${escapeHtml(p.name||'-')}</td></tr>
@@ -1753,7 +1790,7 @@ function renderDirGrid(){
       <div class="dir-info">
         <div class="dir-name">${escapeHtml(m.name||'-')}</div>
         <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
-        <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span></div>
+        <div class="dir-metarow"><span class="dir-no">#${m.member_no??'-'}</span><span class="dir-club">${escapeHtml(m.club||'무소속')}</span>${(state.user&&m.id===state.user.id)?'':`<button class="dm-btn" data-dm="${escapeAttr(m.id)}" data-dmname="${escapeAttr(m.name||'회원')}">메시지</button>`}</div>
       </div>
     </a>`;
   }).join('');
@@ -1825,6 +1862,171 @@ function fmtKST(iso){ if(!iso) return '-';
   catch(e){ return iso; } }
 function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+
+/* ================== 알림 · 쪽지 인박스 (2단계) ==================
+   A안(메일형): 받은 쪽지를 인박스에서 읽는다. 좌측 목록 → 클릭 시 우측 상세.
+   3단계에서 이 목록에 '질문 답변·등급 변경' 등 다른 알림 종류가 합류한다. */
+const inbox = { threads:[], sel:null };
+
+function dmTime(ts){
+  if(!ts) return '';
+  const d=new Date(ts), now=new Date();
+  const sameDay = d.toDateString()===now.toDateString();
+  if(sameDay) return d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+  return d.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'});
+}
+async function refreshInboxBadge(){
+  const el=$('#inboxBadge'); if(!el) return;
+  try{
+    const { data, error } = await sb.rpc('dm_unread_total');
+    if(error) throw error;
+    const n=Number(data)||0;
+    el.textContent = n>99 ? '99+' : String(n);
+    el.style.display = n>0 ? 'inline-flex' : 'none';
+  }catch(_){ el.style.display='none'; }   // 미배포 시 조용히 숨김
+}
+
+async function renderInbox(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>알림</h1>
+      <div class="tabs"><button id="ibRefresh">[새로고침]</button><button id="ibBack">[문서로]</button></div></div>
+    <div class="doc-meta">받은 쪽지를 여기서 확인해요. 회원에게 쪽지를 보내려면 <b>회원 조회</b>에서 [메시지] 버튼을 누르세요.</div>
+    <div class="inbox-wrap">
+      <div class="inbox-list" id="ibList"><div class="ip-empty">불러오는 중…</div></div>
+      <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
+    </div>`;
+  $('#ibBack').onclick=()=>{ location.hash='#home'; };
+  $('#ibRefresh').onclick=()=>loadInbox();
+  await loadInbox();
+}
+
+async function loadInbox(){
+  const list=$('#ibList'); if(!list) return;
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_dm_threads');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){
+    list.innerHTML='<div class="ip-empty">쪽지 기능이 아직 배포되지 않았습니다.<br>(30_dm.sql 실행 필요)</div>';
+    return;
+  }
+  inbox.threads=rows;
+  if(!rows.length){ list.innerHTML='<div class="ip-empty">받은 쪽지가 없습니다.</div>'; return; }
+  list.innerHTML=rows.map(t=>{
+    const av=avatarFor(t.other_name, t.other_handle);
+    const ava = t.other_avatar
+      ? `<div class="ib-ava" style="background-image:url('${escapeAttr(t.other_avatar)}')"></div>`
+      : `<div class="ib-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+    const prev=(t.last_from_me?'나: ':'')+(t.last_body||'');
+    const un=Number(t.unread)||0;
+    return `<div class="ib-item ${un?'unread':''} ${inbox.sel===t.thread_id?'on':''}" data-tid="${t.thread_id}">
+      ${ava}
+      <div class="ib-body">
+        <div class="ib-top"><span class="ib-name">${escapeHtml(t.other_name||'-')} <span class="muted">@${escapeHtml(t.other_handle||'-')}</span></span><span class="ib-time">${escapeHtml(dmTime(t.last_at))}</span></div>
+        <div class="ib-prev">${escapeHtml(prev)}</div>
+      </div>
+      ${un?'<span class="ib-dot" title="안 읽음"></span>':''}
+    </div>`;
+  }).join('');
+  list.querySelectorAll('.ib-item').forEach(el=>{
+    el.onclick=()=>openDmThread(Number(el.dataset.tid));
+  });
+  refreshInboxBadge();
+}
+
+async function openDmThread(tid){
+  inbox.sel=tid;
+  const t=inbox.threads.find(x=>Number(x.thread_id)===tid);
+  const pane=$('#ibPane'); if(!pane) return;
+  $('#ibList').querySelectorAll('.ib-item').forEach(el=>{
+    el.classList.toggle('on', Number(el.dataset.tid)===tid);
+    if(Number(el.dataset.tid)===tid){ el.classList.remove('unread'); const d=el.querySelector('.ib-dot'); if(d) d.remove(); }
+  });
+  pane.innerHTML='<div class="ip-empty">불러오는 중…</div>';
+  let msgs=[];
+  try{
+    const { data, error } = await sb.rpc('get_dm_thread', { p_thread_id: tid });
+    if(error) throw error;
+    msgs=data||[];
+  }catch(e){ pane.innerHTML='<div class="ip-empty">불러오지 못했습니다.</div>'; return; }
+
+  const who = t ? `${t.other_name||'-'} <span class="muted">@${t.other_handle||'-'}</span>` : '쪽지';
+  pane.innerHTML=`
+    <div class="ip-head">
+      <span class="ip-title">${who}</span>
+      ${t?`<a class="dm-btn" href="#member/${t.other_id}">프로필</a>`:''}
+      <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
+    </div>
+    <div class="ip-msgs" id="ipMsgs">
+      ${msgs.map(m=>`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body||'')}</div><div class="dm-t">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
+    </div>
+    <div class="ip-reply">
+      <textarea id="ipInput" placeholder="답장을 입력하세요… (Ctrl+Enter로 보내기)"></textarea>
+      <button class="btn" id="ipSend">보내기</button>
+    </div>`;
+  const box=$('#ipMsgs'); if(box) box.scrollTop=box.scrollHeight;
+  $('#ipClose').onclick=()=>{ inbox.sel=null; pane.innerHTML='<div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div>';
+    $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
+  const send=async()=>{
+    const ta=$('#ipInput'); const body=(ta.value||'').trim();
+    if(!body || !t) return;
+    const btn=$('#ipSend'); btn.disabled=true;
+    try{
+      const { error } = await sb.rpc('send_dm', { p_to: t.other_id, p_body: body });
+      if(error) throw error;
+      ta.value='';
+      await loadInbox();
+      await openDmThread(tid);
+    }catch(e){ alert('보내지 못했습니다: '+((e&&e.message)||e)); btn.disabled=false; }
+  };
+  $('#ipSend').onclick=send;
+  $('#ipInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) send(); });
+  refreshInboxBadge();
+}
+
+/* 쪽지 쓰기 모달 — 회원 조회 카드 / 회원 프로필의 [메시지] 버튼에서 호출 */
+function openDmCompose(toId, toName){
+  if(state.user && toId===state.user.id){ alert('본인에게는 쪽지를 보낼 수 없어요.'); return; }
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:460px">
+    <div class="modal-msg">${escapeHtml(toName||'회원')}님에게 쪽지</div>
+    <div class="modal-sub">받는 사람만 볼 수 있어요. 상대의 알림함으로 전달됩니다.</div>
+    <textarea id="dcBody" rows="6" style="width:100%;margin-top:12px;padding:10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--text)" placeholder="내용을 입력하세요…"></textarea>
+    <div class="modal-sub" id="dcMsg" style="min-height:16px"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="dcCancel">취소</button>
+      <button class="modal-ok" id="dcSend">보내기</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+  $('#dcCancel').onclick=close;
+  const ta=ov.querySelector('#dcBody'); ta.focus();
+  const doSend=async()=>{
+    const body=(ta.value||'').trim();
+    const msg=ov.querySelector('#dcMsg');
+    if(!body){ msg.textContent='내용을 입력해 주세요.'; return; }
+    const btn=ov.querySelector('#dcSend'); btn.disabled=true; msg.textContent='보내는 중…';
+    try{
+      const { error } = await sb.rpc('send_dm', { p_to: toId, p_body: body });
+      if(error) throw error;
+      close();
+      refreshInboxBadge();
+      alert('쪽지를 보냈어요.');
+    }catch(e){ msg.textContent='보내지 못했습니다: '+((e&&e.message)||e); btn.disabled=false; }
+  };
+  ov.querySelector('#dcSend').onclick=doSend;
+  ta.addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) doSend(); });
+}
+/* 전역 위임: [메시지] 버튼(카드 안의 링크 클릭과 충돌 방지) */
+document.addEventListener('click', e=>{
+  const b=e.target.closest('[data-dm]');
+  if(!b) return;
+  e.preventDefault(); e.stopPropagation();
+  openDmCompose(b.dataset.dm, b.dataset.dmname||'회원');
+});
 
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
@@ -2370,12 +2572,13 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
+  refreshInboxBadge();     // 안 읽은 쪽지 개수 갱신 (네비 배지)
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
   const isTrashDoc = key.startsWith('trash/');
-  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash'];
+  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='trash'){ if(isAdmin()) renderTrash(); else location.hash='#home'; return; }
@@ -2383,6 +2586,7 @@ function route(){
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
+  if(key==='inbox'){ renderInbox(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#home'; return; }
   if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#home'; return; }
@@ -2427,6 +2631,7 @@ function closeUserMenu(){ umTrig.classList.remove('open'); umTrig.classList.add(
 $('#usericon').onclick=(e)=>{ e.stopPropagation(); umTrig.classList.remove('closing'); umTrig.classList.toggle('open'); };
 umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
 document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
+$('#inboxBtn').onclick=()=>{ location.hash='#inbox'; };
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
 $('#dropLogout').onclick=async()=>{ closeUserMenu(); stopHeartbeat(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
