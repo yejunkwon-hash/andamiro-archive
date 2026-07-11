@@ -57,10 +57,8 @@ a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a
 .seg-opt.on{background:var(--rc,var(--accent)) !important;color:#fff !important;border-color:var(--rc,var(--accent));}
 .seg-opt:not(.on):hover{background:color-mix(in srgb, var(--rc,#888) 14%, transparent);color:var(--rc,var(--text));}
 .seg-me{font-size:11px;color:var(--text-dim);margin-left:6px;vertical-align:middle;}
-.club-sel{max-width:140px;padding:4px 6px;border:1px solid var(--border);border-radius:5px;background:var(--card);color:var(--text);font-size:12.5px;font-family:inherit;cursor:pointer;}
-.club-sel:hover{border-color:var(--accent);}
-.club-sel:disabled{opacity:.6;cursor:default;}
-.club-sel.ok{border-color:#1b7a2f;box-shadow:0 0 0 2px rgba(27,122,47,.18);}
+/* 소속 셀렉트는 .usel 스타일을 따른다 (옛 .club-sel 규칙은 폭을 접히게 만들어 제거) */
+.club-selw{max-width:150px;}
 .seg-opt.seg-owner{color:var(--accent);}
 .seg-opt.seg-owner.on{background:var(--accent);color:#fff;}
 .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#fdeaea;color:var(--accent);}
@@ -386,7 +384,7 @@ body.dark .rpill .rtip{background:#3a3d45;} body.dark .rpill .rtip::after{border
 .react-opt:hover{background:var(--box-bg);}
 .react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
-.chat-input input,.chat-input textarea{flex:1 1 auto;min-width:0;min-height:44px;max-height:132px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
+.chat-input input,.chat-input textarea{flex:1 1 auto;min-width:0;min-height:44px;max-height:280px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
 .chat-input textarea{align-self:flex-end;}
 .chat-input{align-items:flex-end;}
 .chat-count{font-size:11px;color:var(--text-dim);padding:2px 12px 0;text-align:right;}
@@ -535,7 +533,7 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 
 /* ===== 통일 셀렉트 =====
    기본 <select>의 OS 화살표를 없애고 직접 그린다. 소속·계열 선택 전부 여기에 맞춘다. */
-.usel{position:relative;display:inline-flex;align-items:center;}
+.usel{position:relative;display:inline-flex;align-items:center;min-width:150px;}
 .usel select{appearance:none;-webkit-appearance:none;
   background:var(--card);color:var(--text);border:1px solid var(--border-strong);border-radius:9px;
   padding:8px 32px 8px 12px;font:inherit;font-size:13.5px;font-weight:600;cursor:pointer;width:100%;
@@ -548,6 +546,7 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
   transform:translateY(-70%) rotate(45deg);border-radius:1px;}
 .usel.ok select{border-color:#2e9e5b;box-shadow:0 0 0 3px rgba(46,158,91,.16);}
 .usel.sm select{padding:5px 26px 5px 9px;font-size:12.5px;border-radius:7px;}
+.usel.sm{min-width:132px;}
 .usel.sm::after{right:9px;width:6px;height:6px;}
 .usel.block{display:flex;width:100%;}
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
@@ -584,6 +583,15 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .fb-item-prev{font-size:13.5px;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .fb-item-t{flex:none;font-size:11.5px;color:var(--text-dim);}
 .fb-anon{font-size:11px;font-weight:800;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
+/* 시스템 안내 하이라이트 */
+.sys-note{line-height:1.7;}
+.sys-title{display:block;margin-bottom:4px;color:var(--accent);font-size:13.5px;}
+.hl-role{display:inline-block;font-weight:800;font-size:11.5px;color:var(--rc);border:1.5px solid var(--rc);
+  background:color-mix(in srgb, var(--rc) 12%, transparent);border-radius:6px;padding:0 6px;margin:0 1px;}
+.hl-date,.hl-time{font-weight:700;background:color-mix(in srgb, var(--accent) 12%, transparent);
+  border-radius:4px;padding:0 4px;color:var(--text);}
+.hl-quote{font-weight:800;background:color-mix(in srgb, #f5b301 26%, transparent);border-radius:4px;padding:0 4px;color:var(--text);}
+.hl-arrow{color:var(--accent);font-weight:900;margin:0 2px;}
 .fb-detail-top{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
 .fb-detail-r{font-weight:900;font-size:18px;color:var(--text);}
 .fb-detail-body{white-space:pre-wrap;word-break:break-word;font-size:14px;line-height:1.65;color:var(--text);background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:10px 0;max-height:40vh;overflow-y:auto;}
@@ -1735,6 +1743,7 @@ async function onLoggedIn(){
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
   setTimeout(()=>{ sb.rpc('dispatch_event_reminders').catch(()=>{}); }, 2500);   // 일정 리마인더(전날·1시간 전) 발송
+  setTimeout(()=>{ purgeOldTrash(); }, 6000);                                    // 휴지통 30일 지난 문서 영구 삭제
 }
 const ROLE_RANK={ viewer:0, teacher:0, editor:1, admin:2, owner:3 };
 function roleRank(r){ return ROLE_RANK[r] ?? 0; }
@@ -2872,15 +2881,29 @@ async function wkUploadImages(files){
   const imgs=[...files].filter(f=>/^image\//.test(f.type||''));
   if(!imgs.length) return;
 
+  /* 문서 1개의 사진 합계 상한 — 모든 사진은 '1장 상한'으로 압축되므로
+     넣을 수 있는 최대 장수 = 합계 ÷ 1장 상한. 초과분은 올리지 않는다. */
+  const perKb   = LIMITS.lim_doc_img_kb   || 150;
+  const totalKb = LIMITS.lim_doc_total_kb || 1500;
+  const maxImgs = Math.max(1, Math.floor(totalKb / perKb));
+  const cur = (ta.value.match(IMG_MD_RE()) || []).length;
+  let room = maxImgs - cur;
+  if(room <= 0){
+    wkUpMsg(`이 문서의 사진 상한(합계 ${totalKb}KB · 최대 ${maxImgs}장)에 도달했어요. 기존 사진을 지우고 다시 시도해 주세요.`, true);
+    return;
+  }
+
   for(const f of imgs){
+    if(room <= 0){ wkUpMsg(`사진은 이 문서에 최대 ${maxImgs}장까지예요.`, true); break; }
     if(f.size > IMG_RAW_MAX){ wkUpMsg('25MB 이하 이미지만 올릴 수 있어요.', true); continue; }
+    room--;
     const token = '![업로드 중…](uploading-'+Date.now()+'-'+Math.random().toString(36).slice(2,7)+')';
     const st=ta.selectionStart;
     ta.setRangeText('\n'+token+'\n', st, ta.selectionEnd, 'end');
     wkRenderPreview();
     try{
       wkUpMsg('압축 중…');
-      const out = await compressImage(f, { mode:'contain', dim:DOC_IMG_DIM, target:DOC_IMG_TARGET, minQuality:0.45 });
+      const out = await compressImage(f, { mode:'contain', dim:DOC_IMG_DIM, target:(LIMITS.lim_doc_img_kb||150)*1024, minQuality:0.45 });
       wkUpMsg(`업로드 중… (${(out.blob.size/1024).toFixed(0)}KB)`);
       const ext = out.type==='image/webp' ? 'webp' : 'jpg';
       const path = `${state.user.id}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
@@ -3773,7 +3796,25 @@ async function deleteDoc(doc){
 }
 
 /* ================== 문서 휴지통 (admin+) ================== */
+/* 휴지통 30일 자동 정리 — 권한자가 앱을 열면 하루 1회 실행(서버가 30일 경과분만 지운다) */
+const TRASH_GC_KEY='anda_trash_gc_at';
+async function purgeOldTrash(force){
+  if(!can('trash')) return 0;
+  const now=Date.now();
+  if(!force){
+    try{ const last=Number(localStorage.getItem(TRASH_GC_KEY)||0);
+      if(now-last < 24*3600*1000) return 0; }catch(e){}
+  }
+  try{
+    const { data, error } = await sb.rpc('purge_old_trash');
+    if(error) return 0;
+    try{ localStorage.setItem(TRASH_GC_KEY, String(now)); }catch(e){}
+    return Number(data)||0;
+  }catch(e){ return 0; }
+}
+
 async function renderTrash(){
+  await purgeOldTrash(true);          // 휴지통을 열 때마다 30일 지난 항목을 먼저 정리
   document.body.classList.remove('trash-view');
   let rows=[];
   try{ const { data, error } = await sb.rpc('list_deleted_documents'); if(error) throw error; rows=data||[]; }
@@ -3791,7 +3832,7 @@ async function renderTrash(){
       </td>
     </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:18px">휴지통이 비어 있습니다.</td></tr>';
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>🗑 휴지통</h1>
+    <div class="doc-head"><h1>🗑 휴지통 <span class="muted" style="font-size:12.5px;font-weight:400">30일이 지나면 자동으로 영구 삭제돼요</span></h1>
       <div class="tabs"><button id="trBack">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">삭제된 문서 보관함 · admin 전용 · 총 ${rows.length}개</div>
     <div class="notice">삭제된 문서는 여기 보관돼요. <b>열람</b>은 흑백 읽기 전용이며, <b>복원</b>하면 다시 정상 문서로 돌아갑니다.</div>
@@ -4082,6 +4123,107 @@ async function renderAdmin(){
   window.scrollTo(0,0);
 }
 
+/* ---- 동아리 목록 (admin) : 펼치면 소속 회원 프로필 링크 · 무소속 맨 아래 ---- */
+async function renderClubSection(){
+  const box=$('#clubSection'); if(!box) return;
+  let clubs=[], profs=[];
+  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('id,member_no,name,handle,club,avatar_url'); profs=data||[]; }catch(e){}
+  const byClub={}; profs.forEach(p=>{ const c=p.club||'무소속'; (byClub[c]=byClub[c]||[]).push(p); });
+  const tableByName={}; clubs.forEach(c=>{ tableByName[c.name]=c; });
+  const allNames=new Set([...clubs.map(c=>c.name), ...profs.map(p=>p.club||'무소속')]);
+  const names=[...allNames].filter(n=>n!=='무소속').sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+  names.push('무소속');
+  const items=names.map(n=>{
+    const t=tableByName[n]; const inTable=!!t;
+    const mem=(byClub[n]||[]).slice().sort((a,b)=>(a.member_no||1e9)-(b.member_no||1e9));
+    const memHtml = mem.length ? mem.map(m=>{
+      const av=avatarFor(m.name,m.handle);
+      const ava = m.avatar_url
+        ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
+        : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
+      return `<a class="club-mem" href="#member/${m.id}">${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
+    }).join('') : '<div class="club-empty">소속 회원이 없습니다.</div>';
+    return `<div class="club-item">
+      <div class="club-row">
+        <span class="club-caret">▸</span>
+        <span class="club-name">${escapeHtml(n)}</span>${(!inTable && n!=='무소속')?'<span class="club-tag">목록 외</span>':''}
+        <span class="club-count">${mem.length}명</span>
+      </div>
+      <div class="club-members" style="display:none">${memHtml}</div>
+    </div>`;
+  }).join('');
+  box.innerHTML=`
+    <div class="club-sec-head"><h2>동아리 목록</h2>${can('club_edit')?`<button class="abtn" id="clubEditBtn">${ic('edit')}동아리 목록 수정</button>`:''}</div>
+    <div class="club-list">${items}</div>
+    <div class="doc-meta">동아리명을 눌러 소속 회원을 펼쳐볼 수 있어요. '목록 외'는 회원이 가입 때 직접 적었지만 목록에 아직 없는 이름이에요 — 수정에서 추가하면 관리됩니다.</div>`;
+  box.querySelectorAll('.club-row').forEach(r=>r.onclick=()=>{
+    const m=r.parentElement.querySelector('.club-members'); const open=m.style.display!=='none';
+    m.style.display=open?'none':'block'; r.querySelector('.club-caret').textContent=open?'▸':'▾';
+  });
+  const ceb=$('#clubEditBtn'); if(ceb) ceb.onclick=openClubEditor;
+}
+
+/* 동아리 목록 수정 모달 (추가 / 이름변경 / 삭제) */
+async function openClubEditor(){
+  if(!requirePerm('club_edit')) return;
+  let clubs=[];
+  try{ const { data } = await sb.from('clubs').select('id,name,is_none'); clubs=data||[]; }catch(e){}
+  clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
+  const rows=clubs.map(c=>c.is_none
+    ? `<div class="ce-row"><span class="ce-name">${escapeHtml(c.name)}</span><span class="ce-lock">고정</span></div>`
+    : `<div class="ce-row" data-id="${c.id}" data-name="${escapeAttr(c.name)}">
+         <span class="ce-name">${escapeHtml(c.name)}</span>
+         <span class="ce-btns"><button class="ce-rename">이름변경</button><button class="ce-del">삭제</button></span>
+       </div>`).join('');
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box ce-box">
+    <div class="modal-msg">동아리 목록 수정</div>
+    <div class="ce-add"><input id="ceNew" type="text" placeholder="새 동아리 이름" maxlength="40" autocomplete="off"><button id="ceAdd">추가</button></div>
+    <div class="ce-msg" id="ceMsg"></div>
+    <div class="ce-list">${rows||'<div class="club-empty" style="padding:10px">동아리가 없습니다.</div>'}</div>
+    <div class="modal-btns"><button class="modal-cancel" id="ceClose">닫기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const reopen=()=>{ ov.remove(); openClubEditor(); };
+  const close=()=>{ ov.remove(); renderClubSection(); };
+  const setMsg=(t,ok)=>{ const m=$('#ceMsg'); if(!m)return; m.textContent=t||''; m.className='ce-msg'+(ok?' ok':(t?' err':'')); };
+  $('#ceClose').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  $('#ceAdd').onclick=async()=>{
+    const name=($('#ceNew').value||'').trim(); if(!name){ setMsg('이름을 입력하세요.'); return; }
+    const { error }=await sb.rpc('add_club',{ p_name:name });
+    if(error){ setMsg(error.message||'추가 실패'); return; }
+    reopen();
+  };
+  $('#ceNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#ceAdd').click(); } });
+  ov.querySelectorAll('.ce-del').forEach(b=>b.onclick=async()=>{
+    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
+    const ok=await confirmModal('"'+name+'" 동아리를 삭제할까요?','소속 회원은 모두 무소속으로 이동합니다.');
+    if(!ok) return;
+    showBlockingLoader('삭제하는 중…');
+    const { error }=await sb.rpc('delete_club',{ p_id:Number(id) });
+    hideBlockingLoader();
+    if(error){ setMsg(error.message||'삭제 실패'); return; }
+    reopen();
+  });
+  ov.querySelectorAll('.ce-rename').forEach(b=>b.onclick=()=>{
+    const row=b.closest('.ce-row'); const id=row.dataset.id, name=row.dataset.name;
+    row.innerHTML=`<input class="ce-edit" type="text" value="${escapeAttr(name)}" maxlength="40" autocomplete="off"><span class="ce-btns"><button class="ce-save">저장</button><button class="ce-cancel">취소</button></span>`;
+    const inp=row.querySelector('.ce-edit'); inp.focus();
+    row.querySelector('.ce-cancel').onclick=reopen;
+    const doSave=async()=>{
+      const nn=(inp.value||'').trim(); if(!nn){ setMsg('이름을 입력하세요.'); return; }
+      showBlockingLoader('이름을 변경하는 중…');
+      const { error }=await sb.rpc('rename_club',{ p_id:Number(id), p_new:nn });
+      hideBlockingLoader();
+      if(error){ setMsg(error.message||'변경 실패'); return; }
+      reopen();
+    };
+    row.querySelector('.ce-save').onclick=doSave;
+    inp.addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); doSave(); } });
+  });
+}
 /* ---- 계열 관리 (track_edit) : 인라인 편집 ----
    팝업(모달·confirm)을 쓰지 않는다. 행 안에서 바로 고치고, 삭제도 그 자리에서 한 번 더 확인한다.
    ★한 번에 한 행만 편집 모드 — 다른 행을 열면 앞의 편집은 자동 취소된다. */
@@ -4583,6 +4725,9 @@ function healthTasks(){
       ['set_perms_default — 기본값 프리셋 (56)', ()=>chkFn('set_perms_default — 기본값 프리셋 (56)','set_perms_default')],
       ['delete_message — 메시지 삭제 (22·57)', ()=>chkFn('delete_message — 메시지 삭제 (22·57)','delete_message')],
       ['submit_feedback / list_feedback (59)', ()=>chkFn('submit_feedback / list_feedback (59)','feedback_left_today')],
+      ['purge_old_trash — 휴지통 30일 정리 (62)', ()=>chkFn('purge_old_trash — 휴지통 30일 정리 (62)','purge_old_trash')],
+      ['bump_doc_view — 열람 수 (60)', ()=>chkFn('bump_doc_view — 열람 수 (60)','bump_doc_view')],
+      ['rpc_exists — 부작용 없는 검사 (61)', ()=>chkFn('rpc_exists — 부작용 없는 검사 (61)','rpc_exists')],
       ['submit_contact — 관리자 문의 (50·55)', ()=>chkFn('submit_contact — 관리자 문의 (50·55)','submit_contact')],
       ['set_my_event_prefs (49)',     ()=>chkFn('set_my_event_prefs (49)','set_my_event_prefs')],
       ['dispatch_event_reminders (49)', ()=>chkFn('dispatch_event_reminders (49)','dispatch_event_reminders')],
@@ -4767,6 +4912,8 @@ const LIMIT_FIELDS = [
   { group:'질문 답변',     chars:'lim_ans_chars',  kb:'lim_ans_img_kb',  kbLabel:'사진 1장' },
   { group:'질문 본문',     chars:'lim_q_chars',    kb:'lim_q_img_kb',    kbLabel:'사진 합계' },
   { group:'쪽지',          chars:'lim_dm_chars',   kb:'lim_dm_img_kb',   kbLabel:'사진 1장' },
+  { group:'문서',          chars:null,             kb:'lim_doc_img_kb',  kbLabel:'사진 1장',
+    kb2:'lim_doc_total_kb', kb2Label:'문서 1개의 사진 합계' },
 ];
 async function renderSysLimits(){
   await loadLimits();
@@ -4780,9 +4927,20 @@ async function renderSysLimits(){
         ${LIMIT_FIELDS.map(f=>`
           <tr>
             <td><b>${escapeHtml(f.group)}</b></td>
-            <td><input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자</td>
-            <td><input class="lim-in" type="number" min="5" max="500" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span></td>
-            <td class="hs-dt">${f.kbLabel==='사진 합계'?'질문 1건의 사진을 합쳐 이 용량에 맞게 자동 압축':'사진 1장을 이 용량에 맞게 자동 압축'}</td>
+            <td>${f.chars
+              ? `<input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자`
+              : '<span class="muted">—</span>'}</td>
+            <td>
+              <input class="lim-in" type="number" min="5" max="500" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB
+              <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span>
+              ${f.kb2 ? `<div style="margin-top:5px">
+                <input class="lim-in" type="number" min="100" max="20000" data-k="${f.kb2}" value="${LIMITS[f.kb2]}"> KB
+                <span class="hs-note" style="display:inline">(${escapeHtml(f.kb2Label)})</span></div>` : ''}
+            </td>
+            <td class="hs-dt">${f.kb2
+              ? '사진 1장은 이 용량으로 자동 압축돼요. 문서 1개에 넣을 수 있는 사진 수는 <b>합계 ÷ 1장 용량</b>으로 제한됩니다.'
+              : (f.kbLabel==='사진 합계' ? '질문 1건의 사진을 합쳐 이 용량에 맞게 자동 압축'
+                                        : '사진 1장을 이 용량에 맞게 자동 압축')}</td>
           </tr>`).join('')}
       </table>
       <div class="sys-actions">
@@ -6115,6 +6273,18 @@ async function refreshOpenThread(){
 /* 알림 상세 (쪽지가 아닌 항목) — 우측 패널에 펼치고 읽음 처리 */
 /* 시스템 알림 모아보기 — 모든 알림(답변·등급·공지)을 '시스템' 대화 하나에 시간순으로 쌓아 보여준다.
    예전엔 알림 1건마다 목록에 새 항목이 생겨 쪽지함이 지저분해졌다. */
+/* 시스템 안내 본문 하이라이트 — 등급명 · 날짜/시간 · 따옴표 안 제목을 강조한다.
+   (escapeHtml 먼저 → 그 뒤에 안전한 태그만 삽입) */
+function sysHighlight(text){
+  let h = escapeHtml(String(text||''));
+  h = h.replace(/\b(owner|admin|editor|viewer|teacher)\b/gi,
+        m=>`<span class="hl-role" style="--rc:${ROLE_COLOR[m.toLowerCase()]||'var(--text-dim)'}">${m}</span>`);
+  h = h.replace(/(\d{4}[.\-/]\s?\d{1,2}[.\-/]\s?\d{1,2}\.?)/g, '<span class="hl-date">$1</span>');   // 날짜
+  h = h.replace(/((?:오전|오후)?\s?\d{1,2}:\d{2})/g, '<span class="hl-time">$1</span>');                  // 시간
+  h = h.replace(/(&quot;|&#39;|')([^&'"]{1,60})(&quot;|&#39;|')/g, '<span class="hl-quote">$2</span>');      // 따옴표 제목
+  h = h.replace(/(→|->)/g, '<span class="hl-arrow">→</span>');
+  return h;
+}
 async function openSystemThread(){
   const key='sys:all';
   inbox.sel=key;
@@ -6128,7 +6298,8 @@ async function openSystemThread(){
   const ICON={ answer:'💬', role:'🎖', notice:'📢' };
   const asc=notices.slice().sort((a,b)=> new Date(a.at||0) - new Date(b.at||0));   // 오래된 것부터(대화처럼)
   const body = asc.length ? asc.map(n=>`
-      <div class="dm-b them"><b>${ICON[n.kind]||'🔔'} ${escapeHtml(n.title||'알림')}</b>${n.preview?'\n'+escapeHtml(n.preview):''}</div>
+      <div class="dm-b them sys-note">
+        <b class="sys-title">${ICON[n.kind]||'🔔'} ${escapeHtml(n.title||'알림')}</b>${n.preview?'\n'+sysHighlight(n.preview):''}</div>
       <div class="dm-t">${escapeHtml(dmTime(n.at))}${n.link?` · <a href="${escapeAttr(n.link)}">바로 가기</a>`:''}</div>`).join('')
     : '<div class="ip-empty">받은 알림이 없습니다.</div>';
   pane.innerHTML=`
@@ -6863,7 +7034,8 @@ const LIMITS = {
   lim_chat_chars:500, lim_chat_img_kb:40,
   lim_ans_chars:500,  lim_ans_img_kb:40,
   lim_q_chars:1000,   lim_q_img_kb:100,
-  lim_dm_chars:500,   lim_dm_img_kb:40
+  lim_dm_chars:500,   lim_dm_img_kb:40,
+  lim_doc_img_kb:150, lim_doc_total_kb:1500      // 문서 사진: 1장 / 문서 1개 합계
 };
 async function loadLimits(){
   try{
@@ -6892,10 +7064,11 @@ function bindChatKeys(el, send){
     e.preventDefault(); send();                           // 그냥 Enter = 전송
   });
 }
+const CHAT_TA_MAX = 280;      // 입력창이 위로 자라는 한계(px). 예전엔 132px이라 3~4줄에서 멈췄다.
 function autoGrow(el){
   if(!el || el.tagName!=='TEXTAREA') return;
   el.style.height='auto';
-  el.style.height=Math.min(el.scrollHeight, 132)+'px';
+  el.style.height=Math.min(el.scrollHeight, CHAT_TA_MAX)+'px';
 }
 function updateDmCount(){
   const el=$('#ipInput'), box=$('#dmCount');
@@ -7691,39 +7864,39 @@ function route(){
   }
   if(!sys && key && !guardPage('doc_read')) return;        // 문서 열람 권한
   _lastGoodHash = location.hash || '#//main';
-  if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
-  if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
-  if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#//home'; return; }
-  if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#//home'; return; }
-  if(key==='directory'){ renderDirectory(); return; }
-  if(key==='main' || key==='home'){ renderLanding(); return; }   // 폰 하단바의 '홈'도 대문으로
-  if(key==='community'){ renderCommunity(); return; }
-  if(isQuestion){ renderQuestion(Number(key.slice(2))); return; }
-  if(key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
+  if(sys && isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
+  if(sys && isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
+  if(sys && key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#//home'; return; }
+  if(sys && isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#//home'; return; }
+  if(sys && key==='directory'){ renderDirectory(); return; }
+  if(sys && (key==='main' || key==='home')){ renderLanding(); return; }   // 대문은 '#//main' 일 때만
+  if(sys && key==='community'){ renderCommunity(); return; }
+  if(sys && isQuestion){ renderQuestion(Number(key.slice(2))); return; }
+  if(sys && key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
     const parts=key.slice(4).split('/');
     if(parts.length>=2){ renderRevView(decodeURIComponent(parts[0]), parts[1]); return; }
   }
-  if(isHist){ showHistory(decodeURIComponent(key.slice(5))); return; }      // #hist/<key>
-  if(isEdit){                                                              // #edit/<key>
+  if(sys && isHist){ showHistory(decodeURIComponent(key.slice(5))); return; }      // #hist/<key>
+  if(sys && isEdit){                                                              // #edit/<key>
     if(!canEdit()){ location.hash='#'+decodeURIComponent(key.slice(5)); return; }   // 문서는 bare 주소
     openEditRoute(decodeURIComponent(key.slice(5))); return;
   }
-  if(key==='docs'){ renderDocsPage(); return; }
-  if(key==='questions'){ renderQuestions(); return; }
-  if(key==='calendar'){ renderCalendarPage(); return; }
-  if(key==='inbox'){ renderInbox(); return; }
-  if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
-  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
-  if(key==='requests'){ if(!guardPage('signup_review')) return; renderRequests(); return; }
-  if(key==='feedback'){ renderFeedback(); return; }                        // 전 등급
-  if(key==='feedback/review'){ if(!guardPage('feedback_read')) return; renderFeedbackReview(); return; }
-  if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
-  if(key==='system'){ renderSystem(); return; }
-  if(key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
-  if(key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
-  if(key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
-  if(key==='password'){ renderPassword(); return; }
-  if(key==='me'){ renderMe(); return; }
+  if(sys && key==='docs'){ renderDocsPage(); return; }
+  if(sys && key==='questions'){ renderQuestions(); return; }
+  if(sys && key==='calendar'){ renderCalendarPage(); return; }
+  if(sys && key==='inbox'){ renderInbox(); return; }
+  if(sys && isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
+  if(sys && key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
+  if(sys && key==='requests'){ if(!guardPage('signup_review')) return; renderRequests(); return; }
+  if(sys && key==='feedback'){ renderFeedback(); return; }                        // 전 등급
+  if(sys && key==='feedback/review'){ if(!guardPage('feedback_read')) return; renderFeedbackReview(); return; }
+  if(sys && key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
+  if(sys && key==='system'){ renderSystem(); return; }
+  if(sys && key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
+  if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
+  if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
+  if(sys && key==='password'){ renderPassword(); return; }
+  if(sys && key==='me'){ renderMe(); return; }
   if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
   if(!key || !(state.docs||[]).some(d=>d.key===key)){ renderNotFound(raw); return; }   // 없는 문서
   renderDoc(key);
