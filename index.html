@@ -1316,8 +1316,13 @@ async function rpcCheck(label, name, args){
     const { error } = await sb.rpc(name, args||{});
     if(!error) return healthRow(label, true, 'OK');
     const msg=error.message||''; const code=error.code||'';
-    const missing = code==='PGRST202' || code==='PGRST203' || code==='404'
-      || /could not find the function|does not exist|schema cache|찾을 수 없/i.test(msg);
+    // 이 점검은 일부러 없는 ID(-1 등)를 넘겨 "함수가 배포됐는지"만 본다.
+    // 따라서 함수가 더미 인자를 거부하며 내는 "…찾을 수 없습니다"(=행 없음)는 '정상 거부'이지 '함수 없음'이 아니다.
+    // 판정은 메시지 문구가 아니라 에러 코드로 한다:
+    //   PGRST202/PGRST203 = PostgREST가 스키마 캐시에서 함수를 못 찾음, 42883 = Postgres undefined_function
+    const missing = code==='PGRST202' || code==='PGRST203' || code==='42883'
+      || /could not find the function|schema cache/i.test(msg)
+      || /function .+ does not exist/i.test(msg);
     if(missing) return healthRow(label, false, '함수 없음/미배포 · '+msg);
     return healthRow(label, true, '배포됨 (정상 거부: '+msg+')');
   }catch(e){ return healthRow(label, false, String(e)); }
