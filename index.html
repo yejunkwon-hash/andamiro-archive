@@ -69,7 +69,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .profile-main{flex:1;min-width:300px;}
 .profile-side{width:290px;flex:none;}
 .profile-top{display:flex;align-items:center;gap:16px;margin-bottom:16px;}
-.profile-ava{width:96px;height:96px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:800;flex:none;user-select:none;}
+.profile-ava{width:96px;height:96px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:44px;font-weight:800;flex:none;user-select:none;}
 .profile-headline{min-width:0;}
 .profile-name{font-size:22px;font-weight:800;color:var(--text);}
 .profile-handle{font-size:14px;font-weight:500;color:var(--text-dim);}
@@ -122,7 +122,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .hh-first{background:var(--box-bg);color:var(--accent);border:1px solid var(--border);border-radius:8px;font-size:10px;padding:0 6px;margin-left:4px;}
 .muted{color:var(--text-dim);}
 @media(max-width:720px){ .profile-side{width:100%;} }
-.profile-ava{background-size:cover;background-position:center;}
+.profile-ava{background-size:cover;background-position:center;border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.14);}
 .me-wrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
 /* 프로필 사진 블록은 표 '옆'이 아니라 표 아래(또는 오른쪽 아래)에 오도록 — 표가 먼저 눈에 들어오게 */
 .me-wrap{flex-direction:column;align-items:flex-start;}
@@ -173,16 +173,26 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .tk-row.editing{background:var(--box-bg);}
 .tk-view,.tk-edit-box,.tk-confirm{display:flex;align-items:center;gap:9px;padding:9px 12px;}
 .tk-view[hidden],.tk-edit-box[hidden],.tk-confirm[hidden]{display:none;}
-.tk-swatch{width:14px;height:14px;border-radius:4px;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.08) inset;}
+.tk-swatch{width:16px;height:16px;border-radius:50%;flex:none;box-shadow:0 0 0 1px rgba(0,0,0,.12) inset;}
 .tk-cnt{margin-left:auto;font-size:12px;color:var(--text-dim);}
 .tk-acts{display:inline-flex;gap:5px;margin-left:8px;}
-.tk-color{width:32px;height:32px;padding:0;border:1px solid var(--border-strong);border-radius:8px;background:none;cursor:pointer;flex:none;}
+.tk-color{width:34px;height:34px;padding:0;border:2px solid var(--border-strong);border-radius:50%;background:none;cursor:pointer;flex:none;overflow:hidden;}
+.tk-color::-webkit-color-swatch-wrapper{padding:0;}
+.tk-color::-webkit-color-swatch{border:none;border-radius:50%;}
+.tk-color::-moz-color-swatch{border:none;border-radius:50%;}
+.tk-color:hover{border-color:var(--accent);}
+.tk-hex{width:96px;flex:none;padding:7px 8px;border:1px solid var(--border-strong);border-radius:8px;background:var(--card);color:var(--text);
+  font-family:ui-monospace,Consolas,monospace;font-size:12.5px;text-transform:lowercase;}
+.tk-hex:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
+.tk-hex.bad{border-color:var(--link-red);box-shadow:0 0 0 3px rgba(204,43,43,.15);}
 .tk-name{flex:1;min-width:0;padding:7px 10px;border:1px solid var(--border-strong);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;}
 .tk-name:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
 .tk-cf-txt{font-size:13px;color:var(--text);}
 .tk-confirm{background:color-mix(in srgb, var(--link-red) 8%, transparent);}
 .tk-add{display:flex;gap:7px;align-items:center;margin-bottom:8px;}
-.tk-add input[type=color]{width:36px;height:36px;padding:0;border:1px solid var(--border-strong);border-radius:9px;background:none;cursor:pointer;flex:none;}
+.tk-add input[type=color]{width:36px;height:36px;padding:0;border:2px solid var(--border-strong);border-radius:50%;background:none;cursor:pointer;flex:none;overflow:hidden;}
+.tk-add input[type=color]::-webkit-color-swatch-wrapper{padding:0;}
+.tk-add input[type=color]::-webkit-color-swatch{border:none;border-radius:50%;}
 .tk-add #tkNew{flex:1;min-width:0;padding:8px 12px;border:1px solid var(--border-strong);border-radius:9px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;}
 .tk-add #tkNew:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);}
 .ce-row:last-child{border-bottom:none;}
@@ -689,6 +699,17 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
 .pick-scroll{max-height:46vh;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin:8px 0;}
 .pick-key{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--text-dim);}
+/* 대문 추천 문서 관리 */
+.ld-wrap{display:flex;flex-direction:column;gap:12px;max-width:760px;}
+.ld-sec{border:1px solid var(--border);border-radius:10px;background:var(--card);box-shadow:var(--shadow);padding:12px 14px;}
+.ld-sec-head{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.ld-title{flex:1;padding:7px 10px;border:1px solid var(--border-strong);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-weight:800;}
+.ld-title:focus{outline:none;border-color:var(--accent);}
+.ld-items{display:flex;flex-direction:column;gap:6px;margin-bottom:8px;}
+.ld-item{display:flex;align-items:center;gap:8px;padding:7px 9px;border:1px solid var(--border);border-radius:8px;background:var(--box-bg);flex-wrap:wrap;}
+.ld-doc{flex:1;min-width:150px;font-size:13px;}
+.ld-desc{flex:1;min-width:160px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--card);color:var(--text);font:inherit;font-size:12.5px;}
+.ld-gone{font-size:10.5px;font-weight:800;color:var(--link-red);border:1px solid var(--link-red);border-radius:99px;padding:0 6px;margin-left:4px;}
 @media(max-width:520px){ .tpl-grid{grid-template-columns:repeat(2,1fr);} }
 
 /* ===== 문서 편집기 v2 (안다 문법) ===== */
@@ -821,9 +842,13 @@ body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
 /* 표 안 인라인 편집 */
 .inl-wrap{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
 .inl-in{flex:1;min-width:120px;}
-input.inl-in{padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;
+input.inl-in,textarea.inl-in{padding:6px 10px;border:1px solid var(--accent);border-radius:8px;background:var(--card);color:var(--text);font:inherit;font-size:13.5px;
   box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);}
-input.inl-in:focus{outline:none;}
+input.inl-in:focus,textarea.inl-in:focus{outline:none;}
+textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow-y:auto;line-height:1.5;}
+/* 표 안에서 소개가 길면 줄바꿈되어 행 높이가 따라 늘어난다 */
+#meBioText{white-space:pre-wrap;word-break:break-word;display:inline-block;max-width:100%;}
+.me-table td{white-space:normal;}
 .inl-msg{flex:1 1 100%;font-size:11.5px;color:var(--link-red);}
 .modal-btns{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;}
 .modal-btns button{border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-weight:700;font-size:13px;}
@@ -869,10 +894,10 @@ input.inl-in:focus{outline:none;}
 .cp-bar{display:flex;align-items:center;justify-content:space-between;background:var(--accent);color:#fff;padding:10px 14px;border-radius:8px 8px 0 0;}
 .cp-title{font-weight:800;font-size:16px;}
 .cp-nav{width:30px;height:28px;}
-.cp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;}
+.cp-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;min-height:calc(96px * 6 + 6px);align-content:start;}
 .cp-dow{background:var(--box-bg);text-align:center;font-size:12px;font-weight:800;padding:7px 0;color:var(--text-dim);}
 .cp-dow.sun{color:#d33;} .cp-dow.sat{color:#37c;}
-.cp-cell{background:var(--card);min-height:96px;padding:5px 5px 6px;font-size:12px;cursor:pointer;transition:background .1s;display:flex;flex-direction:column;gap:3px;}
+.cp-cell{background:var(--card);min-height:96px;height:96px;overflow:hidden;padding:5px 5px 6px;font-size:12px;cursor:pointer;transition:background .1s;display:flex;flex-direction:column;gap:3px;}
 .cp-cell:hover{background:var(--box-bg);}
 .cp-cell.empty{background:var(--box-bg);cursor:default;}
 .cp-num{font-weight:700;color:var(--text);font-size:12.5px;}
@@ -889,7 +914,7 @@ input.inl-in:focus{outline:none;}
 .cp-up-dot{width:10px;height:10px;border-radius:3px;margin-top:4px;flex:none;}
 .cp-up-t{font-size:11.5px;color:var(--text-dim);}
 .ev-colors{display:flex;gap:7px;flex-wrap:wrap;margin:6px 0 2px;}
-.ev-color{width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;}
+.ev-color{width:34px;height:34px;border-radius:50%;border:2px solid transparent;cursor:pointer;}
 .ev-color.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card) inset;}
 .ev-head{height:6px;border-radius:6px;margin-bottom:10px;}
 /* 색 미리보기: 모달 테두리 + 칩 미리보기 */
@@ -909,7 +934,8 @@ input.inl-in:focus{outline:none;}
 @media(max-width:768px){
   .cp-wrap{flex-direction:column;}
   .cp-side{width:100%;}
-  .cp-cell{min-height:72px;}
+  .cp-cell{min-height:66px;height:66px;}
+  .cp-grid{min-height:calc(66px * 6 + 6px);}   /* 5주·6주 달이 바뀌어도 높이 고정 */
   .cp-ev{font-size:10px;padding:1px 4px;}
 }
 .cal-range{color:var(--text-dim);font-size:11px;}
@@ -946,16 +972,21 @@ input.inl-in:focus{outline:none;}
 /* ===== 모바일 하단 탭 바 ===== */
 .botnav{display:none;}
 @media(max-width:768px){
-  /* 상단의 이동 버튼들은 하단으로 내려간다 → 상단바는 로고+검색+계정만 남아 홀가분해짐 */
+  /* ★상단바를 한 줄로 압축한다 (예전엔 검색이 두 번째 줄로 내려가 상단바가 두 배 높이였다)
+     · 이동 버튼 → 하단 탭 바
+     · 야간/주간 토글 → 계정 드롭다운 안으로
+     · 로고는 아이콘만, 검색이 남은 폭을 전부 차지 */
   .topbar .navbtn{display:none;}
-  /* 검색을 두 번째 줄로 내려 전체 폭을 쓴다 (한 줄에 우겨넣으면 협소해짐) */
-  .topbar{gap:8px;padding:0 10px 8px;height:auto;flex-wrap:wrap;align-items:center;}
-  .topbar .brandwrap{height:48px;}
+  .topbar .mode{display:none;}                 /* 드롭다운의 [야간/주간]으로 이동 */
+  .topbar{gap:8px;padding:0 10px;height:48px;flex-wrap:nowrap;align-items:center;}
+  .topbar .brandwrap{height:48px;flex:none;}
+  .topbar .brand-text{display:none;}           /* 글자 로고 숨김 → 아이콘만 */
   .topbar .spacer{display:none;}
-  .topbar .mode{padding:6px 8px;font-size:12px;margin-left:auto;}
-  .topbar .search{order:10;flex:0 0 100%;max-width:none;min-width:0;}
-  .topbar .search input{height:36px;font-size:14px;}
-  .search-results{top:40px;}
+  .topbar .search{order:0;flex:1 1 auto;max-width:none;min-width:0;}
+  .topbar .search input{height:34px;font-size:14px;}
+  .search-results{top:38px;}
+  .usermenu{flex:none;}
+  #userlabel{display:none;}                    /* 이름·등급 텍스트는 숨기고 아이콘만 */
 
   .botnav{
     display:flex; position:fixed; left:0; right:0; bottom:0; z-index:90;
@@ -1415,7 +1446,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
       <span class="refresh" id="refreshMark" title="현재 페이지 새로고침">
         <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.6-6.36"/><polyline points="21 3 21 9 15 9"/></svg>
       </span>
-      <div class="logo" id="homeLink"><span class="mark"><img id="brandLogo" src="data:image/png;base64,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" alt="안다 아카이브"></span>안다 아카이브</div>
+      <div class="logo" id="homeLink"><span class="mark"><img id="brandLogo" src="data:image/png;base64,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" alt="안다 아카이브"></span><span class="brand-text">안다 아카이브</span></div>
     </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
@@ -1439,6 +1470,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="system" id="dropSystem" style="display:none">시스템</a>
           <a data-go="feedback" id="dropFeedback">피드백</a>
+          <a id="dropMode" class="drop-mobile">야간/주간 전환</a>
           <a id="dropLogout" class="danger">로그아웃</a>
         </div>
       </div>
@@ -4247,7 +4279,8 @@ async function renderTrackSection(){
         </span>
       </span>
       <span class="tk-edit-box" hidden>
-        <input type="color" class="tk-color" value="${escapeAttr(t.color)}" title="색">
+        <input type="color" class="tk-color" value="${escapeAttr(t.color)}" title="색 고르기">
+        <input class="tk-hex" type="text" value="${escapeAttr(t.color)}" maxlength="7" spellcheck="false" placeholder="#RRGGBB" title="HEX 코드">
         <input class="tk-name" type="text" value="${escapeAttr(t.name)}" maxlength="20" autocomplete="off">
         <span class="tk-acts">
           <button class="ibtn ok tk-save" title="저장">${ic('check')}</button>
@@ -4266,7 +4299,8 @@ async function renderTrackSection(){
   box.innerHTML=`
     <div class="club-sec-head"><h2>계열 관리 <span class="muted" style="font-size:12px;font-weight:400">한 번에 한 개씩 수정</span></h2></div>
     <div class="tk-add">
-      <input type="color" id="tkNewColor" value="#8a9099" title="색">
+      <input type="color" id="tkNewColor" value="#8a9099" title="색 고르기">
+      <input id="tkNewHex" class="tk-hex" type="text" value="#8a9099" maxlength="7" spellcheck="false" placeholder="#RRGGBB" title="HEX 코드">
       <input id="tkNew" type="text" placeholder="새 계열 이름 (예: 수학)" maxlength="20" autocomplete="off">
       <button class="abtn primary" id="tkAdd">${ic('plus')}추가</button>
     </div>
@@ -4292,11 +4326,25 @@ async function renderTrackSection(){
   $('#tkAdd').onclick=async()=>{
     const name=($('#tkNew').value||'').trim();
     if(!name){ setMsg('계열 이름을 입력하세요.'); return; }
-    const { error }=await sb.rpc('add_track',{ p_name:name, p_color:$('#tkNewColor').value });
+    const hx=($('#tkNewHex').value||'').trim();
+    if(hx && !/^#[0-9a-f]{6}$/i.test(hx)){ setMsg('색은 #RRGGBB 형식으로 입력하세요.'); return; }
+    const { error }=await sb.rpc('add_track',{ p_name:name, p_color:(hx||$('#tkNewColor').value) });
     if(error){ if(!handleErr(error,'track_edit')) setMsg(error.message||'추가 실패'); return; }
     reload();
   };
   $('#tkNew').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); $('#tkAdd').click(); } });
+  /* HEX 입력칸 ↔ 색상 피커 양방향 동기화 (jsdom·구형 브라우저 대비 유효성 검사 포함) */
+  const syncHex=(picker, hex)=>{
+    if(!picker || !hex) return;
+    picker.oninput=()=>{ hex.value=picker.value; hex.classList.remove('bad'); };
+    hex.oninput=()=>{
+      const v=hex.value.trim();
+      const ok=/^#[0-9a-f]{6}$/i.test(v);
+      hex.classList.toggle('bad', !ok && v.length>0);
+      if(ok) picker.value=v.toLowerCase();
+    };
+  };
+  syncHex($('#tkNewColor'), $('#tkNewHex'));
 
   box.querySelectorAll('.tk-row').forEach(row=>{
     const id=Number(row.dataset.id);
@@ -4307,13 +4355,16 @@ async function renderTrackSection(){
       tkEditing=id;
       row.classList.add('editing');
       view.hidden=true; edit.hidden=false;
+      syncHex(row.querySelector('.tk-color'), row.querySelector('.tk-hex'));
       const nm=row.querySelector('.tk-name'); nm.focus(); nm.select();
     };
     row.querySelector('.tk-cancel').onclick=()=>{ closeAll(); setMsg(''); };
     const doSave=async()=>{
       const nn=(row.querySelector('.tk-name').value||'').trim();
-      const cc=row.querySelector('.tk-color').value;
+      const hx=(row.querySelector('.tk-hex').value||'').trim();
+      const cc=(/^#[0-9a-f]{6}$/i.test(hx) ? hx.toLowerCase() : row.querySelector('.tk-color').value);
       if(!nn){ setMsg('이름을 입력하세요.'); return; }
+      if(hx && !/^#[0-9a-f]{6}$/i.test(hx)){ setMsg('색은 #RRGGBB 형식으로 입력하세요.'); return; }
       const btn=row.querySelector('.tk-save'); btn.disabled=true;
       try{
         if(nn !== row.dataset.name){
@@ -4880,9 +4931,10 @@ async function renderSystem(){
   const items=[
     { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
+    { owner:true,          hash:'#//system/landing', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
     { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속, 동아리·계열 목록을 관리합니다.' },
-    { cap:'signup_review', hash:'#//requests',      ic:'inbox', t:'가입 신청 검토',          d:'가입 신청을 승인하면 계정이 만들어지고 초대 메일이 갑니다.' },
+    { cap:'signup_review', hash:'#//requests',      ic:'inbox', t:'가입 신청',              d:'가입 신청을 승인하면 계정이 만들어지고 초대 메일이 갑니다. (초기 등급: viewer)' },
     { cap:'feedback_read', hash:'#//feedback/review', ic:'heart', t:'피드백 검토',           d:'회원들이 보낸 별점·의견을 모아 봅니다.' },
     { cap:'system_maint',  hash:'#//system/maint',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진 정리, 채팅 사진 30일 정리.' },
   ].filter(it => it.owner ? isOwner() : can(it.cap));
@@ -4976,6 +5028,86 @@ async function renderSysMaint(){
   $('#smBack').onclick=()=>{ location.hash='#//system'; };
   renderMaintenance('#sysMaint');
   window.scrollTo(0,0);
+}
+
+/* 시스템 → 대문 추천 문서 (owner 전용) */
+async function renderSysLanding(){
+  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; }
+  let cfg = await loadLandingDocs();
+  if(!cfg.length) cfg = JSON.parse(JSON.stringify(LANDING_CATS));      // 기본값에서 시작
+  const titleOf = {}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
+
+  const draw=()=>{
+    $('#doc').innerHTML=`
+      <div class="doc-head"><h1>대문 추천 문서</h1>
+        <div class="tabs"><button id="slBack2">${ic('back')}시스템</button></div></div>
+      <div class="doc-meta">대문 상단의 추천 목록이에요. <b>owner만</b> 바꿀 수 있고, 문서 <b>주소가 바뀌어도 링크가 자동으로 따라갑니다</b>.
+        삭제된 문서는 목록에서 자동으로 빠져요.</div>
+      <div class="ld-wrap">
+        ${cfg.map((sec,si)=>`
+          <section class="ld-sec">
+            <div class="ld-sec-head">
+              <input class="ld-title" data-si="${si}" value="${escapeAttr(sec.name||'')}" placeholder="섹션 이름 (예: 연구)" maxlength="20">
+              <button class="ibtn danger ld-sec-del" data-si="${si}" title="섹션 삭제">${ic('trash')}</button>
+            </div>
+            <div class="ld-items">
+              ${(sec.items||[]).map((it,ii)=>`
+                <div class="ld-item">
+                  <span class="ld-doc">
+                    <b>${escapeHtml(titleOf[it.key] || it.title || it.key)}</b>
+                    <span class="pick-key">/${escapeHtml(it.key)}</span>
+                    ${titleOf[it.key]===undefined?'<span class="ld-gone">없는 문서</span>':''}
+                  </span>
+                  <input class="ld-desc" data-si="${si}" data-ii="${ii}" value="${escapeAttr(it.desc||'')}" placeholder="한 줄 설명" maxlength="40">
+                  <span class="tk-acts">
+                    <button class="ibtn ld-up" data-si="${si}" data-ii="${ii}" title="위로">↑</button>
+                    <button class="ibtn ld-down" data-si="${si}" data-ii="${ii}" title="아래로">↓</button>
+                    <button class="ibtn danger ld-del" data-si="${si}" data-ii="${ii}" title="빼기">${ic('trash')}</button>
+                  </span>
+                </div>`).join('') || '<div class="org-empty">아직 문서가 없어요.</div>'}
+            </div>
+            <button class="abtn ld-add" data-si="${si}">${ic('plus')}문서 추가</button>
+          </section>`).join('')}
+      </div>
+      <div class="sys-actions">
+        <button class="abtn" id="ldSecAdd">${ic('plus')}섹션 추가</button>
+        <button class="btn primary" id="ldSave" style="width:auto;padding:8px 18px">저장</button>
+        <span class="hs-note" id="ldMsg"></span>
+      </div>`;
+    $('#slBack2').onclick=()=>{ location.hash='#//system'; };
+    $('#doc').querySelectorAll('.ld-title').forEach(i=>i.oninput=()=>{ cfg[i.dataset.si].name=i.value; });
+    $('#doc').querySelectorAll('.ld-desc').forEach(i=>i.oninput=()=>{ cfg[i.dataset.si].items[i.dataset.ii].desc=i.value; });
+    $('#doc').querySelectorAll('.ld-sec-del').forEach(b=>b.onclick=()=>{ cfg.splice(Number(b.dataset.si),1); draw(); });
+    $('#doc').querySelectorAll('.ld-del').forEach(b=>b.onclick=()=>{ cfg[b.dataset.si].items.splice(Number(b.dataset.ii),1); draw(); });
+    $('#doc').querySelectorAll('.ld-up').forEach(b=>b.onclick=()=>{
+      const si=Number(b.dataset.si), ii=Number(b.dataset.ii); if(ii<=0) return;
+      const a=cfg[si].items; [a[ii-1],a[ii]]=[a[ii],a[ii-1]]; draw(); });
+    $('#doc').querySelectorAll('.ld-down').forEach(b=>b.onclick=()=>{
+      const si=Number(b.dataset.si), ii=Number(b.dataset.ii); const a=cfg[si].items;
+      if(ii>=a.length-1) return; [a[ii+1],a[ii]]=[a[ii],a[ii+1]]; draw(); });
+    $('#doc').querySelectorAll('.ld-add').forEach(b=>b.onclick=()=>{
+      const si=Number(b.dataset.si);
+      openDocPicker(doc=>{
+        cfg[si].items = cfg[si].items || [];
+        if(!cfg[si].items.some(x=>x.key===doc.key)) cfg[si].items.push({ key:doc.key, desc:'' });
+        draw();
+      });
+    });
+    $('#ldSecAdd').onclick=()=>{ cfg.push({ name:'새 섹션', items:[] }); draw(); };
+    $('#ldSave').onclick=async()=>{
+      const msg=$('#ldMsg'); msg.textContent='저장 중…';
+      const payload = cfg.filter(s0=>(s0.name||'').trim())
+        .map(s0=>({ name:(s0.name||'').trim(),
+                    items:(s0.items||[]).filter(it=>it.key).map(it=>({ key:it.key, desc:(it.desc||'').trim() })) }));
+      try{
+        const { error } = await sb.rpc('set_landing_docs', { p_docs: payload });
+        if(error) throw error;
+        msg.innerHTML = icOk()+' 저장했어요.';
+      }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (63_landing_docs.sql 실행 확인)'; }
+    };
+    window.scrollTo(0,0);
+  };
+  draw();
 }
 
 /* 시스템 → 권한 설정 (owner 전용) */
@@ -5362,7 +5494,9 @@ async function renderMe(){
 
     const input = opts.select
       ? `<span class="usel sm inl-in"><select id="inlIn">${opts.options}</select></span>`
-      : `<input id="inlIn" class="inl-in" type="text" maxlength="${opts.max||60}" value="${escapeAttr(opts.value||'')}" placeholder="${escapeAttr(opts.ph||'')}">`;
+      : (opts.multi
+          ? `<textarea id="inlIn" class="inl-in inl-ta" rows="1" maxlength="${opts.max||100}" placeholder="${escapeAttr(opts.ph||'')}">${escapeHtml(opts.value||'')}</textarea>`
+          : `<input id="inlIn" class="inl-in" type="text" maxlength="${opts.max||60}" value="${escapeAttr(opts.value||'')}" placeholder="${escapeAttr(opts.ph||'')}">`);
     cell.innerHTML = `<div class="inl-wrap">${input}
       <button class="ibtn ok" id="inlSave" title="저장">${ic('check')}</button>
       <button class="ibtn" id="inlCancel" title="취소">✕</button>
@@ -5370,6 +5504,10 @@ async function renderMe(){
 
     const el = document.getElementById('inlIn');
     el.focus(); if(el.select) el.select();
+    if(opts.multi){                                   // 내용에 맞춰 줄이 늘어난다
+      const grow=()=>{ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight, 160)+'px'; };
+      el.addEventListener('input', grow); grow();
+    }
     document.getElementById('inlCancel').onclick = ()=>{ meCancel(); };
     const save = async()=>{
       const v = (el.value||'').trim();
@@ -5452,6 +5590,7 @@ async function renderMe(){
 
     const bb=$('#meBioBtn');
     if(bb) bb.onclick=()=>inlineEdit('meBioCell', {
+      multi:true,
       value: p.bio||'', max:100, ph:'예: 광학 좋아하는 22기',
       cap:'',
       save: async v=>{ const { data, error } = await sb.rpc('set_my_bio', { p_bio:v }); if(error) throw error;
@@ -5860,6 +5999,14 @@ function renderDirGrid(){
 }
 
 /* ================== 대문 (랜딩) ================== */
+/* 대문 추천 문서 — DB 우선, 없으면 아래 기본값 */
+async function loadLandingDocs(){
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','landing_docs').maybeSingle();
+    const v = data && data.value;
+    return Array.isArray(v) ? v : [];
+  }catch(e){ return []; }
+}
 const LANDING_CATS = [
   { name:'동아리', items:[ {key:'home', title:'안다미로', desc:'동아리 소개·연혁·활동'} ] },
   { name:'대회',   items:[ {key:'kypt', title:'KYPT', desc:'대회 방식·역할·문제 유형'} ] },
@@ -5876,7 +6023,16 @@ async function renderLanding(){
   let alldocs=[];
   try{ const { data } = await sb.from('documents').select('key,title').order('title',{ascending:true}); alldocs=data||[]; }
   catch(e){ alldocs=(state.docs||[]).slice(); }
-  const cats = LANDING_CATS.map((c,ci)=>`
+  // ★추천 문서는 이제 DB(app_settings.landing_docs)에서 온다.
+  //   · owner만 편집 가능(set_landing_docs) → 편집자가 임의로 못 바꾼다
+  //   · 문서 주소가 바뀌면 서버 트리거가 목록의 주소도 같이 고친다 → 링크가 깨지지 않는다
+  //   · 그래도 남아 있는 '없는 문서'는 화면에서 걸러낸다
+  let cfg = await loadLandingDocs();
+  if(!cfg.length) cfg = LANDING_CATS;                                  // 아직 설정 전 → 기본값
+  const titleOf = {}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
+  const cats = cfg.map(c=>({ name:c.name||c.title||'', items:(c.items||[]).filter(it=>titleOf[it.key]!==undefined) }))
+                  .filter(c=>c.items.length)
+                  .map((c,ci)=>`
     <div class="cat">
       <div class="cat-head">
         <span class="cat-name">${escapeHtml(c.name)}</span>
@@ -5884,8 +6040,8 @@ async function renderLanding(){
       </div>
       <div class="cat-body">
         ${c.items.map(it=>`<a class="doc-link" data-key="${escapeAttr(it.key)}">
-            <span class="dl-title">${escapeHtml(it.title)}</span>
-            <span class="dl-desc">${escapeHtml(it.desc)}</span></a>`).join('')}
+            <span class="dl-title">${escapeHtml(titleOf[it.key] || it.title || it.key)}</span>
+            <span class="dl-desc">${escapeHtml(it.desc||'')}</span></a>`).join('')}
       </div>
     </div>`).join('');
   $('#doc').innerHTML=`
@@ -7578,7 +7734,7 @@ async function toggleTodo(id, el){
   }
 }
 
-function drawCalendarPage(prefs){
+function drawCalendarPage(prefs, keepScroll){
   const y=calPage.y, m=calPage.m;
   const startDow=new Date(y,m,1).getDay();
   const days=new Date(y,m+1,0).getDate();
@@ -7633,8 +7789,18 @@ function drawCalendarPage(prefs){
     </div>`;
   $('#cpBack').onclick=()=>{ location.hash='#//community'; };
   $('#cpToday').onclick=()=>{ const n=new Date(); calPage.y=n.getFullYear(); calPage.m=n.getMonth(); renderCalendarPage(); };
-  $('#cpPrev').onclick=()=>{ const tot=calPage.y*12+calPage.m-1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
-  $('#cpNext').onclick=()=>{ const tot=calPage.y*12+calPage.m+1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
+  /* ★달 이동은 '화면 전체'가 아니라 그리드·사이드만 다시 그린다.
+     예전엔 renderCalendarPage()를 다시 불러 스크롤이 맨 위로 튀고(폰에서 특히) 레이아웃이 출렁였다. */
+  const move=async(delta)=>{
+    const tot=calPage.y*12+calPage.m+delta;
+    calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12;
+    const keep=window.scrollY;                       // 스크롤 위치 고정
+    await loadEvents(calPage.y, calPage.m);
+    drawCalendarPage(prefs, true);                   // true = 부분 갱신(스크롤 유지)
+    window.scrollTo(0, keep);
+  };
+  $('#cpPrev').onclick=()=>move(-1);
+  $('#cpNext').onclick=()=>move(1);
   $('#doc').querySelectorAll('.cp-cell[data-day]').forEach(c=>{
     c.onclick=(ev)=>{
       if(ev.target.closest('.cp-ev')) return;                       // 일정 칩은 상세로
@@ -7662,7 +7828,7 @@ function drawCalendarPage(prefs){
   };
   $('#cpDay').onchange=savePrefs;
   $('#cpHour').onchange=savePrefs;
-  window.scrollTo(0,0);
+  if(!keepScroll) window.scrollTo(0,0);
 }
 
 /* 일정 추가·수정 모달 — 시간 · 이름 · 색(파스텔 8종) · 할 일 여부
@@ -7781,7 +7947,7 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'feedback','feedback/review','password','me','trash','notfound'];
+                   'system/landing','feedback','feedback/review','password','me','trash','notfound'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 function isSysKey(k){
   k=String(k||'');
@@ -7850,7 +8016,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','feedback','feedback/review','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','feedback','feedback/review','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -7895,6 +8061,7 @@ function route(){
   if(sys && key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
   if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
+  if(sys && key==='system/landing'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysLanding(); return; }
   if(sys && key==='password'){ renderPassword(); return; }
   if(sys && key==='me'){ renderMe(); return; }
   if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
@@ -7909,6 +8076,7 @@ $('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 $('#li-reset').onclick=openPinCard;
 $('#contactFab').onclick=openContactModal;
 $('#pin-back').onclick=closePinCard;
+const dm=$('#dropMode'); if(dm) dm.onclick=()=>{ $('#modeBtn').click(); closeUserMenu(); };
 $('#pin-send').onclick=()=>sendPin(false);
 $('#pin-resend').onclick=()=>sendPin(true);
 $('#pin-verify').onclick=verifyPin;
