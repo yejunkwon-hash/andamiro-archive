@@ -602,6 +602,27 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 }
 body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비 비활성 */
 
+/* ===== 질문하기: 우측 슬라이드 패널 (팝업 대체) ===== */
+.qc-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1100;display:flex;justify-content:flex-end;}
+.qc-drawer{width:min(460px,100%);height:100%;background:var(--card);border-left:1px solid var(--border-strong);
+  box-shadow:-10px 0 34px rgba(0,0,0,.22);padding:20px 22px;overflow-y:auto;display:flex;flex-direction:column;
+  animation:qcIn .2s ease-out;}
+@keyframes qcIn{from{transform:translateX(100%);opacity:.6}to{transform:none;opacity:1}}
+.qc-drawer .modal-msg{text-align:left;font-size:18px;}
+.qc-drawer .modal-sub{text-align:left;}
+.qc-drawer .modal-btns{margin-top:auto;padding-top:16px;justify-content:flex-end;}
+@media(max-width:640px){
+  .qc-ov{align-items:flex-end;}
+  .qc-drawer{width:100%;height:88vh;border-left:none;border-radius:14px 14px 0 0;
+    animation:qcUp .22s ease-out;padding-bottom:calc(20px + env(safe-area-inset-bottom));}
+  @keyframes qcUp{from{transform:translateY(100%)}to{transform:none}}
+}
+
+/* 쪽지함 새로고침 애니메이션 (평소 자동 갱신은 무애니메이션 유지 — 깜빡임 방지 원칙) */
+.ib-reload{opacity:.35;transform:translateY(-4px);transition:opacity .12s,transform .12s;}
+.ib-in{animation:ibIn .3s ease-out;}
+@keyframes ibIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
 /* ===== 참여 넛지 (대문) ===== */
 .nudge{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:linear-gradient(90deg,var(--box-bg),var(--card));border:1px solid var(--border-strong);border-left:4px solid var(--accent);border-radius:0 10px 10px 0;padding:12px 14px;margin-bottom:16px;}
 .nudge .nz-t{flex:1;font-size:13.5px;color:var(--text);min-width:180px;}
@@ -619,7 +640,7 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .rc-who{font-size:11px;color:var(--text-dim);}
 
 /* ===== 기여 크레딧 · 좋아요 ===== */
-.like-bar{display:flex;align-items:center;gap:10px;margin:22px 0 4px;padding-top:14px;border-top:1px solid var(--border);}
+.like-bar{display:flex;align-items:center;gap:10px;margin:2px 0 14px;padding-bottom:12px;border-bottom:1px solid var(--border);}
 .like-btn{display:inline-flex;align-items:center;gap:6px;background:var(--card);border:1px solid var(--border-strong);color:var(--text-dim);border-radius:99px;padding:7px 16px;font-size:13px;font-weight:700;cursor:pointer;transition:all .12s;}
 .like-btn:hover{border-color:var(--link-red);color:var(--link-red);}
 .like-btn.on{background:var(--link-red);border-color:var(--link-red);color:#fff;}
@@ -1074,7 +1095,7 @@ function typeToFocus(sel){
     if(e.ctrlKey || e.metaKey || e.altKey) return;                  // 단축키는 통과
     const t=e.target;
     if(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.isContentEditable)) return;  // 이미 입력 중
-    if(document.querySelector('.modal-ov, .lightbox, .block-ov')) return;                    // 모달 열려 있으면 무시
+    if(document.querySelector('.modal-ov, .qc-ov, .lightbox, .block-ov')) return;          // 모달·패널 열려 있으면 무시
     // 글자 한 개짜리 키 + 한글 IME(Process/229)만 통과. Enter·Tab·화살표·F키 등은 무시
     const printable = (e.key && e.key.length===1) || e.key==='Process' || e.keyCode===229;
     if(!printable) return;
@@ -1426,12 +1447,12 @@ async function renderDoc(key){
     <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
       (String(doc.body||'').length < STUB_LEN && canEdit())
         ? `<span class="stub-badge">${ic('edit')} 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
+    <div id="likeSlot"></div>
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
     <div class="toc-slot"></div>
     <div class="doc-body">${renderDocBody(doc)}</div>
     <div class="footnotes-slot"></div>
-    <div id="likeSlot"></div>
     ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
   `;
   buildToc(); buildFootnotes(); buildNav(key);
@@ -3546,7 +3567,13 @@ async function renderInbox(target){
       <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
     </div>`;
   $('#ibBack').onclick=()=>{ location.hash='#home'; };
-  $('#ibRefresh').onclick=()=>loadInbox();
+  $('#ibRefresh').onclick=async()=>{
+    const list=$('#ibList'); if(list) list.classList.add('ib-reload');   // 살짝 사라졌다가
+    inbox.sig='';                                                        // 강제로 다시 그리게
+    await loadInbox();
+    if(list){ list.classList.remove('ib-reload'); list.classList.add('ib-in'); // 다시 떠오름
+      setTimeout(()=>list.classList.remove('ib-in'), 320); }
+  };
   await loadInbox();
   startInboxPolling();          // 실시간 구독 + 30초 안전망
   if(target){
@@ -3916,13 +3943,9 @@ async function renderQuestion(qid){
 
   $('#doc').innerHTML=`
     <div class="community">
-      <aside class="q-panel">
-        <div class="q-panel-head"><b>질문</b><button class="q-ask" id="qAskBtn">질문하기</button></div>
-        <div class="q-list" id="qList"><div class="q-empty">불러오는 중…</div></div>
-        <a class="btn ghost" href="#community" style="text-align:center;font-size:12px">← 커뮤니티 채팅</a>
-      </aside>
       <section class="chat">
         <div class="qh">
+          <a class="dm-btn" href="#questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문게시판</a>
           <div class="qh-top">
             ${ava}
             <div class="qh-who">${escapeHtml(q.author_name||'-')} <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
@@ -3951,7 +3974,6 @@ async function renderQuestion(qid){
   $('#chatText').addEventListener('input', sendTyping);
   initChatImages();
   $('#latexHelp').onclick=openLatexGuide;
-  $('#qAskBtn').onclick=openQuestionCompose;
   initChatSize();
   if(canDel) $('#qDel').onclick=()=>deleteQuestion(qid, q.images||[]);
   document.querySelectorAll('.qh-imgs img').forEach(im=>im.onclick=()=>openLightbox(im.src));
@@ -3985,8 +4007,8 @@ async function deleteQuestion(qid, images){
 /* 질문 작성 모달 (정중앙) — 제목 + 내용 + 이미지 여러 장(합계 100KB 자동 압축) */
 function openQuestionCompose(){
   let picked=[];
-  const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box" style="max-width:560px">
+  const ov=document.createElement('div'); ov.className='qc-ov';
+  ov.innerHTML=`<div class="qc-drawer">
     <div class="modal-msg">질문하기</div>
     <div class="modal-sub">이미지는 <b>몇 장이든</b> 올릴 수 있어요. 질문 하나당 합계 <b>100KB</b>가 되도록 자동으로 압축됩니다.</div>
     <input id="qcTitle" type="text" maxlength="200" placeholder="질문 제목" style="width:100%;margin-top:12px;padding:9px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text)">
@@ -4103,9 +4125,7 @@ async function renderCommunity(){
   $('#eyeBtn').onclick=togglePreview;
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
-  $('#qAskBtn').onclick=openQuestionCompose;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
-  await loadQuestionPanel();
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
@@ -4781,8 +4801,10 @@ $('#modeBtn').innerHTML = document.body.classList.contains('dark')
   ? ic2('sun','ic16')+' 주간' : ic2('moon','ic16')+' 야간';
 $('#modeBtn').onclick=()=>{
   const goingDark = !document.body.classList.contains('dark');
+  document.body.classList.toggle('dark', goingDark);                 // 새로고침 없이 즉시 전환
   try{ localStorage.setItem('anda_theme', goingDark?'dark':'light'); }catch(e){}
-  location.reload();
+  $('#modeBtn').innerHTML = goingDark ? ic2('sun','ic16')+' 주간' : ic2('moon','ic16')+' 야간';
+  route();                                                            // 현재 탭만 다시 그림(색상 반영)
 };
 /* 상단 검색: 한글 자모 분해 부분일치 + 호버 시 랜덤 추천 */
 const searchBox=$('#search');
