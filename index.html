@@ -251,10 +251,11 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
-.msg-del{flex:none;align-self:center;margin-left:auto;border:1px solid var(--text-dim);background:var(--card);color:var(--text);cursor:pointer;font-size:16px;line-height:1;padding:3px 7px;border-radius:6px;opacity:1;transition:border-color .15s,color .15s,background .15s;}
+.msg-del{flex:none;align-self:center;margin-left:auto;border:none;background:transparent;color:var(--text-dim);cursor:pointer;padding:5px 7px;border-radius:6px;display:inline-flex;align-items:center;opacity:.55;transition:all .12s;}
+.msg-del:hover{opacity:1;color:#fff;background:var(--link-red);}
 .msg-system{text-align:center;color:var(--text-dim);font-size:13.5px;line-height:1.5;margin:10px 0;padding:0 12px;}
 .msg-system span{display:inline-block;background:var(--box-bg);border-radius:12px;padding:4px 12px;max-width:90%;}
-.msg-del:hover{color:var(--accent);border-color:var(--accent);background:var(--box-bg);}
+
 .msg-reactions{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:1px;}
 .rpill{display:inline-flex;align-items:center;gap:3px;font-size:12px;background:var(--box-bg);border:1px solid var(--border);border-radius:11px;padding:1px 8px;cursor:pointer;color:var(--text);line-height:1.7;}
 .rpill.mine{background:var(--accent);border-color:var(--accent);color:#fff;}
@@ -569,10 +570,35 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
     background:var(--link-red); color:#fff; font-size:10px; font-weight:800;
     display:flex; align-items:center; justify-content:center;
   }
-  /* 하단 바에 가려지지 않도록 본문 아래 여백 확보 (채팅 입력줄 포함) */
-  body.has-botnav .wrap{ padding-bottom:calc(62px + env(safe-area-inset-bottom)); }
+  /* ★버그 수정: 여백을 존재하지 않는 .wrap 에 걸어놨었다 → 실제 컨테이너는 .layout */
+  body.has-botnav .layout{ padding-bottom:calc(66px + env(safe-area-inset-bottom)); }
   /* 폰에서 하단 시트로 뜨는 팁 창이 하단 바와 겹치지 않게 */
   .tipwin{ bottom:calc(56px + env(safe-area-inset-bottom)) !important; height:56vh !important; }
+
+  /* ★★ iOS 자동 확대 방지 (이번 문제의 진짜 원인)
+     입력창 font-size가 16px 미만이면 iOS Safari가 포커스 순간 화면을 강제 확대한다.
+     그러면 상단바가 잘리고 position:fixed 하단 바가 화면 밖으로 밀려난다.
+     16px 이상이면 확대가 아예 일어나지 않는다. */
+  .chat-input input,
+  .ip-reply textarea,
+  .dir-search input, #dirSearch,
+  .he-input, .editor input, .editor textarea,
+  input[type="text"], input[type="search"], input[type="email"],
+  input[type="number"], input[type="password"], textarea, select{
+    font-size:16px !important;
+  }
+
+  /* 가로 넘침 차단 — 넘치면 브라우저가 축소해서 레이아웃이 깨진다 */
+  html,body{ max-width:100%; overflow-x:hidden; }
+  .layout{ padding-left:10px; padding-right:10px; }
+  .doc{ padding:16px 14px 26px; }
+  .community{ flex-direction:column; }
+  .q-panel, .calendar-wrap{ width:100% !important; position:static !important; max-height:none; }
+  .table-scroll{ overflow-x:auto; max-width:100%; }
+
+  /* 채팅 높이: 하단 바 + 상단 2줄을 감안 (100vh는 폰 주소창 때문에 부정확 → dvh 우선) */
+  .chat{ height:auto; min-height:0; }
+  .chat-log{ max-height:calc(100dvh - 320px); min-height:260px; }
 }
 body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비 비활성 */
 
@@ -603,6 +629,23 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .credit-line b{color:var(--accent);}
 .dc-like{font-size:11.5px;color:var(--link-red);font-weight:700;}
 .mc-credit{font-size:11px;color:var(--text-dim);margin-top:3px;}
+
+.qb-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.qb-head h1{margin:0;flex:1;}
+.qb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
+.qb-card{display:block;border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .12s,box-shadow .12s;}
+.qb-card:hover{border-color:var(--accent);box-shadow:0 2px 10px rgba(0,0,0,.07);}
+.qb-t{font-size:15px;font-weight:800;color:var(--text);word-break:break-word;}
+.qb-m{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-dim);margin-top:7px;}
+.qb-ans{background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 9px;font-weight:700;}
+.qb-ans.hot{background:var(--accent);border-color:var(--accent);color:#fff;}
+.qb-empty{padding:30px;text-align:center;color:var(--text-dim);border:1px dashed var(--border-strong);border-radius:10px;}
+/* 문서 탭 편집 유도 */
+.doc-card.stub{border-style:dashed;}
+.dc-stub{font-size:11px;color:var(--accent);font-weight:700;}
+.dc-edit{margin-left:auto;font-size:11px;color:var(--text-dim);border:1px solid var(--border);border-radius:99px;padding:2px 9px;background:var(--card);cursor:pointer;}
+.dc-edit:hover{border-color:var(--accent);color:var(--accent);}
+@media(max-width:640px){ .qb-grid{grid-template-columns:1fr;} }
 
 /* ===== 문서 탭 (#docs) ===== */
 .docs-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;}
@@ -815,6 +858,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 <symbol id="i-docs" viewBox="0 0 24 24"><path d="M14 3H7a1.5 1.5 0 0 0-1.5 1.5v15A1.5 1.5 0 0 0 7 21h10a1.5 1.5 0 0 0 1.5-1.5V7.5z"/><path d="M14 3v4.5h4.5"/><path d="M9 12.5h6M9 16h6"/></symbol>
 <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20.5 12a8.5 8.5 0 1 1-4.3-7.4"/><path d="M20.5 12a8.5 8.5 0 0 1-11.9 7.8L4 21l1.2-4.4"/></symbol>
 <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2"/><path d="M3.5 7l8.5 6 8.5-6"/></symbol>
+<symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><circle cx="12" cy="17.6" r="1.05" fill="currentColor" stroke="none"/></symbol>
 <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.1 2.7-5 6-5s6 1.9 6 5"/><path d="M16.5 6.6a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 19.5c0-2.4-.9-4-2.4-4.6"/></symbol>
 <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z" /><circle cx="12" cy="13" r="3.4"/></symbol>
 <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" class="dot"/><circle cx="15" cy="15" r="1.2" class="dot"/><circle cx="12" cy="12" r="1.2" class="dot"/></symbol>
@@ -851,6 +895,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <button class="navbtn" id="docsBtn">문서</button>
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
+    <button class="navbtn" id="qBtn">질문게시판</button>
     <button class="navbtn" id="inboxBtn">쪽지함<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn"><svg class="ic16"><use href="#i-moon"/></svg> 야간</button>
     <div class="usermenu" id="usermenu">
@@ -860,6 +905,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
           <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4.5 20c0-3.8 3.5-6 7.5-6s7.5 2.2 7.5 6"/></svg>
         </button>
         <div class="usermenu-drop" id="userdrop">
+          <a data-go="directory">회원 조회</a>
           <a data-go="me">계정 정보</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
@@ -883,7 +929,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <button class="bn-item" data-nav="docs"><svg class="bn-ic"><use href="#i-docs"/></svg>문서</button>
     <button class="bn-item" data-nav="community"><svg class="bn-ic"><use href="#i-chat"/></svg>커뮤니티</button>
     <button class="bn-item" data-nav="inbox"><svg class="bn-ic"><use href="#i-mail"/></svg>쪽지함<span class="bn-badge" id="botBadge" style="display:none">0</span></button>
-    <button class="bn-item" data-nav="directory"><svg class="bn-ic"><use href="#i-users"/></svg>회원</button>
+    <button class="bn-item" data-nav="questions"><svg class="bn-ic"><use href="#i-help"/></svg>질문</button>
   </nav>
 
 </div>
@@ -1058,11 +1104,12 @@ function setBotnavActive(key){
   let act='';
   if(k==='' || k==='home' || k==='main')                 act='home';
   else if(k==='docs')                                     act='docs';
-  else if(k==='community' || k.startsWith('q/'))          act='community';
+  else if(k==='community')                                act='community';
+  else if(k.startsWith('q/'))                             act='questions';
   else if(k==='inbox' || k.startsWith('dm/'))             act='inbox';
-  else if(k==='directory' || k.startsWith('member/'))     act='directory';
-  else if(!['me','admin','requests','health','password','trash'].includes(k)
-          && !k.startsWith('trash/'))
+  else if(k==='questions')                                act='questions';
+  else if(!['me','admin','requests','health','password','trash','directory'].includes(k)
+          && !k.startsWith('trash/') && !k.startsWith('member/'))
     act='docs';                                           // 개별 문서 페이지 → '문서'
   document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
     b.classList.toggle('on', b.dataset.nav===act);
@@ -1089,10 +1136,6 @@ function hideNudgeToday(){
   try{ localStorage.setItem(NUDGE_KEY, new Date().toDateString()); }catch(e){}
   const n=document.getElementById('nudgeBar'); if(n) n.remove();
 }
-function randomDocHash(list){
-  if(!list || !list.length) return null;
-  return '#' + list[Math.floor(Math.random()*list.length)].key;
-}
 /* 대문 상단 배너 + '도움이 필요한 문서' 섹션 HTML */
 function nudgeHTML(stats){
   if(!state.user) return '';
@@ -1104,7 +1147,6 @@ function nudgeHTML(stats){
       <span class="nz-t">${stubs.length
         ? `아직 <b>${stubs.length}개</b>의 문서가 짧아요. 아는 만큼만 이어 써주시면 됩니다.`
         : `오늘 문서 하나 다듬어볼까요? <b>실수해도 역사에서 되돌릴 수 있어요.</b>`}</span>
-      <button class="btn ghost" id="nzRandom" style="font-size:12px;padding:6px 12px">${ic2('dice','ic16 ic-dice')} 아무 문서나</button>
       ${canEdit()?`<button class="btn ghost" id="nzNew" style="font-size:12px;padding:6px 12px">${ic('plus')} 새 문서</button>`:''}
       <button class="btn ghost" id="nzDocs" style="font-size:12px;padding:6px 12px">문서 전체 보기</button>
       <button class="nz-x" id="nzX" title="오늘은 그만 보기">×</button>
@@ -1125,8 +1167,6 @@ function nudgeHTML(stats){
   return h;
 }
 function bindNudge(stats){
-  const r=document.getElementById('nzRandom');
-  if(r) r.onclick=()=>{ const h=randomDocHash(stats); if(h) location.hash=h; };
   const n=document.getElementById('nzNew');   if(n) n.onclick=openNewDocModal;
   const d=document.getElementById('nzDocs');  if(d) d.onclick=()=>{ location.hash='#docs'; };
   const x=document.getElementById('nzX');     if(x) x.onclick=hideNudgeToday;
@@ -1195,8 +1235,40 @@ function creditText(c){
   return p.join(' · ');
 }
 
+
+/* ================== 질문게시판 (#questions) — 커뮤니티에서 분리 ================== */
+async function renderQuestions(){
+  $('#doc').innerHTML=`<div class="qb-head"><h1>질문게시판</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_questions');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){
+    $('#doc').innerHTML='<h1>질문게시판</h1><p>질문 기능이 아직 배포되지 않았습니다. (31_questions.sql 실행 필요)</p>';
+    return;
+  }
+  $('#doc').innerHTML=`
+    <div class="qb-head">
+      <h1>질문게시판 <span class="muted" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+      <button class="btn primary" id="qbAsk" style="width:auto;padding:8px 16px">${ic('plus')} 질문하기</button>
+    </div>
+    <div class="doc-meta" style="margin-bottom:12px">모르는 건 편하게 물어보세요. 답변은 채팅처럼 이어집니다.</div>
+    ${rows.length ? `<div class="qb-grid">${rows.map(q=>`
+      <a class="qb-card" href="#q/${q.id}">
+        <div class="qb-t">${escapeHtml(q.title||'-')}</div>
+        <div class="qb-m">
+          <span>${escapeHtml(q.author_name||'-')}</span>
+          <span class="qb-ans ${Number(q.answers)>0?'hot':''}">답변 ${q.answers||0}</span>
+        </div>
+      </a>`).join('')}</div>`
+    : '<div class="qb-empty">아직 질문이 없어요.<br>첫 질문을 올려보세요.</div>'}`;
+  $('#qbAsk').onclick=openQuestionCompose;
+  window.scrollTo(0,0);
+}
+
 /* ================== 문서 탭 (#docs) — 문서의 정문 ==================
-   전체 문서 카드 + 정렬(최근 수정/가나다) + [＋ 새 문서] + [🎲 아무 문서나] */
+   전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
 const docsPage = { sort: 'recent' };
 async function renderDocsPage(){
   $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
@@ -1210,6 +1282,8 @@ async function renderDocsPage(){
 
   // 수정자 이름 (members_public 일괄 조회)
   const likes = await loadLikeCounts(true);
+  const stats = await fetchDocStats();                       // 본문 길이(짧은 문서 감지) — 서버에서 숫자만
+  const lenOf={}; stats.forEach(d=>{ lenOf[d.key]=Number(d.len)||0; });
   const uids=[...new Set(rows.map(r=>r.updated_by).filter(Boolean))];
   const names={};
   if(uids.length){
@@ -1221,10 +1295,15 @@ async function renderDocsPage(){
 
   const draw=()=>{
     const lc=k=>(likes[k]&&likes[k].cnt)||0;
-    const sorted=rows.slice().sort((a,b)=>{
-      if(docsPage.sort==='recent') return new Date(b.updated_at||0) - new Date(a.updated_at||0);
+    const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
+    const stubCount=rows.filter(d=>isStub(d.key)).length;
+    let sorted=rows.slice();
+    if(docsPage.sort==='stub') sorted=sorted.filter(d=>isStub(d.key));
+    sorted.sort((a,b)=>{
+      if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
       if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key) || new Date(b.updated_at||0)-new Date(a.updated_at||0);
-      return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
+      if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
+      return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
     $('#doc').innerHTML = `
       <div class="docs-head">
@@ -1233,33 +1312,39 @@ async function renderDocsPage(){
           <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
           <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
           <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+          ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
         </div>
-        <button class="btn ghost" id="dpRandom" title="아무 문서나 열기">${ic2('dice','ic16 ic-dice')} 아무 문서나</button>
         ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
       </div>
+      ${(canEdit() && stubCount) ? `<div class="nudge">
+        <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
+        <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
+      </div>` : ''}
+      ${sorted.length ? '' : '<div class="qb-empty">조건에 맞는 문서가 없습니다.</div>'}
       <div class="docs-grid">
         ${sorted.map(d=>`
-          <a class="doc-card" href="#${escapeAttr(d.key)}">
+          <a class="doc-card ${isStub(d.key)?'stub':''}" href="#${escapeAttr(d.key)}">
             <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
             <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
             <div class="dc-meta">
-              <span>${escapeHtml(fmtKST(d.updated_at))}</span>
-              ${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}
+              ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
+                             :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
               ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
               ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
+              ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
             </div>
           </a>`).join('')}
       </div>`;
     $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
       b.onclick=()=>{ docsPage.sort=b.dataset.s; draw(); };
     });
-    const rd=$('#dpRandom');
-    if(rd) rd.onclick=()=>{
-      if(!rows.length) return;
-      const pick=rows[Math.floor(Math.random()*rows.length)];
-      location.hash='#'+pick.key;
-    };
     const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
+    const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
+    $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
+      b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
+        state.pendingEdit=b.dataset.edit;          // 문서를 연 뒤 바로 편집기로
+        location.hash='#'+b.dataset.edit; };
+    });
     window.scrollTo(0,0);
   };
   draw();
@@ -1352,6 +1437,10 @@ async function renderDoc(key){
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   renderLikeBar(key);
+  if(state.pendingEdit===key){                       // 문서 탭의 [편집] 버튼으로 들어온 경우
+    state.pendingEdit=null;
+    if(canEdit()) { enterEdit(doc); return; }
+  }
   if(canEdit()) $('#editBtn').onclick=()=>enterEdit(doc);
   $('#histBtn').onclick=()=>showHistory(key);
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
@@ -3790,7 +3879,8 @@ async function compressImagesToBudget(files, budget=Q_IMG_BUDGET){
 }
 
 async function loadQuestionPanel(){
-  const list=$('#qList'); if(!list) return;
+  const list=$('#qList');
+  if(!list){ if(location.hash==='#questions') renderQuestions(); return; }   // 패널이 없으면 질문게시판 페이지 갱신
   let rows=[];
   try{
     const { data, error } = await sb.rpc('list_questions');
@@ -3977,10 +4067,6 @@ async function renderCommunity(){
   community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
   $('#doc').innerHTML=`
     <div class="community">
-      <aside class="q-panel">
-        <div class="q-panel-head"><b>질문</b><button class="q-ask" id="qAskBtn">질문하기</button></div>
-        <div class="q-list" id="qList"><div class="q-empty">불러오는 중…</div></div>
-      </aside>
       <section class="chat">
         <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
@@ -4078,7 +4164,7 @@ function refreshMsgDelete(uid){
     const row=el.querySelector('.msg-bubble-row'); if(!row) return;
     const has=row.querySelector('.msg-del');
     if(allow && !has){
-      const b=document.createElement('button'); b.className='msg-del'; b.title='메세지 삭제'; b.textContent='🗑';
+      const b=document.createElement('button'); b.className='msg-del'; b.title='메세지 삭제'; b.innerHTML=ic('trash');
       b.onclick=()=>deleteMessage({ id:el.getAttribute('data-mid'), user_id:uid });
       row.appendChild(b);
     } else if(!allow && has){ has.remove(); }
@@ -4185,7 +4271,7 @@ function appendMessage(m, doScroll=true){
       <div class="msg-bubble-row">
         ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at, mine)}
         <span class="msg-time">${fmtKST(m.created_at)}</span>
-        ${canDel?'<button class="msg-del" title="메세지 삭제">🗑</button>':''}
+        ${canDel?`<button class="msg-del" title="메세지 삭제">${ic('trash')}</button>`:''}
       </div>
       <div class="msg-reactions" data-mid="${m.id}"></div>
     </div>`;
@@ -4624,7 +4710,7 @@ function route(){
   const isQuestion = key.startsWith('q/');
   const isDm = key.startsWith('dm/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs'];
+  const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox','docs','questions'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isDm);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='trash'){ if(isAdmin()) renderTrash(); else location.hash='#home'; return; }
@@ -4634,6 +4720,7 @@ function route(){
   if(key==='community'){ renderCommunity(); return; }
   if(isQuestion){ renderQuestion(Number(key.slice(2))); return; }
   if(key==='docs'){ renderDocsPage(); return; }
+  if(key==='questions'){ renderQuestions(); return; }
   if(key==='inbox'){ renderInbox(); return; }
   if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
@@ -4686,6 +4773,7 @@ $('#dropLogout').onclick=async()=>{ closeUserMenu(); stopHeartbeat(); await sb.a
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#community'; };
   $('#docsBtn').onclick=()=>{ location.hash='#docs'; };
+  $('#qBtn').onclick=()=>{ location.hash='#questions'; };
 $('#directoryBtn').onclick=()=>{ location.hash='#directory'; };
 /* 테마(야간/주간): 저장값 적용 + 토글 시 저장 후 새로고침 */
 try{ if(localStorage.getItem('anda_theme')==='dark') document.body.classList.add('dark'); }catch(e){}
