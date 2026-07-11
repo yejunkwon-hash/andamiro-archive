@@ -155,6 +155,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .online-dot{color:#2e9e5b;font-size:11px;font-weight:800;margin-left:6px;white-space:nowrap;}
 .ava-cell{width:34px;height:34px;border-radius:50%;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;flex:none;}
 .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%;}
+.table-hint{display:none;font-size:11.5px;color:var(--text-dim);margin:0 0 5px;}
 .admin-table th,.admin-table td{white-space:nowrap;}
 .usermenu-drop{position:absolute;right:0;top:100%;padding-top:8px;min-width:190px;display:none;z-index:60;}
 .um-trigger:hover .usermenu-drop,.um-trigger.open .usermenu-drop{display:block;}
@@ -596,9 +597,29 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
   .q-panel, .calendar-wrap{ width:100% !important; position:static !important; max-height:none; }
   .table-scroll{ overflow-x:auto; max-width:100%; }
 
-  /* 채팅 높이: 하단 바 + 상단 2줄을 감안 (100vh는 폰 주소창 때문에 부정확 → dvh 우선) */
-  .chat{ height:auto; min-height:0; }
-  .chat-log{ max-height:calc(100dvh - 320px); min-height:260px; }
+  /* ★ 채팅 배율(zoom) 제거 — 이게 가로 넘침의 진범이었다.
+     zoom>1이면 .chat-log 내용이 컨테이너보다 넓어져 메시지 오른쪽이 잘린다.
+     폰에선 화면이 좁아 배율 조정이 의미도 없으므로 기능 자체를 감춘다. */
+  .chat-log{ zoom:1 !important; }
+  .chat-size{ display:none !important; }
+
+  /* 채팅: 전체가 보이도록 (하단 바 + 상단 2줄 감안, 주소창 때문에 vh 대신 dvh) */
+  .chat{ height:auto; min-height:0; max-width:100%; }
+  .chat-log{ max-height:calc(100dvh - 300px); min-height:280px; overflow-x:hidden; }
+  .msg{ max-width:100%; }
+  .msg-bubble{ max-width:78% !important; }
+  .msg-imgs img{ max-width:60vw; }
+
+  /* ★ 회원 관리 표: 가로 스크롤 확실히 동작하게
+     (부모가 min-width를 안 풀어주면 표가 스크롤되지 않고 화면 밖으로 밀린다) */
+  .content, .doc{ min-width:0; max-width:100%; }
+  .table-scroll{
+    width:100%; max-width:100%;
+    overflow-x:auto; -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;            /* 표를 넘길 때 페이지가 같이 밀리지 않게 */
+  }
+  .table-scroll > table{ width:auto !important; min-width:max-content; }
+  .table-hint{ display:block; }
 }
 body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비 비활성 */
 
@@ -2531,6 +2552,7 @@ async function renderAdmin(){
       <div class="tabs">${isOwner()?`<button id="reqBtn">${ic('inbox')}가입 신청 ${pend}</button><button id="healthBtn">${ic('check')}시스템 점검</button>`:''}<button id="backBtn2">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
+    <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
     <div class="table-scroll">
     <table class="wtable admin-table">
       <tr><th>사진</th><th>이메일</th><th>이름</th><th>활동명</th><th>기수</th><th>소속</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
