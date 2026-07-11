@@ -226,6 +226,16 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .typing-bar{min-height:17px;padding:0 14px 2px;font-size:12px;color:var(--text-dim);font-style:italic;}
 .typing-bar .tdot{display:inline-block;animation:tblink 1.2s infinite;}
 @keyframes tblink{0%,60%,100%{opacity:.35}30%{opacity:1}}
+.msg-imgs{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;}
+.msg-imgs img{max-height:240px;max-width:210px;height:auto;width:auto;border-radius:8px;border:1px solid var(--border);cursor:zoom-in;object-fit:cover;background:var(--box-bg);}
+.img-expired{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:150px;height:96px;border-radius:8px;border:1px dashed var(--border-strong);background:var(--box-bg);color:var(--text-dim);font-size:11.5px;text-align:center;line-height:1.4;}
+.img-expired b{font-size:12px;color:var(--text-dim);}
+.cimg-tray{display:flex;flex-wrap:wrap;gap:5px;padding:0 14px 6px;}
+.cimg-thumb{position:relative;}
+.cimg-thumb img{width:52px;height:52px;object-fit:cover;border-radius:6px;border:1px solid var(--border);}
+.cimg-x{position:absolute;top:-5px;right:-5px;width:17px;height:17px;border-radius:50%;border:none;background:var(--link-red);color:#fff;font-size:10px;line-height:1;cursor:pointer;}
+.cimg-btn{background:none;border:none;font-size:19px;cursor:pointer;padding:0 6px;opacity:.6;}
+.cimg-btn:hover{opacity:1;}
 .chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;zoom:var(--chat-scale,1);}
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
 .chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
@@ -289,6 +299,22 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 
 
 
+
+/* ===== 문서 작성 팁: 떠다니는 창 ===== */
+.tipwin{position:fixed;z-index:1100;display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border-strong);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,.28);overflow:hidden;min-width:280px;min-height:160px;}
+.tipwin-hd{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--box-bg);border-bottom:1px solid var(--border);cursor:move;user-select:none;flex:none;}
+.tipwin-hd b{font-size:13px;}
+.tipwin-hd .sp{font-size:11px;color:var(--text-dim);}
+.tipwin-x{margin-left:auto;background:none;border:none;font-size:17px;line-height:1;cursor:pointer;color:var(--text-dim);padding:0 4px;}
+.tipwin-x:hover{color:var(--link-red);}
+.tipwin-body{flex:1;overflow:auto;}
+.tipwin-rz{position:absolute;right:0;bottom:0;width:16px;height:16px;cursor:nwse-resize;background:linear-gradient(135deg,transparent 50%,var(--border-strong) 50%,var(--border-strong) 60%,transparent 60%,transparent 70%,var(--border-strong) 70%,var(--border-strong) 80%,transparent 80%);}
+.tipwin.dragging{opacity:.92;}
+@media(max-width:760px){
+  .tipwin{left:0 !important;right:0 !important;bottom:0 !important;top:auto !important;
+          width:auto !important;height:62vh !important;border-radius:12px 12px 0 0;}
+  .tipwin-hd{cursor:default;} .tipwin-rz{display:none;}
+}
 
 /* ===== 문서 작성 팁 패널 (우측) ===== */
 /* 평소엔 눈에 띄지 않고, 마우스를 올렸을 때만 활성화된 모습이 된다 */
@@ -1215,9 +1241,7 @@ const TIP_FAQ = [
 function tipPaneHTML(){
   const row = (code, desc) =>
     `<tr><td><code>${escapeHtml(code)}</code></td><td class="rz">${wikiToHtml(code)}</td><td>${escapeHtml(desc)}</td></tr>`;
-  let h = `<div class="tip-hd"><b>📖 문서 작성 팁</b>
-      <span style="font-size:11px;color:var(--text-dim)">버튼만 눌러도 작성됩니다</span>
-      <button class="tip-x" id="tipClose" title="닫고 미리보기로">×</button></div>`;
+  let h = '';
   for(const [sec, rows] of Object.entries(TIP_ROWS)){
     h += `<div class="tip-sec">${escapeHtml(sec)}</div>
       <table class="tip-tbl"><tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
@@ -1227,23 +1251,77 @@ function tipPaneHTML(){
     ${TIP_FAQ.map(f=>`<tr><td colspan="1">${escapeHtml(f[0])}</td><td colspan="2">${f[1]}</td></tr>`).join('')}</table>`;
   return h;
 }
-/* 우측 칸을 [미리보기] ↔ [작성 팁] 으로 토글 */
+/* 작성 팁 = 떠다니는 창. 상단바 드래그로 이동, 우하단 모서리로 크기 조절.
+   위치·크기를 기억하고, 미리보기를 가리지 않아 팁과 결과를 동시에 볼 수 있다. */
+const TIPWIN_KEY='anda_tipwin';
+function tipWinDefault(){
+  const split=$('#wkSplit');                       // 처음엔 '편집창 오른쪽'에
+  const r = split ? split.getBoundingClientRect() : { right:window.innerWidth-40, top:120 };
+  const w = Math.min(430, Math.max(300, window.innerWidth - r.right - 24));
+  return { x: Math.max(8, Math.min(window.innerWidth-w-8, r.right - w)),
+           y: Math.max(60, r.top), w, h: Math.min(560, window.innerHeight-140) };
+}
+function tipWinLoad(){
+  try{ const v=JSON.parse(localStorage.getItem(TIPWIN_KEY)||'null'); if(v && v.w>200) return v; }catch(e){}
+  return tipWinDefault();
+}
+function tipWinSave(p){ try{ localStorage.setItem(TIPWIN_KEY, JSON.stringify(p)); }catch(e){} }
+function closeTipWin(){
+  const w=document.getElementById('tipWin'); if(w) w.remove();
+  const b=document.getElementById('wkTipBtn'); if(b) b.classList.remove('on');
+}
 function toggleTipPane(){
-  const prevCol=$('#wkPrevCol'), btn=$('#wkTipBtn'); if(!prevCol) return;
-  const open = !prevCol.classList.contains('tips');
-  prevCol.classList.toggle('tips', open);
-  btn.classList.toggle('on', open);
-  if(open){
-    prevCol.innerHTML=`<div class="tip-pane" id="tipPane">${tipPaneHTML()}</div>`;
-    $('#tipClose').onclick=toggleTipPane;
-    renderMath($('#tipPane'));
-    if($('#wkSplit').classList.contains('prev-mode')===false && window.innerWidth<=900){
-      $('#wkTabP').click();                    // 폰: 팁을 켜면 오른쪽 칸이 보이도록 전환
-    }
-  }else{
-    prevCol.innerHTML=`<div class="wk-preview" id="wkPrev"></div>`;
-    wkRenderPreview();
-  }
+  if(document.getElementById('tipWin')){ closeTipWin(); return; }
+  const btn=$('#wkTipBtn'); if(btn) btn.classList.add('on');
+
+  let p=tipWinLoad();
+  if(p.x>window.innerWidth-80 || p.y>window.innerHeight-60 || p.x<0 || p.y<0) p=tipWinDefault();
+
+  const win=document.createElement('div');
+  win.className='tipwin'; win.id='tipWin';
+  win.style.left=p.x+'px'; win.style.top=p.y+'px';
+  win.style.width=p.w+'px'; win.style.height=p.h+'px';
+  win.innerHTML=`
+    <div class="tipwin-hd" id="tipWinHd">
+      <b>📖 문서 작성 팁</b><span class="sp">버튼만 눌러도 작성됩니다</span>
+      <button class="tipwin-x" id="tipWinX" title="닫기">×</button>
+    </div>
+    <div class="tipwin-body" id="tipWinBody">${tipPaneHTML()}</div>
+    <div class="tipwin-rz" id="tipWinRz" title="크기 조절"></div>`;
+  document.body.appendChild(win);
+  $('#tipWinX').onclick=closeTipWin;
+  renderMath($('#tipWinBody'));
+
+  const save=()=>tipWinSave({ x:win.offsetLeft, y:win.offsetTop, w:win.offsetWidth, h:win.offsetHeight });
+
+  // 드래그 이동 (상단바)
+  const hd=$('#tipWinHd');
+  hd.addEventListener('pointerdown', e=>{
+    if(e.target.id==='tipWinX' || window.innerWidth<=760) return;   // 폰은 하단 시트 고정
+    const sx=e.clientX, sy=e.clientY, ox=win.offsetLeft, oy=win.offsetTop;
+    win.classList.add('dragging'); hd.setPointerCapture(e.pointerId);
+    const mv=ev=>{
+      win.style.left=Math.max(0, Math.min(window.innerWidth-win.offsetWidth, ox+ev.clientX-sx))+'px';
+      win.style.top =Math.max(0, Math.min(window.innerHeight-40,             oy+ev.clientY-sy))+'px';
+    };
+    const up=()=>{ win.classList.remove('dragging');
+      hd.removeEventListener('pointermove',mv); hd.removeEventListener('pointerup',up); save(); };
+    hd.addEventListener('pointermove',mv); hd.addEventListener('pointerup',up);
+  });
+
+  // 크기 조절 (우하단 모서리)
+  const rz=$('#tipWinRz');
+  rz.addEventListener('pointerdown', e=>{
+    e.preventDefault(); e.stopPropagation();
+    const sx=e.clientX, sy=e.clientY, ow=win.offsetWidth, oh=win.offsetHeight;
+    rz.setPointerCapture(e.pointerId);
+    const mv=ev=>{
+      win.style.width =Math.max(280, Math.min(window.innerWidth -win.offsetLeft-8, ow+ev.clientX-sx))+'px';
+      win.style.height=Math.max(160, Math.min(window.innerHeight-win.offsetTop -8, oh+ev.clientY-sy))+'px';
+    };
+    const up=()=>{ rz.removeEventListener('pointermove',mv); rz.removeEventListener('pointerup',up); save(); };
+    rz.addEventListener('pointermove',mv); rz.addEventListener('pointerup',up);
+  });
 }
 
 /* ── 위키 편집기 UI ───────────────────────────────────────── */
@@ -2049,6 +2127,40 @@ async function scanOrphanImages(){
   };
 }
 
+
+/* 30일 지난 채팅 사진 정리 — chat-images 버킷은 채팅 전용이라 '나이'만 보면 된다.
+   (문서 사진처럼 리비전 참조를 검사할 필요가 없음) */
+async function scanExpiredChatImages(){
+  const msg=document.getElementById('gcMsg'), list=document.getElementById('gcList');
+  if(!msg||!list) return;
+  msg.textContent='검사 중…'; list.innerHTML='';
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_expired_chat_images');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); return; }
+
+  if(!rows.length){ msg.textContent='30일 지난 채팅 사진이 없습니다. ✅'; return; }
+  const total=rows.reduce((a,r)=>a+(Number(r.bytes)||0),0);
+  msg.textContent=`${rows.length}개 · ${fmtBytes(total)} 회수 가능 (메시지 글은 그대로 남습니다)`;
+  list.innerHTML=`<button class="btn" id="gcChatDel" style="margin-top:8px;font-size:12px;padding:6px 12px">${rows.length}개 삭제</button>`;
+  document.getElementById('gcChatDel').onclick=async()=>{
+    const ok=await confirmModal('30일 지난 채팅 사진을 삭제할까요?',
+      `${rows.length}개 · ${fmtBytes(total)}.\n메시지 글은 그대로 남고, 사진 자리에는 "사진이 만료되었습니다" 상자가 표시됩니다.`, '삭제');
+    if(!ok) return;
+    msg.textContent='삭제 중…';
+    try{
+      const paths=rows.map(r=>r.path);
+      for(let i=0;i<paths.length;i+=100){
+        const { error } = await sb.storage.from('chat-images').remove(paths.slice(i,i+100));
+        if(error) throw error;
+      }
+      list.innerHTML=''; msg.textContent=`${rows.length}개 삭제 완료 · ${fmtBytes(total)} 회수 ✅`;
+    }catch(e){ msg.textContent='삭제 실패: '+((e&&e.message)||e); }
+  };
+}
+
 async function capacityCheck(){
   try{
     const { data, error } = await sb.rpc('capacity_usage');
@@ -2064,8 +2176,15 @@ async function capacityCheck(){
     }
     const worst = Math.max(d.db_bytes/d.db_limit, d.storage_bytes/d.storage_limit)*100;
     if(worst>=90) html += `<div class="notice" style="border-left-color:var(--link-red);margin-top:8px"><b>⚠ 한도의 90%를 넘었습니다 — 정리 또는 플랜 상향이 필요합니다.</b></div>`;
-    html += `<div style="margin-top:10px"><button class="btn ghost" id="gcBtn" style="font-size:12px;padding:5px 10px">🧹 안 쓰는 문서 사진 찾기</button> <span id="gcMsg" style="font-size:12px;color:var(--text-dim)"></span></div><div id="gcList"></div>`;
-    setTimeout(()=>{ const b=document.getElementById('gcBtn'); if(b) b.onclick=scanOrphanImages; },0);
+    html += `<div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap">
+        <button class="btn ghost" id="gcBtn" style="font-size:12px;padding:5px 10px">🧹 안 쓰는 문서 사진 찾기</button>
+        <button class="btn ghost" id="gcChatBtn" style="font-size:12px;padding:5px 10px">🗓 30일 지난 채팅 사진 정리</button>
+      </div>
+      <div id="gcMsg" style="font-size:12px;color:var(--text-dim);margin-top:6px"></div><div id="gcList"></div>`;
+    setTimeout(()=>{
+      const b=document.getElementById('gcBtn');      if(b) b.onclick=scanOrphanImages;
+      const c=document.getElementById('gcChatBtn');  if(c) c.onclick=scanExpiredChatImages;
+    },0);
     return html;
   }catch(e){
     return healthRow('용량 조회 (capacity_usage)', false, '함수 미배포 또는 권한 없음 · '+String((e&&e.message)||e));
@@ -2538,6 +2657,86 @@ const ICONS={
 };
 function ic(n){ return '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(ICONS[n]||'')+'</svg>'; }
 
+
+/* ================== 채팅·쪽지 사진 (30일 보관) ==================
+   용량 검증: 문서 화질(150KB)로 채팅에 넣으면 하루 3장만 올려도 10년 1.6GB → 초과.
+   ⇒ (가) 강압축 40KB(표시가 최대 240px이라 충분)  (나) 30일 후 자동 삭제(휘발성).
+   텍스트는 영구 보존. 만료된 사진 자리엔 회색 상자만 남는다. */
+const CHAT_IMG_DIM = 900;
+const CHAT_IMG_TARGET = 40*1024;
+const CHAT_IMG_MAX = 5;              // 한 번에 5장
+const CHAT_IMG_KEEP_DAYS = 30;
+
+let chatPick = [];                   // 전송 대기 중인 사진 (커뮤니티/질문)
+let dmPick   = [];                   // 전송 대기 중인 사진 (쪽지)
+
+function isExpired(ts){
+  if(!ts) return false;
+  return (Date.now() - new Date(ts).getTime()) > CHAT_IMG_KEEP_DAYS*86400*1000;
+}
+function expiredBoxHTML(){
+  return `<div class="img-expired"><b>사진이 만료되었습니다</b><span>보관 기간 ${CHAT_IMG_KEEP_DAYS}일</span></div>`;
+}
+/* 메시지의 사진 렌더. 30일 지났으면 회색 상자. */
+function msgImagesHTML(images, createdAt){
+  const arr=images||[];
+  if(!arr.length) return '';
+  if(isExpired(createdAt)) return `<div class="msg-imgs">${expiredBoxHTML()}</div>`;
+  return `<div class="msg-imgs">${arr.map(u=>
+    `<img src="${escapeAttr(u)}" alt="첨부 사진" loading="lazy" data-full="${escapeAttr(u)}"
+      onerror="this.outerHTML='<div class=&quot;img-expired&quot;><b>사진이 만료되었습니다</b><span>보관 기간 ${CHAT_IMG_KEEP_DAYS}일</span></div>'">`
+  ).join('')}</div>`;
+}
+/* 선택한 파일들을 40KB로 압축해 chat-images에 올리고 URL 배열 반환 */
+async function uploadChatImages(files, onMsg){
+  const out=[];
+  for(let i=0;i<files.length;i++){
+    if(onMsg) onMsg(`사진 올리는 중… (${i+1}/${files.length})`);
+    const c = await compressImage(files[i], { mode:'contain', dim:CHAT_IMG_DIM, target:CHAT_IMG_TARGET, minQuality:0.4 });
+    const ext = c.type==='image/webp' ? 'webp' : 'jpg';
+    const path = `${state.user.id}/${Date.now()}_${i}_${Math.random().toString(36).slice(2,6)}.${ext}`;
+    const up = await sb.storage.from('chat-images')
+      .upload(path, c.blob, { contentType:c.type, cacheControl:'2592000', upsert:false });   // 30일 캐시
+    if(up.error) throw up.error;
+    out.push(sb.storage.from('chat-images').getPublicUrl(path).data.publicUrl);
+  }
+  return out;
+}
+/* 첨부 트레이(썸네일+삭제) 렌더 */
+function drawPickTray(trayId, arr, onChange){
+  const tray=document.getElementById(trayId); if(!tray) return;
+  tray.innerHTML = arr.map((f,i)=>
+    `<div class="cimg-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button class="cimg-x" data-i="${i}">×</button></div>`).join('');
+  tray.querySelectorAll('.cimg-x').forEach(b=>b.onclick=()=>{ arr.splice(Number(b.dataset.i),1); onChange(); });
+}
+/* 파일 선택기 (공통) */
+function pickChatImages(arr, onChange, warn){
+  const inp=document.createElement('input');
+  inp.type='file'; inp.accept='image/*'; inp.multiple=true;
+  inp.onchange=()=>{
+    for(const f of [...(inp.files||[])]){
+      if(!/^image\//.test(f.type||'')) continue;
+      if(arr.length>=CHAT_IMG_MAX){ if(warn) warn(`사진은 ${CHAT_IMG_MAX}장까지예요.`); break; }
+      if(f.size>IMG_RAW_MAX){ if(warn) warn('25MB 이하 이미지만 올릴 수 있어요.'); continue; }
+      arr.push(f);
+    }
+    onChange();
+  };
+  inp.click();
+}
+/* 붙여넣기(Ctrl+V) 공통 */
+function bindChatPaste(el, arr, onChange){
+  if(!el) return;
+  el.addEventListener('paste', e=>{
+    const items=(e.clipboardData && e.clipboardData.items)||[];
+    const fs=[...items].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
+    if(!fs.length) return;
+    e.preventDefault();
+    for(const f of fs){ if(arr.length<CHAT_IMG_MAX) arr.push(f); }
+    onChange();
+  });
+}
+
 /* ================== 쪽지함 (2단계) ==================
    A안(메일형): 받은 쪽지를 인박스에서 읽는다. 좌측 목록 → 클릭 시 우측 상세.
    3단계에서 이 목록에 '질문 답변·등급 변경' 등 다른 알림 종류가 합류한다. */
@@ -2775,9 +2974,11 @@ async function openDmThread(tid){
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
-      ${msgs.map(m=>`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body||'')}</div><div class="dm-t">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
+      ${msgs.map(m=>`${m.body?`<div class="dm-b ${m.from_me?'me':'them'}">${escapeHtml(m.body)}</div>`:''}${msgImagesHTML(m.images, m.created_at)}<div class="dm-t">${escapeHtml(dmTime(m.created_at))}</div>`).join('')}
     </div>
+    <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
+      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">📷</button>
       <textarea id="ipInput" placeholder="답장을 입력하세요… (Ctrl+Enter로 보내기)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
@@ -2787,19 +2988,23 @@ async function openDmThread(tid){
     $('#ibList').querySelectorAll('.ib-item').forEach(el=>el.classList.remove('on')); };
   const send=async()=>{
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
-    if(!body || !t) return;
+    if((!body && !dmPick.length) || !t) return;
     const btn=$('#ipSend'); btn.disabled=true;
     try{
-      const { error } = await sb.rpc('send_dm', { p_to: t.other_id, p_body: body });
+      let images=[];
+      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; });
+      const { error } = await sb.rpc('send_dm', { p_to: t.other_id, p_body: body, p_images: images });
       if(error) throw error;
-      ta.value='';
-      await refreshOpenThread();        // 다시 그리지 않고 내 메시지만 덧붙임
-      await loadInbox(true);            // 목록 미리보기 갱신(변경 있을 때만)
-      btn.disabled=false; ta.focus();
+      ta.value=''; dmPick=[]; drawDmTray();
+      inbox.msgIds=new Set();           // 사진 포함 메시지를 새로 그리도록
+      await openDmThread(tid);
+      await loadInbox(true);
+      btn.disabled=false; btn.textContent='보내기'; ta.focus();
     }catch(e){ alert('보내지 못했습니다: '+((e&&e.message)||e)); btn.disabled=false; }
   };
   $('#ipSend').onclick=send;
   $('#ipInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) send(); });
+  initDmImages();
   refreshInboxBadge();
 }
 
@@ -2827,18 +3032,23 @@ async function openNewDm(uid){
     <div class="ip-msgs" id="ipMsgs">
       <div class="ip-empty" style="padding:20px">아직 주고받은 쪽지가 없어요.<br>첫 쪽지를 보내보세요.</div>
     </div>
+    <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
+      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">📷</button>
       <textarea id="ipInput" placeholder="쪽지를 입력하세요… (Ctrl+Enter로 보내기)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
   $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#inbox'; };
   const send=async()=>{
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
-    if(!body) return;
+    if(!body && !dmPick.length) return;
     const btn=$('#ipSend'); btn.disabled=true;
     try{
-      const { data, error } = await sb.rpc('send_dm', { p_to: uid, p_body: body });   // 여기서 스레드 생성
+      let images=[];
+      if(dmPick.length) images = await uploadChatImages(dmPick, ()=>{ btn.textContent='올리는 중…'; });
+      const { data, error } = await sb.rpc('send_dm', { p_to: uid, p_body: body, p_images: images });   // 여기서 스레드 생성
       if(error) throw error;
+      dmPick=[]; drawDmTray();
       await loadInbox();
       await openDmThread(Number(data));
     }catch(e){ alert('보내지 못했습니다: '+((e&&e.message)||e)); btn.disabled=false; }
@@ -2846,6 +3056,7 @@ async function openNewDm(uid){
   $('#ipSend').onclick=send;
   $('#ipInput').focus();
   $('#ipInput').addEventListener('keydown', e=>{ if(e.key==='Enter' && (e.ctrlKey||e.metaKey)) send(); });
+  initDmImages();
 }
 
 /* 전역 위임: [메시지] 버튼(카드 안의 링크 클릭과 충돌 방지) */
@@ -2987,7 +3198,9 @@ async function renderQuestion(qid){
         <div class="chat-preview" id="chatPreview" style="display:none"></div>
         <div class="typing-bar" id="typingBar"></div>
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
+        <div class="cimg-tray" id="chatTray" style="display:none"></div>
         <div class="chat-input">
+          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">📷</button>
           <input id="chatText" type="text" maxlength="2000" placeholder="답변을 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
           <button id="chatSend">전송</button>
         </div>
@@ -2997,6 +3210,7 @@ async function renderQuestion(qid){
   $('#chatSend').onclick=sendMessage;
   $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
   $('#chatText').addEventListener('input', sendTyping);
+  initChatImages();
   $('#latexHelp').onclick=openLatexGuide;
   $('#qAskBtn').onclick=openQuestionCompose;
   initChatSize();
@@ -3124,6 +3338,7 @@ async function renderCommunity(){
         <div class="chat-preview" id="chatPreview" style="display:none"></div>
         <div class="typing-bar" id="typingBar"></div>
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
+        <div class="cimg-tray" id="chatTray" style="display:none"></div>
         <div class="chat-input">
           <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습) · Ctrl 키로 켜기/끄기">
             <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
@@ -3134,6 +3349,7 @@ async function renderCommunity(){
               <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
             </svg>
           </button>
+          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">📷</button>
           <input id="chatText" type="text" maxlength="2000" placeholder="메시지를 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
           <button id="chatSend">전송</button>
         </div>
@@ -3148,6 +3364,7 @@ async function renderCommunity(){
   $('#chatSend').onclick=sendMessage;
   $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
   $('#chatText').addEventListener('input', ()=>{ updatePreview(); sendTyping(); });
+  initChatImages();
   $('#eyeBtn').onclick=togglePreview;
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
@@ -3281,7 +3498,7 @@ async function loadMessages(){
   try{
     const q = community.qid || null;                       // null=커뮤니티 채팅, 숫자=질문 답변 스레드
     let sel = sb.from('messages')
-      .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id');
+      .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id,images');
     sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
     const { data, error } = await sel.order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
@@ -3317,7 +3534,7 @@ function appendMessage(m, doScroll=true){
     <div class="msg-main">
       <div class="msg-who">${who}</div>
       <div class="msg-bubble-row">
-        <div class="msg-bubble">${escapeHtml(m.body)}</div>
+        <div class="msg-bubble">${escapeHtml(m.body)}</div>${msgImagesHTML(m.images, m.created_at)}
         <span class="msg-time">${fmtKST(m.created_at)}</span>
         ${canDel?'<button class="msg-del" title="메세지 삭제">🗑</button>':''}
       </div>
@@ -3462,13 +3679,54 @@ function openLatexGuide(){
 
 async function sendMessage(){
   const inp=$('#chatText'); if(!inp || !state.user) return;
-  const body=inp.value.trim(); if(!body) return;
-  inp.value='';
-  sendTypingStop();                       // 보냈으면 '입력 중' 즉시 해제
+  const body=inp.value.trim();
+  if(!body && !chatPick.length) return;              // 글도 사진도 없으면 무시
+  const files=chatPick.slice();
+  inp.value=''; chatPick=[]; drawChatTray();
+  sendTypingStop();
+  const btn=$('#chatSend'); if(btn) btn.disabled=true;
   try{
-    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body, question_id: community.qid || null });
-    if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨(본인 메시지 포함)
-  }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
+    let images=[];
+    if(files.length) images = await uploadChatImages(files, t=>{ if(btn) btn.textContent=t.replace('사진 올리는 중… ',''); });
+    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null,
+      author_handle:state.handle||null, body, question_id: community.qid || null, images });
+    if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨
+  }catch(e){
+    inp.value=body; chatPick=files; drawChatTray();
+    alert('전송 실패: '+((e&&e.message)||e));
+  }finally{ if(btn){ btn.disabled=false; btn.textContent='전송'; } }
+}
+
+
+/* 쪽지 화면의 첨부 트레이·버튼 배선 */
+function drawDmTray(){
+  drawPickTray('dmTray', dmPick, drawDmTray);
+  const t=document.getElementById('dmTray'); if(t) t.style.display = dmPick.length?'flex':'none';
+}
+function initDmImages(){
+  dmPick=[]; drawDmTray();
+  const b=$('#dmImgBtn');
+  if(b) b.onclick=()=>pickChatImages(dmPick, drawDmTray, m=>alert(m));
+  bindChatPaste($('#ipInput'), dmPick, drawDmTray);
+}
+
+/* 채팅 화면(커뮤니티·질문)의 사진 배선 */
+function initChatImages(){
+  chatPick=[]; drawChatTray();
+  const b=$('#chatImgBtn');
+  if(b) b.onclick=()=>pickChatImages(chatPick, drawChatTray, m=>alert(m));
+  bindChatPaste($('#chatText'), chatPick, drawChatTray);
+}
+/* 채팅·쪽지 사진 클릭 → 라이트박스 확대 (전역 위임) */
+document.addEventListener('click', e=>{
+  const im=e.target.closest('.msg-imgs img');
+  if(im && im.dataset.full) openLightbox(im.dataset.full);
+});
+
+/* 커뮤니티·질문 채팅의 첨부 트레이 */
+function drawChatTray(){
+  drawPickTray('chatTray', chatPick, drawChatTray);
+  const t=document.getElementById('chatTray'); if(t) t.style.display = chatPick.length?'flex':'none';
 }
 
 /* 메세지 삭제: 본인 메세지는 항상 / 남의 메세지는 admin·owner이면서 내 서열 > 작성자 서열. 서버 delete_message가 최종 검증 */
@@ -3708,6 +3966,7 @@ function route(){
   refreshInboxBadge();     // 안 읽은 쪽지 개수 갱신 (네비 배지)
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
   stopInboxPolling();      // 쪽지함을 떠나면 실시간 구독·안전망 해제
+  closeTipWin();           // 편집기를 떠나면 떠다니는 팁 창도 닫기
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
