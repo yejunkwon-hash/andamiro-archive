@@ -428,7 +428,8 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .cimg-x{position:absolute;top:-5px;right:-5px;width:17px;height:17px;border-radius:50%;border:none;background:var(--link-red);color:#fff;font-size:10px;line-height:1;cursor:pointer;}
 .cimg-btn{background:none;border:none;font-size:19px;cursor:pointer;padding:0 6px;opacity:.6;}
 .cimg-btn:hover{opacity:1;}
-.chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;zoom:var(--chat-scale,1);}
+.chat-log{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;zoom:var(--chat-scale,1);container-type:inline-size;}
+.chat-preview{container-type:inline-size;}  /* 입력창 미리보기 말풍선도 같은 기준 */
 .chat-empty{color:var(--text-dim);font-size:13px;text-align:center;margin:auto;}
 .chat-log .msg{display:flex;gap:9px;align-items:flex-start;max-width:100%;}
 .msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
@@ -440,7 +441,9 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg.hov-profile .msg-who.go-profile{color:var(--accent);transform:translateY(-1px);text-decoration:none;}
 .msg.hov-profile .msg-avatar.go-profile{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--accent);}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
-.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:min(78%,560px);box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:70%;max-width:70cqw;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+/* ★말풍선은 내용을 따라 '가로로' 먼저 자란다 — 채팅방 폭의 70%에 닿으면 그때부터 줄바꿈.
+   (예전의 min(78%,560px)은 넓은 화면에서 560px 상한에 먼저 걸려 일찍 꺾였다) */
 /* 긴 글: 말풍선이 세로로 늘어나고 시각·삭제 버튼은 아래쪽에 붙는다 */
 .msg-bubble-row{align-items:flex-end;flex-wrap:wrap;}
 .msg-imgs{align-items:flex-start;}
@@ -449,7 +452,11 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .chat-log .msg.mine{flex-direction:row-reverse;padding-left:12%;}
 .msg.mine .msg-main{flex:1;}
 @media(max-width:768px){ .chat-log .msg.mine{padding-left:6%;} }
-.msg.mine .msg-main{align-items:flex-end;}
+/* ★flex-end는 자식을 shrink-to-fit으로 만들어 말풍선 max-width:70%의 기준 폭이 무너진다.
+   stretch로 두고, 오른쪽 정렬은 아래 개별 규칙(who/row-reverse/reactions/imgs/foot)이 담당. */
+.msg.mine .msg-main{align-items:stretch;}
+/* mine 폴백: 좌측 여백(padding-left:12%) 보정 79.5%≈로그의 70%. cqw 지원 브라우저는 아래 70cqw가 정확히 적용 */
+.msg.mine .msg-bubble{max-width:79.5%;max-width:70cqw;}
 .msg.mine .msg-who{text-align:right;}
 .msg.mine .msg-bubble-row{flex-direction:row-reverse;}
 .msg.mine .msg-reactions{justify-content:flex-end;}
@@ -1249,7 +1256,10 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
   html,body{ max-width:100%; overflow-x:hidden; }
   .layout{ padding-left:10px; padding-right:10px; }
   .doc{ padding:16px 14px 26px; }
-  .community{ flex-direction:column; }
+  /* ★column 전환 시 align-items:flex-start(가로축)가 자식 폭을 shrink-to-fit으로 만든다 → stretch 명시.
+     (그동안은 채팅 내용이 폭을 떠받쳐 우연히 멀쩡해 보였다 — chat-log containment가 이를 드러냄) */
+  .community{ flex-direction:column; align-items:stretch; }
+  .chat{ width:100%; }
   .q-panel, .calendar-wrap{ width:100% !important; position:static !important; max-height:none; }
   .table-scroll{ overflow-x:auto; max-width:100%; }
 
@@ -1275,7 +1285,9 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
   .chat-input #chatSend{ padding:0 12px; font-size:13px; }
   .chat, .chat-log, .chat-preview, .preview-hint, .chat-count{ max-width:100%; box-sizing:border-box; }
   .msg{ max-width:100%; }
-  .msg-bubble{ max-width:86% !important; }
+  /* 폰도 동일 규칙: 채팅 로그 폭의 70%. %값은 cqw 미지원 구형 브라우저용 폴백 */
+  .msg-bubble{ max-width:86% !important; max-width:70cqw !important; }
+  .msg.mine .msg-bubble{ max-width:74.5% !important; max-width:70cqw !important; }
   .msg-imgs img{ max-width:60vw; }
 
   /* ★ 회원 관리 표: 가로 스크롤 확실히 동작하게
@@ -1545,7 +1557,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   .layout{flex-direction:column;}
   .rightrail{width:100%;position:static;}
   .landing-reco{min-height:0;}
-  .community{flex-direction:column;}
+  .community{flex-direction:column;align-items:stretch;}
   .calendar-wrap{width:100%;position:static;}
   .chat{height:60vh;}
   .infobox{float:none;width:100%;margin:0 0 16px;}
@@ -1592,7 +1604,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 
     <div id="pin-step2" style="display:none">
       <label>인증번호 (6자리)</label>
-      <input id="pin-code" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" class="pin-input">
+      <input id="pin-code" type="text" inputmode="numeric" maxlength="10" placeholder="000000" autocomplete="one-time-code" class="pin-input">
       <div class="pin-timer" id="pin-timer"></div>
       <button class="btn primary" id="pin-verify">확인하고 비밀번호 재설정</button>
       <button class="btn ghost" id="pin-resend" style="margin-top:8px">인증번호 재발송</button>
@@ -1888,12 +1900,18 @@ async function sendPin(resend){
       ? '★이전에 받은 번호는 무효가 됐어요 — 가장 최근에 도착한 메일의 번호를 입력해 주세요. (Gmail은 같은 제목 메일을 묶어 보여주니 스레드 맨 아래 최신 메일 확인)'
       : '메일을 확인하고 아래에 입력해 주세요. (스팸함도 확인)'}`, 'ok');
   }catch(e){
-    const m=(e&&e.message)||String(e);
-    pinMsg(/rate|limit|too many/i.test(m)
-      ? '메일 발송 한도에 걸렸어요. 잠시 뒤 다시 시도하거나 관리자에게 문의해 주세요.'
-      : /captcha/i.test(m)
-        ? '보안 확인(CAPTCHA)을 완료한 뒤 다시 눌러주세요.'
-        : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
+    console.error('OTP 발송 실패:', e);                     // F12 콘솔에서 원본 확인용
+    let m=(e&&e.message)||String(e);
+    /* ★서버가 빈 본문({})으로 실패를 돌려주는 경우 — 대부분 커스텀 SMTP(메일 발송) 오류(500).
+       supabase-js는 에러 본문에 msg/message가 없으면 JSON.stringify를 메시지로 쓰기 때문에 "{}"가 된다. */
+    const blank = !m || m==='{}' || m==='[object Object]' || m==='undefined';
+    pinMsg(blank
+      ? `메일 서버가 발송에 실패했어요 (status ${ (e&&e.status)||'?' }). 이메일 문제가 아니라 서버의 SMTP 설정 문제일 가능성이 높습니다 — 관리자에게 알려주세요. (관리자: Supabase → Logs → Auth 에서 실제 오류 확인)`
+      : /rate|limit|too many/i.test(m)
+        ? '메일 발송 한도에 걸렸어요. 잠시 뒤 다시 시도하거나 관리자에게 문의해 주세요.'
+        : /captcha/i.test(m)
+          ? '보안 확인(CAPTCHA)을 완료한 뒤 다시 눌러주세요.'
+          : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
   }finally{
     resetPinCaptcha();                     // 토큰은 1회용 → 재발송 전에 새로 풀어야 한다
     btn.disabled=false;
@@ -1903,7 +1921,9 @@ async function sendPin(resend){
 
 async function verifyPin(){
   const code=($('#pin-code').value||'').replace(/\D/g,'');
-  if(code.length!==6){ pinMsg('6자리 숫자를 입력해 주세요.','err'); return; }
+  /* ★사고 기록: 서버의 Email OTP Length가 8로 바뀌어 있던 동안, 입력창 maxlength=6이
+     8자리 코드의 앞 6자리만 받게 해 '맞는 번호도 항상 실패'했다. 길이를 서버 허용 범위(6~10)로 관대하게. */
+  if(code.length<6 || code.length>10){ pinMsg('메일로 받은 인증번호를 그대로 입력해 주세요.','err'); return; }
   if(pinExpired()){ pinMsg('인증번호가 만료되었어요. [재발송]으로 새 번호를 받아주세요.','err'); return; }
   const btn=$('#pin-verify'); btn.disabled=true; btn.textContent='확인 중…';
   try{
@@ -8591,7 +8611,7 @@ $('#pin-send').onclick=()=>sendPin(false);
 $('#pin-resend').onclick=()=>sendPin(true);
 $('#pin-verify').onclick=verifyPin;
 $('#pin-email').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(false); });
-$('#pin-code').addEventListener('input',e=>{ e.target.value=(e.target.value||'').replace(/\D/g,'').slice(0,6); });
+$('#pin-code').addEventListener('input',e=>{ e.target.value=(e.target.value||'').replace(/\D/g,'').slice(0,10); });   // ★서버 OTP 길이 설정(6~10)이 바뀌어도 입력이 막히지 않게
 $('#pin-code').addEventListener('keydown',e=>{ if(e.key==='Enter') verifyPin(); });
 /* 가입 신청 토글 */
 async function loadSignupClubs(){
