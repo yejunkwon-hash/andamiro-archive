@@ -88,13 +88,24 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .org-sec{border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden;box-shadow:var(--shadow);}
 .org-head{background:var(--box-bg);padding:9px 14px;font-size:13px;font-weight:800;color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
 .org-cnt{font-size:11px;font-weight:800;color:#fff;background:var(--accent);border-radius:99px;padding:1px 8px;}
-.org-list{max-height:220px;overflow-y:auto;}
-.org-item{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:13.5px;}
+.org-list{max-height:300px;overflow-y:auto;}
+.org-item{border-bottom:1px solid var(--border);}
 .org-item:last-child{border-bottom:none;}
+.org-row{display:flex;align-items:center;gap:8px;padding:9px 14px;font-size:13.5px;cursor:pointer;transition:background .1s;}
+.org-row:hover{background:var(--box-bg);}
+.org-caret{font-size:10px;color:var(--text-dim);width:10px;flex:none;}
 .org-dot{width:10px;height:10px;border-radius:3px;flex:none;}
 .org-name{font-weight:700;color:var(--text);}
 .org-num{margin-left:auto;font-size:12px;color:var(--text-dim);}
-.org-empty{padding:12px 14px;font-size:12.5px;color:var(--text-dim);}
+.org-hint{margin-left:auto;font-size:10.5px;font-weight:400;color:var(--text-dim);}
+.org-mems{background:var(--box-bg);border-top:1px solid var(--border);}
+.org-mem{display:flex;align-items:center;gap:8px;padding:7px 14px 7px 30px;text-decoration:none;color:var(--text);font-size:12.5px;border-bottom:1px solid var(--border);}
+.org-mem:last-child{border-bottom:none;}
+.org-mem:hover{background:var(--card);text-decoration:none;}
+.org-mem:hover .org-mem-t b{text-decoration:underline;text-underline-offset:2px;}
+.club-mem-ava{width:24px;height:24px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:11px;}
+.org-mem-t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.org-empty{padding:10px 14px 10px 30px;font-size:12.5px;color:var(--text-dim);}
 .qgo-btn{width:auto;font-size:11.5px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
 .uq-table .uq-row{cursor:pointer;}
 .uq-table .uq-row:hover{background:var(--box-bg);}
@@ -112,9 +123,17 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 @media(max-width:720px){ .profile-side{width:100%;} }
 .profile-ava{background-size:cover;background-position:center;}
 .me-wrap{display:flex;gap:22px;align-items:flex-start;flex-wrap:wrap;}
+/* 프로필 사진 블록은 표 '옆'이 아니라 표 아래(또는 오른쪽 아래)에 오도록 — 표가 먼저 눈에 들어오게 */
+.me-wrap{flex-direction:column;align-items:flex-start;}
+.me-avatar-box{width:auto;align-items:center;}
+.me-avatar-box .me-avatar{box-shadow:0 4px 16px rgba(0,0,0,.14);}
+.me-avatar-btns{display:flex;gap:6px;}
+@media(min-width:900px){
+  .me-wrap{flex-direction:row;align-items:flex-end;}   /* 넓은 화면: 표 오른쪽 '아래쪽 맞춤' */
+}
 .me-table{flex:1;min-width:280px;}
 .me-avatar-box{width:190px;flex:none;display:flex;flex-direction:column;gap:10px;align-items:stretch;}
-.me-avatar{width:190px;height:190px;border-radius:14px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
+.me-avatar{width:180px;height:180px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:80px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
 .me-avatar-btns{display:flex;flex-direction:column;gap:6px;}
 .me-avatar-btns .btn{padding:7px 10px;font-size:13px;}
 .me-avatar-msg{font-size:12px;min-height:16px;line-height:1.4;}
@@ -312,8 +331,10 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .msg-bubble-row{align-items:flex-end;flex-wrap:wrap;}
 .msg-imgs{align-items:flex-start;}
 .msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;border-radius:14px 4px 14px 14px;}
-/* ★내가 쓴 메시지는 오른쪽에 (아바타·이름·말풍선·사진 모두 우측 정렬) */
-.chat-log .msg.mine{flex-direction:row-reverse;}
+/* ★내가 쓴 메시지는 오른쪽에. 내 프로필 사진은 표시하지 않는다(누가 썼는지 자명하므로). */
+.chat-log .msg.mine{flex-direction:row-reverse;padding-left:12%;}
+.msg.mine .msg-main{flex:1;}
+@media(max-width:768px){ .chat-log .msg.mine{padding-left:6%;} }
 .msg.mine .msg-main{align-items:flex-end;}
 .msg.mine .msg-who{text-align:right;}
 .msg.mine .msg-bubble-row{flex-direction:row-reverse;}
@@ -471,6 +492,24 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .hs-path{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;word-break:break-all;}
 .hs-note{font-size:11.5px;color:var(--text-dim);font-weight:400;margin-top:2px;}
 .hs-btn{width:auto;font-size:12px;padding:6px 12px;}
+/* ===== 액션 버튼 (휴지통·역사·유지보수 공용) =====
+   기존 .btn.ghost 는 폭 100%·큰 패딩이라 표 안에서 촌스럽게 퍼졌다. 표·목록용 소형 버튼. */
+.abtn{display:inline-flex;align-items:center;gap:5px;width:auto;
+  background:var(--card);color:var(--text);border:1px solid var(--border-strong);
+  border-radius:8px;padding:6px 12px;font-size:12.5px;font-weight:700;cursor:pointer;
+  line-height:1.2;white-space:nowrap;
+  transition:background .12s, border-color .12s, color .12s, transform .1s, box-shadow .12s;}
+.abtn:hover{background:var(--box-bg);border-color:var(--accent);color:var(--accent);
+  transform:translateY(-1px);box-shadow:0 3px 10px rgba(0,0,0,.08);}
+.abtn:active{transform:translateY(0);box-shadow:none;}
+.abtn .ic16{width:14px;height:14px;}
+/* 강조(주 동작) */
+.abtn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+.abtn.primary:hover{filter:brightness(1.08);background:var(--accent);color:#fff;transform:translateY(-1px);}
+/* 위험(삭제) */
+.abtn.danger{color:var(--link-red);border-color:var(--border-strong);}
+.abtn.danger:hover{background:var(--link-red);border-color:var(--link-red);color:#fff;}
+.abtn-group{display:inline-flex;gap:6px;}
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
 /* ===== 피드백 ===== */
@@ -541,6 +580,11 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .seg.seg-teacher{border-color:var(--teacher);}
 .seg.seg-teacher .seg-opt{background:var(--teacher);color:#fff;border-color:var(--teacher);cursor:default;}
 .role-teacher{color:var(--teacher) !important;font-weight:800;}
+/* 등급 테두리 박스 */
+.role-box{display:inline-flex;align-items:center;font-size:12px;font-weight:800;letter-spacing:.02em;
+  color:var(--rc,var(--text-dim));border:1.5px solid var(--rc,var(--border-strong));
+  background:color-mix(in srgb, var(--rc,#888) 10%, transparent);
+  border-radius:7px;padding:2px 10px;line-height:1.5;}
 .role-chip.role-teacher{background:var(--teacher);color:#fff !important;border-color:var(--teacher);}
 .hs-ic{width:18px;height:18px;vertical-align:middle;}
 .hs-ic.ok{color:#2e9e5b;} .hs-ic.bad{color:var(--link-red);} .hs-ic.warn{color:#c98500;}
@@ -576,6 +620,24 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .tpl-ic{font-size:19px;line-height:1;}
 .tpl-nm{font-size:12px;font-weight:700;color:var(--text);}
 .tpl-desc{font-size:11.5px;color:var(--text-dim);margin:2px 0 8px;min-height:15px;}
+.tpl-card.tpl-more{display:none;}
+.tpl-grid.show-more .tpl-card.tpl-more{display:flex;}
+.tpl-morebtn{width:100%;background:none;border:1px dashed var(--border-strong);color:var(--text-dim);border-radius:8px;padding:6px;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:4px;}
+.tpl-morebtn:hover{border-color:var(--accent);color:var(--accent);}
+.nd-copy{width:100%;font-size:12.5px;padding:8px;margin:2px 0 6px;justify-content:center;display:flex;align-items:center;gap:6px;}
+.nd-copyinfo{font-size:12px;background:var(--box-bg);border:1px solid var(--accent);border-radius:8px;padding:8px 10px;margin-bottom:6px;color:var(--text);text-align:left;}
+.nd-copyinfo b{color:var(--accent);}
+.nd-copyinfo .ncx{float:right;cursor:pointer;color:var(--text-dim);font-weight:800;}
+/* 문서 고르기 팝업 */
+.pick-tbl{width:100%;border-collapse:collapse;font-size:13px;}
+.pick-tbl th{position:sticky;top:0;background:var(--table-head);color:var(--text-dim);font-size:11.5px;font-weight:800;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
+.pick-tbl td{padding:7px 10px;border-bottom:1px solid var(--border);}
+.pick-tbl tr.pk{cursor:pointer;}
+.pick-tbl tr.pk:hover{background:var(--box-bg);}
+.pick-tbl tr.pk.on{background:rgba(0,0,0,.06);outline:2px solid var(--accent);outline-offset:-2px;}
+body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
+.pick-scroll{max-height:46vh;overflow-y:auto;border:1px solid var(--border);border-radius:8px;margin:8px 0;}
+.pick-key{font-family:ui-monospace,Consolas,monospace;font-size:11.5px;color:var(--text-dim);}
 @media(max-width:520px){ .tpl-grid{grid-template-columns:repeat(2,1fr);} }
 
 /* ===== 문서 편집기 v2 (안다 문법) ===== */
@@ -916,7 +978,7 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
   .table-scroll > table{ width:auto !important; min-width:max-content; }
   .table-hint{ display:block; }
 }
-body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비 비활성 */
+/* 휴지통 열람 중에도 하단 탭 바는 그대로 쓸 수 있게 한다 */
 
 /* ===== 질문하기: 우측 슬라이드 패널 (팝업 대체) ===== */
 .qc-ov{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1100;display:flex;justify-content:flex-end;}
@@ -1006,6 +1068,10 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .doc-card .dc-key{font-size:11.5px;color:var(--text-dim);font-family:ui-monospace,Consolas,monospace;}
 .doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
 .doc-card .dc-cat{font-size:11px;background:var(--box-bg);border:1px solid var(--border);border-radius:99px;padding:1px 8px;color:var(--text-dim);}
+/* 열람 수 */
+.dc-views{display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--text-dim);}
+.doc-views{display:inline-flex;align-items:center;gap:4px;font-size:12px;color:var(--text-dim);margin-right:6px;white-space:nowrap;}
+.eye-ic{flex:none;}
 @media(max-width:640px){ .docs-grid{grid-template-columns:1fr;} }
 .alldocs-grid .alldoc{border-right:1px solid var(--border);}
 .alldoc .dl-key{font-size:12px;color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -1036,11 +1102,8 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .rightrail .addbtn.trash-btn{margin-top:2px;border-style:solid;border-color:var(--border-strong);color:var(--text-dim);}
 .rightrail .addbtn.trash-btn:hover{color:var(--text);background:var(--box-bg);}
 /* 휴지통 열람 모드: 다른 탭/이동 비활성화 + 문서 흑백 */
-body.trash-view .search,
-body.trash-view #directoryBtn,
-body.trash-view #communityBtn,
-body.trash-view #homeLink,
-body.trash-view .usermenu{pointer-events:none;opacity:.4;}
+/* 예전엔 휴지통·과거버전 열람 중 상단바를 잠갔다. 다른 곳으로 못 나가 답답했으므로 해제.
+   (읽기 전용 화면임을 알리는 시각 표시는 본문 쪽에서 이미 하고 있다) */
 .trash-doc{filter:grayscale(1);opacity:.92;}
 .search-results{position:absolute;top:36px;left:0;right:0;background:var(--card);border:1px solid var(--border);border-radius:6px;box-shadow:var(--shadow);overflow-y:auto;max-height:60vh;z-index:60;}
 .search-results a{display:block;padding:9px 12px;color:var(--text);font-size:13.5px;border-bottom:1px solid var(--border);cursor:pointer;}
@@ -1289,6 +1352,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <button class="navbtn" id="directoryBtn">회원 조회</button>
     <button class="navbtn" id="communityBtn">커뮤니티</button>
     <button class="navbtn" id="qBtn">질문 게시판</button>
+    <button class="navbtn" id="calBtn">캘린더</button>
     <button class="navbtn" id="inboxBtn">쪽지함<span class="nav-badge" id="inboxBadge" style="display:none">0</span></button>
     <button class="mode" id="modeBtn"><svg class="ic16"><use href="#i-moon"/></svg> 야간</button>
     <div class="usermenu" id="usermenu">
@@ -1615,13 +1679,18 @@ function myRank(){ return roleRank(state.role); }
 function isOwner(){ return state.role==='owner'; }
 function isTeacher(){ return state.role==='teacher'; }
 /* 등급 표시 — teacher는 앰버색으로 (모든 화면 공통) */
+/* 등급 배지 — 등급별 색 테두리 박스 (표 안에서 쓴다) */
+const ROLE_COLOR = { viewer:'var(--text-dim)', editor:'#2e9e5b', admin:'#3558d6',
+                     owner:'var(--accent)', teacher:'var(--teacher)' };
 function roleText(r){
   r = r || 'viewer';
-  return r==='teacher' ? `<span class="role-teacher">teacher</span>` : escapeHtml(r);
+  const c = ROLE_COLOR[r] || 'var(--text-dim)';
+  return `<span class="role-box" style="--rc:${c}">${escapeHtml(r)}</span>`;
 }
 function roleChip(r){
   r = r || 'viewer';
-  return `<span class="role-chip${r==='teacher'?' role-teacher':''}">${escapeHtml(r)}</span>`;
+  const c = ROLE_COLOR[r] || 'var(--accent)';
+  return `<span class="role-chip" style="background:${c}">${escapeHtml(r)}</span>`;
 }
 
 /* ================== 권한 매트릭스 ==================
@@ -1810,41 +1879,77 @@ function renderUserbox(){
 async function orgSectionHTML(){
   const showClub = can('club_read'), showTrack = can('track_read');
   if(!showClub && !showTrack) return '';
-  let clubs=[], counts={};
+
+  // 회원 목록(공개 뷰) — 동아리별·계열별로 묶는다
+  let members=[];
+  try{ const { data } = await sb.from('members_public').select('id,member_no,name,handle,club,avatar_url'); members=data||[]; }catch(e){}
+  let trackOf={};
+  if(showTrack){
+    try{ const { data } = await sb.from('profiles').select('id,track');
+      (data||[]).forEach(p=>{ if(p.track) trackOf[p.id]=p.track; }); }catch(e){}
+    if(!(state.tracks||[]).length){ try{ await loadTracks(); }catch(e){} }
+  }
+  let clubs=[];
   if(showClub){
     try{ const { data } = await sb.from('clubs').select('name,is_none').order('name',{ascending:true});
       clubs=(data||[]).filter(c=>!c.is_none).map(c=>c.name); }catch(e){}
-    try{ const { data } = await sb.from('members_public').select('club');
-      (data||[]).forEach(m=>{ const c=m.club||'무소속'; counts[c]=(counts[c]||0)+1; }); }catch(e){}
   }
-  if(showTrack && !(state.tracks||[]).length){ try{ await loadTracks(); }catch(e){} }
-  let tCounts={};
-  if(showTrack){
-    try{ const { data } = await sb.from('profiles').select('track');
-      (data||[]).forEach(p=>{ if(p.track) tCounts[p.track]=(tCounts[p.track]||0)+1; }); }catch(e){}
-  }
-  return `
-    <div class="org-wrap">
-      ${showClub?`<section class="org-sec">
-        <div class="org-head">동아리 목록 <span class="org-cnt">${clubs.length}</span></div>
-        <div class="org-list">
-          ${clubs.length ? clubs.map(n=>`<div class="org-item">
-              <span class="org-name">${escapeHtml(n)}</span>
-              <span class="org-num">${counts[n]||0}명</span></div>`).join('')
-            : '<div class="org-empty">등록된 동아리가 없습니다.</div>'}
-        </div>
-      </section>`:''}
-      ${showTrack?`<section class="org-sec">
-        <div class="org-head">계열 목록 <span class="org-cnt">${(state.tracks||[]).length}</span></div>
-        <div class="org-list">
-          ${(state.tracks||[]).length ? state.tracks.map(t=>`<div class="org-item">
-              <span class="org-dot" style="background:${escapeAttr(t.color)}"></span>
-              <span class="org-name">${escapeHtml(t.name)}</span>
-              <span class="org-num">${tCounts[t.name]||0}명</span></div>`).join('')
-            : '<div class="org-empty">등록된 계열이 없습니다.</div>'}
-        </div>
-      </section>`:''}
+
+  const memLine=(m)=>{
+    const av=avatarFor(m.name, m.handle);
+    const ava = m.avatar_url
+      ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
+      : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
+    return `<a class="org-mem" href="#//member/${escapeAttr(m.id)}">${ava}
+      <span class="org-mem-t">#${m.member_no??'-'} <b>${escapeHtml(m.name||'-')}</b>
+        <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
+  };
+  const group = (title, items) => `
+    <div class="org-item" data-org>
+      <div class="org-row">
+        <span class="org-caret">▸</span>
+        ${items.dot ? `<span class="org-dot" style="background:${escapeAttr(items.dot)}"></span>` : ''}
+        <span class="org-name">${escapeHtml(title)}</span>
+        <span class="org-num">${items.list.length}명</span>
+      </div>
+      <div class="org-mems" style="display:none">
+        ${items.list.length ? items.list.map(memLine).join('') : '<div class="org-empty">소속 회원이 없습니다.</div>'}
+      </div>
     </div>`;
+
+  let clubHTML='';
+  if(showClub){
+    const byClub={};
+    members.forEach(m=>{ const c=m.club||'무소속'; (byClub[c]=byClub[c]||[]).push(m); });
+    const names=[...new Set([...clubs, ...members.map(m=>m.club||'무소속')])].filter(n=>n!=='무소속')
+      .sort((a,b)=>String(a).localeCompare(String(b),'ko'));
+    names.push('무소속');
+    const sortMem=a=>a.slice().sort((x,y)=>(x.member_no||1e9)-(y.member_no||1e9));
+    clubHTML=`<section class="org-sec">
+      <div class="org-head">동아리 목록 <span class="org-cnt">${names.length}</span>
+        <span class="org-hint">이름을 눌러 회원을 펼쳐 보세요</span></div>
+      <div class="org-list">${names.map(n=>group(n, { list: sortMem(byClub[n]||[]) })).join('')}</div>
+    </section>`;
+  }
+
+  let trackHTML='';
+  if(showTrack){
+    const byTrack={};
+    members.forEach(m=>{ const t=trackOf[m.id]; if(t) (byTrack[t]=byTrack[t]||[]).push(m); });
+    const tracks=(state.tracks||[]);
+    const noneList=members.filter(m=>!trackOf[m.id]);
+    const sortMem=a=>a.slice().sort((x,y)=>(x.member_no||1e9)-(y.member_no||1e9));
+    trackHTML=`<section class="org-sec">
+      <div class="org-head">계열 목록 <span class="org-cnt">${tracks.length}</span>
+        <span class="org-hint">이름을 눌러 회원을 펼쳐 보세요</span></div>
+      <div class="org-list">
+        ${tracks.map(t=>group(t.name, { list: sortMem(byTrack[t.name]||[]), dot: t.color })).join('')}
+        ${noneList.length ? group('계열 없음', { list: sortMem(noneList), dot:'#8a9099' }) : ''}
+      </div>
+    </section>`;
+  }
+
+  return `<div class="org-wrap">${clubHTML}${trackHTML}</div>`;
 }
 /* 페이지 맨 아래에 붙인다 (대문·문서 탭 공용) */
 async function mountOrgSection(){
@@ -1853,7 +1958,17 @@ async function mountOrgSection(){
   if(!html) return;
   const wrap=document.createElement('div');
   wrap.innerHTML=html;
-  box.appendChild(wrap.firstElementChild);
+  const node=wrap.firstElementChild;
+  box.appendChild(node);
+  // 토글: 이름을 누르면 소속 회원이 펼쳐진다 (회원 관리 탭과 같은 동작)
+  node.querySelectorAll('.org-row').forEach(r=>{
+    r.onclick=()=>{
+      const m=r.parentElement.querySelector('.org-mems');
+      const open = m.style.display!=='none';
+      m.style.display = open ? 'none' : 'block';
+      const c=r.querySelector('.org-caret'); if(c) c.textContent = open ? '▸' : '▾';
+    };
+  });
 }
 
 /* ================== 문서 목록/로드 ================== */
@@ -2289,14 +2404,14 @@ async function renderQuestions(){
    전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
 const docsPage = { sort: 'recent' };
 async function renderDocsPage(){
-  $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML = `<div class="docs-head"><h1>문서 목록</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
   try{
     const { data, error } = await sb.from('documents')
-      .select('key,title,eng,category,updated_at,updated_by');
+      .select('key,title,eng,category,updated_at,updated_by,view_count');
     if(error) throw error;
     rows=data||[];
-  }catch(e){ $('#doc').innerHTML='<h1>문서</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
+  }catch(e){ $('#doc').innerHTML='<h1>문서 목록</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
 
   // 수정자 이름 (members_public 일괄 조회)
   const likes = await loadLikeCounts(true);
@@ -2320,6 +2435,8 @@ async function renderDocsPage(){
       if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
       if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key) || new Date(b.updated_at||0)-new Date(a.updated_at||0);
       if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
+      if(docsPage.sort==='views')  return (Number(b.view_count)||0)-(Number(a.view_count)||0)
+                                       || new Date(b.updated_at||0)-new Date(a.updated_at||0);
       return new Date(b.updated_at||0) - new Date(a.updated_at||0);
     });
     return out;
@@ -2331,6 +2448,7 @@ async function renderDocsPage(){
       <div class="dc-meta">
         ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
                        :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
+        <span class="dc-views">${eyeSVG(11)} ${Number(d.view_count)||0}</span>
         ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
         ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
         ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
@@ -2355,11 +2473,12 @@ async function renderDocsPage(){
   const stubCount=rows.filter(d=>isStub(d.key)).length;
   $('#doc').innerHTML = `
     <div class="docs-head">
-      <h1>문서 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
+      <h1>문서 목록 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
       <div class="docs-sort">
         <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
         <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
         <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
+        <button data-s="views" class="${docsPage.sort==='views'?'on':''}">열람순</button>
         ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
       </div>
       ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
@@ -2447,6 +2566,7 @@ async function renderDoc(key){
       + `<table>${rows}</table></aside>`;
   }
   const tabs = [];
+  tabs.push(`<span class="doc-views" id="docViews" title="열람 수 (회원당 하루 1회 집계)">${eyeSVG(13)} <span id="docViewsN">${Number(doc.view_count)||0}</span></span>`);
   if(canEdit()) tabs.push(`<button id="editBtn">${ic('edit')}편집</button>`);
   tabs.push(`<button id="histBtn">${ic('history')}역사</button>`);
   if(isAdmin()) tabs.push(`<button id="delBtn" class="danger">${ic('trash')}삭제</button>`);
@@ -2471,6 +2591,16 @@ async function renderDoc(key){
   if(canEdit()) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
+  // 열람 기록 (회원당 하루 1회) — 즉시 +1 되고 화면에 반영
+  (async()=>{
+    try{
+      const { data, error } = await sb.rpc('bump_doc_view', { p_key: key });
+      if(!error && data!=null){
+        const el=document.getElementById('docViewsN');
+        if(el) el.textContent = String(Number(data)||0);
+      }
+    }catch(e){}
+  })();
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
 }
@@ -3340,8 +3470,43 @@ const DOC_TEMPLATES = {
 
   guide: { icon:'📘', name:'안내·규정', desc:'사용법·규칙 등 안내 문서입니다.',
     body:'## 요약\n> (가장 중요한 내용을 한 줄로.)\n\n## 내용\n1. \n2. \n\n## 주의사항\n- \n',
+    infobox:null },
+
+  /* ── 연구 · 대회 · 기자재 (더보기) ── */
+  equipment: { icon:'🔬', name:'기자재 사용법', desc:'장비 사양·사용 절차·주의사항. 이 프로젝트의 출발점이 된 형식이에요.',
+    body:'## 개요\n(어떤 장비이고 무엇을 측정·수행하는지 한두 문장.)\n\n## 사양\n| 항목 | 값 |\n| 측정 범위 |  |\n| 분해능 |  |\n| 전원 |  |\n\n## 사용 절차\n1. 전원을 켜기 전 확인할 것: \n2. \n3. \n4. 사용 후 정리: \n\n## 주의사항\n> ⚠ (다치거나 장비가 망가질 수 있는 지점을 먼저 적어주세요.)\n- \n\n## 자주 나는 문제\n| 증상 | 원인 | 해결 |\n|  |  |  |\n\n## 사진\n(편집기의 사진 버튼으로 추가할 수 있어요.)\n',
+    infobox:{ title:'{{TITLE}}', sub:'기자재', rows:[['제조사',''],['모델명',''],['보관 위치',''],['담당자',''],['구입 시기','']] } },
+
+  research: { icon:'🧪', name:'연구 프로젝트', desc:'연구 주제·가설·방법·결과를 담는 문서입니다.',
+    body:'## 연구 배경\n(왜 이 주제를 골랐는지.)\n\n## 연구 질문 · 가설\n- 질문: \n- 가설: \n\n## 방법\n### 준비물\n- \n### 절차\n1. \n2. \n\n## 결과\n(표·그래프·사진)\n\n## 논의\n- 예상과 달랐던 점: \n- 오차 원인: \n\n## 결론\n\n## 참고 문헌\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'연구', rows:[['연구 기간',''],['참여자',''],['지도교사',''],['분야',''],['상태','진행 중']] } },
+
+  experiment: { icon:'⚗️', name:'실험 프로토콜', desc:'재현 가능하도록 실험 절차를 정리합니다.',
+    body:'## 목적\n\n## 준비물\n| 물품 | 수량 | 비고 |\n|  |  |  |\n\n## 안전 수칙\n> ⚠ \n\n## 절차\n1. \n2. \n3. \n\n## 데이터 기록표\n| 회차 | 측정값 | 비고 |\n| 1 |  |  |\n\n## 분석 방법\n(계산식: $\\bar{x} = \\frac{1}{n}\\sum x_i$ 처럼 쓸 수 있어요.)\n\n## 폐기물 처리\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'실험', rows:[['소요 시간',''],['난이도',''],['필요 장비',''],['위험도','']] } },
+
+  contest: { icon:'🏆', name:'대회 참가 기록', desc:'대회 개요·준비 과정·결과를 남깁니다.',
+    body:'## 대회 개요\n(주최·일정·형식.)\n\n## 참가 팀\n| 이름 | 역할 |\n|  |  |\n\n## 준비 과정\n- \n\n## 당일 진행\n- \n\n## 결과\n\n## 배운 점 · 다음에 할 것\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'대회', rows:[['대회명',''],['일시',''],['장소',''],['참가자',''],['성적','']] } },
+
+  contest_prep: { icon:'📐', name:'대회 대비 자료', desc:'기출·핵심 개념·풀이 전략을 모읍니다.',
+    body:'## 대회 소개\n(출제 범위·형식·시간.)\n\n## 핵심 개념\n### \n\n## 기출 유형\n| 연도 | 유형 | 난이도 |\n|  |  |  |\n\n## 전략\n- \n\n## 추천 자료\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'대비 자료', rows:[['대상 대회',''],['대상 학년',''],['갱신일','']] } },
+
+  meeting: { icon:'📝', name:'회의록', desc:'회의 안건·결정 사항·할 일을 기록합니다.',
+    body:'## 개요\n- 일시: \n- 참석: \n\n## 안건\n1. \n\n## 논의 내용\n- \n\n## 결정 사항\n- \n\n## 할 일\n| 담당 | 할 일 | 기한 |\n|  |  |  |\n',
+    infobox:null },
+
+  report: { icon:'📊', name:'결과 보고서', desc:'활동·연구의 최종 보고서 형식입니다.',
+    body:'## 요약\n> (3줄 이내로.)\n\n## 서론\n\n## 본론\n### 방법\n### 결과\n\n## 결론\n\n## 부록\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'보고서', rows:[['작성자',''],['작성일',''],['분야','']] } },
+
+  safety: { icon:'🦺', name:'안전 수칙', desc:'실험실·장비 사용 시 지켜야 할 안전 규칙.',
+    body:'## 적용 범위\n\n## 필수 보호구\n- \n\n## 반드시 지킬 것\n> ⚠ \n1. \n2. \n\n## 사고 시 대응\n| 상황 | 즉시 할 일 | 연락처 |\n|  |  |  |\n',
     infobox:null }
 };
+/* 더보기를 눌러야 보이는 템플릿 (기본 6종 아래에 펼쳐진다) */
+const TPL_BASIC = ['free','person','event','concept','history','guide'];
 
 /* 새 문서 만들기: 템플릿 선택 → 주소·제목 → 생성 후 뼈대 주입 */
 function openNewDocModal(prefill){
@@ -3353,11 +3518,14 @@ function openNewDocModal(prefill){
     <div class="modal-sub">어떤 문서인가요? 고르면 <b>기본 뼈대가 자동으로 채워집니다</b>.</div>
     <div class="tpl-grid" id="ndTpl">
       ${Object.entries(DOC_TEMPLATES).map(([k,t])=>`
-        <div class="tpl-card ${k==='free'?'on':''}" data-tpl="${k}">
+        <div class="tpl-card ${k==='free'?'on':''} ${TPL_BASIC.includes(k)?'':'tpl-more'}" data-tpl="${k}">
           <span class="tpl-ic">${t.icon}</span><span class="tpl-nm">${escapeHtml(t.name)}</span>
         </div>`).join('')}
     </div>
+    <button type="button" class="tpl-morebtn" id="ndMore">더보기 (연구 · 대회 · 기자재 등 ${Object.keys(DOC_TEMPLATES).length-TPL_BASIC.length}종) ▾</button>
     <div class="tpl-desc" id="ndDesc">${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
+    <button type="button" class="btn ghost nd-copy" id="ndCopy">${ic('docs')} 기존 문서로 사본 만들기</button>
+    <div class="nd-copyinfo" id="ndCopyInfo" style="display:none"></div>
     <label class="nd-label">문서 주소</label>
     <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off" value="${escapeAttr(typeof prefill==='string'?prefill:'')}">
     <label class="nd-label">문서 제목</label>
@@ -3375,10 +3543,39 @@ function openNewDocModal(prefill){
   ov.querySelectorAll('.tpl-card').forEach(c=>{
     c.onclick=()=>{
       pick=c.dataset.tpl;
+      copySrc=null; renderCopyInfo();                 // 템플릿을 고르면 사본 모드 해제
       ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x===c));
       desc.textContent=DOC_TEMPLATES[pick].desc;
     };
   });
+  // 더보기: 연구·대회·기자재 등 나머지 템플릿 펼치기
+  const moreBtn=ov.querySelector('#ndMore'), grid=ov.querySelector('#ndTpl');
+  if(moreBtn) moreBtn.onclick=()=>{
+    const open=grid.classList.toggle('show-more');
+    moreBtn.textContent = open ? '접기 ▴' : `더보기 (연구 · 대회 · 기자재 등 ${Object.keys(DOC_TEMPLATES).length-TPL_BASIC.length}종) ▾`;
+  };
+
+  /* ── 기존 문서로 사본 만들기 ── */
+  let copySrc = null;                                  // {key,title,...}
+  const info = ov.querySelector('#ndCopyInfo');
+  function renderCopyInfo(){
+    if(!copySrc){ info.style.display='none'; info.innerHTML=''; return; }
+    info.style.display='block';
+    info.innerHTML = `<span class="ncx" id="ndCopyX" title="사본 취소">×</span>
+      <b>사본 만들기</b> — <b>${escapeHtml(copySrc.title||copySrc.key)}</b>
+      <span class="pick-key">/${escapeHtml(copySrc.key)}</span> 의 내용을 그대로 복사합니다.<br>
+      <span class="muted">아래에 <b>새 주소와 제목</b>을 입력하고 [만들기]를 누르세요.</span>`;
+    const x=ov.querySelector('#ndCopyX'); if(x) x.onclick=()=>{ copySrc=null; renderCopyInfo(); };
+    ov.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('on'));   // 템플릿 선택 해제
+  }
+  ov.querySelector('#ndCopy').onclick=()=>{
+    openDocPicker((doc)=>{                              // 선택하면 이 모달로 돌아온다
+      copySrc = doc;
+      renderCopyInfo();
+      if(!title.value) title.value = (doc.title||doc.key)+' (사본)';
+      key.focus();
+    });
+  };
 
   const doCreate=async()=>{
     const k=key.value.trim().toLowerCase(), t=title.value.trim();
@@ -3392,6 +3589,23 @@ function openNewDocModal(prefill){
       if(ex){ throw { message:'address already exists' }; }
       const { error } = await sb.rpc('create_document', { p_key:k, p_title:t });
       if(error) throw error;
+
+      if(copySrc){
+        // ── 기존 문서의 사본 ──
+        const { data:src, error:serr } = await sb.from('documents')
+          .select('body,infobox,notice,category,eng,format').eq('key', copySrc.key).single();
+        if(serr) throw serr;
+        const inf = src.infobox ? JSON.parse(JSON.stringify(src.infobox)) : null;
+        if(inf && inf.title) inf.title = t;             // 인포박스 제목은 새 제목으로
+        const { error:cerr } = await sb.from('documents').update({
+          body: src.body || '', infobox: inf, notice: src.notice || null,
+          category: src.category || null, eng: src.eng || null,
+          format: src.format || 'wiki'
+        }).eq('key', k);
+        if(cerr) throw cerr;
+        close(); await loadDocs(); location.hash='#'+k;   // 문서 열람 화면으로
+        return;
+      }
 
       // 템플릿 뼈대 주입 (create_document 는 빈 문서만 만들므로 생성 직후 채운다)
       const tpl=DOC_TEMPLATES[pick];
@@ -3414,6 +3628,69 @@ function openNewDocModal(prefill){
   okb.onclick=doCreate;
   [key,title].forEach(inp=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doCreate(); }));
 }
+/* 문서 고르기 팝업 — 제목·주소·작성자 표에서 하나를 골라 [선택]을 누르면 콜백으로 돌려준다. */
+async function openDocPicker(onPick){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:620px;text-align:left">
+    <div class="modal-msg">복사할 문서 고르기</div>
+    <div class="modal-sub">사본의 바탕이 될 문서를 하나 선택하세요.</div>
+    <input class="he-input" id="pkSearch" type="text" placeholder="제목 · 주소로 검색" autocomplete="off">
+    <div class="pick-scroll" id="pkWrap"><div class="ip-empty">불러오는 중…</div></div>
+    <div class="he-msg" id="pkMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel" id="pkCancel">취소</button><button class="modal-ok" id="pkOk" disabled>선택</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('#pkCancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+
+  let rows=[], sel=null;
+  try{
+    const { data, error } = await sb.from('documents')
+      .select('key,title,updated_at,updated_by').order('title',{ascending:true});
+    if(error) throw error;
+    rows=data||[];
+    const uids=[...new Set(rows.map(r=>r.updated_by).filter(Boolean))];
+    if(uids.length){
+      const { data:ps } = await sb.from('members_public').select('id,name,handle').in('id', uids);
+      const nm={}; (ps||[]).forEach(p=>{ nm[p.id]=p.name||p.handle||''; });
+      rows.forEach(r=>{ r.who = nm[r.updated_by] || '-'; });
+    }
+  }catch(e){
+    ov.querySelector('#pkWrap').innerHTML='<div class="ip-empty">문서를 불러오지 못했습니다.</div>';
+    return;
+  }
+
+  const draw=(q)=>{
+    const nq=(q||'').trim().toLowerCase();
+    const list = nq ? rows.filter(r=>String(r.title||'').toLowerCase().includes(nq) || String(r.key).toLowerCase().includes(nq)) : rows;
+    ov.querySelector('#pkWrap').innerHTML = list.length ? `
+      <table class="pick-tbl">
+        <tr><th>제목</th><th style="width:150px">주소</th><th style="width:110px">작성자</th></tr>
+        ${list.map(r=>`<tr class="pk ${sel&&sel.key===r.key?'on':''}" data-k="${escapeAttr(r.key)}">
+          <td><b>${escapeHtml(r.title||r.key)}</b></td>
+          <td class="pick-key">/${escapeHtml(r.key)}</td>
+          <td>${escapeHtml(r.who||'-')}</td></tr>`).join('')}
+      </table>` : '<div class="ip-empty">검색 결과가 없습니다.</div>';
+    ov.querySelectorAll('tr.pk').forEach(tr=>{
+      tr.onclick=()=>{
+        sel = rows.find(r=>r.key===tr.dataset.k) || null;
+        ov.querySelectorAll('tr.pk').forEach(x=>x.classList.toggle('on', x===tr));
+        ov.querySelector('#pkOk').disabled = !sel;
+      };
+      tr.ondblclick=()=>{ if(sel){ close(); onPick(sel); } };
+    });
+  };
+  draw('');
+  ov.querySelector('#pkSearch').addEventListener('input', e=>draw(e.target.value));
+  ov.querySelector('#pkSearch').focus();
+  ov.querySelector('#pkOk').onclick=()=>{
+    if(!sel) return;
+    close();                       // 팝업이 사라지고 → 원래 [새 문서] 모달로 돌아간다
+    onPick(sel);
+  };
+}
+
 async function deleteDoc(doc){
   if(!requirePerm('doc_delete')) return;
   if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
@@ -3434,8 +3711,10 @@ async function renderTrash(){
       <td><b>${escapeHtml(r.title||r.key)}</b> <span class="muted">(${escapeHtml(r.key)})</span></td>
       <td>${escapeHtml(r.deleter_handle||r.deleter_name||'-')}</td>
       <td style="white-space:nowrap">
-        <button class="btn ghost" data-view="${r.id}">열람</button>
-        <button class="btn ghost" data-restore="${r.id}">복원</button>
+        <span class="abtn-group">
+          <button class="abtn" data-view="${r.id}">${ic('history')}열람</button>
+          <button class="abtn primary" data-restore="${r.id}">${ic('restore')}복원</button>
+        </span>
       </td>
     </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:18px">휴지통이 비어 있습니다.</td></tr>';
   $('#doc').innerHTML=`
@@ -3503,9 +3782,9 @@ async function showHistory(key){
   const rows = (revs||[]).map(r=>{
     const within = (Date.now()-new Date(r.edited_at).getTime()) <= MONTH;
     const who = r.edited_by ? escapeHtml(pmap[r.edited_by] || r.edited_by.slice(0,8)) : '알 수 없음';
-    const view = `<button class="btn ghost" data-view="${r.id}">${ic('history')}열람</button>`;
+    const view = `<button class="abtn" data-view="${r.id}">${ic('history')}열람</button>`;
     const rb = canEdit()
-      ? (within ? `<button class="btn ghost" data-id="${r.id}">이 버전으로 되돌리기</button>`
+      ? (within ? `<button class="abtn primary" data-id="${r.id}">${ic('restore')}이 버전으로 되돌리기</button>`
                 : `<span class="expired">30일 경과 · 롤백 불가</span>`)
       : '';
     return `<div class="rev"><div class="meta"><b>${fmtKST(r.edited_at)}</b> · ${escapeHtml(r.title||'')} · 편집자 ${who}</div>
@@ -3987,6 +4266,11 @@ async function decideRequest(id, status, email){
    · 유지보수(안 쓰는 문서 사진 / 채팅 사진 30일 정리)는 실제 Storage를 훑어 동작한다. */
 
 /* ── 상태 아이콘 (자체 SVG) ── */
+function eyeSVG(size){
+  return `<svg class="eye-ic" viewBox="0 0 24 24" width="${size||12}" height="${size||12}" fill="none"
+    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+    <path d="M1.8 12S5.6 5 12 5s10.2 7 10.2 7-3.8 7-10.2 7S1.8 12 1.8 12Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+}
 function icOk(){ return `<svg class="hs-ic ok" viewBox="0 0 20 20" aria-label="정상" role="img">
   <circle cx="10" cy="10" r="9" fill="currentColor" fill-opacity=".14"/>
   <circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" stroke-width="1.6"/>
@@ -4334,12 +4618,12 @@ async function renderMaintenance(target){
         <tr>
           <td><b>안 쓰는 문서 사진</b><div class="hs-note">현재 문서·남은 리비전 어디에도 없는 doc-images 파일</div></td>
           <td id="gcDocMsg" class="hs-dt">아직 검사하지 않았어요.</td>
-          <td><button class="btn ghost hs-btn" id="gcDocBtn">찾기</button></td>
+          <td><button class="abtn" id="gcDocBtn">${ic('broom')}찾기</button></td>
         </tr>
         <tr>
           <td><b>채팅 사진 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요)</div></td>
           <td id="gcChatMsg" class="hs-dt">${gcAt?('마지막 자동 정리: '+escapeHtml(fmtKST(new Date(gcAt).toISOString()))):'아직 자동 정리 기록이 없어요.'}</td>
-          <td><button class="btn ghost hs-btn" id="gcChatBtn">지금 실행</button></td>
+          <td><button class="abtn" id="gcChatBtn">${ic('refresh')}지금 실행</button></td>
         </tr>
       </table>
       <div id="gcDocList"></div>
@@ -4356,7 +4640,7 @@ async function renderMaintenance(target){
       list.innerHTML = `<table class="hs-table"><tr><th>경로</th><th style="width:90px">크기</th></tr>`
         + orphans.slice(0,20).map(f=>`<tr><td class="hs-path">${escapeHtml(f.path)}</td><td class="y">${escapeHtml(fmtBytes(f.size))}</td></tr>`).join('')
         + (orphans.length>20?`<tr><td colspan="2" class="hs-dt">… 외 ${orphans.length-20}개</td></tr>`:'')
-        + `</table><button class="btn hs-btn" id="gcDocDel" style="margin-top:8px">${orphans.length}개 삭제</button>`;
+        + `</table><button class="abtn danger" id="gcDocDel" style="margin-top:8px">${ic('trash')}${orphans.length}개 삭제</button>`;
       $('#gcDocDel').onclick=async()=>{
         const ok=await confirmModal('안 쓰는 사진을 삭제할까요?',
           `${orphans.length}개 · ${fmtBytes(total)}. 현재 문서와 남아있는 역사(리비전) 어디에도 쓰이지 않는 사진입니다.`, '삭제');
@@ -6326,7 +6610,7 @@ function appendMessage(m, doScroll=true){
   const el=document.createElement('div');
   el.className='msg'+(mine?' mine':''); el.setAttribute('data-mid', m.id); el.setAttribute('data-uid', m.user_id||'');
   el.innerHTML=`
-    ${msgAvatarHTML(m)}
+    ${mine ? '' : msgAvatarHTML(m)}
     <div class="msg-main">
       <div class="msg-who">${who}</div>
       ${msgImagesHTML(m.images, m.created_at, mine)}
@@ -7351,6 +7635,7 @@ $('#homeLink').onclick=()=>{ location.hash='#//main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#//community'; };
   $('#docsBtn').onclick=()=>{ location.hash='#//docs'; };
   $('#qBtn').onclick=()=>{ location.hash='#//questions'; };
+  $('#calBtn').onclick=()=>{ location.hash='#//calendar'; };
 $('#directoryBtn').onclick=()=>{ location.hash='#//directory'; };
 /* 테마(야간/주간): 저장값 적용 + 토글 시 저장 후 새로고침 */
 try{ if(localStorage.getItem('anda_theme')==='dark') document.body.classList.add('dark'); }catch(e){}
