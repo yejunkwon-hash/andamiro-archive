@@ -993,6 +993,7 @@ footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--te
 .login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
 .login-card label{display:block;font-size:12.5px;color:var(--text-dim);margin:12px 0 4px;font-weight:700;}
 .login-card input{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 11px;font-size:14px;background:var(--card);color:var(--text);}
+.login-card select{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 8px;font-size:14px;background:var(--card);color:var(--text);}
 .pin-input{text-align:center;letter-spacing:.55em;font-size:22px !important;font-weight:800;height:52px !important;font-family:ui-monospace,Consolas,monospace;padding-left:.55em !important;}
 .pin-timer{font-size:12px;color:var(--text-dim);text-align:center;margin:8px 0 10px;}
 .pin-timer.expired{color:var(--link-red);font-weight:700;}
@@ -1084,6 +1085,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="sub">가입한 이메일로 <b>6자리 인증번호</b>를 보내드립니다.</div>
     <label>이메일</label>
     <input id="pin-email" type="email" autocomplete="username" placeholder="you@example.com">
+    <div id="pin-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="pin-send">인증번호 보내기</button>
 
     <div id="pin-step2" style="display:none">
@@ -1112,8 +1114,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <input id="su-name" type="text" placeholder="홍길동">
     <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
     <input id="su-handle" type="text" placeholder="gildong">
-    <label>소속 <span style="color:var(--text-dim);font-weight:400">(동아리 · 없으면 비워두세요)</span></label>
-    <input id="su-club" type="text" placeholder="예: 안다미로 (무소속이면 비워두기)">
+    <label>소속 <span style="color:var(--text-dim);font-weight:400">(동아리 목록에서 선택)</span></label>
+    <select id="su-club"><option value="무소속">무소속</option></select>
     <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">신청하기</button>
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
@@ -1216,7 +1218,7 @@ sb.auth.onAuthStateChange((_e, session)=>{ ACCESS_TOKEN = (session && session.ac
 
 /* ===== Cloudflare Turnstile (CAPTCHA) ===== */
 const TS_SITEKEY = '0x4AAAAAADxloShb4WCYFvpB';
-let liWidget=null, suWidget=null, liToken='', suToken='';
+let liWidget=null, suWidget=null, pinWidget=null, liToken='', suToken='', pinToken='';
 window.onTurnstileLoad = function(){
   renderLoginCaptcha();
   if(document.getElementById('signupCard').style.display!=='none') renderSignupCaptcha();
@@ -1229,6 +1231,12 @@ function renderSignupCaptcha(){
   if(window.turnstile && suWidget===null)
     suWidget=turnstile.render('#su-captcha',{sitekey:TS_SITEKEY,callback:t=>{suToken=t;},'expired-callback':()=>{suToken='';},'error-callback':()=>{suToken='';}});
 }
+function renderPinCaptcha(){
+  if(!window.turnstile || pinWidget!==null) return;
+  const box=document.getElementById('pin-captcha'); if(!box) return;
+  pinWidget=turnstile.render('#pin-captcha',{sitekey:TS_SITEKEY,callback:t=>{pinToken=t;},'expired-callback':()=>{pinToken='';},'error-callback':()=>{pinToken='';}});
+}
+function resetPinCaptcha(){ if(window.turnstile && pinWidget!==null) turnstile.reset(pinWidget); pinToken=''; }
 function resetLoginCaptcha(){ if(window.turnstile && liWidget!==null) turnstile.reset(liWidget); liToken=''; }
 function resetSignupCaptcha(){ if(window.turnstile && suWidget!==null) turnstile.reset(suWidget); suToken=''; }
 
@@ -1317,10 +1325,12 @@ function openPinCard(){
   $('#pin-step2').style.display='none';
   $('#pin-msg').className='msg'; $('#pin-msg').textContent='';
   if(pre) $('#pin-email').value=pre;
+  renderPinCaptcha();                       // ★프로젝트에 CAPTCHA 보호가 켜져 있으면 OTP 발송에도 토큰이 필요하다
   $('#pin-email').focus();
 }
 function closePinCard(){
   stopPinTimer();
+  resetPinCaptcha();
   $('#pinCard').style.display='none';
   $('#loginCard').style.display='block';
 }
@@ -1353,11 +1363,13 @@ function pinExpired(){ return Date.now() > pinFlow.expiresAt; }
 async function sendPin(resend){
   const email=($('#pin-email').value||'').trim().toLowerCase();
   if(!/^\S+@\S+\.\S+$/.test(email)){ pinMsg('올바른 이메일을 입력해 주세요.','err'); return; }
+  if(window.turnstile && !pinToken){ pinMsg('보안 확인(CAPTCHA)을 완료한 뒤 눌러주세요.','err'); renderPinCaptcha(); return; }
   const btn = resend ? $('#pin-resend') : $('#pin-send');
   btn.disabled=true; btn.textContent='보내는 중…';
   try{
     // shouldCreateUser:false → 가입되지 않은 이메일로는 계정이 만들어지지 않는다
-    const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false } });
+    // captchaToken → 프로젝트의 Bot/Abuse Protection(Turnstile)이 켜져 있으면 필수
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false, captchaToken: pinToken || undefined } });
     if(error) throw error;
     pinFlow.email=email;
     $('#pin-step2').style.display='block';
@@ -1368,8 +1380,11 @@ async function sendPin(resend){
     const m=(e&&e.message)||String(e);
     pinMsg(/rate|limit|too many/i.test(m)
       ? '메일 발송 한도에 걸렸어요. 잠시 뒤 다시 시도하거나 관리자에게 문의해 주세요.'
-      : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
+      : /captcha/i.test(m)
+        ? '보안 확인(CAPTCHA)을 완료한 뒤 다시 눌러주세요.'
+        : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
   }finally{
+    resetPinCaptcha();                     // 토큰은 1회용 → 재발송 전에 새로 풀어야 한다
     btn.disabled=false;
     btn.textContent = resend ? '인증번호 재발송' : '인증번호 보내기';
   }
@@ -3828,6 +3843,7 @@ function healthTasks(){
       ['set_my_avatar (13)',          ()=>chkRpc('set_my_avatar (13)','set_my_avatar',{ p_url: state.avatar_url || null })],
       ['add_club / rename_club / delete_club (14)', ()=>chkRpc('add_club / rename_club / delete_club (14)','rename_club',{ p_id:-1, p_new:'__healthcheck__' })],
       ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
+      ['public_clubs — 가입화면 동아리 목록 (51)', ()=>chkRpc('public_clubs — 가입화면 동아리 목록 (51)','public_clubs',{})],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
       ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
@@ -6398,14 +6414,29 @@ $('#pin-email').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(fals
 $('#pin-code').addEventListener('input',e=>{ e.target.value=(e.target.value||'').replace(/\D/g,'').slice(0,6); });
 $('#pin-code').addEventListener('keydown',e=>{ if(e.key==='Enter') verifyPin(); });
 /* 가입 신청 토글 */
-$('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; renderSignupCaptcha(); };
+async function loadSignupClubs(){
+  const sel=$('#su-club'); if(!sel || sel.dataset.loaded) return;
+  try{
+    const { data, error } = await sb.rpc('public_clubs');       // 비로그인도 읽을 수 있는 목록 (51)
+    if(error) throw error;
+    const names=(data||[]).map(r=>r.name||r).filter(Boolean);
+    sel.innerHTML = names.map(n=>`<option value="${escapeAttr(n)}">${escapeHtml(n)}</option>`).join('')
+                  + '<option value="무소속">무소속</option>';
+    sel.dataset.loaded='1';
+  }catch(e){
+    sel.innerHTML='<option value="무소속">무소속</option>';      // 목록을 못 읽어도 신청은 가능
+  }
+}
+$('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; renderSignupCaptcha(); loadSignupClubs(); };
 $('#go-login').onclick=()=>{ $('#signupCard').style.display='none'; $('#loginCard').style.display='block'; };
 $('#su-btn').onclick=doSignupRequest;
 async function doSignupRequest(){
   const email=$('#su-email').value.trim(), msg=$('#su-msg'); msg.className='msg';
   const cohort=$('#su-cohort').value, name=$('#su-name').value.trim(), handle=$('#su-handle').value.trim();
-  const club=$('#su-club').value.trim();
-  if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요. (소속은 없으면 비워두셔도 돼요)'; return; }
+  const club=($('#su-club').value||'무소속').trim();
+  if(!email||!name||!handle||!cohort){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
+  if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)){ msg.className='msg err'; msg.textContent='이메일 형식이 올바르지 않아요.'; return; }
+  if(!/^[A-Za-z0-9._-]{2,20}$/.test(handle)){ msg.className='msg err'; msg.textContent='활동명은 영문·숫자·. _ - 조합 2~20자로 적어주세요.'; return; }
   if(!suToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
   $('#su-btn').disabled=true; $('#su-btn').textContent='신청 중…';
   const { data, error } = await sb.functions.invoke('signup-request', {
@@ -6419,7 +6450,8 @@ async function doSignupRequest(){
   }
   msg.className='msg ok';
   msg.textContent='신청이 접수됐어요! 관리자 승인 후 이메일로 안내됩니다.';
-  ['#su-email','#su-cohort','#su-name','#su-handle','#su-club'].forEach(s=>$(s).value='');
+  ['#su-email','#su-cohort','#su-name','#su-handle'].forEach(s=>$(s).value='');
+  $('#su-club').value='무소속';
 }
 /* 사용자 드롭다운 메뉴 (아이콘 트리거 · 호버/탭 · 항목 클릭 시 닫힘) */
 const umTrig = $('#umTrigger');
