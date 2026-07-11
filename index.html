@@ -293,6 +293,8 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .chat-admin-text b{color:var(--text);}
 .chat-trash{border:1px solid var(--border);background:var(--card);border-radius:6px;width:32px;height:28px;cursor:pointer;font-size:14px;line-height:1;}
 .chat-trash:hover{border-color:var(--accent);}
+.cdp-range{border:1px solid var(--border-strong);background:var(--card);color:var(--text);border-radius:99px;padding:4px 11px;font-size:12px;font-weight:700;cursor:pointer;margin-left:4px;}
+.cdp-range:hover{background:var(--link-red);border-color:var(--link-red);color:#fff;}
 .chat-del-prompt{display:flex;align-items:center;justify-content:flex-end;gap:6px;width:100%;margin-top:5px;color:var(--text);font-size:12.5px;}
 .chat-del-prompt button{border:none;border-radius:5px;padding:4px 11px;cursor:pointer;font-size:12px;font-weight:700;}
 .chat-del-prompt .cdp-yes{background:var(--accent);color:#fff;}
@@ -443,6 +445,13 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .ib-item.unread .ib-name{font-weight:800;}
 .ib-item.unread .ib-prev{color:var(--text);font-weight:600;}
 .ib-ava{width:36px;height:36px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;}
+/* 접속 표시: 아바타 우하단 초록 점 */
+.ava-wrap{position:relative;flex:none;}
+.pres-dot{position:absolute;right:0;bottom:0;width:11px;height:11px;border-radius:50%;background:var(--text-dim);border:2px solid var(--card);opacity:0;transition:opacity .15s,background .15s;}
+.pres-dot.on{background:#22c55e;opacity:1;}
+/* 대화 헤더의 접속 표시 */
+.pres-tag{font-size:11.5px;font-weight:700;color:#22c55e;margin-left:6px;display:none;}
+.pres-tag.on{display:inline;}
 .ib-body{min-width:0;flex:1;}
 .ib-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline;}
 .ib-name{font-size:14px;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
@@ -981,6 +990,9 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 const SUPABASE_URL = 'https://vqocngalfxboticcmiwh.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_DXLmvZx9AfuAwcSlCD1Zww_RCSl83Lx';
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/* pagehide(탭 종료)는 동기 실행이라 async getSession()을 쓸 수 없다 → 토큰을 미리 캐시해 둔다. */
+let ACCESS_TOKEN = null;
+sb.auth.onAuthStateChange((_e, session)=>{ ACCESS_TOKEN = (session && session.access_token) || null; });
 
 /* ===== Cloudflare Turnstile (CAPTCHA) ===== */
 const TS_SITEKEY = '0x4AAAAAADxloShb4WCYFvpB';
@@ -1028,6 +1040,20 @@ function startHeartbeat(){
 function stopHeartbeat(){ if(hbTimer){ clearInterval(hbTimer); hbTimer=null; } if(hbTick){ clearInterval(hbTick); hbTick=null; } hbFlush(); }
 document.addEventListener('visibilitychange',()=>{ if(document.hidden) hbFlush(); });   // 탭 숨김 시 남은 시간 전송
 window.addEventListener('beforeunload', hbFlush);                                        // 종료 직전 best-effort 전송
+/* 탭이 사라질 때 즉시 오프라인 표시 (unload 중엔 일반 fetch가 취소될 수 있어 keepalive 사용) */
+window.addEventListener('pagehide', ()=>{
+  hbFlush();
+  if(!state.user) return;
+  if(!ACCESS_TOKEN) return;
+  try{
+    fetch(SUPABASE_URL + '/rest/v1/rpc/go_offline', {
+      method:'POST', keepalive:true,          // 종료 중에도 요청이 취소되지 않게
+      headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY,
+                'Authorization':'Bearer ' + ACCESS_TOKEN },
+      body:'{}'
+    });
+  }catch(e){}
+});
 
 /* 체류시간(분 반올림) 표기: N일 N시간 N분 (0 단위 생략, 1분 미만이면 "0분") */
 function fmtDurationMin(sec){
@@ -1129,6 +1155,73 @@ function typeToFocus(sel){
 function clearTypeToFocus(){
   if(_t2fHandler){ document.removeEventListener('keydown', _t2fHandler); _t2fHandler=null; }
 }
+
+
+/* 한 줄 소개 수정 (본인만) — profiles RLS가 비관리자 쓰기를 막으므로 set_my_bio RPC 사용 */
+function openBioEditor(cur){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box">
+    <div class="modal-msg">한 줄 소개</div>
+    <div class="modal-sub">프로필에 표시돼요. 100자 이내 · 비우면 표시되지 않습니다.</div>
+    <input class="he-input" id="bioInput" type="text" maxlength="100" placeholder="예: 광학 좋아하는 22기" value="${escapeAttr(cur||'')}">
+    <div class="he-msg" id="bioMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  const inp=ov.querySelector('#bioInput'), msg=ov.querySelector('#bioMsg'), ok=ov.querySelector('.modal-ok');
+  inp.focus(); inp.setSelectionRange(inp.value.length, inp.value.length);
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const save=async()=>{
+    ok.disabled=true; msg.className='he-msg';
+    try{
+      const { data, error } = await sb.rpc('set_my_bio', { p_bio: inp.value });
+      if(error) throw error;
+      state.bio = data || null;
+      close();
+      const el=document.getElementById('meBioText');
+      if(el) el.innerHTML = data ? escapeHtml(data) : '<span class="muted">아직 한 줄 소개가 없어요.</span>';
+    }catch(e){
+      ok.disabled=false; msg.className='he-msg err';
+      msg.textContent='저장 실패: '+((e&&e.message)||e);
+    }
+  };
+  ok.onclick=save;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') save(); });
+}
+
+
+/* 쪽지함 접속 표시 — list_inbox의 반환 타입을 바꾸지 않는다(반환 타입 변경은 DROP이 필요해 사고가 잦다).
+   members_public 에 이미 last_active_at 이 있으므로 그것만 따로 조회한다. */
+let presTimer = null;
+async function refreshPresence(){
+  const els=[...document.querySelectorAll('[data-pres]')];
+  if(!els.length) return;
+  const ids=[...new Set(els.map(e=>e.dataset.pres).filter(Boolean))];
+  if(!ids.length) return;
+  let rows=[];
+  try{
+    const { data, error } = await sb.from('members_public').select('id,last_active_at').in('id', ids);
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ return; }                       // 실패 시 조용히(표시만 안 될 뿐)
+  const on={};
+  rows.forEach(r=>{
+    on[r.id] = r.last_active_at &&
+      (Date.now() - new Date(r.last_active_at).getTime()) < ONLINE_WINDOW_MS;
+  });
+  els.forEach(e=>{
+    const want = !!on[e.dataset.pres];
+    if(e.classList.contains('on') !== want) e.classList.toggle('on', want);   // 바뀔 때만 손댐
+  });
+}
+function startPresence(){
+  stopPresence();
+  refreshPresence();
+  presTimer=setInterval(()=>{ if(!document.hidden) refreshPresence(); }, 20000);
+}
+function stopPresence(){ if(presTimer){ clearInterval(presTimer); presTimer=null; } }
 
 /* ================== 모바일 하단 탭 바 ==================
    폰(≤768px)에서 상단의 이동 버튼을 아래로 내린다 — 엄지가 닿는 위치 + 쪽지 배지가 항상 보임.
@@ -2515,6 +2608,36 @@ async function setMemberClub(id, club, sel){
   }finally{ sel.disabled=false; }
 }
 
+
+/* 접속 상태 표시 — '2분 이내 활동'이면 접속 중.
+   로그아웃·탭 종료 시엔 go_offline()이 last_active_at을 판정 창 밖으로 밀어 즉시 꺼진다. */
+const ONLINE_WINDOW_MS = 120000;
+function activityCellHTML(m){
+  const la = m.last_active_at;
+  if(!la) return m.last_sign_in_at ? fmtKST(m.last_sign_in_at) : '-';
+  const online = (Date.now() - new Date(la).getTime()) < ONLINE_WINDOW_MS;
+  return fmtKST(la) + (online ? ' <span class="online-dot" title="접속 중">● 접속 중</span>' : '');
+}
+/* 회원 관리 화면에서 접속 상태만 주기적으로 갱신 (표 전체를 다시 그리지 않음 → 깜빡임·입력 손실 없음) */
+let adminPresenceTimer = null;
+function startAdminPresence(){
+  stopAdminPresence();
+  adminPresenceTimer = setInterval(async ()=>{
+    if(document.hidden) return;
+    if(!document.querySelector('[data-act]')) { stopAdminPresence(); return; }
+    try{
+      const { data, error } = await sb.rpc('admin_list_members');
+      if(error) throw error;
+      (data||[]).forEach(m=>{
+        const cell = document.querySelector('[data-act="'+m.id+'"]');
+        const html = activityCellHTML(m);
+        if(cell && cell.innerHTML !== html) cell.innerHTML = html;   // 바뀐 칸만 손댐
+      });
+    }catch(e){}
+  }, 20000);   // 20초마다 (판정 창 2분보다 촘촘)
+}
+function stopAdminPresence(){ if(adminPresenceTimer){ clearInterval(adminPresenceTimer); adminPresenceTimer=null; } }
+
 async function renderAdmin(){
   const { data, error } = await sb.rpc('admin_list_members');
   if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
@@ -2532,8 +2655,7 @@ async function renderAdmin(){
   const nowMs=Date.now();
   const rows=(data||[]).map(m=>{ const ex=extra[m.id]||{};
     const la=m.last_active_at||null;
-    const online = la && (nowMs - new Date(la).getTime() < 120000);   // 2분 이내면 접속 중
-    const actCell = la ? (fmtKST(la) + (online?' <span class="online-dot" title="접속 중">● 접속 중</span>':'')) : (m.last_sign_in_at?fmtKST(m.last_sign_in_at):'-');
+    const actCell = activityCellHTML(m);
     return `
     <tr>
       <td><a class="mlink" href="#member/${m.id}">${avaCellHTML(m.name, m.handle, ex.avatar_url)}</a></td>
@@ -2543,7 +2665,7 @@ async function renderAdmin(){
       <td>${m.cohort!=null?m.cohort:'-'}</td>
       <td>${clubCell(m.id, ex.club, clubNames)}</td>
       <td>${memberSeg(m)}</td>
-      <td class="y">${actCell}</td>
+      <td class="y" data-act="${escapeAttr(m.id)}">${actCell}</td>
       ${isOwner()?`<td class="y">${m.session_seconds!=null?fmtDurationMin(m.session_seconds):'-'}</td>`:''}
       ${isOwner()?`<td class="y">${m.total_seconds!=null?fmtDurationMin(m.total_seconds):'-'}</td>`:''}
     </tr>`; }).join('');
@@ -2560,6 +2682,7 @@ async function renderAdmin(){
     </table>
     </div>
     <div id="clubSection" class="club-sec"></div>`;
+  startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
   $('#backBtn2').onclick=()=>{ location.hash='#home'; };
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
   if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#health'; };
@@ -3027,6 +3150,12 @@ async function renderMe(){
         <tr><th>기수</th><td>${p.cohort!=null?p.cohort:'-'}</td></tr>
         <tr><th>등급</th><td>${escapeHtml(p.role||state.role||'viewer')}</td></tr>
         <tr><th>가입일</th><td>${joined}</td></tr>
+        <tr><th>한 줄 소개</th><td>
+          <div class="handle-cell">
+            <span id="meBioText">${p.bio?escapeHtml(p.bio):'<span class="muted">아직 한 줄 소개가 없어요.</span>'}</span>
+            <button class="handle-edit" id="meBioBtn" title="한 줄 소개 수정" aria-label="한 줄 소개 수정">${ic('edit')}</button>
+          </div>
+        </td></tr>
       </table>
       <div class="me-avatar-box">
         ${avaInner}
@@ -3042,6 +3171,7 @@ async function renderMe(){
   $('#meBack').onclick=()=>{ location.hash='#home'; };
   $('#meProfile').onclick=()=>{ location.hash='#member/'+state.user.id; };
   $('#meHandleBtn').onclick=()=>openHandleEditor(p.handle||'');
+  $('#meBioBtn').onclick=()=>openBioEditor(p.bio||'');
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
@@ -3199,7 +3329,10 @@ async function renderMemberProfile(id){
     `<tr><td class="y">${fmtKST(h.changed_at)}</td><td>${escapeHtml(h.handle||'-')}${i===0?' <span class="hh-first">가입</span>':''}</td></tr>`).join('');
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 프로필</h1>
-      <div class="tabs"><button id="mpBack">${ic('back')}뒤로</button></div></div>
+      <div class="tabs">
+        ${(state.user && id===state.user.id) ? `<button id="mpEdit">${ic('edit')}계정 정보 수정</button>` : ''}
+        <button id="mpBack">${ic('back')}뒤로</button>
+      </div></div>
     <div class="profile-wrap">
       <section class="profile-main">
         <div class="profile-top">
@@ -3235,6 +3368,7 @@ async function renderMemberProfile(id){
       </aside>
     </div>`;
   $('#mpBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
+  const mpe=$('#mpEdit'); if(mpe) mpe.onclick=()=>{ location.hash='#me'; };
   (async()=>{                                   // 문서 기여 크레딧
     const cs=await fetchCredits([id]);
     const el=document.getElementById('mpCredit'); if(!el) return;
@@ -3549,6 +3683,7 @@ function startInboxPolling(){
 function stopInboxPolling(){
   if(inbox.timer){ clearInterval(inbox.timer); inbox.timer=null; }
   unsubscribeInbox();
+  stopPresence();
 }
 
 function dmTime(ts){
@@ -3588,7 +3723,7 @@ async function renderInbox(target){
       <div class="inbox-list" id="ibList"><div class="ip-empty">불러오는 중…</div></div>
       <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
     </div>`;
-  $('#ibBack').onclick=()=>{ location.hash='#home'; };
+  $('#ibBack').onclick=()=>{ location.hash='#docs'; };
   $('#ibRefresh').onclick=async()=>{
     const list=$('#ibList'); if(list) list.classList.add('ib-reload');   // 살짝 사라졌다가
     inbox.sig='';                                                        // 강제로 다시 그리게
@@ -3598,6 +3733,7 @@ async function renderInbox(target){
   };
   await loadInbox();
   startInboxPolling();          // 실시간 구독 + 30초 안전망
+  startPresence();              // 접속 표시 20초마다 갱신 (새로고침 불필요)
   if(target){
     const ex=inbox.threads.find(t=>t.kind==='dm' && String(t.other_id)===String(target));
     if(ex) await openDmThread(Number(ex.ref));    // 이미 대화가 있으면 그 스레드로
@@ -3639,9 +3775,10 @@ async function loadInbox(quiet=false){
     let ava;
     if(isDm){
       const av=avatarFor(t.other_name, t.other_handle);
-      ava = t.other_avatar
+      const inner = t.other_avatar
         ? `<div class="ib-ava" style="background-image:url('${escapeAttr(t.other_avatar)}')"></div>`
         : `<div class="ib-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+      ava = `<span class="ava-wrap">${inner}<span class="pres-dot" data-pres="${escapeAttr(t.other_id)}" title="접속 중"></span></span>`;
     }else{
       // 알림은 '시스템'이라는 발신자가 보낸 쪽지처럼 취급한다
       ava = `<div class="ib-ava" style="background:var(--accent)">${ICON[t.kind]||'🔔'}</div>`;
@@ -3668,6 +3805,7 @@ async function loadInbox(quiet=false){
   });
   list.scrollTop=keepScroll;
   refreshInboxBadge();
+  refreshPresence();          // 다시 그린 목록에 접속 표시 즉시 반영
 }
 
 /* 열어둔 대화에 새 메시지가 오면 '그 창에서 즉시' 반영.
@@ -3752,11 +3890,12 @@ async function openDmThread(tid){
     msgs=data||[];
   }catch(e){ pane.innerHTML='<div class="ip-empty">불러오지 못했습니다.</div>'; return; }
   inbox.msgIds = new Set(msgs.map(m=>m.id));      // 이미 그린 메시지 목록(폴링이 새 것만 추가)
+  refreshPresence();                             // 대화 헤더의 접속 표시
 
   const who = t ? `${t.other_name||'-'} <span class="muted">@${t.other_handle||'-'}</span>` : '쪽지';
   pane.innerHTML=`
     <div class="ip-head">
-      <span class="ip-title">${who}</span>
+      <span class="ip-title">${who}${t&&t.other_id?`<span class="pres-tag" data-pres="${escapeAttr(t.other_id)}">● 접속 중</span>`:''}</span>
       ${t?`<a class="dm-btn" href="#member/${t.other_id}">프로필</a>`:''}
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
@@ -4620,28 +4759,56 @@ async function renderChatAdmin(){
   bar.innerHTML=`
     <div class="chat-admin-row">
       <div class="chat-admin-text">현재 총 메세지 수는 <b>${count}</b>개입니다. 가장 오래된 메세지는 <b>${oldest?fmtKST(oldest):'-'}</b>에 작성되었습니다.</div>
-      <button class="chat-trash" id="chatTrash" title="1년 지난 메시지 정리">🗑️</button>
+      <button class="chat-trash" id="chatTrash" title="오래된 메시지 정리">${ic('trash')}</button>
     </div>`;
   $('#chatTrash').onclick=onTrashClick;
 }
+/* 정리 기간 선택 (owner/admin) — 예전엔 '1년'으로 고정이었다 */
+const PURGE_RANGES = [
+  { key:'1y', label:'1년',   days:365 },
+  { key:'6m', label:'6개월', days:183 },
+  { key:'3m', label:'3개월', days:92  },
+  { key:'1m', label:'1개월', days:30  },
+  { key:'1w', label:'1주일', days:7   },
+];
 function onTrashClick(){
   const bar=$('#chatAdmin');
   const old=bar.querySelector('.chat-del-prompt'); if(old){ old.remove(); return; }   // 토글
   const p=document.createElement('div'); p.className='chat-del-prompt';
-  p.innerHTML=`<span>1년 전 메세지를 삭제하시겠습니까?</span><button class="cdp-yes">삭제</button><button class="cdp-no">취소</button>`;
+  p.innerHTML=`<span>얼마나 지난 메세지를 삭제할까요?</span>
+    ${PURGE_RANGES.map(r=>`<button class="cdp-range" data-d="${r.days}" data-l="${escapeAttr(r.label)}">${escapeHtml(r.label)}</button>`).join('')}
+    <button class="cdp-no">취소</button>`;
   bar.appendChild(p);
   p.querySelector('.cdp-no').onclick=()=>p.remove();
-  p.querySelector('.cdp-yes').onclick=async()=>{
-    p.remove();
-    const ok=await confirmModal('정말로 삭제하시겠습니까?', '1년이 지난 메세지가 영구 삭제되며 되돌릴 수 없습니다.');
-    if(ok) await deleteOldMessages();
-  };
+  p.querySelectorAll('.cdp-range').forEach(b=>{
+    b.onclick=async()=>{
+      const days=Number(b.dataset.d), label=b.dataset.l;
+      p.remove();
+      const cutoff=new Date(Date.now() - days*86400*1000);
+      let cnt=0;
+      try{   // 몇 개가 지워지는지 먼저 보여준다 (되돌릴 수 없으므로)
+        const { count } = await sb.from('messages')
+          .select('*',{count:'exact',head:true})
+          .lt('created_at', cutoff.toISOString())
+          .is('question_id', null);           // 커뮤니티 채팅만 (질문 답변은 보존)
+        cnt=count||0;
+      }catch(e){}
+      if(!cnt){ alert(`${label}이 지난 커뮤니티 메세지가 없습니다.`); return; }
+      const ok=await confirmModal(
+        `${label} 지난 메세지 ${cnt}개를 삭제할까요?`,
+        `${fmtKST(cutoff.toISOString())} 이전의 커뮤니티 채팅이 영구 삭제되며 되돌릴 수 없습니다.\n(질문 게시판의 답변은 삭제되지 않습니다)`,
+        '삭제');
+      if(ok) await deleteOldMessages(days, label);
+    };
+  });
 }
-async function deleteOldMessages(){
-  const cutoff=new Date(); cutoff.setFullYear(cutoff.getFullYear()-1);
-  showBlockingLoader('오래된 메세지를 삭제하는 중…');
+async function deleteOldMessages(days, label){
+  const cutoff=new Date(Date.now() - days*86400*1000);
+  showBlockingLoader(`${label} 지난 메세지를 삭제하는 중…`);
   try{
-    const { error } = await sb.from('messages').delete().lt('created_at', cutoff.toISOString());
+    const { error } = await sb.from('messages').delete()
+      .lt('created_at', cutoff.toISOString())
+      .is('question_id', null);              // ★질문 답변은 건드리지 않는다
     if(error) throw error;
     await loadMessages();
     await renderChatAdmin();
@@ -4745,6 +4912,7 @@ function route(){
   stopInboxPolling();      // 쪽지함을 떠나면 실시간 구독·안전망 해제
   closeTipWin();           // 편집기를 떠나면 떠다니는 팁 창도 닫기
   clearTypeToFocus();      // 이전 화면의 '타이핑→포커스' 해제
+  stopAdminPresence();     // 회원관리를 떠나면 상태 갱신 중지
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
@@ -4811,7 +4979,12 @@ umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
 document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
 $('#inboxBtn').onclick=()=>{ location.hash='#inbox'; };
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
-$('#dropLogout').onclick=async()=>{ closeUserMenu(); stopHeartbeat(); await sb.auth.signOut(); state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha(); };
+$('#dropLogout').onclick=async()=>{
+  closeUserMenu(); stopHeartbeat();
+  try{ await sb.rpc('go_offline'); }catch(e){}      // '접속 중' 표시 즉시 제거
+  await sb.auth.signOut();
+  state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha();
+};
 $('#homeLink').onclick=()=>{ location.hash='#main'; };
 $('#communityBtn').onclick=()=>{ location.hash='#community'; };
   $('#docsBtn').onclick=()=>{ location.hash='#docs'; };
