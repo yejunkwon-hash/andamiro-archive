@@ -81,6 +81,18 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
   background:var(--box-bg);border:1px solid var(--border);border-radius:6px;padding:3px 10px;margin-bottom:10px;word-break:break-all;}
 .nf-desc{color:var(--text-dim);font-size:14px;margin:0 0 20px;}
 .nf-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
+/* 동아리·계열 조회 (대문·문서 탭 하단) */
+.org-wrap{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:22px;}
+.org-sec{border:1px solid var(--border);border-radius:10px;background:var(--card);overflow:hidden;box-shadow:var(--shadow);}
+.org-head{background:var(--box-bg);padding:9px 14px;font-size:13px;font-weight:800;color:var(--text);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.org-cnt{font-size:11px;font-weight:800;color:#fff;background:var(--accent);border-radius:99px;padding:1px 8px;}
+.org-list{max-height:220px;overflow-y:auto;}
+.org-item{display:flex;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--border);font-size:13.5px;}
+.org-item:last-child{border-bottom:none;}
+.org-dot{width:10px;height:10px;border-radius:3px;flex:none;}
+.org-name{font-weight:700;color:var(--text);}
+.org-num{margin-left:auto;font-size:12px;color:var(--text-dim);}
+.org-empty{padding:12px 14px;font-size:12.5px;color:var(--text-dim);}
 .qgo-btn{width:auto;font-size:11.5px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
 .uq-table .uq-row{cursor:pointer;}
 .uq-table .uq-row:hover{background:var(--box-bg);}
@@ -162,7 +174,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .dir-check input{accent-color:var(--accent);}
 .dir-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:14px;margin-top:12px;}
 .dir-card{display:flex;flex-direction:column;border:1px solid var(--border);border-radius:12px;overflow:hidden;background:var(--card);text-decoration:none;color:var(--text);transition:box-shadow .15s,transform .15s,border-color .15s;}
-.dir-card:hover{box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);border-color:var(--accent);}
+.dir-card:hover{box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);border-color:var(--accent);text-decoration:none;}
 .dir-card:hover .dir-name{text-decoration:underline;text-underline-offset:3px;}
 .dir-ava{width:100%;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;color:#fff;font-size:48px;font-weight:800;background-size:cover;background-position:center;user-select:none;}
 .dir-info{padding:9px 11px 11px;}
@@ -898,7 +910,7 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .qb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;}
 .qb-card{display:block;border:1px solid var(--border);border-radius:10px;padding:14px 16px;background:var(--card);cursor:pointer;transition:border-color .12s,box-shadow .12s;}
 .qb-card{transition:border-color .12s, box-shadow .15s, transform .15s;}
-.qb-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);}
+.qb-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);text-decoration:none;}
 .qb-card:hover .qb-t{text-decoration:underline;text-underline-offset:3px;}
 .qb-t{font-size:15px;font-weight:800;color:var(--text);word-break:break-word;}
 .qb-m{display:flex;gap:8px;align-items:center;font-size:12px;color:var(--text-dim);margin-top:7px;}
@@ -920,9 +932,12 @@ body.trash-view .botnav{display:none;}   /* 휴지통 열람 모드에선 네비
 .docs-sort button.on{background:var(--accent);border-color:var(--accent);color:#fff;}
 .docs-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;}
 .doc-card{display:block;border:1px solid var(--border);border-radius:10px;padding:13px 15px;background:var(--card);cursor:pointer;transition:border-color .12s, box-shadow .12s;}
-.doc-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);}
+.doc-card:hover{border-color:var(--accent);box-shadow:0 8px 22px rgba(0,0,0,.13);transform:translateY(-3px);text-decoration:none;}
 .doc-card{transition:border-color .12s, box-shadow .15s, transform .15s;}
 .doc-card:hover .dc-title{text-decoration:underline;text-underline-offset:3px;}
+/* 카드 위에 마우스를 올려도 '제목'만 밑줄 — 나머지(주소·날짜·배지)는 그대로 */
+.doc-card:hover *, .qb-card:hover *, .dir-card:hover *{text-decoration:none;}
+.doc-card:hover .dc-title, .qb-card:hover .qb-t, .dir-card:hover .dir-name{text-decoration:underline !important;text-underline-offset:3px;}
 .doc-card .dc-title{font-size:15px;font-weight:800;color:var(--text);margin-bottom:3px;word-break:break-all;}
 .doc-card .dc-key{font-size:11.5px;color:var(--text-dim);font-family:ui-monospace,Consolas,monospace;}
 .doc-card .dc-meta{font-size:12px;color:var(--text-dim);margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;}
@@ -1514,6 +1529,7 @@ async function onLoggedIn(){
   await loadTracks();          // 계열 목록(칩 색상·선택 목록)
   await loadLimits();          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
   await loadPerms();           // 등급별 권한 매트릭스
+  await ensureOwner();         // ★owner가 0명이면 회원번호 1번을 자동 승격 (잠김 방지)
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
@@ -1559,6 +1575,7 @@ const PERM_CAPS = [
     ['system_limits', '글자수 · 사진 용량 상한 변경'],
     ['system_maint',  '유지 보수'],
     ['system_health', '시스템 검사'],
+    ['contact_recv',  '관리자 문의 메시지 수신'],
   ]},
 ];
 const PERM_ROLES = ['viewer','teacher','editor','admin'];   // owner는 항상 전권이라 표에 없음
@@ -1581,6 +1598,26 @@ function permsFor(role){
 function can(cap){
   if(isOwner()) return true;                        // owner는 전권
   return !!permsFor(state.role)[cap];
+}
+/* owner가 한 명도 없으면(양도 중 사고·계정 삭제 등) 사이트가 잠긴다.
+   서버의 ensure_owner()가 회원번호 1번을 owner로 올린다. 이미 owner가 있으면 아무 일도 하지 않는다. */
+async function ensureOwner(){
+  try{
+    const { data, error } = await sb.rpc('ensure_owner');
+    if(error) return;
+    if(data){                                     // 승격이 실제로 일어난 경우에만 값이 온다
+      // 내가 승격됐다면 이번 세션의 등급을 즉시 갱신
+      try{
+        const { data:p } = await sb.from('profiles').select('role').eq('id', state.user.id).single();
+        if(p && p.role) state.role = p.role;
+      }catch(_){}
+      renderUserbox();
+      setTimeout(()=>{
+        confirmModal('owner가 없어 자동 복구했습니다',
+          `owner 등급을 가진 회원이 한 명도 없어, 회원번호 1번(${data})님을 owner로 지정했습니다.`, '확인');
+      }, 800);
+    }
+  }catch(e){}
 }
 async function loadPerms(){
   try{
@@ -1679,6 +1716,58 @@ function renderUserbox(){
       ph.src=state.avatar_url; ui.classList.add('has-photo');
     } else { if(ph) ph.remove(); ui.classList.remove('has-photo'); }
   }
+}
+
+
+/* ================== 동아리 · 계열 조회 (읽기 전용, 대문·문서 탭 하단 공용) ==================
+   수정 권한이 없어도 '목록을 보는 것'은 club_read / track_read 권한만 있으면 된다. */
+async function orgSectionHTML(){
+  const showClub = can('club_read'), showTrack = can('track_read');
+  if(!showClub && !showTrack) return '';
+  let clubs=[], counts={};
+  if(showClub){
+    try{ const { data } = await sb.from('clubs').select('name,is_none').order('name',{ascending:true});
+      clubs=(data||[]).filter(c=>!c.is_none).map(c=>c.name); }catch(e){}
+    try{ const { data } = await sb.from('members_public').select('club');
+      (data||[]).forEach(m=>{ const c=m.club||'무소속'; counts[c]=(counts[c]||0)+1; }); }catch(e){}
+  }
+  if(showTrack && !(state.tracks||[]).length){ try{ await loadTracks(); }catch(e){} }
+  let tCounts={};
+  if(showTrack){
+    try{ const { data } = await sb.from('profiles').select('track');
+      (data||[]).forEach(p=>{ if(p.track) tCounts[p.track]=(tCounts[p.track]||0)+1; }); }catch(e){}
+  }
+  return `
+    <div class="org-wrap">
+      ${showClub?`<section class="org-sec">
+        <div class="org-head">동아리 목록 <span class="org-cnt">${clubs.length}</span></div>
+        <div class="org-list">
+          ${clubs.length ? clubs.map(n=>`<div class="org-item">
+              <span class="org-name">${escapeHtml(n)}</span>
+              <span class="org-num">${counts[n]||0}명</span></div>`).join('')
+            : '<div class="org-empty">등록된 동아리가 없습니다.</div>'}
+        </div>
+      </section>`:''}
+      ${showTrack?`<section class="org-sec">
+        <div class="org-head">계열 목록 <span class="org-cnt">${(state.tracks||[]).length}</span></div>
+        <div class="org-list">
+          ${(state.tracks||[]).length ? state.tracks.map(t=>`<div class="org-item">
+              <span class="org-dot" style="background:${escapeAttr(t.color)}"></span>
+              <span class="org-name">${escapeHtml(t.name)}</span>
+              <span class="org-num">${tCounts[t.name]||0}명</span></div>`).join('')
+            : '<div class="org-empty">등록된 계열이 없습니다.</div>'}
+        </div>
+      </section>`:''}
+    </div>`;
+}
+/* 페이지 맨 아래에 붙인다 (대문·문서 탭 공용) */
+async function mountOrgSection(){
+  const box=$('#doc'); if(!box) return;
+  const html=await orgSectionHTML();
+  if(!html) return;
+  const wrap=document.createElement('div');
+  wrap.innerHTML=html;
+  box.appendChild(wrap.firstElementChild);
 }
 
 /* ================== 문서 목록/로드 ================== */
@@ -2202,6 +2291,7 @@ async function renderDocsPage(){
   const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
   const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; paint(); };
   paint();
+  mountOrgSection();         // 동아리·계열 조회 (맨 아래)
   window.scrollTo(0,0);
 }
 
@@ -4062,6 +4152,9 @@ function healthTasks(){
       ['set_app_limit — 상한 설정 (52)', ()=>chkRpc('set_app_limit — 상한 설정 (52)','set_app_limit',{ p_key:'__none__', p_value:1 })],
       ['set_perms — 권한 매트릭스 (53)', ()=>chkRpc('set_perms — 권한 매트릭스 (53)','set_perms',{ p_perms:null })],
       ['perm — 서버 권한 판정 (54)',     ()=>chkRpc('perm — 서버 권한 판정 (54)','perm',{ p_cap:'doc_read' })],
+      ['ensure_owner — owner 자동 복구 (55)', ()=>chkRpc('ensure_owner — owner 자동 복구 (55)','ensure_owner',{})],
+      ['set_perms_default — 기본값 프리셋 (56)', ()=>chkRpc('set_perms_default — 기본값 프리셋 (56)','set_perms_default',{ p_perms:null })],
+      ['submit_contact — 관리자 문의 (50·55)', ()=>chkRpc('submit_contact — 관리자 문의 (50·55)','submit_contact',{ p_email:null, p_body:'' })],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
       ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
@@ -4278,7 +4371,8 @@ async function renderSysLimits(){
       if(error){ fail=error.message||'저장 실패'; break; }
       LIMITS[k]=v;
     }
-    msg.textContent = fail ? ('저장 실패: '+fail) : '저장했어요. ✅';
+    if(fail) msg.textContent='저장 실패: '+fail;
+    else msg.innerHTML = icOk()+' 저장했어요.';
   };
   window.scrollTo(0,0);
 }
@@ -4296,9 +4390,28 @@ async function renderSysMaint(){
 }
 
 /* 시스템 → 권한 설정 (owner 전용) */
+let PERMS_DEFAULT = null;      // owner가 저장해 둔 '기본값 프리셋'
+async function loadPermsDefault(){
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','perms_default').maybeSingle();
+    const v = data && data.value;
+    PERMS_DEFAULT = (v && typeof v==='object' && !Array.isArray(v) && Object.keys(v).length) ? v : null;
+  }catch(e){ PERMS_DEFAULT = null; }
+  return PERMS_DEFAULT;
+}
+/* 표에서 읽어온 현재 값 → 저장용 payload */
+function permPayload(cur){
+  const out={};
+  PERM_ROLES.forEach(r=>{
+    out[r]={};
+    PERM_CAPS.forEach(g=>g.items.forEach(([cap])=>{ out[r][cap]= cur[r][cap] ? 1 : 0; }));
+  });
+  return out;
+}
 async function renderSysPerms(){
   if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; }
   await loadPerms();
+  await loadPermsDefault();
   const cur = {};
   PERM_ROLES.forEach(r=>{ cur[r] = Object.assign({}, permsFor(r)); });
   const seg=(role,cap)=>{
@@ -4310,7 +4423,7 @@ async function renderSysPerms(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>권한 설정</h1>
       <div class="tabs">
-        <button id="spReset">${ic('restore')}기본값</button>
+        <button id="spReset">${ic('restore')}기본값으로 되돌리기</button>
         <button id="spBack">${ic('back')}시스템</button>
       </div></div>
     <div class="doc-meta">등급별로 무엇을 할 수 있는지 정합니다. <b>owner는 항상 전권</b>이라 표에 없어요.
@@ -4329,7 +4442,13 @@ async function renderSysPerms(){
     </div>
     <div class="sys-actions">
       <button class="btn primary" id="spSave" style="width:auto;padding:8px 18px">저장</button>
+      <button class="btn ghost" id="spSaveDefault" style="width:auto;padding:8px 16px">이 설정을 기본값으로 저장</button>
       <span class="hs-note" id="spMsg"></span>
+    </div>
+    <div class="hs-note">
+      <b>기본값</b>은 되돌리기용 프리셋이에요. [이 설정을 기본값으로 저장]을 누르면 지금 표의 상태가 기본값이 되고,
+      [기본값으로 되돌리기]는 그 값으로 표를 되돌립니다(저장을 눌러야 실제 적용).
+      ${PERMS_DEFAULT ? '' : '<br>아직 저장된 기본값이 없어 <b>초기 설정</b>으로 되돌아갑니다.'}
     </div>`;
   $('#spBack').onclick=()=>{ location.hash='#//system'; };
   $('#doc').querySelectorAll('.pseg').forEach(sg=>{
@@ -4342,22 +4461,38 @@ async function renderSysPerms(){
     });
   });
   $('#spReset').onclick=async()=>{
-    const ok=await confirmModal('기본값으로 되돌릴까요?','모든 등급의 권한이 초기 설정으로 돌아갑니다. (저장을 눌러야 확정)','되돌리기');
+    const hasPreset=!!PERMS_DEFAULT;
+    const ok=await confirmModal('기본값으로 되돌릴까요?',
+      hasPreset ? '저장해 둔 기본값 프리셋으로 표를 되돌립니다. (저장을 눌러야 확정)'
+                : '저장된 기본값이 없어 초기 설정으로 되돌립니다. (저장을 눌러야 확정)',
+      '되돌리기');
     if(!ok) return;
-    PERMS=null; renderSysPerms();
+    PERMS = hasPreset ? JSON.parse(JSON.stringify(PERMS_DEFAULT)) : null;   // 표만 바꾼다(적용은 [저장])
+    renderSysPerms();
+    const m=$('#spMsg'); if(m) m.textContent='기본값을 불러왔어요. [저장]을 눌러야 실제로 적용됩니다.';
+  };
+  $('#spSaveDefault').onclick=async()=>{
+    const msg=$('#spMsg');
+    const ok=await confirmModal('지금 설정을 기본값으로 저장할까요?',
+      '앞으로 [기본값으로 되돌리기]를 누르면 이 상태로 돌아옵니다.','기본값으로 저장');
+    if(!ok) return;
+    msg.textContent='저장 중…';
+    try{
+      const payload=permPayload(cur);
+      const { error } = await sb.rpc('set_perms_default', { p_perms: payload });
+      if(error) throw error;
+      PERMS_DEFAULT=payload;
+      msg.innerHTML = icOk()+' 기본값으로 저장했어요.';
+    }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (56_perms_default.sql 실행 확인)'; }
   };
   $('#spSave').onclick=async()=>{
     const msg=$('#spMsg'); msg.textContent='저장 중…';
-    const payload={};
-    PERM_ROLES.forEach(r=>{
-      payload[r]={};
-      PERM_CAPS.forEach(g=>g.items.forEach(([cap])=>{ payload[r][cap]= cur[r][cap] ? 1 : 0; }));
-    });
+    const payload=permPayload(cur);
     try{
       const { error } = await sb.rpc('set_perms', { p_perms: payload });
       if(error) throw error;
       PERMS=payload;
-      msg.textContent='저장했어요. ✅ (회원들은 다음 접속부터 적용)';
+      msg.innerHTML = icOk()+' 저장했어요. <span class="muted">회원들은 다음 접속부터 적용돼요.</span>';
       renderUserbox();
     }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (53_teacher_and_perms.sql 실행 확인)'; }
   };
@@ -4907,6 +5042,7 @@ async function renderLanding(){
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
   });
   bindNudge(stats);
+  mountOrgSection();         // 동아리·계열 조회 (맨 아래)
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   window.scrollTo(0,0);
@@ -6593,7 +6729,7 @@ function drawCalendarPage(prefs){
     try{
       const { error } = await sb.rpc('set_my_event_prefs', { p_day:d, p_hour:h });
       if(error) throw error;
-      if(msg) msg.innerHTML='설정을 저장했어요. ✅';
+      if(msg) msg.innerHTML=icOk()+' 설정을 저장했어요.';
     }catch(e){ if(msg) msg.innerHTML='저장 실패: '+escapeHtml((e&&e.message)||String(e)); }
   };
   $('#cpDay').onchange=savePrefs;
