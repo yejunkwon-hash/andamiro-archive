@@ -185,6 +185,41 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .landing-reco .cat:last-child{flex:1;}
 /* 커뮤니티 */
 .community{display:flex;gap:16px;align-items:flex-start;}
+
+/* ===== 질문 게시판 (4단계) ===== */
+.q-panel{width:240px;flex:none;display:flex;flex-direction:column;gap:8px;position:sticky;top:64px;max-height:calc(100vh - 180px);}
+.q-panel-head{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.q-panel-head b{font-size:14px;color:var(--text);}
+.q-ask{background:var(--accent);color:#fff;border:none;border-radius:6px;padding:6px 11px;font-size:12px;font-weight:800;cursor:pointer;}
+.q-ask:hover{background:var(--accent-soft);}
+.q-list{overflow-y:auto;display:flex;flex-direction:column;gap:7px;padding-right:2px;}
+.q-box{display:block;border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:0;background:var(--card);padding:9px 10px;cursor:pointer;text-decoration:none;}
+.q-box:hover{background:var(--box-bg);border-left-color:var(--accent-soft);}
+.q-box.on{background:var(--box-bg);border-left-width:5px;}
+.q-title{font-size:13px;font-weight:700;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.q-meta{font-size:11px;color:var(--text-dim);margin-top:4px;display:flex;gap:6px;}
+.q-empty{font-size:12.5px;color:var(--text-dim);padding:12px;border:1px dashed var(--border);border-radius:8px;text-align:center;}
+.qh{border:1px solid var(--border);border-bottom:none;background:var(--box-bg);padding:13px 14px;}
+.qh-top{display:flex;align-items:center;gap:9px;}
+.qh-ava{width:32px;height:32px;border-radius:50%;flex:none;background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:13px;}
+.qh-who{font-size:12.5px;color:var(--text-dim);}
+.qh-title{font-size:16px;font-weight:800;color:var(--text);margin:9px 0 0;line-height:1.45;}
+.qh-body{font-size:14px;color:var(--text);margin-top:7px;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+.qh-imgs{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px;}
+.qh-imgs img{width:104px;height:104px;object-fit:cover;border-radius:6px;border:1px solid var(--border);cursor:zoom-in;background:var(--card);}
+.qh-del{margin-left:auto;background:none;border:none;color:var(--text-dim);cursor:pointer;font-size:15px;}
+.qh-del:hover{color:var(--link-red);}
+.qc-thumbs{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;}
+.qc-thumb{position:relative;}
+.qc-thumb img{width:64px;height:64px;object-fit:cover;border-radius:6px;border:1px solid var(--border);}
+.qc-x{position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:50%;border:none;background:var(--link-red);color:#fff;font-size:11px;line-height:1;cursor:pointer;}
+.lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:flex;align-items:center;justify-content:center;z-index:1200;cursor:zoom-out;}
+.lightbox img{max-width:92vw;max-height:92vh;border-radius:6px;}
+@media(max-width:1100px){
+  .community{flex-wrap:wrap;}
+  .q-panel{width:100%;position:static;max-height:none;order:-1;}
+  .q-list{max-height:210px;}
+}
 .chat{flex:1;min-width:0;display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:420px;border:1px solid var(--border);border-radius:8px;overflow:hidden;background:var(--card);}
 .chat-head{background:var(--accent);color:#fff;font-weight:800;font-size:14px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;}
 .chat-size{display:inline-flex;gap:5px;}
@@ -2028,6 +2063,197 @@ document.addEventListener('click', e=>{
   openDmCompose(b.dataset.dm, b.dataset.dmname||'회원');
 });
 
+/* ================== 질문 게시판 (4단계) ==================
+   답변은 messages 테이블을 재사용한다(question_id != null). community.qid가 현재 스레드. */
+const Q_IMG_BUDGET = 100*1024;   // 질문 하나당 이미지 합계 상한
+const Q_IMG_MAX    = 10;         // 장수 상한(합계 100KB를 나눠 쓰므로 현실적 한계)
+
+/* 여러 장을 합계 budget 이하로 자동 압축. 장변을 단계적으로 줄이며 예산에 맞춘다. */
+async function compressImagesToBudget(files, budget=Q_IMG_BUDGET){
+  const n=files.length; if(!n) return [];
+  const per=Math.floor(budget/n);
+  for(const dim of [1280, 960, 720, 540, 400]){
+    const outs=[];
+    for(const f of files) outs.push(await compressImage(f, { mode:'contain', dim, target:per, minQuality:0.4 }));
+    const total=outs.reduce((s,o)=>s+o.blob.size, 0);
+    if(total<=budget) return outs;
+  }
+  throw new Error(`이미지 ${n}장을 합계 100KB 안에 담을 수 없어요. 장수를 줄여 주세요.`);
+}
+
+async function loadQuestionPanel(){
+  const list=$('#qList'); if(!list) return;
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_questions');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ list.innerHTML='<div class="q-empty">질문 기능이 아직 배포되지 않았습니다.<br>(31_questions.sql 실행 필요)</div>'; return; }
+  if(!rows.length){ list.innerHTML='<div class="q-empty">아직 질문이 없어요.<br>첫 질문을 올려보세요.</div>'; return; }
+  const cur=community.qid;
+  list.innerHTML=rows.map(q=>`
+    <a class="q-box ${String(cur)===String(q.id)?'on':''}" href="#q/${q.id}">
+      <div class="q-title">${escapeHtml(q.title||'-')}</div>
+      <div class="q-meta"><span>${escapeHtml(q.author_name||'-')}</span><span>· 답변 ${q.answers||0}</span></div>
+    </a>`).join('');
+}
+
+/* 질문 스레드: 커뮤니티 채팅과 동일한 UI + 상단에 질문 카드 */
+async function renderQuestion(qid){
+  community.qid = qid;
+  let q=null;
+  try{
+    const { data, error } = await sb.rpc('get_question', { p_id: qid });
+    if(error) throw error;
+    q = Array.isArray(data) ? (data[0]||null) : (data||null);
+  }catch(e){}
+  if(!q){ location.hash='#community'; return; }
+
+  const av=avatarFor(q.author_name, q.author_handle);
+  const ava = q.author_avatar
+    ? `<div class="qh-ava" style="background-image:url('${escapeAttr(q.author_avatar)}')"></div>`
+    : `<div class="qh-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
+  const canDel = (state.user && q.author===state.user.id) || isAdmin();
+  const imgs=(q.images||[]).map(u=>`<img src="${escapeAttr(u)}" alt="첨부 이미지" loading="lazy">`).join('');
+
+  $('#doc').innerHTML=`
+    <div class="community">
+      <aside class="q-panel">
+        <div class="q-panel-head"><b>질문</b><button class="q-ask" id="qAskBtn">질문하기</button></div>
+        <div class="q-list" id="qList"><div class="q-empty">불러오는 중…</div></div>
+        <a class="btn ghost" href="#community" style="text-align:center;font-size:12px">← 커뮤니티 채팅</a>
+      </aside>
+      <section class="chat">
+        <div class="qh">
+          <div class="qh-top">
+            ${ava}
+            <div class="qh-who">${escapeHtml(q.author_name||'-')} <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
+            ${canDel?'<button class="qh-del" id="qDel" title="질문 삭제">🗑</button>':''}
+          </div>
+          <h2 class="qh-title">${escapeHtml(q.title||'')}</h2>
+          ${q.body?`<div class="qh-body">${escapeHtml(q.body)}</div>`:''}
+          ${imgs?`<div class="qh-imgs">${imgs}</div>`:''}
+        </div>
+        <div class="chat-head"><span>답변 ${''}</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
+        <div class="chat-log" id="chatLog"><div class="chat-empty">불러오는 중…</div></div>
+        <div class="chat-preview" id="chatPreview" style="display:none"></div>
+        <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
+        <div class="chat-input">
+          <input id="chatText" type="text" maxlength="2000" placeholder="답변을 입력하고 Enter로 전송 (수식: $x^2$)" autocomplete="off">
+          <button id="chatSend">전송</button>
+        </div>
+      </section>
+    </div>`;
+
+  $('#chatSend').onclick=sendMessage;
+  $('#chatText').addEventListener('keydown',e=>{ if(e.key==='Enter'){ e.preventDefault(); sendMessage(); } });
+  $('#latexHelp').onclick=openLatexGuide;
+  $('#qAskBtn').onclick=openQuestionCompose;
+  initChatSize();
+  if(canDel) $('#qDel').onclick=()=>deleteQuestion(qid, q.images||[]);
+  document.querySelectorAll('.qh-imgs img').forEach(im=>im.onclick=()=>openLightbox(im.src));
+  await loadQuestionPanel();
+  await loadMessages();      // community.qid 가 걸려 있어 이 질문의 답변만 로드됨
+  subscribeChat();
+  window.scrollTo(0,0);
+}
+
+function openLightbox(src){
+  const ov=document.createElement('div'); ov.className='lightbox';
+  ov.innerHTML=`<img src="${escapeAttr(src)}" alt="첨부 이미지">`;
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+}
+
+async function deleteQuestion(qid, images){
+  const ok=await confirmModal('질문을 삭제하시겠습니까?','답변과 첨부 이미지도 함께 삭제되며 되돌릴 수 없습니다.');
+  if(!ok) return;
+  try{
+    const { data, error } = await sb.rpc('delete_question', { p_id: qid });
+    if(error) throw error;
+    // 고아 파일 방지: Storage 이미지도 함께 제거
+    const urls = data || images || [];
+    const paths = urls.map(u=>{ const i=String(u).indexOf('/question-images/'); return i<0?null:String(u).slice(i+17).split('?')[0]; }).filter(Boolean);
+    if(paths.length){ try{ await sb.storage.from('question-images').remove(paths); }catch(_){} }
+    location.hash='#community';
+  }catch(e){ alert('삭제 실패: '+((e&&e.message)||e)); }
+}
+
+/* 질문 작성 모달 (정중앙) — 제목 + 내용 + 이미지 여러 장(합계 100KB 자동 압축) */
+function openQuestionCompose(){
+  let picked=[];
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:560px">
+    <div class="modal-msg">질문하기</div>
+    <div class="modal-sub">이미지는 <b>몇 장이든</b> 올릴 수 있어요. 질문 하나당 합계 <b>100KB</b>가 되도록 자동으로 압축됩니다.</div>
+    <input id="qcTitle" type="text" maxlength="200" placeholder="질문 제목" style="width:100%;margin-top:12px;padding:9px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text)">
+    <textarea id="qcBody" rows="5" maxlength="4000" placeholder="궁금한 내용을 자세히 적어주세요…" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--text)"></textarea>
+    <div style="margin-top:8px"><button class="btn ghost" id="qcPick">이미지 추가</button>
+      <input type="file" id="qcFile" accept="image/*" multiple style="display:none"></div>
+    <div class="qc-thumbs" id="qcThumbs"></div>
+    <div class="modal-sub" id="qcMsg" style="min-height:16px"></div>
+    <div class="modal-btns">
+      <button class="modal-cancel" id="qcCancel">취소</button>
+      <button class="modal-ok" id="qcOk">올리기</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+  const msg=ov.querySelector('#qcMsg');
+  ov.querySelector('#qcCancel').onclick=close;
+  ov.querySelector('#qcPick').onclick=()=>ov.querySelector('#qcFile').click();
+  ov.querySelector('#qcTitle').focus();
+
+  const drawThumbs=()=>{
+    const box=ov.querySelector('#qcThumbs');
+    box.innerHTML=picked.map((f,i)=>`<div class="qc-thumb"><img src="${URL.createObjectURL(f)}" alt=""><button class="qc-x" data-i="${i}">×</button></div>`).join('');
+    box.querySelectorAll('.qc-x').forEach(b=>b.onclick=()=>{ picked.splice(Number(b.dataset.i),1); drawThumbs(); });
+    msg.textContent = picked.length ? `${picked.length}장 선택됨 — 올릴 때 합계 100KB로 압축됩니다.` : '';
+  };
+  ov.querySelector('#qcFile').onchange=e=>{
+    const fs=[...(e.target.files||[])].filter(f=>/^image\//.test(f.type||''));
+    e.target.value='';
+    for(const f of fs){
+      if(picked.length>=Q_IMG_MAX){ msg.textContent=`이미지는 ${Q_IMG_MAX}장까지예요.`; break; }
+      if(f.size>IMG_RAW_MAX){ msg.textContent='25MB 이하 이미지만 올릴 수 있어요.'; continue; }
+      picked.push(f);
+    }
+    drawThumbs();
+  };
+
+  ov.querySelector('#qcOk').onclick=async()=>{
+    const title=(ov.querySelector('#qcTitle').value||'').trim();
+    const body=(ov.querySelector('#qcBody').value||'').trim();
+    if(!title){ msg.textContent='제목을 입력해 주세요.'; return; }
+    const btn=ov.querySelector('#qcOk'); btn.disabled=true;
+    try{
+      let urls=[];
+      if(picked.length){
+        msg.textContent='이미지 압축 중…';
+        const outs=await compressImagesToBudget(picked, Q_IMG_BUDGET);
+        const total=outs.reduce((s,o)=>s+o.blob.size,0);
+        msg.textContent=`업로드 중… (합계 ${(total/1024).toFixed(0)}KB)`;
+        const stamp=Date.now();
+        for(let i=0;i<outs.length;i++){
+          const ext = outs[i].type==='image/webp' ? 'webp' : 'jpg';
+          const path = `${state.user.id}/${stamp}_${i}.${ext}`;
+          const up=await sb.storage.from('question-images')
+            .upload(path, outs[i].blob, { contentType: outs[i].type, cacheControl:'31536000', upsert:false });
+          if(up.error) throw up.error;
+          const pub=sb.storage.from('question-images').getPublicUrl(path);
+          urls.push(pub.data.publicUrl);
+        }
+      }
+      msg.textContent='등록 중…';
+      const { data, error } = await sb.rpc('create_question', { p_title:title, p_body:body, p_images:urls });
+      if(error) throw error;
+      close();
+      location.hash='#q/'+data;
+    }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); btn.disabled=false; }
+  };
+}
+
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
 const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4 };
@@ -2035,8 +2261,13 @@ const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), prev
 function unsubscribeChat(){ if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
 
 async function renderCommunity(){
+  community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
   $('#doc').innerHTML=`
     <div class="community">
+      <aside class="q-panel">
+        <div class="q-panel-head"><b>질문</b><button class="q-ask" id="qAskBtn">질문하기</button></div>
+        <div class="q-list" id="qList"><div class="q-empty">불러오는 중…</div></div>
+      </aside>
       <section class="chat">
         <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
@@ -2069,7 +2300,9 @@ async function renderCommunity(){
   $('#eyeBtn').onclick=togglePreview;
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
+  $('#qAskBtn').onclick=openQuestionCompose;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
+  await loadQuestionPanel();
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
@@ -2195,9 +2428,11 @@ async function prefetchAvatars(ids){
 async function loadMessages(){
   const log=$('#chatLog'); if(!log) return;
   try{
-    const { data, error } = await sb.from('messages')
-      .select('id,user_id,author_name,author_handle,body,created_at,kind')
-      .order('created_at',{ascending:false}).limit(200);
+    const q = community.qid || null;                       // null=커뮤니티 채팅, 숫자=질문 답변 스레드
+    let sel = sb.from('messages')
+      .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id');
+    sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
+    const { data, error } = await sel.order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
     const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
@@ -2353,7 +2588,7 @@ async function sendMessage(){
   const body=inp.value.trim(); if(!body) return;
   inp.value='';
   try{
-    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body });
+    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body, question_id: community.qid || null });
     if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨(본인 메시지 포함)
   }catch(e){ inp.value=body; alert('전송 실패: 로그인 상태와 DB 설정(09_community_chat.sql)을 확인하세요.'); }
 }
@@ -2425,7 +2660,13 @@ async function refreshReactionsFor(mid){
 function subscribeChat(){
   unsubscribeChat();
   chatChannel = sb.channel('community-realtime')
-    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>appendMessage(payload.new, true))
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages' }, payload=>{
+      // 현재 열려 있는 스레드의 메시지만 표시 (커뮤니티=null, 질문=해당 id)
+      const cur = community.qid || null;
+      const got = (payload.new && payload.new.question_id) || null;
+      if(String(cur) !== String(got)) return;
+      appendMessage(payload.new, true);
+    })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
       const id=payload.old&&payload.old.id;
       if(id!=null){ const el=document.querySelector('[data-mid="'+id+'"]'); if(el) el.remove(); }
@@ -2578,14 +2819,16 @@ function route(){
   const key=(location.hash||'#main').slice(1);
   const isMember = key.startsWith('member/');
   const isTrashDoc = key.startsWith('trash/');
+  const isQuestion = key.startsWith('q/');
   const fullWidthPages=['community','admin','requests','health','password','me','directory','trash','inbox'];
-  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(key==='trash'){ if(isAdmin()) renderTrash(); else location.hash='#home'; return; }
   if(isTrashDoc){ if(isAdmin()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#home'; return; }
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
+  if(isQuestion){ renderQuestion(Number(key.slice(2))); return; }
   if(key==='inbox'){ renderInbox(); return; }
   if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
   if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#home'; return; }
