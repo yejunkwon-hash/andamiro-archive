@@ -73,6 +73,14 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .profile-sub{font-size:13px;color:var(--text-dim);margin-top:5px;display:flex;align-items:center;gap:6px;}
 .role-chip{background:var(--accent);color:#fff;padding:1px 8px;border-radius:10px;font-size:11px;font-weight:700;}
 .profile-table{max-width:520px;}
+/* 없는 페이지 */
+.nf-wrap{text-align:center;padding:48px 16px 60px;}
+.nf-code{font-size:56px;font-weight:900;color:var(--accent);letter-spacing:-2px;line-height:1;}
+.nf-title{font-size:20px;margin:12px 0 6px;color:var(--text);}
+.nf-addr{display:inline-block;font-family:ui-monospace,Consolas,monospace;font-size:12.5px;color:var(--text-dim);
+  background:var(--box-bg);border:1px solid var(--border);border-radius:6px;padding:3px 10px;margin-bottom:10px;word-break:break-all;}
+.nf-desc{color:var(--text-dim);font-size:14px;margin:0 0 20px;}
+.nf-btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
 .qgo-btn{width:auto;font-size:11.5px;padding:3px 10px;margin-left:6px;vertical-align:middle;}
 .uq-table .uq-row{cursor:pointer;}
 .uq-table .uq-row:hover{background:var(--box-bg);}
@@ -282,7 +290,14 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 /* 긴 글: 말풍선이 세로로 늘어나고 시각·삭제 버튼은 아래쪽에 붙는다 */
 .msg-bubble-row{align-items:flex-end;flex-wrap:wrap;}
 .msg-imgs{align-items:flex-start;}
-.msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;}
+.msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;border-radius:14px 4px 14px 14px;}
+/* ★내가 쓴 메시지는 오른쪽에 (아바타·이름·말풍선·사진 모두 우측 정렬) */
+.chat-log .msg.mine{flex-direction:row-reverse;}
+.msg.mine .msg-main{align-items:flex-end;}
+.msg.mine .msg-who{text-align:right;}
+.msg.mine .msg-bubble-row{flex-direction:row-reverse;}
+.msg.mine .msg-reactions{justify-content:flex-end;}
+.msg.mine .msg-imgs{justify-content:flex-end;align-self:flex-end;}
 body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
 .msg-del{flex:none;align-self:center;margin-left:auto;border:none;background:transparent;color:var(--text-dim);cursor:pointer;padding:5px 7px;border-radius:6px;display:inline-flex;align-items:center;opacity:.55;transition:all .12s;}
@@ -639,6 +654,20 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .ev-color{width:32px;height:32px;border-radius:8px;border:2px solid transparent;cursor:pointer;}
 .ev-color.on{border-color:var(--text);box-shadow:0 0 0 2px var(--card) inset;}
 .ev-head{height:6px;border-radius:6px;margin-bottom:10px;}
+/* 색 미리보기: 모달 테두리 + 칩 미리보기 */
+.ev-box{border:2px solid var(--evc,var(--border));box-shadow:0 0 0 4px color-mix(in srgb, var(--evc,#fff) 28%, transparent), 0 10px 32px rgba(0,0,0,.22);transition:border-color .15s, box-shadow .15s;}
+.ev-preview{margin-top:8px;border-radius:6px;padding:5px 9px;font-size:12.5px;color:#2b2b33;text-align:left;}
+.ev-preview b{font-weight:800;margin-right:3px;}
+/* 할 일 */
+.cp-ev.done{opacity:.55;text-decoration:line-through;}
+.cp-todo-ic{margin-right:2px;}
+.cp-todo{display:flex;align-items:flex-start;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;cursor:pointer;}
+.cp-todo input{margin-top:3px;width:16px;height:16px;accent-color:var(--accent);cursor:pointer;flex:none;}
+.cp-todo-dot{width:10px;height:10px;border-radius:3px;margin-top:4px;flex:none;}
+.cp-todo-t{display:flex;flex-direction:column;line-height:1.35;}
+.cp-todo.done .cp-todo-t b{text-decoration:line-through;color:var(--text-dim);}
+.cp-todo.done{opacity:.65;}
+.cp-done-head{font-size:11px;font-weight:800;color:var(--text-dim);margin:10px 0 2px;letter-spacing:.03em;}
 @media(max-width:768px){
   .cp-wrap{flex-direction:column;}
   .cp-side{width:100%;}
@@ -964,6 +993,19 @@ footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--te
 .login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
 .login-card label{display:block;font-size:12.5px;color:var(--text-dim);margin:12px 0 4px;font-weight:700;}
 .login-card input{width:100%;height:38px;border:1px solid var(--border-strong);border-radius:6px;padding:0 11px;font-size:14px;background:var(--card);color:var(--text);}
+.pin-input{text-align:center;letter-spacing:.55em;font-size:22px !important;font-weight:800;height:52px !important;font-family:ui-monospace,Consolas,monospace;padding-left:.55em !important;}
+.pin-timer{font-size:12px;color:var(--text-dim);text-align:center;margin:8px 0 10px;}
+.pin-timer.expired{color:var(--link-red);font-weight:700;}
+.pin-note{font-size:11.5px;color:var(--text-dim);line-height:1.55;margin-top:10px;background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
+/* 로그인 화면 바깥의 원형 문의 버튼 */
+.contact-fab{position:fixed;right:24px;bottom:24px;z-index:80;width:92px;height:92px;border-radius:50%;
+  background:var(--accent);color:#fff;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:3px;font-size:11.5px;font-weight:800;line-height:1.25;
+  box-shadow:0 8px 24px rgba(0,0,0,.22);transition:transform .12s, box-shadow .12s;}
+.contact-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.28);}
+@media(max-width:640px){ .contact-fab{width:74px;height:74px;right:14px;bottom:14px;font-size:10.5px;} }
+.ct-ta{width:100%;min-height:120px;resize:vertical;border:1px solid var(--border-strong);border-radius:8px;
+  padding:10px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
 .login-card input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
 .btn{border:none;border-radius:6px;padding:10px 14px;font-size:14px;font-weight:700;cursor:pointer;}
 .btn.primary{background:var(--accent);color:#fff;width:100%;margin-top:18px;}
@@ -1014,6 +1056,12 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 
 <!-- ===== 로그인 화면 ===== -->
 <div id="login">
+  <button class="contact-fab" id="contactFab" title="관리자에게 문의">
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-2.8-.4L3 21l1.6-4.6A8.2 8.2 0 0 1 3.6 11.5C3.6 6.9 7.6 3.5 12.3 3.5S21 6.9 21 11.5Z"/>
+    </svg>
+    <span>관리자에게<br>문의</span>
+  </button>
   <div class="login-card" id="loginCard">
     <h1>안다 아카이브</h1>
     <div class="sub">경기북과학고등학교 물리 탐구 동아리 · 부원 로그인</div>
@@ -1028,6 +1076,29 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
       <a id="go-signup">가입 신청 →</a>
     </div>
     <div class="msg" id="li-msg"></div>
+  </div>
+
+  <!-- 비밀번호 재설정: 6자리 PIN -->
+  <div class="login-card" id="pinCard" style="display:none">
+    <h1>비밀번호 재설정</h1>
+    <div class="sub">가입한 이메일로 <b>6자리 인증번호</b>를 보내드립니다.</div>
+    <label>이메일</label>
+    <input id="pin-email" type="email" autocomplete="username" placeholder="you@example.com">
+    <button class="btn primary" id="pin-send">인증번호 보내기</button>
+
+    <div id="pin-step2" style="display:none">
+      <label>인증번호 (6자리)</label>
+      <input id="pin-code" type="text" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code" class="pin-input">
+      <div class="pin-timer" id="pin-timer"></div>
+      <button class="btn primary" id="pin-verify">확인하고 비밀번호 재설정</button>
+      <button class="btn ghost" id="pin-resend" style="margin-top:8px">인증번호 재발송</button>
+      <div class="pin-note">
+        메일 발송에는 <b>하루 한도</b>가 있어, 재발송을 눌러도 메일이 오지 않을 수 있어요.
+        그럴 땐 <b>관리자에게 직접 문의</b>해 주세요. (스팸함도 확인해 보세요)
+      </div>
+    </div>
+    <div class="msg" id="pin-msg"></div>
+    <div class="login-row"><a id="pin-back">← 로그인으로 돌아가기</a></div>
   </div>
 
   <div class="login-card" id="signupCard" style="display:none">
@@ -1228,15 +1299,150 @@ async function doLogin(){
   if(error){ msg.className='msg err'; msg.textContent='로그인 실패: '+error.message; return; }
   await onLoggedIn();
 }
-async function doReset(){
-  const email=$('#li-email').value.trim(), msg=$('#li-msg');
-  if(!email){ msg.className='msg err'; msg.textContent='먼저 이메일을 입력한 뒤 눌러주세요.'; return; }
-  if(!liToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
-  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.href, captchaToken: liToken });
-  resetLoginCaptcha();
-  msg.className = error ? 'msg err' : 'msg ok';
-  msg.textContent = error ? ('오류: '+error.message) : '재설정 링크를 이메일로 보냈어요. 메일의 링크를 누르면 새 비밀번호를 설정하는 화면으로 이동합니다. (스팸함도 확인) 혹시 메일을 받지 못하였다면 관리자에게 직접 문의하세요.';
+/* ================== 비밀번호 재설정 — 6자리 PIN ==================
+   Supabase Auth의 이메일 OTP를 쓴다. PIN은 서버가 이메일별로 1개씩 발급·검증하므로
+   여러 명이 동시에 진행해도 서로 섞이지 않는다(내 이메일 + 내 PIN이 맞아야만 통과).
+   ★Supabase 대시보드 설정 필요:
+     Authentication → Email Templates → "Magic Link" 본문에 {{ .Token }} 포함
+     Authentication → Providers → Email → Email OTP Expiration = 300 (5분)
+   검증 성공 → 로그인 세션 발급 → state.recovery=true 로 비번 변경 화면에 고정된다. */
+const PIN_TTL_SEC = 300;                 // 5분
+const pinFlow = { email:'', expiresAt:0, timer:null, cooldown:0 };
+
+function openPinCard(){
+  const pre=($('#li-email').value||'').trim();
+  $('#loginCard').style.display='none';
+  $('#signupCard').style.display='none';
+  $('#pinCard').style.display='block';
+  $('#pin-step2').style.display='none';
+  $('#pin-msg').className='msg'; $('#pin-msg').textContent='';
+  if(pre) $('#pin-email').value=pre;
+  $('#pin-email').focus();
 }
+function closePinCard(){
+  stopPinTimer();
+  $('#pinCard').style.display='none';
+  $('#loginCard').style.display='block';
+}
+function pinMsg(t, kind){
+  const m=$('#pin-msg'); if(!m) return;
+  m.className='msg'+(kind?' '+kind:''); m.textContent=t||'';
+}
+function stopPinTimer(){ if(pinFlow.timer){ clearInterval(pinFlow.timer); pinFlow.timer=null; } }
+function startPinTimer(){
+  stopPinTimer();
+  pinFlow.expiresAt = Date.now() + PIN_TTL_SEC*1000;
+  const tick=()=>{
+    const el=$('#pin-timer'); if(!el) return;
+    const left=Math.max(0, Math.ceil((pinFlow.expiresAt - Date.now())/1000));
+    if(left<=0){
+      el.className='pin-timer expired';
+      el.textContent='인증번호가 만료되었어요. [재발송]을 눌러 새 번호를 받아주세요.';
+      stopPinTimer();
+      return;
+    }
+    const mm=String(Math.floor(left/60)).padStart(2,'0'), ss=String(left%60).padStart(2,'0');
+    el.className='pin-timer';
+    el.textContent=`남은 시간 ${mm}:${ss} (5분 뒤 만료)`;
+  };
+  tick();
+  pinFlow.timer=setInterval(tick, 1000);
+}
+function pinExpired(){ return Date.now() > pinFlow.expiresAt; }
+
+async function sendPin(resend){
+  const email=($('#pin-email').value||'').trim().toLowerCase();
+  if(!/^\S+@\S+\.\S+$/.test(email)){ pinMsg('올바른 이메일을 입력해 주세요.','err'); return; }
+  const btn = resend ? $('#pin-resend') : $('#pin-send');
+  btn.disabled=true; btn.textContent='보내는 중…';
+  try{
+    // shouldCreateUser:false → 가입되지 않은 이메일로는 계정이 만들어지지 않는다
+    const { error } = await sb.auth.signInWithOtp({ email, options:{ shouldCreateUser:false } });
+    if(error) throw error;
+    pinFlow.email=email;
+    $('#pin-step2').style.display='block';
+    $('#pin-code').value=''; $('#pin-code').focus();
+    startPinTimer();
+    pinMsg(`${email} 로 6자리 인증번호를 보냈어요. 메일을 확인하고 아래에 입력해 주세요. (스팸함도 확인)`, 'ok');
+  }catch(e){
+    const m=(e&&e.message)||String(e);
+    pinMsg(/rate|limit|too many/i.test(m)
+      ? '메일 발송 한도에 걸렸어요. 잠시 뒤 다시 시도하거나 관리자에게 문의해 주세요.'
+      : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
+  }finally{
+    btn.disabled=false;
+    btn.textContent = resend ? '인증번호 재발송' : '인증번호 보내기';
+  }
+}
+
+async function verifyPin(){
+  const code=($('#pin-code').value||'').replace(/\D/g,'');
+  if(code.length!==6){ pinMsg('6자리 숫자를 입력해 주세요.','err'); return; }
+  if(pinExpired()){ pinMsg('인증번호가 만료되었어요. [재발송]으로 새 번호를 받아주세요.','err'); return; }
+  const btn=$('#pin-verify'); btn.disabled=true; btn.textContent='확인 중…';
+  try{
+    const { data, error } = await sb.auth.verifyOtp({ email: pinFlow.email, token: code, type:'email' });
+    if(error) throw error;
+    if(!data || !data.session) throw new Error('세션을 만들지 못했어요.');
+    stopPinTimer();
+    pinMsg('확인됐어요! 새 비밀번호를 설정해 주세요.','ok');
+    state.recovery = true;              // ★비번을 바꿀 때까지 다른 화면으로 못 나간다
+    $('#pinCard').style.display='none';
+    $('#loginCard').style.display='block';
+    await onLoggedIn();                 // showApp → route → (recovery 가드) → 비번 변경 화면
+  }catch(e){
+    const m=(e&&e.message)||String(e);
+    btn.disabled=false; btn.textContent='확인하고 비밀번호 재설정';
+    pinMsg(/expired|invalid/i.test(m)
+      ? '인증번호가 틀렸거나 만료되었어요. 다시 확인해 주세요.'
+      : ('확인 실패: '+m), 'err');
+  }
+}
+
+/* ================== 관리자에게 문의 (비로그인 가능) ==================
+   submit_contact RPC(anon 실행 허용)가 contact_messages에 저장하고
+   owner의 쪽지함(notifications)으로 '시스템' 알림을 넣는다. */
+function openContactModal(){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:440px">
+    <div class="modal-msg">관리자에게 문의</div>
+    <div class="modal-sub">로그인이 안 되거나 계정에 문제가 있으면 여기로 남겨주세요.<br>관리자의 <b>쪽지함</b>으로 바로 전달됩니다.</div>
+    <label class="nd-label">회신받을 이메일 <span class="hint">(선택)</span></label>
+    <input class="he-input" id="ctEmail" type="email" maxlength="120" placeholder="you@example.com" autocomplete="email">
+    <label class="nd-label">문의 내용</label>
+    <textarea class="ct-ta" id="ctBody" maxlength="1000" placeholder="예: 비밀번호 재설정 메일이 오지 않아요. (5~1000자)"></textarea>
+    <div class="he-msg" id="ctMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">보내기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const pre=($('#li-email') && $('#li-email').value.trim()) || '';
+  if(pre) ov.querySelector('#ctEmail').value=pre;
+  ov.querySelector('#ctBody').focus();
+  const ok=ov.querySelector('.modal-ok'), msg=ov.querySelector('#ctMsg');
+  ok.onclick=async()=>{
+    const email=(ov.querySelector('#ctEmail').value||'').trim();
+    const body=(ov.querySelector('#ctBody').value||'').trim();
+    if(body.length<5){ msg.className='he-msg err'; msg.textContent='문의 내용을 5자 이상 적어주세요.'; return; }
+    ok.disabled=true; ok.textContent='보내는 중…';
+    try{
+      const { error } = await sb.rpc('submit_contact', { p_email: email || null, p_body: body });
+      if(error) throw error;
+      ov.querySelector('.modal-msg').textContent='보냈어요!';
+      ov.querySelector('.modal-sub').innerHTML='관리자가 쪽지함에서 확인하고 회신할 거예요. 창을 닫아도 됩니다.';
+      ov.querySelector('#ctEmail').remove(); ov.querySelector('#ctBody').remove();
+      ov.querySelectorAll('.nd-label').forEach(l=>l.remove());
+      msg.className='he-msg'; msg.textContent='';
+      ok.disabled=false; ok.textContent='닫기'; ok.onclick=close;
+    }catch(e){
+      ok.disabled=false; ok.textContent='보내기';
+      msg.className='he-msg err'; msg.textContent='전송 실패: '+((e&&e.message)||e)+' (50_todo_and_contact.sql 실행 확인)';
+    }
+  };
+}
+
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
   state.user = user;
@@ -1526,7 +1732,7 @@ function stopPresence(){ if(presTimer){ clearInterval(presTimer); presTimer=null
 function initBotnav(){
   document.body.classList.add('has-botnav');
   document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
-    b.onclick=()=>{ location.hash = '#' + b.dataset.nav; };
+    b.onclick=()=>{ location.hash = '#//' + b.dataset.nav; };
   });
 }
 /* 현재 화면에 맞춰 활성 탭 표시 */
@@ -1599,7 +1805,7 @@ function nudgeHTML(stats){
 }
 function bindNudge(stats){
   const n=document.getElementById('nzNew');   if(n) n.onclick=openNewDocModal;
-  const d=document.getElementById('nzDocs');  if(d) d.onclick=()=>{ location.hash='#docs'; };
+  const d=document.getElementById('nzDocs');  if(d) d.onclick=()=>{ location.hash='#//docs'; };
   const x=document.getElementById('nzX');     if(x) x.onclick=hideNudgeToday;
 }
 
@@ -1686,7 +1892,7 @@ async function renderQuestions(){
     </div>
     <div class="doc-meta" style="margin-bottom:12px">모르는 건 편하게 물어보세요. 답변은 채팅처럼 이어집니다.</div>
     ${rows.length ? `<div class="qb-grid">${rows.map(q=>`
-      <a class="qb-card" href="#q/${q.id}">
+      <a class="qb-card" href="#//q/${q.id}">
         <div class="qb-t">${escapeHtml(q.title||'-')}</div>
         <div class="qb-m">
           <span>${escapeHtml(q.author_name||'-')}</span>
@@ -1773,7 +1979,7 @@ async function renderDocsPage(){
     const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; draw(); };
     $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
       b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
-        location.hash='#edit/'+encodeURIComponent(b.dataset.edit); };
+        location.hash='#//edit/'+encodeURIComponent(b.dataset.edit); };
     });
     window.scrollTo(0,0);
   };
@@ -1793,7 +1999,7 @@ function buildNav(active){
     `<a data-key="main" class="${active==='main'?'active':''}">🏠 대문</a>` +
     state.docs.map(d =>
       `<a data-key="${d.key}" class="${d.key===active?'active':''}">${escapeHtml(d.title||d.key)}</a>`).join('');
-  $('#nav').querySelectorAll('a').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
+  $('#nav').querySelectorAll('a').forEach(a=>a.onclick=()=>{ location.hash=(a.dataset.key==='main'?'#//main':'#'+a.dataset.key); });
 }
 
 /* 우측 '최근 변경' 레일 (문서 페이지에서만 표시) */
@@ -1830,12 +2036,12 @@ function renderRightRail(recent){
     + (canEdit()?`<button class="addbtn trash-btn" id="railTrash">${ic('trash')} 휴지통</button>`:'');
   rail.querySelectorAll('.rc-item[data-key]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.key; });
   const add=$('#railAdd'); if(add) add.onclick=openNewDocModal;
-  const tr=$('#railTrash'); if(tr) tr.onclick=()=>{ location.hash='#trash'; };
+  const tr=$('#railTrash'); if(tr) tr.onclick=()=>{ location.hash='#//trash'; };
 }
 
 async function renderDoc(key){
   const { data: doc, error } = await sb.from('documents').select('*').eq('key', key).single();
-  if(error || !doc){ $('#doc').innerHTML='<h1>문서 없음</h1><p>존재하지 않는 문서입니다.</p>'; return; }
+  if(error || !doc){ renderNotFound(key); return; }   // 삭제됐거나 없는 문서
   state.key = key;
   const info = doc.infobox, cat = doc.category;
   let infoboxHtml='';
@@ -1867,8 +2073,8 @@ async function renderDoc(key){
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   renderLikeBar(key);
-  if(canEdit()) $('#editBtn').onclick=()=>{ location.hash='#edit/'+encodeURIComponent(key); };
-  $('#histBtn').onclick=()=>{ location.hash='#hist/'+encodeURIComponent(key); };
+  if(canEdit()) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
+  $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   if(isAdmin()) $('#delBtn').onclick=()=>deleteDoc(doc);
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
@@ -2086,9 +2292,11 @@ async function wkUploadImages(files){
       const pub = sb.storage.from('doc-images').getPublicUrl(path);
       const alt = (f.name||'사진').replace(/\.[^.]+$/,'').replace(/[\[\]()]/g,'').slice(0,40);
       ta.value = ta.value.replace(token, `![${alt}](${pub.data.publicUrl})`);
+      wkPush(true);                                 // 사진 삽입도 Ctrl+Z로 되돌릴 수 있게
       wkUpMsg(`올렸어요 · ${(out.blob.size/1024).toFixed(0)}KB`);
     }catch(e){
       ta.value = ta.value.replace(token, '');
+      wkPush(true);
       wkUpMsg('업로드 실패: '+((e&&e.message)||e), true);
     }
     wkRenderPreview(); wkAutosave(state.key);
@@ -2315,6 +2523,7 @@ function eachImgToken(fn){
   const ta=$('#e-body'); if(!ta) return;
   let n=0;
   ta.value = ta.value.replace(IMG_MD_RE(), (m,a,u,opt)=>fn(n++, a, u, opt, m));
+  wkPush(true);
   wkRenderPreview(); wkAutosave(state.key);
 }
 function currentImgOpt(idx){
@@ -2361,7 +2570,7 @@ function moveImgBlock(idx, dir){
   if(line.replace(one,'').trim() !== ''){
     const rest=line.replace(one,'').trim();
     lines.splice(li, 1, ...(dir<0 ? [tok, rest] : [rest, tok]));
-    ta.value=lines.join('\n'); wkRenderPreview(); wkAutosave(state.key); return;
+    ta.value=lines.join('\n'); wkPush(true); wkRenderPreview(); wkAutosave(state.key); return;
   }
 
   lines.splice(li,1);                       // 이미지 줄 떼어내기
@@ -2379,6 +2588,7 @@ function moveImgBlock(idx, dir){
   }
   lines.splice(t, 0, line);
   ta.value=lines.join('\n');
+  wkPush(true);
   wkRenderPreview(); wkAutosave(state.key);
 }
 
@@ -2472,6 +2682,48 @@ function wkRenderPreview(){
   
   },250);
 }
+/* ================== 편집기 되돌리기 (Ctrl+Z / Ctrl+Shift+Z) ==================
+   textarea의 기본 undo는 코드가 value를 직접 바꾸면(사진 삽입·삭제·크기·위치 변경) 끊긴다.
+   그래서 본문 스냅샷을 직접 쌓는다. 글자 입력은 350ms 묶음, 사진 조작은 즉시 1스텝. */
+const wkHist = { stack:[], idx:-1, t:null, lock:false };
+function wkHistInit(v){ wkHist.stack=[{ v:String(v||''), s:String(v||'').length }]; wkHist.idx=0; clearTimeout(wkHist.t); }
+function wkPush(immediate){
+  const ta=$('#e-body'); if(!ta || wkHist.lock) return;
+  const doPush=()=>{
+    const cur={ v:ta.value, s:ta.selectionStart };
+    const top=wkHist.stack[wkHist.idx];
+    if(top && top.v===cur.v) return;                     // 내용이 같으면 스냅샷 낭비 안 함
+    wkHist.stack = wkHist.stack.slice(0, wkHist.idx+1);  // redo 가지 버리기
+    wkHist.stack.push(cur);
+    if(wkHist.stack.length > 200) wkHist.stack.shift();  // 메모리 상한
+    wkHist.idx = wkHist.stack.length - 1;
+  };
+  clearTimeout(wkHist.t);
+  if(immediate) doPush(); else wkHist.t=setTimeout(doPush, 350);
+}
+function wkRestore(){
+  const ta=$('#e-body'); const st=wkHist.stack[wkHist.idx];
+  if(!ta || !st) return;
+  wkHist.lock=true;
+  ta.value=st.v;
+  const c=Math.min(st.s ?? st.v.length, st.v.length);
+  try{ ta.selectionStart=ta.selectionEnd=c; }catch(e){}
+  wkHist.lock=false;
+  wkClearImgSel(); wkRenderPreview(); wkAutosave(state.key);
+}
+function wkUndo(){ clearTimeout(wkHist.t); if(wkHist.idx<=0) return; wkHist.idx--; wkRestore(); }
+function wkRedo(){ clearTimeout(wkHist.t); if(wkHist.idx>=wkHist.stack.length-1) return; wkHist.idx++; wkRestore(); }
+function bindWkUndo(ta){
+  if(!ta) return;
+  ta.addEventListener('keydown', e=>{
+    const mod = e.ctrlKey || e.metaKey;
+    if(!mod) return;
+    const k=(e.key||'').toLowerCase();
+    if(k==='z'){ e.preventDefault(); if(e.shiftKey) wkRedo(); else wkUndo(); }
+    else if(k==='y'){ e.preventDefault(); wkRedo(); }
+  });
+}
+
 function wkAutosave(key){
   clearTimeout(wkDraftTimer);
   wkDraftTimer=setTimeout(()=>{
@@ -2550,7 +2802,9 @@ async function enterWikiEdit(doc, opts){
   $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
   $('#wkTabP').onclick=()=>{ $('#wkSplit').classList.add('prev-mode'); $('#wkTabP').classList.add('on'); $('#wkTabE').classList.remove('on'); wkRenderPreview(); };
   const ta=$('#e-body');
-  ta.addEventListener('input', ()=>{ wkRenderPreview(); wkAutosave(doc.key); });
+  wkHistInit(ta.value);
+  bindWkUndo(ta);
+  ta.addEventListener('input', ()=>{ wkPush(); wkRenderPreview(); wkAutosave(doc.key); });
   $('#cancelBtn').onclick=()=>{ location.hash='#'+doc.key; };
   $('#saveBtn').onclick=()=>saveDoc(doc.key);
   // 임시저장 복구: 저장 없이 닫혔던 초안이 문서보다 최신이면 제안
@@ -2571,7 +2825,7 @@ async function enterWikiEdit(doc, opts){
    뒤로가기가 문서로 돌아간다. (예전엔 같은 해시에서 화면만 바뀌어 새로고침하면 날아갔다) */
 async function openEditRoute(key){
   const { data: doc, error } = await sb.from('documents').select('*').eq('key', key).single();
-  if(error || !doc){ $('#doc').innerHTML='<h1>문서 없음</h1><p>존재하지 않는 문서입니다.</p>'; return; }
+  if(error || !doc){ renderNotFound(key); return; }   // 삭제됐거나 없는 문서
   state.key = key;
   enterEdit(doc);
 }
@@ -2650,7 +2904,9 @@ async function saveDoc(key){
   if(canEdit() && keyEl){
     const newKey=(keyEl.value||'').trim().toLowerCase();
     if(newKey && newKey!==key){
+      if(newKey.indexOf('/')>=0){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='문서 주소에는 슬래시(/)를 쓸 수 없어요.'; return; }
       if(!/^[a-z0-9_-]+$/.test(newKey)){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
+      if((state.docs||[]).some(d=>d.key===newKey)){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='이미 사용 중인 주소예요.'; return; }
       const { error:rerr } = await sb.rpc('rename_document', { p_old:key, p_new:newKey });
       if(rerr){ $('#saveBtn').disabled=false; const dup=/exist|taken|duplicate|unique|중복|이미/i.test(rerr.message||''); msg.className='msg err'; msg.textContent = dup ? '이미 사용 중인 주소예요.' : ('주소 변경 실패: '+rerr.message); return; }
       finalKey=newKey;
@@ -2691,7 +2947,7 @@ const DOC_TEMPLATES = {
 };
 
 /* 새 문서 만들기: 템플릿 선택 → 주소·제목 → 생성 후 뼈대 주입 */
-function openNewDocModal(){
+function openNewDocModal(prefill){
   if(!canEdit()) return;
   let pick='free';
   const ov=document.createElement('div'); ov.className='modal-ov';
@@ -2706,7 +2962,7 @@ function openNewDocModal(){
     </div>
     <div class="tpl-desc" id="ndDesc">${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
     <label class="nd-label">문서 주소</label>
-    <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off">
+    <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off" value="${escapeAttr(typeof prefill==='string'?prefill:'')}">
     <label class="nd-label">문서 제목</label>
     <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
     <div class="he-msg" id="ndMsg"></div>
@@ -2730,6 +2986,7 @@ function openNewDocModal(){
   const doCreate=async()=>{
     const k=key.value.trim().toLowerCase(), t=title.value.trim();
     msg.className='he-msg';
+    if(k.indexOf('/')>=0){ msg.className='he-msg err'; msg.textContent='문서 주소에는 슬래시(/)를 쓸 수 없어요.'; return; }
     if(!/^[a-z0-9_-]+$/.test(k)){ msg.className='he-msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
     if(!t){ msg.className='he-msg err'; msg.textContent='문서 제목을 입력하세요.'; return; }
     okb.disabled=true; okb.textContent='만드는 중…';
@@ -2793,7 +3050,7 @@ async function renderTrash(){
       ${body}
     </table>`;
   $('#trBack').onclick=()=>{ location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home'; };
-  $('#doc').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#trash/'+b.dataset.view; });
+  $('#doc').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#//trash/'+b.dataset.view; });
   $('#doc').querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>restoreDoc(b.dataset.restore));
   buildNav(null); railReserve(false); window.scrollTo(0,0);
 }
@@ -2804,7 +3061,7 @@ async function restoreDoc(id){
   if(error){ alert('복원 실패: '+error.message); return; }
   await loadDocs();
   document.body.classList.remove('trash-view');
-  location.hash='#trash';
+  location.hash='#//trash';
   renderTrash();   // 목록 갱신(해시가 이미 #trash면 hashchange가 안 뜨므로 직접 호출)
 }
 
@@ -2812,7 +3069,7 @@ async function restoreDoc(id){
 async function renderTrashDoc(id){
   let d=null;
   try{ const { data, error } = await sb.rpc('get_deleted_document', { p_id: Number(id) }); if(error) throw error; d = Array.isArray(data)?data[0]:data; }catch(e){}
-  if(!d){ location.hash='#trash'; return; }
+  if(!d){ location.hash='#//trash'; return; }
   const doc = d.data || {};
   document.body.classList.add('trash-view');
   $('#doc').innerHTML=`
@@ -2823,7 +3080,7 @@ async function renderTrashDoc(id){
       <div class="doc-body">${doc.body||'<p class="muted">(본문 없음)</p>'}</div>
     </div>`;
   $('#trRestore').onclick=()=>restoreDoc(id);
-  $('#trBack2').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#trash'; };
+  $('#trBack2').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#//trash'; };
   buildNav(null); railReserve(false); window.scrollTo(0,0);
 }
 
@@ -2873,7 +3130,7 @@ async function showHistory(key){
     <div class="history">${body}</div>`;
   $('#backBtn').onclick=()=>{ location.hash='#'+key; };
   $('#doc').querySelectorAll('.history button[data-id]').forEach(b=>b.onclick=()=>doRollback(key, Number(b.dataset.id)));
-  $('#doc').querySelectorAll('.history button[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#rev/'+encodeURIComponent(key)+'/'+b.dataset.view; });
+  $('#doc').querySelectorAll('.history button[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#//rev/'+encodeURIComponent(key)+'/'+b.dataset.view; });
   window.scrollTo(0,0);
 }
 
@@ -2908,7 +3165,7 @@ async function renderRevView(key, revId){
       <div class="doc-body">${renderDocBody(doc)}</div>
     </div>`;
   renderMath($('#doc').querySelector('.doc-body'));
-  $('#rvBack').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#hist/'+encodeURIComponent(key); };
+  $('#rvBack').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#//hist/'+encodeURIComponent(key); };
   $('#rvDoc').onclick=()=>{ document.body.classList.remove('trash-view'); location.hash='#'+key; };
   window.scrollTo(0,0);
 }
@@ -3050,9 +3307,9 @@ async function renderAdmin(){
     <div id="clubSection" class="club-sec"></div>
     ${isOwner()?'<div id="trackSection" class="club-sec"></div>':''}`;
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
-  $('#backBtn2').onclick=()=>{ location.hash='#home'; };
-  if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#requests'; };
-  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#health'; };
+  $('#backBtn2').onclick=()=>{ location.hash='#//home'; };
+  if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
+  if($('#healthBtn')) $('#healthBtn').onclick=()=>{ location.hash='#//health'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
@@ -3061,7 +3318,7 @@ async function renderAdmin(){
   $('#doc').querySelectorAll('.mem-row[data-member]').forEach(tr=>{
     tr.onclick=(e)=>{
       if(e.target.closest('button,select,input,a')) return;
-      location.hash='#member/'+tr.dataset.member;
+      location.hash='#//member/'+tr.dataset.member;
     };
   });
   renderClubSection();
@@ -3156,7 +3413,7 @@ async function renderClubSection(){
       const ava = m.avatar_url
         ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
         : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
-      return `<a class="club-mem" href="#member/${m.id}">${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
+      return `<a class="club-mem" href="#//member/${m.id}">${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
     }).join('') : '<div class="club-empty">소속 회원이 없습니다.</div>';
     return `<div class="club-item">
       <div class="club-row">
@@ -3277,18 +3534,43 @@ async function renderRequests(){
     <div class="doc-meta">대기 중 ${data?data.length:0}건</div>
     <div class="notice">승인은 <b>2단계</b>예요: ① 여기서 [승인] → ② Supabase 대시보드 <b>Authentication → Invite user</b>로 그 이메일 초대. 초대받은 사람이 비밀번호를 설정해 로그인하면 기수·이름·활동명이 자동으로 채워집니다.</div>
     <div class="history">${rows}</div>`;
-  $('#backAdmin').onclick=()=>{ location.hash='#admin'; };
+  $('#backAdmin').onclick=()=>{ location.hash='#//admin'; };
   $('#doc').querySelectorAll('button[data-approve]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.approve,'approved',b.dataset.email));
   $('#doc').querySelectorAll('button[data-reject]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.reject,'rejected'));
   window.scrollTo(0,0);
 }
 async function decideRequest(id, status, email){
-  if(status==='rejected' && !confirm('이 신청을 거절할까요?')) return;
-  const { error } = await sb.from('signup_requests')
-    .update({ status, decided_by: state.user.id, decided_at: new Date().toISOString() }).eq('id', id);
-  if(error){ alert('처리 실패: '+error.message); return; }
-  if(status==='approved'){
-    alert('승인되었습니다.\n\n이제 Supabase 대시보드 → Authentication → Invite user 로\n'+email+'\n을(를) 초대하세요. 로그인하면 프로필이 자동으로 채워집니다.');
+  if(status==='rejected'){
+    const ok=await confirmModal('이 신청을 거절할까요?', (email||'')+' 님의 가입 신청이 거절 처리됩니다.', '거절');
+    if(!ok) return;
+    const { error } = await sb.from('signup_requests')
+      .update({ status, decided_by: state.user.id, decided_at: new Date().toISOString() }).eq('id', id);
+    if(error){ alert('처리 실패: '+error.message); return; }
+    renderRequests();
+    return;
+  }
+
+  // 승인: Edge Function이 (1) 계정 생성 + 초대 메일 발송 (2) 신청 상태 갱신까지 한 번에 처리한다.
+  //       계정 생성에는 service_role 키가 필요해 브라우저에서 직접 할 수 없다.
+  const ok=await confirmModal('가입을 승인할까요?',
+    `${email||''} 로 초대 메일이 발송되고 계정이 만들어집니다.\n초대 링크에서 비밀번호를 정하면 바로 로그인할 수 있어요.`, '승인');
+  if(!ok) return;
+  showBlockingLoader('계정을 만드는 중…');
+  try{
+    const { data, error } = await sb.functions.invoke('approve-signup', { body:{ id } });
+    hideBlockingLoader();
+    if(error || !data || !data.ok){
+      const m=(data && data.error) || (error && error.message) || '알 수 없는 오류';
+      alert('승인 실패: '+m+'\n\n(Edge Function `approve-signup` 배포와 SERVICE_KEY 설정을 확인하세요)');
+      return;
+    }
+    alert(data.invited
+      ? `승인 완료!\n${data.email} 로 초대 메일을 보냈어요. 링크에서 비밀번호를 설정하면 가입이 끝납니다.`
+      : `승인 완료!\n${data.note||'이미 계정이 있어 초대 메일은 보내지 않았습니다.'}`);
+  }catch(e){
+    hideBlockingLoader();
+    alert('승인 실패: '+((e&&e.message)||e));
+    return;
   }
   renderRequests();
 }
@@ -3500,6 +3782,7 @@ function healthTasks(){
       ['notifications (알림 32)',     ()=>chkTable('notifications (알림 32)', ()=>sb.from('notifications').select('id').limit(1))],
       ['doc_likes (좋아요 40)',       ()=>chkTable('doc_likes (좋아요 40)', ()=>sb.from('doc_likes').select('doc_key').limit(1))],
       ['events (일정 49)',            ()=>chkTable('events (일정 49)', ()=>sb.from('events').select('id,title,at,color').limit(1))],
+      ['events.is_todo / done (50)',  ()=>chkTable('events.is_todo / done (50)', ()=>sb.from('events').select('is_todo,done').limit(1))],
       ['signup_requests (가입 신청)', ()=>chkTable('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1))],
       ['app_settings (설정)',         ()=>chkTable('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1))],
     ]},
@@ -3547,6 +3830,8 @@ function healthTasks(){
       ['keep_alive (28)',             ()=>chkRpc('keep_alive (28)','keep_alive',{})],
       ['set_my_event_prefs (49)',     ()=>chkRpc('set_my_event_prefs (49)','set_my_event_prefs',{ p_day:null, p_hour:null })],
       ['dispatch_event_reminders (49)', ()=>chkRpc('dispatch_event_reminders (49)','dispatch_event_reminders',{})],
+      ['toggle_event_done (50)',      ()=>chkRpc('toggle_event_done (50)','toggle_event_done',{ p_id:-1 })],
+      ['submit_contact — 관리자 문의 (50)', ()=>chkRpc('submit_contact — 관리자 문의 (50)','submit_contact',{ p_email:null, p_body:'' })],
     ]},
     { sec:'스토리지 버킷', items:[
       ['avatars (프로필 사진)',        ()=>chkBucket('avatars (프로필 사진)','avatars')],
@@ -3556,6 +3841,7 @@ function healthTasks(){
     ]},
     { sec:'엣지 함수', items:[
       ['signup-request (가입 신청)', ()=>chkEdge('signup-request (가입 신청)','signup-request',['SERVICE_KEY','TURNSTILE_SECRET','db_test'])],
+      ['approve-signup (가입 승인·계정 생성)', ()=>chkEdge('approve-signup (가입 승인·계정 생성)','approve-signup',['SERVICE_KEY','SUPABASE_URL'])],
     ]},
   ];
 }
@@ -3573,7 +3859,7 @@ async function renderHealth(){
     </div>
     <div id="hsSummary"></div>
     <div id="hsBody"></div>`;
-  $('#hBack').onclick=()=>{ location.hash='#admin'; };
+  $('#hBack').onclick=()=>{ location.hash='#//admin'; };
   $('#hReload').onclick=()=>renderHealth();
 
   let done=0, ok=0, bad=0;
@@ -3703,7 +3989,7 @@ function renderPassword(){
         <span class="msg" id="pw-msg" style="margin:0"></span>
       </div>
     </div>`;
-  if(!rec) $('#pwBack').onclick=()=>{ location.hash='#home'; };
+  if(!rec) $('#pwBack').onclick=()=>{ location.hash='#//home'; };
   $('#pw-save').onclick=savePassword;
   $('#pw-new2').addEventListener('keydown',e=>{ if(e.key==='Enter') savePassword(); });
 }
@@ -3719,7 +4005,7 @@ async function savePassword(){
   $('#pw-new').value=''; $('#pw-new2').value='';
   if(state.recovery){                 // 복구 모드 종료 → 정상 이용 시작
     state.recovery=false;
-    setTimeout(()=>{ location.hash='#home'; route(); }, 800);
+    setTimeout(()=>{ location.hash='#//home'; route(); }, 800);
   }
 }
 
@@ -3764,8 +4050,8 @@ async function renderMe(){
       </div>
     </div>
     <div class="doc-meta">이름·기수 수정이 필요하면 관리자에게 문의하세요. <b>활동명</b>은 위 [활동명 변경]에서 직접 바꿀 수 있어요(다른 회원과 중복 불가). 비밀번호는 상단 메뉴 → 비밀번호 변경에서, 프로필 사진은 <b>아무 이미지나</b> 올리면 자동으로 정사각형·작은 용량으로 맞춰집니다.</div>`;
-  $('#meBack').onclick=()=>{ location.hash='#home'; };
-  $('#meProfile').onclick=()=>{ location.hash='#member/'+state.user.id; };
+  $('#meBack').onclick=()=>{ location.hash='#//home'; };
+  $('#meProfile').onclick=()=>{ location.hash='#//member/'+state.user.id; };
   $('#meHandleBtn').onclick=()=>openHandleEditor(p.handle||'');
   $('#meBioBtn').onclick=()=>openBioEditor(p.bio||'');
   $('#meNameBtn').onclick=()=>openNameEditor(p.name||'');
@@ -3811,10 +4097,10 @@ async function renderUserQuestions(uid){
         <td class="y">${escapeHtml(fmtKST(q.created_at))}</td>
       </tr>`).join('')}
     </table></div>` : '<div class="qb-empty">등록된 질문이 없습니다.</div>'}`;
-  $('#uqBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#questions'; };
-  $('#uqProfile').onclick=()=>{ location.hash='#member/'+uid; };
+  $('#uqBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#//questions'; };
+  $('#uqProfile').onclick=()=>{ location.hash='#//member/'+uid; };
   $('#doc').querySelectorAll('.uq-row').forEach(tr=>{
-    tr.onclick=()=>{ location.hash='#q/'+tr.dataset.qid; };
+    tr.onclick=()=>{ location.hash='#//q/'+tr.dataset.qid; };
   });
   window.scrollTo(0,0);
 }
@@ -3958,12 +4244,12 @@ async function removeAvatar(){
 
 /* ================== 회원 프로필 (공개 · 모든 회원 열람) ================== */
 async function renderMemberProfile(id){
-  if(!id){ location.hash='#home'; return; }
+  if(!id){ location.hash='#//home'; return; }
   let p=null;
   try{ const { data } = await sb.rpc('member_profile', { target:id }); p = Array.isArray(data)?(data[0]||null):(data||null); }catch(e){}
   if(!p){
     $('#doc').innerHTML=`<div class="doc-head"><h1>회원 프로필</h1><div class="tabs"><button id="mpBack">${ic('back')}뒤로</button></div></div><p>회원을 찾을 수 없습니다.</p>`;
-    const b=$('#mpBack'); if(b) b.onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
+    const b=$('#mpBack'); if(b) b.onclick=()=>{ if(history.length>1) history.back(); else location.hash='#//home'; };
     return;
   }
   let hist=[];
@@ -4019,8 +4305,8 @@ async function renderMemberProfile(id){
         <div class="doc-meta">맨 윗줄이 가입 시점의 활동명입니다.</div>
       </aside>
     </div>`;
-  $('#mpBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#home'; };
-  const mpe=$('#mpEdit'); if(mpe) mpe.onclick=()=>{ location.hash='#me'; };
+  $('#mpBack').onclick=()=>{ if(history.length>1) history.back(); else location.hash='#//home'; };
+  const mpe=$('#mpEdit'); if(mpe) mpe.onclick=()=>{ location.hash='#//me'; };
   (async()=>{                                   // 문서 기여 크레딧
     const cs=await fetchCredits([id]);
     const el=document.getElementById('mpCredit'); if(!el) return;
@@ -4047,7 +4333,7 @@ async function renderMemberProfile(id){
         : (qn ? `<b>${qn}</b>개 <button class="btn ghost qgo-btn" id="mpQGo">질문 보기</button>`
               : '<span class="muted">아직 질문이 없어요.</span>');
       const gb=document.getElementById('mpQGo');
-      if(gb) gb.onclick=()=>{ location.hash='#uq/'+id; };
+      if(gb) gb.onclick=()=>{ location.hash='#//uq/'+id; };
     }
     if(aEl){
       aEl.innerHTML = (an===null) ? '<span class="muted">불러오지 못했어요. (48_answer_count.sql 필요)</span>'
@@ -4103,7 +4389,7 @@ async function renderDirectory(){
   // 바인딩
   $('#dirSearch').addEventListener('input', e=>{ dir.q=e.target.value; renderDirGrid(); });
   $('#dirFilterBtn').onclick=()=>{ const f=$('#dirFilter'); f.style.display=(f.style.display==='none')?'block':'none'; };
-  const dab=$('#dirAdminBtn'); if(dab) dab.onclick=()=>{ location.hash='#admin'; };   // owner 전용
+  const dab=$('#dirAdminBtn'); if(dab) dab.onclick=()=>{ location.hash='#//admin'; };   // owner 전용
   $('#dirFilter').querySelectorAll('.dir-chip').forEach(b=>b.onclick=()=>{
     $('#dirFilter').querySelectorAll('.dir-chip').forEach(x=>x.classList.remove('on'));
     b.classList.add('on'); dir.sort=b.dataset.sort; renderDirGrid();
@@ -4157,7 +4443,7 @@ function renderDirGrid(){
       ? `<div class="dir-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></div>`
       : `<div class="dir-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
     const ava = `<span class="dir-ava-wrap">${avaInner}<span class="pres-dot" data-pres="${escapeAttr(m.id)}" title="접속 중"></span></span>`;
-    return `<a class="dir-card" href="#member/${m.id}">
+    return `<a class="dir-card" href="#//member/${m.id}">
       ${ava}
       <div class="dir-info">
         <div class="dir-name">${escapeHtml(m.name||'-')}</div>
@@ -4315,16 +4601,44 @@ function pickChatImages(arr, onChange, warn){
   inp.click();
 }
 /* 붙여넣기(Ctrl+V) 공통 */
-function bindChatPaste(el, arr, onChange){
+/* Ctrl+V 이미지 붙여넣기 — 캡처·복사한 사진을 그대로 첨부한다.
+   브라우저마다 클립보드가 items 로 오기도 하고 files 로 오기도 해서 둘 다 본다.
+   업로드 직전(uploadChatImages)에 장당 40KB로 자동 압축된다. */
+function pasteImagesFrom(e){
+  const cd = e.clipboardData || window.clipboardData;
+  if(!cd) return [];
+  const out=[];
+  const items = cd.items || [];
+  for(const it of items){
+    if(it.kind==='file' && /^image\//.test(it.type||'')){
+      const f=it.getAsFile(); if(f) out.push(f);
+    }
+  }
+  if(!out.length && cd.files && cd.files.length){          // 폴백
+    for(const f of cd.files){ if(/^image\//.test(f.type||'')) out.push(f); }
+  }
+  return out;
+}
+function bindChatPaste(el, arr, onChange, warn){
   if(!el) return;
-  el.addEventListener('paste', e=>{
-    const items=(e.clipboardData && e.clipboardData.items)||[];
-    const fs=[...items].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
-    if(!fs.length) return;
+  const handler = e=>{
+    const fs = pasteImagesFrom(e);
+    if(!fs.length) return;                                  // 글자 붙여넣기는 그대로 통과
     e.preventDefault();
-    for(const f of fs){ if(arr.length<CHAT_IMG_MAX) arr.push(f); }
+    let added=0, skipped='';
+    for(const f of fs){
+      if(arr.length>=CHAT_IMG_MAX){ skipped=`사진은 ${CHAT_IMG_MAX}장까지예요.`; break; }
+      if(f.size>IMG_RAW_MAX){ skipped='25MB 이하 이미지만 붙여넣을 수 있어요.'; continue; }
+      arr.push(f); added++;
+    }
     onChange();
-  });
+    if(warn && skipped) warn(skipped);
+    else if(added && warn) warn(`사진 ${added}장을 첨부했어요. 전송하면 올라갑니다.`, true);
+  };
+  el.addEventListener('paste', handler);
+  // 입력창 밖(채팅 로그 등)에 포커스가 있어도 붙여넣기가 되도록 컨테이너에도 건다
+  const box = el.closest('.chat, .inbox-pane');
+  if(box && !box.dataset.pasteBound){ box.dataset.pasteBound='1'; box.addEventListener('paste', handler); }
 }
 
 /* ================== 쪽지함 (2단계) ==================
@@ -4412,7 +4726,7 @@ async function renderInbox(target){
       <div class="inbox-list" id="ibList"><div class="ip-empty">불러오는 중…</div></div>
       <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
     </div>`;
-  $('#ibBack').onclick=()=>{ location.hash='#docs'; };
+  $('#ibBack').onclick=()=>{ location.hash='#//docs'; };
   $('#ibRefresh').onclick=async()=>{
     const list=$('#ibList'); if(list) list.classList.add('ib-reload');   // 살짝 사라졌다가
     inbox.sig='';                                                        // 강제로 다시 그리게
@@ -4612,7 +4926,7 @@ async function openDmThread(tid){
   pane.innerHTML=`
     <div class="ip-head">
       <span class="ip-title">${who}${t&&t.other_id?`<span class="pres-tag" data-pres="${escapeAttr(t.other_id)}">● 접속 중</span>`:''}</span>
-      ${t?`<a class="dm-btn" href="#member/${t.other_id}">프로필</a>`:''}
+      ${t?`<a class="dm-btn" href="#//member/${t.other_id}">프로필</a>`:''}
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
@@ -4667,7 +4981,7 @@ async function openNewDm(uid){
   pane.innerHTML=`
     <div class="ip-head">
       <span class="ip-title">${escapeHtml(p.name||'-')}${(state.user&&uid===state.user.id)?' <b style="color:var(--accent)">(나)</b>':''} <span class="muted" style="font-weight:400">@${escapeHtml(p.handle||'-')}</span></span>
-      <a class="dm-btn" href="#member/${escapeAttr(uid)}">프로필</a>
+      <a class="dm-btn" href="#//member/${escapeAttr(uid)}">프로필</a>
       <button class="ip-close" id="ipClose" aria-label="닫기">×</button>
     </div>
     <div class="ip-msgs" id="ipMsgs">
@@ -4679,7 +4993,7 @@ async function openNewDm(uid){
       <textarea id="ipInput" maxlength="300" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="btn" id="ipSend">보내기</button>
     </div>`;
-  $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#inbox'; };
+  $('#ipClose').onclick=()=>{ inbox.sel=null; location.hash='#//inbox'; };
   const send=async()=>{
     const ta=$('#ipInput'); const body=(ta.value||'').trim();
     if(!body && !dmPick.length) return;
@@ -4793,7 +5107,7 @@ async function loadQuestionPanel(){
   if(!rows.length){ list.innerHTML='<div class="q-empty">아직 질문이 없어요.<br>첫 질문을 올려보세요.</div>'; return; }
   const cur=community.qid;
   list.innerHTML=rows.map(q=>`
-    <a class="q-box ${String(cur)===String(q.id)?'on':''}" href="#q/${q.id}">
+    <a class="q-box ${String(cur)===String(q.id)?'on':''}" href="#//q/${q.id}">
       <div class="q-title">${escapeHtml(q.title||'-')}</div>
       <div class="q-meta"><span>${escapeHtml(q.author_name||'-')}</span><span>· 답변 ${q.answers||0}</span></div>
     </a>`).join('');
@@ -4808,7 +5122,7 @@ async function renderQuestion(qid){
     if(error) throw error;
     q = Array.isArray(data) ? (data[0]||null) : (data||null);
   }catch(e){}
-  if(!q){ location.hash='#community'; return; }
+  if(!q){ location.hash='#//community'; return; }
 
   const av=avatarFor(q.author_name, q.author_handle);
   const ava = q.author_avatar
@@ -4821,7 +5135,7 @@ async function renderQuestion(qid){
     <div class="community">
       <section class="chat">
         <div class="qh">
-          <a class="dm-btn" href="#questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문 게시판</a>
+          <a class="dm-btn" href="#//questions" style="align-self:flex-start;margin-bottom:6px">${ic('back')} 질문 게시판</a>
           <div class="qh-top">
             ${ava}
             <div class="qh-who">${escapeHtml(q.author_name||'-')} <span class="muted">@${escapeHtml(q.author_handle||'-')}</span> · ${fmtKST(q.created_at)}</div>
@@ -4889,7 +5203,7 @@ async function deleteQuestion(qid, images){
     const urls = data || images || [];
     const paths = urls.map(u=>{ const i=String(u).indexOf('/question-images/'); return i<0?null:String(u).slice(i+17).split('?')[0]; }).filter(Boolean);
     if(paths.length){ try{ await sb.storage.from('question-images').remove(paths); }catch(_){} }
-    location.hash='#questions';
+    location.hash='#//questions';
   }catch(e){ alert('삭제 실패: '+((e&&e.message)||e)); }
 }
 
@@ -4963,7 +5277,7 @@ function openQuestionCompose(){
       const { data, error } = await sb.rpc('create_question', { p_title:title, p_body:body, p_images:urls });
       if(error) throw error;
       close();
-      location.hash='#q/'+data;
+      location.hash='#//q/'+data;
     }catch(e){ msg.textContent='실패: '+((e&&e.message)||e); btn.disabled=false; }
   };
 }
@@ -5188,7 +5502,7 @@ function appendMessage(m, doScroll=true){
     </div>`;
   log.appendChild(el);
   if(!mine && m.user_id){   // 본인 제외: 아바타/활동명 클릭 → 해당 회원 프로필
-    const go=()=>{ location.hash='#member/'+m.user_id; };
+    const go=()=>{ location.hash='#//member/'+m.user_id; };
     const av=el.querySelector('.msg-avatar'), wh=el.querySelector('.msg-who');
     if(av){ av.classList.add('go-profile'); av.onclick=go; }
     if(wh){ wh.classList.add('go-profile'); wh.onclick=go; }
@@ -5384,7 +5698,7 @@ function initDmImages(){
   dmPick=[]; drawDmTray();
   const b=$('#dmImgBtn');
   if(b) b.onclick=()=>pickChatImages(dmPick, drawDmTray, m=>alert(m));
-  bindChatPaste($('#ipInput'), dmPick, drawDmTray);
+  bindChatPaste($('#ipInput'), dmPick, drawDmTray, (m,ok)=>chatPasteMsg(m,ok));
 }
 
 /* 채팅 화면(커뮤니티·질문)의 사진 배선 */
@@ -5392,8 +5706,17 @@ function initChatImages(){
   chatPick=[]; drawChatTray();
   const b=$('#chatImgBtn');
   if(b) b.onclick=()=>pickChatImages(chatPick, drawChatTray, m=>alert(m));
-  bindChatPaste($('#chatText'), chatPick, drawChatTray);
+  bindChatPaste($('#chatText'), chatPick, drawChatTray, (m,ok)=>chatPasteMsg(m,ok));
 }
+/* 붙여넣기 안내(입력줄 아래 힌트 자리에 잠깐 표시) */
+function chatPasteMsg(text, ok){
+  const el=$('#chatCount') || $('#wkUpMsg');
+  if(!el){ if(!ok) alert(text); return; }
+  const prev=el.textContent;
+  el.textContent=text; el.classList.toggle('over', !ok);
+  setTimeout(()=>{ el.textContent=prev; el.classList.remove('over'); updateCharCount && updateCharCount(); }, 2200);
+}
+
 /* 채팅·쪽지 사진 클릭 → 라이트박스 확대 (전역 위임) */
 document.addEventListener('click', e=>{
   const im=e.target.closest('.msg-imgs img');
@@ -5660,7 +5983,7 @@ async function loadEvents(y, m){
     const from = new Date(y, m-1, 1).toISOString();
     const to   = new Date(y, m+2, 1).toISOString();
     const { data, error } = await sb.from('events')
-      .select('id,title,at,color,note,created_by')
+      .select('id,title,at,color,note,created_by,is_todo,done,done_at')
       .gte('at', from).lt('at', to).order('at',{ascending:true});
     if(error) throw error;
     calState.events = data||[]; calState.loaded=true;
@@ -5713,7 +6036,7 @@ function renderCalendar(){
   if(p) p.onclick=(e)=>{ e.stopPropagation(); calMove(-1); };
   if(n) n.onclick=(e)=>{ e.stopPropagation(); calMove(1); };
   const go=$('#calGo');
-  if(go) go.onclick=()=>{ location.hash='#calendar'; };      // ★캘린더 클릭 → 캘린더 탭
+  if(go) go.onclick=()=>{ location.hash='#//calendar'; };      // ★캘린더 클릭 → 캘린더 탭
   if(!calState.loaded) loadEvents(y,m).then(()=>{ if($('#calWrap')) renderCalendar(); });
 }
 
@@ -5731,6 +6054,33 @@ async function renderCalendarPage(){
   drawCalendarPage(prefs);
   try{ await sb.rpc('dispatch_event_reminders'); }catch(e){}   // 들어온 김에 밀린 알림 발송
 }
+/* 할 일 목록 — 체크되면 자동으로 목록 아래로 내려간다(미완료 먼저, 완료는 흐리게 아래). */
+function todoHTML(){
+  const todos=(calState.events||[]).filter(e=>e.is_todo);
+  if(!todos.length) return '<div class="cp-hint">할 일로 표시된 일정이 없어요. 일정 추가·수정에서 <b>할 일</b>을 체크하세요.</div>';
+  const undone=todos.filter(e=>!e.done).sort((a,b)=>new Date(a.at)-new Date(b.at));
+  const done  =todos.filter(e=> e.done).sort((a,b)=>new Date(b.done_at||b.at)-new Date(a.done_at||a.at));
+  const row=e=>`<label class="cp-todo${e.done?' done':''}">
+      <input type="checkbox" data-todo="${e.id}" ${e.done?'checked':''} ${canEdit()?'':'disabled'}>
+      <span class="cp-todo-dot" style="background:${escapeAttr(e.color)}"></span>
+      <span class="cp-todo-t"><b>${escapeHtml(e.title||'')}</b><span class="cp-up-t">${escapeHtml(fmtKST(e.at))}</span></span>
+    </label>`;
+  return undone.map(row).join('') + (done.length?`<div class="cp-done-head">완료 ${done.length}</div>`+done.map(row).join(''):'');
+}
+async function toggleTodo(id, el){
+  if(!canEdit()) return;
+  if(el) el.disabled=true;
+  try{
+    const { error } = await sb.rpc('toggle_event_done', { p_id:Number(id) });
+    if(error) throw error;
+    await loadEvents(calPage.y, calPage.m);
+    renderCalendarPage();
+  }catch(e){
+    if(el) el.disabled=false;
+    alert('처리 실패: '+((e&&e.message)||e)+' (50_todo_and_contact.sql 실행 여부 확인)');
+  }
+}
+
 function drawCalendarPage(prefs){
   const y=calPage.y, m=calPage.m;
   const startDow=new Date(y,m,1).getDay();
@@ -5744,8 +6094,8 @@ function drawCalendarPage(prefs){
     const dow=(startDow+d-1)%7;
     const evs=eventsOn(y,m,d);
     const chips=evs.slice(0,4).map(e=>
-      `<div class="cp-ev" data-ev="${e.id}" style="background:${escapeAttr(e.color)}" title="${escapeAttr(evTime(e.at)+' '+(e.title||''))}">
-         <b>${escapeHtml(evTime(e.at))}</b> ${escapeHtml(e.title||'')}</div>`).join('');
+      `<div class="cp-ev${e.done?' done':''}" data-ev="${e.id}" style="background:${escapeAttr(e.color)}" title="${escapeAttr(evTime(e.at)+' '+(e.title||''))}">
+         ${e.is_todo?'<span class="cp-todo-ic">☑</span>':''}<b>${escapeHtml(evTime(e.at))}</b> ${escapeHtml(e.title||'')}</div>`).join('');
     const more = evs.length>4 ? `<div class="cp-more">+${evs.length-4}</div>` : '';
     cells+=`<div class="cp-cell${isToday?' today':''}${dow===0?' sun':''}${dow===6?' sat':''}" data-day="${d}">
       <span class="cp-num">${d}</span>${chips}${more}</div>`;
@@ -5774,6 +6124,8 @@ function drawCalendarPage(prefs){
         <label class="cp-chk"><input type="checkbox" id="cpHour" ${prefs.notify_hour_before!==false?'checked':''}>
           <span>일정 <b>1시간 전</b>에 시스템 쪽지 받기</span></label>
         <div class="cp-hint" id="cpPrefMsg">알림은 쪽지함의 <b>시스템</b> 대화로 도착합니다.</div>
+        <div class="side-head" style="margin-top:16px">할 일</div>
+        ${todoHTML()}
         <div class="side-head" style="margin-top:16px">다가오는 일정</div>
         ${upcoming.length ? upcoming.map(e=>`
           <div class="cp-up" data-ev="${e.id}">
@@ -5782,7 +6134,7 @@ function drawCalendarPage(prefs){
           </div>`).join('') : '<div class="cp-hint">예정된 일정이 없습니다.</div>'}
       </aside>
     </div>`;
-  $('#cpBack').onclick=()=>{ location.hash='#community'; };
+  $('#cpBack').onclick=()=>{ location.hash='#//community'; };
   $('#cpToday').onclick=()=>{ const n=new Date(); calPage.y=n.getFullYear(); calPage.m=n.getMonth(); renderCalendarPage(); };
   $('#cpPrev').onclick=()=>{ const tot=calPage.y*12+calPage.m-1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
   $('#cpNext').onclick=()=>{ const tot=calPage.y*12+calPage.m+1; calPage.y=Math.floor(tot/12); calPage.m=((tot%12)+12)%12; renderCalendarPage(); };
@@ -5792,6 +6144,9 @@ function drawCalendarPage(prefs){
       if(!canEdit()) return;
       openEventModal(new Date(y, m, Number(c.dataset.day)));
     };
+  });
+  $('#doc').querySelectorAll('input[data-todo]').forEach(cb=>{
+    cb.onclick=(ev)=>{ ev.stopPropagation(); toggleTodo(cb.dataset.todo, cb); };
   });
   $('#doc').querySelectorAll('[data-ev]').forEach(el=>{
     el.onclick=(ev)=>{ ev.stopPropagation();
@@ -5813,68 +6168,94 @@ function drawCalendarPage(prefs){
   window.scrollTo(0,0);
 }
 
-/* 일정 추가 모달 — 시간 · 이름 · 색(파스텔 8종) */
-function openEventModal(dateObj){
+/* 일정 추가·수정 모달 — 시간 · 이름 · 색(파스텔 8종) · 할 일 여부
+   ★색을 고르면 모달 테두리가 그 색으로 바뀌어 캘린더에서 어떻게 보일지 미리 짐작할 수 있다. */
+function openEventModal(dateObj, edit){
   if(!canEdit()) return;
-  let color=EVENT_COLORS[0];
-  const yy=dateObj.getFullYear(), mm=String(dateObj.getMonth()+1).padStart(2,'0'), dd=String(dateObj.getDate()).padStart(2,'0');
+  const isEdit = !!edit;
+  let color = isEdit ? (edit.color||EVENT_COLORS[0]) : EVENT_COLORS[0];
+  const d = isEdit ? new Date(edit.at) : dateObj;
+  const yy=d.getFullYear(), mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+  const hh=String(d.getHours()).padStart(2,'0'), mi=String(d.getMinutes()).padStart(2,'0');
   const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box" style="max-width:420px">
-    <div class="modal-msg">일정 추가</div>
+  ov.innerHTML=`<div class="modal-box ev-box" id="evBox" style="max-width:420px;--evc:${escapeAttr(color)}">
+    <div class="ev-head" style="background:${escapeAttr(color)}"></div>
+    <div class="modal-msg">${isEdit?'일정 수정':'일정 추가'}</div>
     <div class="modal-sub">${yy}년 ${Number(mm)}월 ${Number(dd)}일</div>
     <label class="nd-label">일정 이름</label>
-    <input class="he-input" id="evTitle" type="text" maxlength="60" placeholder="예: 정기 실험 세미나" autocomplete="off">
+    <input class="he-input" id="evTitle" type="text" maxlength="60" placeholder="예: 정기 실험 세미나" autocomplete="off" value="${escapeAttr(isEdit?(edit.title||''):'')}">
     <label class="nd-label">시간</label>
-    <input class="he-input" id="evTime" type="time" value="18:00">
-    <label class="nd-label">색깔</label>
+    <input class="he-input" id="evTime" type="time" value="${isEdit?hh+':'+mi:'18:00'}">
+    <label class="nd-label">색깔 <span class="hint">(고르면 아래 미리보기와 테두리가 바뀝니다)</span></label>
     <div class="ev-colors" id="evColors">
-      ${EVENT_COLORS.map((c,i)=>`<button type="button" class="ev-color${i===0?' on':''}" data-c="${c}" style="background:${c}" aria-label="색 ${i+1}"></button>`).join('')}
+      ${EVENT_COLORS.map(c=>`<button type="button" class="ev-color${c===color?' on':''}" data-c="${c}" style="background:${c}" aria-label="색"></button>`).join('')}
     </div>
+    <div class="ev-preview" id="evPrev" style="background:${escapeAttr(color)}"><b>${isEdit?hh+':'+mi:'18:00'}</b> <span id="evPrevT">${escapeHtml(isEdit?(edit.title||'일정 이름'):'일정 이름')}</span></div>
+    <label class="cp-chk" style="margin-top:6px">
+      <input type="checkbox" id="evTodo" ${isEdit&&edit.is_todo?'checked':''}>
+      <span><b>할 일</b>로도 표시 (캘린더 탭의 할 일 목록에 체크박스로 나타납니다)</span></label>
     <div class="he-msg" id="evMsg"></div>
-    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">추가</button></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">${isEdit?'저장':'추가'}</button></div>
   </div>`;
   document.body.appendChild(ov);
   const close=()=>ov.remove();
   ov.querySelector('.modal-cancel').onclick=close;
   ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
-  ov.querySelector('#evTitle').focus();
+  const box=ov.querySelector('#evBox'), prev=ov.querySelector('#evPrev'), head=ov.querySelector('.ev-head');
+  const titleEl=ov.querySelector('#evTitle'), timeEl=ov.querySelector('#evTime');
+  titleEl.focus();
+  const paint=()=>{
+    box.style.setProperty('--evc', color);
+    prev.style.background=color; head.style.background=color;
+    ov.querySelector('#evPrevT').textContent = (titleEl.value||'').trim() || '일정 이름';
+    prev.querySelector('b').textContent = timeEl.value || '18:00';
+  };
   ov.querySelectorAll('.ev-color').forEach(b=>b.onclick=()=>{
     color=b.dataset.c;
     ov.querySelectorAll('.ev-color').forEach(x=>x.classList.toggle('on', x===b));
+    paint();
   });
+  titleEl.addEventListener('input', paint);
+  timeEl.addEventListener('input', paint);
+
   const ok=ov.querySelector('.modal-ok'), msg=ov.querySelector('#evMsg');
   ok.onclick=async()=>{
-    const title=(ov.querySelector('#evTitle').value||'').trim();
-    const time=(ov.querySelector('#evTime').value||'').trim();
+    const title=(titleEl.value||'').trim();
+    const time=(timeEl.value||'').trim();
+    const isTodo=ov.querySelector('#evTodo').checked;
     if(!title){ msg.className='he-msg err'; msg.textContent='일정 이름을 입력하세요.'; return; }
     if(!/^\d{2}:\d{2}$/.test(time)){ msg.className='he-msg err'; msg.textContent='시간을 입력하세요.'; return; }
-    ok.disabled=true; ok.textContent='추가 중…';
+    ok.disabled=true; ok.textContent=isEdit?'저장 중…':'추가 중…';
     try{
       const at=new Date(`${yy}-${mm}-${dd}T${time}:00`);           // 로컬(KST) → ISO
-      const { error } = await sb.from('events').insert({
-        title, at: at.toISOString(), color, created_by: state.user.id });
-      if(error) throw error;
+      const payload={ title, at: at.toISOString(), color, is_todo:isTodo };
+      const q = isEdit
+        ? await sb.from('events').update(payload).eq('id', edit.id)
+        : await sb.from('events').insert({ ...payload, created_by: state.user.id });
+      if(q.error) throw q.error;
       close();
       await loadEvents(calPage.y, calPage.m);
       renderCalendarPage();
     }catch(e){
-      ok.disabled=false; ok.textContent='추가';
-      msg.className='he-msg err'; msg.textContent='추가 실패: '+((e&&e.message)||e)+' (49_events.sql 실행 여부 확인)';
+      ok.disabled=false; ok.textContent=isEdit?'저장':'추가';
+      msg.className='he-msg err'; msg.textContent=(isEdit?'저장':'추가')+' 실패: '+((e&&e.message)||e)+' (49·50 SQL 실행 확인)';
     }
   };
 }
 
 /* 일정 상세 — 작성자·관리자는 삭제 가능 */
 function openEventDetail(e){
-  const canDel = isAdmin() || (state.user && e.created_by===state.user.id);
+  const canDel  = isAdmin() || (state.user && e.created_by===state.user.id);
+  const canEditEv = canEdit();
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:380px">
     <div class="ev-head" style="background:${escapeAttr(e.color)}"></div>
     <div class="modal-msg">${escapeHtml(e.title||'')}</div>
-    <div class="modal-sub">${escapeHtml(fmtKST(e.at))}</div>
+    <div class="modal-sub">${escapeHtml(fmtKST(e.at))}${e.is_todo?` · <b>할 일</b>${e.done?' (완료)':''}`:''}</div>
     <div class="he-msg" id="edMsg"></div>
     <div class="modal-btns">
       ${canDel?'<button class="modal-cancel danger" id="edDel">삭제</button>':''}
+      ${canEditEv?'<button class="modal-cancel" id="edEdit">수정</button>':''}
       <button class="modal-ok" id="edClose">닫기</button>
     </div>
   </div>`;
@@ -5882,6 +6263,8 @@ function openEventDetail(e){
   const close=()=>ov.remove();
   ov.querySelector('#edClose').onclick=close;
   ov.addEventListener('click',ev=>{ if(ev.target===ov) close(); });
+  const ed=ov.querySelector('#edEdit');
+  if(ed) ed.onclick=()=>{ close(); openEventModal(new Date(e.at), e); };    // 수정 모드로 재사용
   const del=ov.querySelector('#edDel');
   if(del) del.onclick=async()=>{
     const ok=await confirmModal('일정을 삭제할까요?', `"${e.title}" 일정이 사라집니다.`, '삭제');
@@ -5894,6 +6277,41 @@ function openEventDetail(e){
       renderCalendarPage();
     }catch(err){ const m=ov.querySelector('#edMsg'); if(m){ m.className='he-msg err'; m.textContent='삭제 실패: '+((err&&err.message)||err); } }
   };
+}
+
+/* ================== 주소 체계 ==================
+   시스템 페이지는 전부 '//' 네임스페이스에 산다 → 새 문서를 아무 이름으로 만들어도 시스템을 가리지 않는다.
+   반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
+const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
+                   'admin','requests','health','password','me','trash','notfound'];
+const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
+function isSysKey(k){
+  k=String(k||'');
+  return SYS_PAGES.includes(k) || SYS_PREFIXES.some(p=>k.startsWith(p));
+}
+
+/* 없는 주소 / 삭제된 문서 */
+function renderNotFound(raw){
+  const addr = String(raw||'').replace(/^\/\//,'');
+  $('#doc').innerHTML=`
+    <div class="nf-wrap">
+      <div class="nf-code">404</div>
+      <h1 class="nf-title">존재하지 않거나 삭제된 페이지입니다</h1>
+      <div class="nf-addr">#${escapeHtml(raw||'')}</div>
+      <p class="nf-desc">주소가 잘못되었거나, 문서가 삭제(휴지통으로 이동)되었을 수 있어요.</p>
+      <div class="nf-btns">
+        <button class="btn primary" id="nfHome" style="width:auto;padding:9px 18px">${ic('home')} 대문으로</button>
+        <button class="btn ghost" id="nfDocs" style="width:auto;padding:9px 18px">${ic('docs')} 문서 목록</button>
+        ${canEdit()?`<button class="btn ghost" id="nfNew" style="width:auto;padding:9px 18px">${ic('plus')} 이 주소로 문서 만들기</button>`:''}
+        ${canEdit()?`<button class="btn ghost" id="nfTrash" style="width:auto;padding:9px 18px">${ic('trash')} 휴지통 확인</button>`:''}
+      </div>
+    </div>`;
+  $('#nfHome').onclick=()=>{ location.hash='#//main'; };
+  $('#nfDocs').onclick=()=>{ location.hash='#//docs'; };
+  const nw=$('#nfNew');   if(nw) nw.onclick=()=>openNewDocModal(addr);
+  const tr=$('#nfTrash'); if(tr) tr.onclick=()=>{ location.hash='#//trash'; };
+  renderRightRail([]);
+  window.scrollTo(0,0);
 }
 
 /* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
@@ -5911,7 +6329,18 @@ function route(){
   stopAdminPresence();     // 회원관리를 떠나면 상태 갱신 중지
   stopPresence();          // 접속 표시 갱신 중지 (해당 화면에서 다시 시작)
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
-  const key=(location.hash||'#main').slice(1);
+  /* ★주소 체계 (2단계 개편)
+     · 시스템 페이지  = '#//커뮤니티' 처럼 **이중 슬래시**로 시작 → 문서 주소와 절대 충돌하지 않는다.
+     · 문서           = '#문서주소' (슬래시 금지)
+     · 옛 링크(#community 등)는 같은 이름의 문서가 없으면 '#//community' 로 자동 이전한다. */
+  const raw=(location.hash||'#//main').slice(1);
+  let sys=false, key=raw;
+  if(raw.startsWith('//')){ sys=true; key=raw.slice(2); }
+  if(!sys){
+    if(key===''){ location.hash='#//main'; return; }
+    const isDoc = (state.docs||[]).some(d=>d.key===key);
+    if(!isDoc && isSysKey(key)){ location.hash='#//'+key; return; }   // 구 링크 호환
+  }
   const isMember = key.startsWith('member/');
   const isTrashDoc = key.startsWith('trash/');
   const isQuestion = key.startsWith('q/');
@@ -5925,8 +6354,8 @@ function route(){
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(isMember){ renderMemberProfile(decodeURIComponent(key.slice(7))); return; }
   if(isUserQ){ renderUserQuestions(decodeURIComponent(key.slice(3))); return; }   // #uq/<uid>
-  if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#home'; return; }
-  if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#home'; return; }
+  if(key==='trash'){ if(canEdit()) renderTrash(); else location.hash='#//home'; return; }
+  if(isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#//home'; return; }
   if(key==='directory'){ renderDirectory(); return; }
   if(key==='main'){ renderLanding(); return; }
   if(key==='community'){ renderCommunity(); return; }
@@ -5937,7 +6366,7 @@ function route(){
   }
   if(isHist){ showHistory(decodeURIComponent(key.slice(5))); return; }      // #hist/<key>
   if(isEdit){                                                              // #edit/<key>
-    if(!canEdit()){ location.hash='#'+decodeURIComponent(key.slice(5)); return; }
+    if(!canEdit()){ location.hash='#'+decodeURIComponent(key.slice(5)); return; }   // 문서는 bare 주소
     openEditRoute(decodeURIComponent(key.slice(5))); return;
   }
   if(key==='docs'){ renderDocsPage(); return; }
@@ -5945,20 +6374,29 @@ function route(){
   if(key==='calendar'){ renderCalendarPage(); return; }
   if(key==='inbox'){ renderInbox(); return; }
   if(isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
-  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#home'; return; }
-  if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#home'; return; }
-  if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#home'; return; }
+  if(key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
+  if(key==='requests'){ if(isOwner()) renderRequests(); else location.hash='#//home'; return; }
+  if(key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
   if(key==='password'){ renderPassword(); return; }
   if(key==='me'){ renderMe(); return; }
-  if(state.docs.length && !state.docs.find(d=>d.key===key)){ renderDoc(state.docs[0].key); return; }
-  renderDoc(key||'home');
+  if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
+  if(!key || !(state.docs||[]).some(d=>d.key===key)){ renderNotFound(raw); return; }   // 없는 문서
+  renderDoc(key);
 }
 window.addEventListener('hashchange',()=>{ if($('#app').style.display!=='none') route(); });
 
 /* 이벤트 바인딩 */
 $('#li-btn').onclick=doLogin;
 $('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
-$('#li-reset').onclick=doReset;
+$('#li-reset').onclick=openPinCard;
+$('#contactFab').onclick=openContactModal;
+$('#pin-back').onclick=closePinCard;
+$('#pin-send').onclick=()=>sendPin(false);
+$('#pin-resend').onclick=()=>sendPin(true);
+$('#pin-verify').onclick=verifyPin;
+$('#pin-email').addEventListener('keydown',e=>{ if(e.key==='Enter') sendPin(false); });
+$('#pin-code').addEventListener('input',e=>{ e.target.value=(e.target.value||'').replace(/\D/g,'').slice(0,6); });
+$('#pin-code').addEventListener('keydown',e=>{ if(e.key==='Enter') verifyPin(); });
 /* 가입 신청 토글 */
 $('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; renderSignupCaptcha(); };
 $('#go-login').onclick=()=>{ $('#signupCard').style.display='none'; $('#loginCard').style.display='block'; };
@@ -5991,19 +6429,19 @@ $('#usericon').onclick=umToggle;
 $('#userlabel').onclick=umToggle;         // 활동명·등급 텍스트도 트리거(호버는 .um-trigger CSS가 처리)
 umTrig.addEventListener('mouseleave', ()=> umTrig.classList.remove('closing'));
 document.addEventListener('click',(e)=>{ if(!$('#usermenu').contains(e.target)){ umTrig.classList.remove('open'); umTrig.classList.remove('closing'); } });
-$('#inboxBtn').onclick=()=>{ location.hash='#inbox'; };
-$('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#'+a.dataset.go; closeUserMenu(); });
+$('#inboxBtn').onclick=()=>{ location.hash='#//inbox'; };
+$('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#//'+a.dataset.go; closeUserMenu(); });
 $('#dropLogout').onclick=async()=>{
   closeUserMenu(); stopHeartbeat();
   try{ await sb.rpc('go_offline'); }catch(e){}      // '접속 중' 표시 즉시 제거
   await sb.auth.signOut();
   state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha();
 };
-$('#homeLink').onclick=()=>{ location.hash='#main'; };
-$('#communityBtn').onclick=()=>{ location.hash='#community'; };
-  $('#docsBtn').onclick=()=>{ location.hash='#docs'; };
-  $('#qBtn').onclick=()=>{ location.hash='#questions'; };
-$('#directoryBtn').onclick=()=>{ location.hash='#directory'; };
+$('#homeLink').onclick=()=>{ location.hash='#//main'; };
+$('#communityBtn').onclick=()=>{ location.hash='#//community'; };
+  $('#docsBtn').onclick=()=>{ location.hash='#//docs'; };
+  $('#qBtn').onclick=()=>{ location.hash='#//questions'; };
+$('#directoryBtn').onclick=()=>{ location.hash='#//directory'; };
 /* 테마(야간/주간): 저장값 적용 + 토글 시 저장 후 새로고침 */
 try{ if(localStorage.getItem('anda_theme')==='dark') document.body.classList.add('dark'); }catch(e){}
 $('#modeBtn').innerHTML = document.body.classList.contains('dark')
