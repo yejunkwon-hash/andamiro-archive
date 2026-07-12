@@ -1455,6 +1455,32 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 
 .doc{background:var(--card);border:1px solid var(--border);border-radius:8px;box-shadow:var(--shadow);padding:22px 28px 34px;}
 .doc-head{display:flex;align-items:baseline;flex-wrap:wrap;gap:10px;border-bottom:2px solid var(--accent);padding-bottom:8px;margin-bottom:4px;}
+/* ===== 대문 최근 활동 피드 (내러티브 2겹) ===== */
+.act-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin:14px 0 4px;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.act-head{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:var(--text);margin-bottom:6px;}
+.act-head .ic16{color:var(--accent);}
+.act-live{width:7px;height:7px;border-radius:50%;background:#22a06b;box-shadow:0 0 0 3px color-mix(in srgb,#22a06b 22%, transparent);margin-left:2px;}
+.act-row{display:flex;align-items:center;gap:9px;padding:6px 4px;border-radius:8px;font-size:13px;color:var(--text);cursor:pointer;text-decoration:none;}
+.act-row:hover{background:var(--box-bg);text-decoration:none;}
+.act-dot{flex:none;width:9px;height:9px;border-radius:50%;background:var(--cv,var(--border-strong));}
+.act-txt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.act-txt b{font-weight:800;}
+.act-time{flex:none;font-size:11.5px;color:var(--text-dim);}
+.act-empty{font-size:12.5px;color:var(--text-dim);padding:4px;}
+/* ===== 첫 로그인 웰컴 카드 (내러티브 3겹) ===== */
+.welcome-card{background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, var(--card)), var(--card));
+  border:1px solid color-mix(in srgb, var(--accent) 30%, var(--border));border-radius:14px;padding:18px 18px 14px;margin:14px 0 6px;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.wc-title{font-size:16px;font-weight:900;color:var(--text);margin-bottom:4px;}
+.wc-sub{font-size:12.5px;color:var(--text-dim);margin-bottom:12px;}
+.wc-steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;}
+.wc-step{display:flex;align-items:flex-start;gap:9px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;cursor:pointer;text-decoration:none;color:var(--text);transition:transform .12s, box-shadow .12s;}
+.wc-step:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(0,0,0,.1);text-decoration:none;border-color:color-mix(in srgb, var(--accent) 40%, var(--border));}
+.wc-num{flex:none;width:20px;height:20px;border-radius:50%;background:var(--accent);color:#fff;font-size:11.5px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.wc-step b{display:block;font-size:12.5px;margin-bottom:2px;}
+.wc-step span{font-size:11.5px;color:var(--text-dim);line-height:1.45;}
+.wc-foot{display:flex;justify-content:flex-end;margin-top:12px;}
+.hn-first{font-size:12px;margin-top:8px;}
+.hn-first a{cursor:pointer;font-weight:700;}
 /* ===== 운영 일지 (66) — 타임라인 카드 ===== */
 .dl-wrap{max-width:760px;margin-top:14px;position:relative;padding-left:26px;}
 .dl-wrap::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--border);border-radius:2px;}
@@ -1527,7 +1553,31 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--text-dim);font-size:12px;text-align:center;}
 
 /* ===== 로그인 화면 ===== */
-#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:center;justify-content:center;z-index:100;padding:20px;}
+#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:20px;overflow-y:auto;}
+.login-scene{display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:940px;margin:auto;}  /* 짧으면 세로 중앙, 길면 스크롤 */
+/* ===== 비로그인 소개 랜딩 (67) ===== */
+.intro{width:100%;text-align:center;padding:26px 8px 30px;}
+.intro-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:800;color:var(--accent);
+  border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  background:color-mix(in srgb, var(--accent) 6%, transparent);border-radius:99px;padding:4px 14px;margin-bottom:14px;}
+.intro-title{margin:0;font-size:40px;letter-spacing:-1.5px;font-weight:900;color:var(--text);}
+.intro-mission{margin:10px 0 0;font-size:16px;color:var(--text-dim);font-weight:600;}
+.intro-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px;}
+.intro-stat{display:inline-flex;align-items:baseline;gap:5px;background:var(--card);border:1px solid var(--border);
+  border-radius:99px;padding:6px 15px;font-size:12.5px;color:var(--text-dim);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.intro-stat b{font-size:16px;color:var(--accent);font-weight:900;letter-spacing:-.3px;}
+.intro-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px;text-align:left;}
+.intro-feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 15px;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.intro-feat .ic16{width:20px;height:20px;color:var(--accent);}
+.intro-feat b{display:block;font-size:13.5px;margin:8px 0 4px;color:var(--text);}
+.intro-feat span{font-size:12px;line-height:1.55;color:var(--text-dim);}
+.intro-cta{margin-top:22px;font-size:13px;color:var(--text-dim);}
+@media(max-width:768px){
+  .intro{padding-top:12px;}
+  .intro-title{font-size:30px;}
+  .intro-mission{font-size:14px;}
+  .intro-feats{grid-template-columns:1fr 1fr;}
+}
 .login-card{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.12);width:100%;max-width:360px;padding:28px 26px;}
 .login-card h1{margin:0 0 4px;font-size:22px;letter-spacing:-.5px;}
 .login-card .sub{color:var(--text-dim);font-size:13px;margin-bottom:20px;}
@@ -1597,6 +1647,20 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 
 <!-- ===== 로그인 화면 ===== -->
 <div id="login">
+  <div class="login-scene">
+  <div class="intro" id="introHero">
+    <div class="intro-badge" id="inOrg">안다미로 · 경기북과학고 물리 탐구 동아리</div>
+    <h1 class="intro-title" id="inName">안다 아카이브</h1>
+    <p class="intro-mission" id="inMission">동아리의 기억이 사람보다 오래 남게 합니다.</p>
+    <div class="intro-stats" id="inStats" style="display:none"></div>
+    <div class="intro-feats">
+      <div class="intro-feat"><svg class="ic16"><use href="#i-book"/></svg><b>기수를 넘는 기록</b><span>위키 문서에 편집 이력이 전부 남고, 지워도 30일 안엔 되살립니다. 조회수·좋아요로 좋은 글이 드러나요.</span></div>
+      <div class="intro-feat"><svg class="ic16"><use href="#i-chat"/></svg><b>물어보면 남는 지식</b><span>커뮤니티 채팅, 질문 게시판, 1:1 쪽지. 한 번 답한 질문은 다음 기수의 검색 결과가 됩니다.</span></div>
+      <div class="intro-feat"><svg class="ic16"><use href="#i-calendar"/></svg><b>일정과 할 일</b><span>동아리 캘린더에 일정을 올리면 전날·1시간 전에 자동으로 알림이 갑니다.</span></div>
+      <div class="intro-feat"><svg class="ic16"><use href="#i-check"/></svg><b>기술로 지키는 신뢰</b><span>등급별 권한을 서버가 강제하고, 쪽지는 관리자도 볼 수 없습니다. 운영 기록까지 투명하게 공개해요.</span></div>
+    </div>
+    <div class="intro-cta">부원이라면 로그인, 처음이라면 아래에서 <b>가입 신청</b>을 보내주세요 ↓</div>
+  </div>
   <button class="contact-fab" id="contactFab" title="관리자에게 문의">
     <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-2.8-.4L3 21l1.6-4.6A8.2 8.2 0 0 1 3.6 11.5C3.6 6.9 7.6 3.5 12.3 3.5S21 6.9 21 11.5Z"/>
@@ -1661,6 +1725,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
     <div class="msg" id="su-msg"></div>
   </div>
+  </div><!-- /.login-scene -->
 </div>
 
 <!-- ===== 앱 ===== -->
@@ -5253,6 +5318,7 @@ async function renderSystem(){
     { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
     { owner:true,          hash:'#//system/landing', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
+    { owner:true,          hash:'#//system/site',   ic:'home',  t:'사이트 정보',            d:'사이트 이름·소속·미션 문구. 소개 랜딩과 상단 로고 옆 이름에 쓰입니다.' },
     { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
@@ -5627,6 +5693,43 @@ function starsHTML(value, size, key){      // value: 0~5 (소수 가능)
 }
 
 const feedbackState = { rating:0 };
+/* ================== 사이트 정보 (67) — 정체성 설정 (owner) ================== */
+async function renderSysSite(){
+  let cfg={name:'안다 아카이브',org:'',mission:''};
+  try{ const { data } = await sb.rpc('public_site_config'); if(data&&data.name) cfg=data; }catch(e){}
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>사이트 정보</h1>
+      <div class="tabs"><button id="scBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta">여기서 바꾼 이름·소속·미션은 <b>비로그인 소개 랜딩</b>과 상단 로고 옆 이름에 바로 반영됩니다.
+      다른 동아리에 이 시스템을 설치할 때도 코드 수정 없이 이 화면만 바꾸면 돼요.</div>
+    <div class="dl-form" style="max-width:560px">
+      <label style="font-size:12.5px;font-weight:700;color:var(--text-dim)">사이트 이름 (1~30자)</label>
+      <input type="text" id="scName" maxlength="30" value="${escapeAttr(cfg.name||'')}">
+      <label style="font-size:12.5px;font-weight:700;color:var(--text-dim)">소속 한 줄 (1~60자)</label>
+      <input type="text" id="scOrg" maxlength="60" value="${escapeAttr(cfg.org||'')}" placeholder="안다미로 · 경기북과학고 물리 탐구 동아리">
+      <label style="font-size:12.5px;font-weight:700;color:var(--text-dim)">미션 한 줄 (1~80자)</label>
+      <input type="text" id="scMission" maxlength="80" value="${escapeAttr(cfg.mission||'')}" placeholder="동아리의 기억이 사람보다 오래 남게 합니다.">
+      <div class="sys-actions" style="margin-top:4px">
+        <button class="btn primary" id="scSave" style="width:auto;padding:8px 22px">저장</button>
+        <span class="he-msg" id="scMsg" style="margin-left:6px"></span>
+      </div>
+    </div>`;
+  $('#scBack').onclick=()=>{ location.hash='#//system'; };
+  $('#scSave').onclick=async()=>{
+    const msg=$('#scMsg');
+    const cfg2={ name:($('#scName').value||'').trim(), org:($('#scOrg').value||'').trim(), mission:($('#scMission').value||'').trim() };
+    if(!cfg2.name||!cfg2.org||!cfg2.mission){ msg.className='he-msg err'; msg.textContent='세 칸을 모두 채워주세요.'; return; }
+    msg.className='he-msg'; msg.textContent='저장 중…';
+    try{
+      const { error } = await sb.rpc('set_site_config', { p_cfg: cfg2 });
+      if(error) throw error;
+      document.querySelectorAll('.brand-text').forEach(el=>{ el.textContent = cfg2.name; });
+      document.title = cfg2.name;
+      msg.className='he-msg ok'; msg.textContent='저장했어요. 소개 랜딩과 상단 이름에 반영됩니다.';
+    }catch(err){ msg.className='he-msg err'; msg.textContent='저장 실패: '+((err&&err.message)||err)+' (67 SQL 적용 필요)'; }
+  };
+}
+
 /* ================== 운영 일지 (66) — 전 등급 열람 · owner 현장 편집 ================== */
 async function renderDevLog(){
   let rows=null, failed=false;
@@ -6565,8 +6668,58 @@ const LANDING_CATS = [
                            {key:'tools', title:'실험 도구', desc:'실험 장비 안내'} ] },
   { name:'위키 안내', items:[ {key:'member_tier', title:'멤버 등급', desc:'회원 등급과 권한'} ] },
 ];
+/* 대문 '지금 안다미로는' — 최근 편집·새 문서·질문·답변을 한 흐름으로 (내러티브 2겹) */
+async function fetchActivity(){
+  const out=[]; const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
+  let revs=[], docs=[], qs=[], ans=[];
+  try{ const r=await sb.from('revisions').select('doc_key,edited_at,edited_by').order('edited_at',{ascending:false}).limit(7); revs=r.data||[]; }catch(e){}
+  try{ const r=await sb.from('documents').select('key,title,created_at').order('created_at',{ascending:false}).limit(4); docs=r.data||[]; }catch(e){}
+  try{ const r=await sb.from('questions').select('id,title,author,created_at').order('created_at',{ascending:false}).limit(5); qs=r.data||[]; }catch(e){}
+  try{ const r=await sb.from('messages').select('question_id,user_id,author_name,created_at').not('question_id','is',null).eq('kind','user').order('created_at',{ascending:false}).limit(6); ans=r.data||[]; }catch(e){}
+  // 이름 지도 (편집자·질문자 uuid → 이름). members_public은 전 등급 조회 가능.
+  const uids=[...new Set([...revs.map(r=>r.edited_by), ...qs.map(q=>q.author)].filter(Boolean))];
+  const nameOf={};
+  if(uids.length){ try{ const r=await sb.from('members_public').select('id,name,handle').in('id',uids);
+    (r.data||[]).forEach(m=>{ nameOf[m.id]=m.name||m.handle||'회원'; }); }catch(e){} }
+  // 답변이 달린 질문 제목
+  const qTitle={}; qs.forEach(q=>{ qTitle[q.id]=q.title; });
+  const needQ=[...new Set(ans.map(a=>a.question_id).filter(id=>id!=null && !(id in qTitle)))];
+  if(needQ.length){ try{ const r=await sb.from('questions').select('id,title').in('id',needQ);
+    (r.data||[]).forEach(q=>{ qTitle[q.id]=q.title; }); }catch(e){} }
+  // 새 문서와 같은 시점의 리비전은 '편집'이 아니라 '새 문서'로만 (중복 제거)
+  const born={}; docs.forEach(d=>{ born[d.key]=new Date(d.created_at).getTime(); });
+  revs.forEach(r=>{
+    if(born[r.doc_key] && Math.abs(new Date(r.edited_at).getTime()-born[r.doc_key])<120000) return;
+    out.push({ at:r.edited_at, uid:r.edited_by, html:`<b>${escapeHtml(nameOf[r.edited_by]||'누군가')}</b>님이 <b>${escapeHtml(titleOf[r.doc_key]||r.doc_key)}</b> 문서를 다듬었어요`, hash:'#'+r.doc_key });
+  });
+  docs.forEach(d=>{ out.push({ at:d.created_at, uid:null, html:`새 문서 <b>${escapeHtml(d.title||d.key)}</b>가 태어났어요`, hash:'#'+d.key }); });
+  qs.forEach(q=>{ out.push({ at:q.created_at, uid:q.author, html:`<b>${escapeHtml(nameOf[q.author]||'누군가')}</b>님이 <b>${escapeHtml(q.title||'질문')}</b>을 물어봤어요`, hash:'#//q/'+q.id }); });
+  ans.forEach(a=>{ out.push({ at:a.created_at, uid:a.user_id, html:`<b>${escapeHtml(a.author_name||'누군가')}</b>님이 <b>${escapeHtml(qTitle[a.question_id]||'질문')}</b>에 답했어요`, hash:'#//q/'+a.question_id }); });
+  out.sort((a,b)=>new Date(b.at)-new Date(a.at));
+  return out.slice(0,7);
+}
+
+const WELCOME_KEY = ()=>'anda_welcome_v1_'+(state.user&&state.user.id||'');
+function welcomeHTML(force){
+  try{ if(!force && localStorage.getItem(WELCOME_KEY())) return ''; }catch(e){ if(!force) return ''; }
+  const steps=[
+    ['#//me','프로필 꾸미기','사진·커버 색·계열·한 줄 소개 — 목록 곳곳에 내 색이 입혀져요.'],
+    ['#//docs','문서 둘러보기','선배들의 기록이 여기 있어요. 오타 하나 고치는 것도 훌륭한 첫 편집!'],
+    ['#//questions','질문 게시판','궁금한 건 카톡 말고 여기에 — 한 번 답하면 다음 기수의 검색 결과가 됩니다.'],
+    ['#//calendar','캘린더','일정을 올리면 전날·1시간 전에 자동으로 알림이 와요.'],
+    ['#//devlog','운영 일지','이 서비스가 어떻게 자라는지 투명하게 기록합니다.'],
+  ];
+  return `<div class="welcome-card" id="welcomeCard">
+    <div class="wc-title">처음 오셨나요? 5분이면 충분해요</div>
+    <div class="wc-sub">아래 순서대로 눌러보면 이곳이 무엇을 할 수 있는 곳인지 금방 감이 옵니다.</div>
+    <div class="wc-steps">${steps.map((st,i)=>`<a class="wc-step" href="${st[0]}"><span class="wc-num">${i+1}</span><span><b>${st[1]}</b><span>${st[2]}</span></span></a>`).join('')}</div>
+    <div class="wc-foot"><button class="btn ghost" id="wcDone" style="width:auto;padding:7px 16px;font-size:12.5px">알겠어요, 시작할게요</button></div>
+  </div>`;
+}
+
 async function renderLanding(){
   const stats = await fetchDocStats();
+  const activity = await fetchActivity();
   let recent=[];
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
   let alldocs=[];
@@ -6593,9 +6746,20 @@ async function renderLanding(){
             <span class="dl-desc">${escapeHtml(it.desc||'')}</span></a>`).join('')}
       </div>
     </div>`).join('');
+  const actHTML = `
+    <div class="act-card" id="actCard">
+      <div class="act-head">${ic('chat')}지금 안다미로는 <span class="act-live" title="최근 활동"></span></div>
+      ${activity.length
+        ? activity.map(a=>`<a class="act-row" data-acthash="${escapeAttr(a.hash)}"${a.uid?` data-cover="${escapeAttr(a.uid)}"`:''}>
+            <span class="act-dot"${a.uid?` data-cover="${escapeAttr(a.uid)}"`:''}></span>
+            <span class="act-txt">${a.html}</span><span class="act-time">${timeAgo(a.at)}</span></a>`).join('')
+        : '<div class="act-empty">아직 오늘의 움직임이 없어요 — 첫 발자국을 남겨보세요!</div>'}
+    </div>`;
   $('#doc').innerHTML=`
     ${nudgeHTML(stats)}
     <div class="landing">
+      ${welcomeHTML(false)}
+      ${actHTML}
       <div class="hero-notice">
         <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
         <div class="hn-lines">
@@ -6603,6 +6767,7 @@ async function renderLanding(){
           <p>부원이라면 누구나 문서를 열람할 수 있습니다.</p>
           <p>편집 권한(editor)이 있으면 함께 문서를 채워 나갈 수 있습니다.</p>
           <p>새 문서가 필요하면 편집자·관리자에게 요청해 주세요.</p>
+          <p class="hn-first">처음이신가요? <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
         </div>
       </div>
       <div class="cats landing-reco">
@@ -6622,6 +6787,21 @@ async function renderLanding(){
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
   });
   bindNudge(stats);
+  // ── 최근 활동: 클릭 이동 + 커버색 점
+  $('#doc').querySelectorAll('.act-row[data-acthash]').forEach(a=>a.onclick=()=>{ location.hash=a.dataset.acthash; });
+  const actUids=[...new Set(activity.map(a=>a.uid).filter(Boolean))];
+  if(actUids.length){ ensureCovers(actUids).then(()=>applyCovers($('#actCard'))); }
+  // ── 웰컴 카드: 닫기(기기별 1회) · 다시 보기
+  const wireWelcome=()=>{ const d=$('#wcDone'); if(d) d.onclick=()=>{
+    try{ localStorage.setItem(WELCOME_KEY(),'1'); }catch(e){}
+    const c=$('#welcomeCard'); if(c) c.remove();
+  }; };
+  wireWelcome();
+  const hw=$('#hnWelcome'); if(hw) hw.onclick=()=>{
+    if($('#welcomeCard')){ $('#welcomeCard').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+    $('#actCard').insertAdjacentHTML('beforebegin', welcomeHTML(true));
+    wireWelcome(); $('#welcomeCard').scrollIntoView({behavior:'smooth',block:'center'});
+  };
   mountOrgSection();         // 동아리·계열 조회 (맨 아래)
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
@@ -6632,6 +6812,12 @@ async function renderLanding(){
 function fmtKST(iso){ if(!iso) return '-';
   try{ return new Date(iso).toLocaleString('ko-KR',{timeZone:'Asia/Seoul',dateStyle:'medium',timeStyle:'short'}); }
   catch(e){ return iso; } }
+function timeAgo(iso){ if(!iso) return '';
+  const s=Math.max(0,(Date.now()-new Date(iso).getTime())/1000);
+  if(s<60) return '방금'; if(s<3600) return Math.floor(s/60)+'분 전';
+  if(s<86400) return Math.floor(s/3600)+'시간 전';
+  if(s<86400*7) return Math.floor(s/86400)+'일 전';
+  try{ return new Date(iso).toLocaleDateString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric'}); }catch(e){ return ''; } }
 function escapeHtml(s){ return String(s??'').replace(/[&<>]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[m])); }
 function escapeAttr(s){ return String(s??'').replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
 
@@ -8591,7 +8777,7 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'system/landing','system/clubs','system/tracks','feedback','feedback/review','devlog',
+                   'system/landing','system/clubs','system/tracks','system/site','feedback','feedback/review','devlog',
                    'password','me','trash','notfound'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 function isSysKey(k){
@@ -8661,7 +8847,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -8708,6 +8894,7 @@ function route(){
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
   if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
   if(sys && key==='system/landing'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysLanding(); return; }
+  if(sys && key==='system/site'){    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSite(); return; }
   if(sys && key==='system/clubs'){  if(!guardPage('club_read'))  return; renderSysClubs();  return; }
   if(sys && key==='system/tracks'){ if(!guardPage('track_read')) return; renderSysTracks(); return; }
   if(sys && key==='password'){ renderPassword(); return; }
@@ -8717,6 +8904,32 @@ function route(){
   renderDoc(key);
 }
 window.addEventListener('hashchange',()=>{ if($('#app').style.display!=='none') route(); });
+
+/* ===== 비로그인 소개 랜딩 (67) — 사이트 정체성 + 살아있는 숫자 ===== */
+async function initIntro(){
+  try{                                                       // 사이트 정체성 (67 미적용이면 기본 문구 유지)
+    const { data } = await sb.rpc('public_site_config');
+    if(data && data.name){
+      $('#inName').textContent = data.name;
+      const lc=$('#loginCard'); if(lc){ const h=lc.querySelector('h1'); if(h) h.textContent = data.name; }
+      document.querySelectorAll('.brand-text').forEach(el=>{ el.textContent = data.name; });
+      document.title = data.name;
+      if(data.org)     $('#inOrg').textContent = data.org;
+      if(data.mission) $('#inMission').textContent = data.mission;
+    }
+  }catch(e){}
+  try{                                                       // 살아있는 숫자
+    const { data:st } = await sb.rpc('public_stats');
+    if(st && typeof st==='object'){
+      const chip=(n,label)=>`<span class="intro-stat"><b>${Number(n)||0}</b>${label}</span>`;
+      $('#inStats').innerHTML =
+        chip(st.docs,'개의 문서') + chip(st.edits,'번의 편집') + chip(st.answers,'개의 답변')
+        + chip(st.members,'명의 부원') + chip(st.days,'일째 운영 중');
+      $('#inStats').style.display='flex';
+    }
+  }catch(e){}
+}
+initIntro();
 
 /* 이벤트 바인딩 */
 $('#li-btn').onclick=doLogin;
