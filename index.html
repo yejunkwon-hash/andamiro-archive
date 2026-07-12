@@ -7,26 +7,58 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 <style>
-/* ===== 기본 토큰 (wiki.html과 동일) ===== */
+/* ===== 디자인 토큰 v2 — '실험 노트' (테마 2.0) =====
+   표면 3계층 / 의미색 / 타이포·간격·모서리·그림자·모션 스케일.
+   ★기존 변수명(--accent,--card,--border,--box-bg,--shadow …)은 전부 유지 — 8천 줄 기존 규칙과 호환. */
 :root{
-  --teacher:#d99a0b;
-  --accent:#C00000; --accent-soft:#d64a42; --bg:#eef1f5; --card:#ffffff;
-  --text:#202124; --text-dim:#5f6368; --border:#e3e6ea; --border-strong:#c9ced6;
-  --link:#1e6be0; --link-red:#cc2b2b; --box-bg:#f6f8fa; --infobox-head:#C00000;
-  --table-head:#eef1f7; --shadow:0 1px 3px rgba(0,0,0,.08);
+  /* 표면: L0 배경(모눈) → L1 카드 → L2 떠 있는 요소 */
+  --bg:#eef1f5; --card:#ffffff; --box-bg:#f5f7fa; --surface-3:#ffffff;
+  /* 브랜드 · 의미색 */
+  --accent:#C00000; --accent-soft:#d64a42;
+  --ok:#1d8a56; --warn:#c77d0a; --info:#1e6be0; --danger:#c0392b; --teacher:#d99a0b;
+  /* 텍스트 · 선 */
+  --text:#1c1e21; --text-dim:#5c6470;
+  --border:#e2e6ec; --border-strong:#c7cdd8;
+  --link:#1e6be0; --link-red:#cc2b2b;
+  --infobox-head:#C00000; --table-head:#eef1f7;
+  /* 타이포: 숫자·시간·카운트는 계측기처럼 — 모노스페이스 */
+  --mono:ui-monospace,'SF Mono','Cascadia Mono',Consolas,'Roboto Mono',monospace;
+  /* 간격(4px 기반) · 모서리 */
+  --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
+  --r-1:6px; --r-2:10px; --r-3:14px; --r-round:99px;
+  /* 그림자 3단 (라이트: 그림자 / 다크: 표면 밝기가 위계) */
+  --sh-1:0 1px 2px rgba(15,20,30,.06);
+  --sh-2:0 4px 12px rgba(15,20,30,.10);
+  --sh-3:0 14px 34px rgba(15,20,30,.18);
+  --shadow:var(--sh-1);
+  /* 모션 2종 — 상태 전달용 짧은 것, 이동용 표준 */
+  --dur-1:.12s; --dur-2:.2s; --ease:cubic-bezier(.2,.7,.3,1);
+  /* 모눈종이 선 */
+  --grid-line:rgba(28,32,44,.05);
 }
 body.dark{
-  --teacher:#f0b93b;
-  --accent:#e05a52; --accent-soft:#ea7d76; --bg:#17181c; --card:#232429;
-  --text:#e4e6eb; --text-dim:#9aa0ab; --border:#33353c; --border-strong:#44464e;
-  --link:#6ba4ff; --link-red:#ff6b6b; --box-bg:#2a2c33; --infobox-head:#a83232;
-  --table-head:#2a2c33; --shadow:0 1px 3px rgba(0,0,0,.4);
+  /* elevated gray 3단 — 순수 검정 금지(트렌드·OLED halation 회피) */
+  --bg:#121316; --card:#1c1e22; --box-bg:#24262c; --surface-3:#292b32;
+  --accent:#e35049; --accent-soft:#ec7871;
+  --ok:#3fbf7f; --warn:#e6a23c; --info:#6ba4ff; --danger:#e0645b; --teacher:#f0b93b;
+  --text:#e6e8ee; --text-dim:#99a1ae;
+  --border:#30333b; --border-strong:#454a55;
+  --link:#6ba4ff; --link-red:#ff6b6b;
+  --infobox-head:#a83232; --table-head:#24262c;
+  --sh-1:0 1px 2px rgba(0,0,0,.45);
+  --sh-2:0 5px 16px rgba(0,0,0,.5);
+  --sh-3:0 16px 42px rgba(0,0,0,.6);
+  --grid-line:rgba(255,255,255,.038);
 }
 *{box-sizing:border-box;}
 html{scroll-behavior:smooth;}
 body{margin:0;font-family:'Pretendard Variable',Pretendard,-apple-system,BlinkMacSystemFont,
   'Apple SD Gothic Neo','Malgun Gothic','맑은 고딕',sans-serif;
-  background:var(--bg);color:var(--text);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;}
+  background-color:var(--bg);color:var(--text);font-size:15px;line-height:1.7;-webkit-font-smoothing:antialiased;
+  /* 실험 노트 모눈 — 카드 밖 배경에만 (카드는 불투명이라 본문 가독성 그대로) */
+  background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
+                   linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:28px 28px;}
 a{color:var(--link);text-decoration:none;} a:hover{text-decoration:underline;} a.new{color:var(--link-red);}
 
 .topbar{position:sticky;top:0;z-index:50;background:var(--accent);color:#fff;display:flex;align-items:center;gap:14px;padding:0 18px;height:48px;box-shadow:0 1px 4px rgba(0,0,0,.2);}
@@ -1553,7 +1585,10 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--text-dim);font-size:12px;text-align:center;}
 
 /* ===== 로그인 화면 ===== */
-#login{position:fixed;inset:0;background:var(--bg);display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:20px;overflow-y:auto;}
+#login{position:fixed;inset:0;background-color:var(--bg);
+  background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
+                   linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size:28px 28px;display:flex;align-items:flex-start;justify-content:center;z-index:100;padding:20px;overflow-y:auto;}
 .login-scene{display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:940px;margin:auto;}  /* 짧으면 세로 중앙, 길면 스크롤 */
 /* ===== 비로그인 소개 랜딩 (67) ===== */
 .intro{width:100%;text-align:center;padding:26px 8px 30px;}
@@ -1640,6 +1675,32 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   .doc{padding:18px 16px 28px;}
   .topbar .search{max-width:none;}
   .doc-head h1{font-size:22px;}
+}
+/* ===== 테마 2.0 통합 레이어 — 토큰 일괄 적용 (캐스케이드 마지막에 두어 개별 규칙을 정리) ===== */
+/* 계측 숫자: 시간·날짜·카운트·타이머는 모노스페이스 + 고정폭 숫자 */
+.msg-time,.act-time,.dl-date,.intro-stat b,.cal-range,.pin-timer,.ad-count,.doc-views,.dc-views,.ib-time,.hl-time,.rc-time,.dl-edited{
+  font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.2px;}
+/* 모션 표준화 — 인터랙티브 요소의 전이를 토큰 2종으로 통일 */
+.btn,.ibtn,.abtn,button.mode,button.navbtn,.seg-opt,.doc-link,.dir-card,.intro-feat,.wc-step,.act-row,.club-mem,.usermenu-drop a,.dl-entry,.tabs button,.wiki-btn,.cat-head{
+  transition:background var(--dur-2) var(--ease),color var(--dur-2) var(--ease),
+             border-color var(--dur-2) var(--ease),box-shadow var(--dur-2) var(--ease),
+             transform var(--dur-1) var(--ease),opacity var(--dur-2) var(--ease);}
+.btn:not(:disabled):active,.ibtn:not(:disabled):active,.abtn:not(:disabled):active{transform:translateY(1px);}
+/* 위계: 떠 있는 요소는 L2 표면 + 3단 그림자 */
+.usermenu-drop a{background:var(--surface-3);}
+.usermenu-drop{filter:drop-shadow(0 12px 26px rgba(0,0,0,.2));}
+/* 카드 그림자 1단으로 통일 */
+.act-card,.dl-entry,.intro-feat,.wc-step,.dl-form,.welcome-card,.login-card{box-shadow:var(--sh-1);}
+.login-card{box-shadow:var(--sh-2);}
+/* 헤드라인 마감 */
+.doc-head h1{letter-spacing:-1px;}
+.intro-title{letter-spacing:-2px;}
+/* 키보드 접근 링 (접근성 = 2026 표준) */
+:focus-visible{outline:2px solid color-mix(in srgb, var(--accent) 60%, transparent);outline-offset:2px;}
+/* 모션 감소 설정 존중 — 전부 즉시 전환 */
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;}
 }
 </style>
 </head>
