@@ -1676,6 +1676,64 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   .topbar .search{max-width:none;}
   .doc-head h1{font-size:22px;}
 }
+/* ===== 대문 벤토 그리드 (전면 개편 2단계) ===== */
+.bento{display:grid;grid-template-columns:repeat(12,1fr);grid-auto-flow:dense;gap:14px;margin-top:14px;}
+.bt{background:var(--card);border:1px solid var(--border);border-radius:var(--r-3);box-shadow:var(--sh-1);
+  padding:14px 16px;min-width:0;transition:transform var(--dur-1) var(--ease),box-shadow var(--dur-2) var(--ease);}
+.bt:hover{transform:translateY(-1px);box-shadow:var(--sh-2);}
+.bt-head{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:800;color:var(--text);margin-bottom:8px;}
+.bt-head .ic16{color:var(--accent);}
+.bt-more{margin-left:auto;font-size:11.5px;font-weight:700;color:var(--text-dim);cursor:pointer;white-space:nowrap;}
+.bt-more:hover{color:var(--accent);text-decoration:none;}
+/* 타일 배치 (PC 12컬럼) */
+.bt-act{grid-column:span 7;grid-row:span 2;}
+.bt-cal{grid-column:span 5;}
+.bt-stats{grid-column:span 5;}
+.bt-reco{grid-column:span 7;}
+.bt-today{grid-column:span 5;}
+.bt-notice{grid-column:span 12;}
+.bt-alldocs{grid-column:span 12;}
+/* 벤토 안의 활동 카드: 기존 스타일 재사용, 여백만 정리 */
+.bento .act-card{margin:0;border:none;box-shadow:none;padding:0;background:transparent;}
+/* 캘린더 미니 */
+.bc-row{display:flex;align-items:center;gap:9px;padding:6px 4px;border-radius:8px;font-size:13px;cursor:pointer;}
+.bc-row:hover{background:var(--box-bg);}
+.bc-dot{flex:none;width:9px;height:9px;border-radius:3px;background:var(--evc,#AEC6F6);}
+.bc-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bc-title.done{text-decoration:line-through;color:var(--text-dim);}
+.bc-when{flex:none;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11.5px;color:var(--text-dim);}
+/* 살아있는 숫자 (대문판 — 로그인 랜딩과 동일한 계측 감각) */
+.bs-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.bs-cell{background:var(--box-bg);border:1px solid var(--border);border-radius:var(--r-2);padding:9px 12px;}
+.bs-cell b{display:block;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;color:var(--accent);letter-spacing:-.5px;line-height:1.2;}
+.bs-cell span{font-size:11px;color:var(--text-dim);font-weight:700;}
+/* 오늘의 문서 */
+.btd-title{font-size:15.5px;font-weight:800;color:var(--text);margin:2px 0 3px;}
+.btd-key{font-family:var(--mono);font-size:11.5px;color:var(--text-dim);}
+.btd-hint{font-size:11.5px;color:var(--text-dim);margin-top:8px;}
+.bt-today{cursor:pointer;}
+.bt-today:hover .btd-title{color:var(--accent);}
+/* 추천 문서: 벤토 안에서는 가벼운 위계 (빨간 헤더 바 대신 토큰) */
+.bt-reco .cat{border:none;}
+.bt-reco .cat-head{background:transparent;color:var(--accent);border:none;border-bottom:1px solid var(--border);padding:8px 4px;font-size:12.5px;font-weight:800;}
+.bt-reco .cat-head:hover{filter:none;background:var(--box-bg);}
+.bt-reco .cat-toggle{color:var(--text-dim);}
+.bt-reco .cat-body{padding:2px 0;}
+/* 모든 문서: 기본 접힘 */
+.bt-alldocs .alldocs-grid{display:none;margin-top:6px;}
+.bt-alldocs.open .alldocs-grid{display:grid;}
+/* 환영 타일: 컴팩트 */
+.bt-notice .hn-title{font-size:15px;font-weight:900;color:var(--accent);margin-bottom:4px;}
+.bt-notice p{margin:2px 0;font-size:13px;color:var(--text-dim);}
+@media(max-width:900px){
+  .bento{grid-template-columns:1fr;}
+  .bt-act,.bt-cal,.bt-stats,.bt-reco,.bt-today,.bt-notice,.bt-alldocs{grid-column:1 / -1;grid-row:auto;}
+  /* 폰 순서: 활동 → 캘린더 → 추천 → 숫자 → 오늘 → 환영 → 전체 목록 */
+  .bt-act{order:1;} .bt-cal{order:2;} .bt-reco{order:3;} .bt-stats{order:4;}
+  .bt-today{order:5;} .bt-notice{order:6;} .bt-alldocs{order:7;}
+  .bt:hover{transform:none;}
+}
+
 /* ===== 테마 2.0 통합 레이어 — 토큰 일괄 적용 (캐스케이드 마지막에 두어 개별 규칙을 정리) ===== */
 /* 계측 숫자: 시간·날짜·카운트·타이머는 모노스페이스 + 고정폭 숫자 */
 .msg-time,.act-time,.dl-date,.intro-stat b,.cal-range,.pin-timer,.ad-count,.doc-views,.dc-views,.ib-time,.hl-time,.rc-time,.dl-edited{
@@ -6781,6 +6839,11 @@ function welcomeHTML(force){
 async function renderLanding(){
   const stats = await fetchDocStats();
   const activity = await fetchActivity();
+  let evs=[];                                       // 다가오는 일정 3개 (벤토 캘린더 타일)
+  try{ const { data } = await sb.from('events').select('id,title,at,color,is_todo,done')
+        .gte('at', new Date().toISOString()).order('at',{ascending:true}).limit(3); evs=data||[]; }catch(e){}
+  let live=null;                                    // 살아있는 숫자 (67 — 로그인 랜딩과 동일 집계)
+  try{ const { data } = await sb.rpc('public_stats'); if(data&&typeof data==='object') live=data; }catch(e){}
   let recent=[];
   try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
   let alldocs=[];
@@ -6816,29 +6879,63 @@ async function renderLanding(){
             <span class="act-txt">${a.html}</span><span class="act-time">${timeAgo(a.at)}</span></a>`).join('')
         : '<div class="act-empty">아직 오늘의 움직임이 없어요 — 첫 발자국을 남겨보세요!</div>'}
     </div>`;
+  // ── 벤토 타일 조각들
+  const fmtWhen=(iso)=>{ try{ const d=new Date(iso);
+    return d.toLocaleString('ko-KR',{timeZone:'Asia/Seoul',month:'numeric',day:'numeric'}).replace(/\s/g,'')+' '+
+           d.toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',hour12:false}); }catch(e){ return ''; } };
+  const calHTML = evs.length
+    ? evs.map(e=>`<div class="bc-row" data-go="#//calendar">
+        <span class="bc-dot" style="--evc:${escapeAttr(e.color||'#AEC6F6')}"></span>
+        <span class="bc-title${e.is_todo&&e.done?' done':''}">${e.is_todo?'☑ ':''}${escapeHtml(e.title)}</span>
+        <span class="bc-when">${fmtWhen(e.at)}</span></div>`).join('')
+    : '<div class="act-empty">다가오는 일정이 없어요 — 캘린더에 올려보세요.</div>';
+  const bs=(n,l)=>`<div class="bs-cell"><b>${(n===null||n===undefined)?'—':Number(n)}</b><span>${l}</span></div>`;
+  const statsHTML = `<div class="bs-grid">
+      ${bs(live?live.docs:alldocs.length,'문서')}${bs(live?live.edits:null,'누적 편집')}
+      ${bs(live?live.answers:null,'답변')}${bs(live?live.days:null,'일째 운영')}</div>`;
+  let todayHTML='';
+  if(alldocs.length){
+    const k=new Date(Date.now()+9*3600*1000); const seed=k.getUTCFullYear()*10000+(k.getUTCMonth()+1)*100+k.getUTCDate();
+    const td=alldocs[seed % alldocs.length];
+    todayHTML=`<div class="btd-title">${escapeHtml(td.title||td.key)}</div>
+      <div class="btd-key">/${escapeHtml(td.key)}</div>
+      <div class="btd-hint">매일 자정에 다른 문서가 뽑혀요 — 오늘 한 번 다시 읽어보세요.</div>`;
+    todayHTML=`<div data-key="${escapeAttr(td.key)}" class="btd-wrap">`+todayHTML+`</div>`;
+  } else todayHTML='<div class="act-empty">아직 문서가 없어요.</div>';
   $('#doc').innerHTML=`
     ${nudgeHTML(stats)}
     <div class="landing">
       ${welcomeHTML(false)}
-      ${actHTML}
-      <div class="hero-notice">
-        <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
-        <div class="hn-lines">
-          <p>안다 아카이브는 경기북과학고등학교 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다.</p>
-          <p>부원이라면 누구나 문서를 열람할 수 있습니다.</p>
-          <p>편집 권한(editor)이 있으면 함께 문서를 채워 나갈 수 있습니다.</p>
-          <p>새 문서가 필요하면 편집자·관리자에게 요청해 주세요.</p>
+      <div class="bento">
+        <div class="bt bt-act">${actHTML}</div>
+        <div class="bt bt-cal">
+          <div class="bt-head">${ic('calendar')}이번 주 안다미로 <a class="bt-more" data-go="#//calendar">캘린더 →</a></div>
+          ${calHTML}
+        </div>
+        <div class="bt bt-reco">
+          <div class="bt-head">${ic('book')}추천 문서 ${isOwner()?`<a class="bt-more" data-go="#//system/landing">편집 →</a>`:''}</div>
+          ${cats || '<div class="act-empty">추천 문서가 아직 없어요.</div>'}
+        </div>
+        <div class="bt bt-stats">
+          <div class="bt-head">${ic('check')}우리가 쌓아온 것</div>
+          ${statsHTML}
+        </div>
+        <div class="bt bt-today" id="btToday">
+          <div class="bt-head">${ic('dice')}오늘의 문서</div>
+          ${todayHTML}
+        </div>
+        <div class="bt bt-notice">
+          <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
+          <p>경기북과학고 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다.
+             부원이라면 누구나 열람할 수 있고, 편집 권한이 있으면 함께 채워 나갈 수 있어요.</p>
           <p class="hn-first">처음이신가요? <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
         </div>
-      </div>
-      <div class="cats landing-reco">
-        <div class="doclist-head">추천 문서</div>
-        ${cats}
-      </div>
-      <div class="cats alldocs-sec">
-        <div class="doclist-head">모든 문서 목록 <span class="ad-count">(${alldocs.length})</span></div>
-        <div class="alldocs-grid">
-          ${alldocs.length ? alldocs.map(d=>`<a class="doc-link alldoc" data-key="${escapeAttr(d.key)}"><span class="dl-title">${escapeHtml(d.title||d.key)}</span><span class="dl-key">/${escapeHtml(d.key)}</span></a>`).join('') : '<div class="ad-empty">아직 문서가 없습니다. 새 문서를 만들면 여기에 표시됩니다.</div>'}
+        <div class="bt bt-alldocs" id="btAll">
+          <div class="bt-head">${ic('docs')}모든 문서 목록 <span class="ad-count">(${alldocs.length})</span>
+            <a class="bt-more" id="adToggle">펼치기 ▾</a></div>
+          <div class="alldocs-grid">
+            ${alldocs.length ? alldocs.map(d=>`<a class="doc-link alldoc" data-key="${escapeAttr(d.key)}"><span class="dl-title">${escapeHtml(d.title||d.key)}</span><span class="dl-key">/${escapeHtml(d.key)}</span></a>`).join('') : '<div class="ad-empty">아직 문서가 없습니다. 새 문서를 만들면 여기에 표시됩니다.</div>'}
+          </div>
         </div>
       </div>
     </div>`;
@@ -6848,6 +6945,10 @@ async function renderLanding(){
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
   });
   bindNudge(stats);
+  // ── 벤토: 이동 링크 · 오늘의 문서 · 전체 목록 토글
+  $('#doc').querySelectorAll('[data-go]').forEach(el=>el.onclick=(ev)=>{ ev.stopPropagation(); location.hash=el.dataset.go; });
+  const bt=$('#btToday'); if(bt){ const w=bt.querySelector('.btd-wrap'); if(w) bt.onclick=()=>{ location.hash='#'+w.dataset.key; }; }
+  const at=$('#adToggle'); if(at) at.onclick=()=>{ const open=$('#btAll').classList.toggle('open'); at.textContent=open?'접기 ▴':'펼치기 ▾'; };
   // ── 최근 활동: 클릭 이동 + 커버색 점
   $('#doc').querySelectorAll('.act-row[data-acthash]').forEach(a=>a.onclick=()=>{ location.hash=a.dataset.acthash; });
   const actUids=[...new Set(activity.map(a=>a.uid).filter(Boolean))];
