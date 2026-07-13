@@ -570,6 +570,11 @@ body.has-botnav .install-bar{bottom:calc(78px + env(safe-area-inset-bottom));}
 .de-row:hover{border-style:solid;border-color:var(--accent);}
 .de-dot{width:9px;height:9px;border-radius:50%;flex:none;}
 .de-t{margin-left:auto;font-size:12px;color:var(--text-dim);}
+/* 문서 숨김 (80) — owner에게만 보이는 문서 */
+.hid-badge{display:inline-block;padding:2px 9px;border-radius:999px;font-size:11.5px;font-weight:800;
+  border:1px dashed var(--border-strong);color:var(--text-dim);background:var(--box-bg);}
+.doc-card.hid{opacity:.72;border-style:dashed;}
+.doc-card.hid .dc-title::after{content:' 👁';font-size:12px;opacity:.7;}
 /* 넛지 토스트 (73) */
 .nudge-toast{position:fixed;right:18px;bottom:18px;z-index:600;max-width:320px;background:var(--card);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px 16px;display:flex;flex-direction:column;gap:10px;animation:nudgeIn .25s ease-out;}
 @keyframes nudgeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
@@ -3492,7 +3497,7 @@ async function renderDocsPage(){
     return out;
   };
   const cardHTML=d=>`
-    <a class="doc-card ${isStub(d.key)?'stub':''}" href="${docHash(d.key)}">
+    <a class="doc-card ${isStub(d.key)?'stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
       <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
       <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
       <div class="dc-meta">
@@ -3552,7 +3557,11 @@ async function renderDocsPage(){
 }
 
 async function loadDocs(){
-  const { data, error } = await sb.from('documents').select('key,title');
+  let { data, error } = await sb.from('documents').select('key,title,hidden');   // ★숨김(80)
+  if(error){                                                                      // 80 미적용 → 예전 컬럼
+    const r = await sb.from('documents').select('key,title');
+    data = r.data; error = r.error;
+  }
   if(error){ $('#doc').innerHTML='<p>문서 목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
   const rank = k => { const i=ORDER.indexOf(k); return i<0 ? 999 : i; };
   state.docs = (data||[]).sort((a,b)=> rank(a.key)-rank(b.key) || a.key.localeCompare(b.key));
@@ -3622,6 +3631,7 @@ async function renderDoc(key){
   const canEditThis = canEdit() || isMyMemberDoc(key);                 // 회원 문서(71): 본인은 등급 무관 편집
   if(canEditThis) tabs.push(`<button id="editBtn">${ic('edit')}편집</button>`);
   if(!isMemberDocKey(key)) tabs.push(`<button id="qrBtn" title="기구에 붙일 QR 스티커">${ic('camera')}QR</button>`);   // 실물↔문서
+  if(isOwner()) tabs.push(`<button id="hideBtn" title="${doc.hidden?'다시 공개합니다':'나(owner)에게만 보이게 합니다'}">${doc.hidden?'🙈 숨김 해제':'👁 숨기기'}</button>`);   // 문서 숨김(80)
   tabs.push(`<button id="histBtn">${ic('history')}역사</button>`);
   if(isAdmin() && (!isMemberDocKey(key) || isOwner())) tabs.push(`<button id="delBtn" class="danger">${ic('trash')}삭제</button>`);   // 회원 문서 삭제는 owner만(서버가 최종 방어)
 
@@ -3629,7 +3639,7 @@ async function renderDoc(key){
   $('#doc').innerHTML = `
     <div class="doc-head"><h1>${escapeHtml(doc.title||'')}</h1>
       <div class="tabs">${tabs.join('')}</div></div>
-    <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
+    <div class="doc-meta">${doc.hidden?'<span class="hid-badge">👁 숨김 — owner에게만 보입니다</span> · ':''}${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
       (String(doc.body||'').length < STUB_LEN && canEdit())
         ? `<span class="stub-badge">${ic('edit')} 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
     <div id="taskSlot"></div>
@@ -3650,6 +3660,27 @@ async function renderDoc(key){
   if(canEditThis) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   const _qrB=$('#qrBtn'); if(_qrB) _qrB.onclick=()=>openDocQR(key, doc.title||key);
+  const _hdB=$('#hideBtn');
+  if(_hdB) _hdB.onclick=async()=>{                                  // ★문서 숨김(80) — 서버 RLS가 실제로 가린다
+    const on=!doc.hidden;
+    const ok=await confirmModal(
+      on?'이 문서를 숨길까요?':'다시 공개할까요?',
+      on?'다른 회원에게는 목록에도, 검색에도, 주소로 직접 열어도 보이지 않게 됩니다. 문서 역사도 함께 숨겨져요.'
+        :'모든 회원이 다시 볼 수 있게 됩니다.',
+      on?'숨기기':'공개');
+    if(!ok) return;
+    _hdB.disabled=true;
+    try{
+      const { error } = await sb.rpc('set_doc_hidden', { p_key:key, p_on:on });
+      if(error) throw error;
+      await loadDocs();
+      toast(on?'숨겼어요. 이제 나에게만 보입니다.':'다시 공개했어요.');
+      await renderDoc(key);
+    }catch(e){
+      _hdB.disabled=false;
+      alert('변경 실패: '+((e&&e.message)||e)+' (80_doc_hidden.sql 실행 확인)');
+    }
+  };
   const _delB=$('#delBtn'); if(_delB) _delB.onclick=()=>deleteDoc(doc);
   // 열람 기록 (회원당 하루 1회) — 즉시 +1 되고 화면에 반영
   (async()=>{
