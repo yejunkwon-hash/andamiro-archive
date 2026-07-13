@@ -442,6 +442,102 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 .sg-opt{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--card);cursor:pointer;margin-bottom:8px;}
 .sg-opt.on{border-color:var(--accent);box-shadow:0 0 0 2px color-mix(in srgb, var(--accent) 18%, transparent);}
 .sg-opt input{margin-top:3px;flex:none;}
+/* 짧은 확인 토스트 */
+.mini-toast{position:fixed;right:18px;bottom:92px;z-index:640;background:var(--text);color:var(--card);
+  padding:10px 16px;border-radius:10px;font-size:13px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.22);
+  animation:nudgeIn .2s ease-out;max-width:300px;}
+body.has-botnav .mini-toast{bottom:calc(150px + env(safe-area-inset-bottom));}
+/* 문서 과제 바 (77) */
+.task-bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin:10px 0 4px;padding:10px 14px;
+  border:1px solid var(--border-strong);border-radius:10px;background:var(--box-bg);}
+.task-bar.empty{justify-content:space-between;background:transparent;border-style:dashed;}
+.task-bar .tb-left{display:flex;flex-wrap:wrap;align-items:center;gap:8px;}
+.task-bar .tb-right{margin-left:auto;display:flex;align-items:center;gap:8px;}
+.task-bar .tb-note{flex:1 1 100%;font-size:12.5px;color:var(--text-dim);}
+.tb-who{display:inline-flex;flex-wrap:wrap;gap:6px;}
+.tb-mem{display:inline-flex;align-items:center;gap:5px;font-size:13px;font-weight:600;}
+.tb-dot{width:8px;height:8px;border-radius:50%;background:var(--cv,var(--cover-default));}
+.task-chip{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:800;
+  border:1px solid var(--border-strong);background:var(--card);color:var(--text-dim);}
+.task-chip.ts-doing{border-color:var(--info);color:var(--info);}
+.task-chip.ts-review{border-color:var(--warn);color:var(--warn);}
+.task-chip.ts-done{border-color:var(--ok);color:var(--ok);}
+.due-chip{display:inline-block;padding:3px 9px;border-radius:999px;font-size:12px;font-weight:700;
+  border:1px solid var(--border);color:var(--text-dim);background:var(--card);}
+.due-chip.due-soon{border-color:var(--warn);color:var(--warn);}
+.due-chip.due-over{border-color:var(--danger);color:var(--danger);}
+/* 배정 모달 */
+.ta-list{max-height:220px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:6px;margin-bottom:10px;}
+.ta-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;cursor:pointer;font-size:13.5px;}
+.ta-item:hover{background:var(--box-bg);}
+.ta-item.on{background:color-mix(in srgb, var(--accent) 10%, transparent);font-weight:700;}
+.ta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px;}
+.ta-row > div{flex:1 1 140px;}
+/* 대문: 내 과제 · 막힌 질문 */
+.bt-mytask .mt-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:9px 10px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit;}
+.bt-mytask .mt-row:hover{background:var(--box-bg);}
+.bt-mytask .mt-row.done{opacity:.55;}
+.mt-title{font-weight:700;font-size:14px;flex:1 1 auto;min-width:0;}
+.mt-meta{display:inline-flex;gap:6px;flex:none;}
+.mt-note{flex:1 1 100%;font-size:12px;color:var(--text-dim);}
+.bt-openq .oq-row{display:block;padding:9px 10px;border-radius:8px;cursor:pointer;text-decoration:none;color:inherit;}
+.bt-openq .oq-row:hover{background:var(--box-bg);}
+.oq-t{display:block;font-weight:700;font-size:14px;}
+.oq-m{display:block;font-size:12px;color:var(--text-dim);margin-top:2px;}
+.oq-foot{margin-top:6px;padding:0 10px;font-size:12px;color:var(--text-dim);}
+/* 연구 집중 기간 배너 (78) */
+.focus-banner{margin-bottom:14px;padding:14px 18px;border-radius:14px;border:1px solid var(--accent);
+  background:linear-gradient(135deg, color-mix(in srgb, var(--accent) 12%, var(--card)), var(--card));}
+.fc-top{display:flex;align-items:center;gap:10px;}
+.fc-title{font-weight:900;font-size:16px;}
+.fc-d{margin-left:auto;padding:3px 11px;border-radius:999px;font-size:12.5px;font-weight:800;
+  border:1px solid var(--border-strong);background:var(--card);color:var(--text-dim);}
+.fc-d.soon{border-color:var(--accent);color:var(--accent);}
+.fc-d.over{opacity:.6;}
+.fc-goal{margin-top:5px;font-size:13px;color:var(--text-dim);}
+.fc-bar{margin-top:10px;height:7px;border-radius:99px;background:var(--box-bg);overflow:hidden;}
+.fc-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s;}
+.fc-num{margin-top:6px;font-size:12.5px;color:var(--text-dim);display:flex;gap:8px;align-items:center;}
+.fc-num .bt-more{margin-left:auto;}
+/* 진행 보드 */
+.board{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px;}
+@media (max-width:900px){ .board{grid-template-columns:repeat(2,1fr);} }
+@media (max-width:520px){ .board{grid-template-columns:1fr;} }
+.bd-col{background:var(--box-bg);border:1px solid var(--border);border-radius:12px;padding:10px;min-height:80px;}
+.bd-col-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.bd-n{margin-left:auto;font-size:12px;color:var(--text-dim);font-weight:800;}
+.bd-card{display:block;background:var(--card);border:1px solid var(--border);border-radius:9px;padding:10px;margin-bottom:8px;cursor:pointer;text-decoration:none;color:inherit;}
+.bd-card:hover{border-color:var(--accent);transform:translateY(-2px);}
+.bd-t{font-weight:700;font-size:13.5px;}
+.bd-m{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px;font-size:12px;color:var(--text-dim);}
+.bd-note{margin-top:5px;font-size:12px;color:var(--text-dim);}
+.bd-empty{font-size:12.5px;color:var(--text-dim);text-align:center;padding:10px 0;}
+/* ── 동적 문서 블록 ── */
+.wk-video{margin:14px 0;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:#000;}
+.wk-video iframe, .wk-video video{display:block;width:100%;aspect-ratio:16/9;border:0;}
+.wk-steps{margin:14px 0;border:1px solid var(--border-strong);border-radius:12px;background:var(--box-bg);padding:12px 14px;}
+.wk-steps.all-done{border-color:var(--ok);}
+.ws-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13.5px;}
+.ws-prog{color:var(--text-dim);font-size:12.5px;font-weight:800;}
+.ws-reset{margin-left:auto;border:1px solid var(--border-strong);background:var(--card);color:var(--text-dim);
+  border-radius:7px;padding:3px 10px;font:inherit;font-size:12px;cursor:pointer;}
+.ws-item{display:flex;align-items:flex-start;gap:9px;padding:7px 6px;border-radius:8px;cursor:pointer;}
+.ws-item:hover{background:var(--card);}
+.ws-item.done .ws-t{text-decoration:line-through;color:var(--text-dim);}
+.ws-item.done .ws-n{background:var(--ok);border-color:var(--ok);color:#fff;}
+.ws-item input{margin-top:3px;flex:none;}
+.ws-n{flex:none;width:20px;height:20px;border-radius:50%;border:1px solid var(--border-strong);background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:800;color:var(--text-dim);}
+.ws-t{flex:1;line-height:1.55;}
+.wk-plot{margin:14px 0;border:1px solid var(--border-strong);border-radius:12px;background:var(--card);padding:12px 14px;}
+.wp-formula{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:var(--text-dim);margin-bottom:6px;}
+.wp-canvas{width:100%;height:auto;display:block;}
+.wp-controls{margin-top:8px;display:flex;flex-direction:column;gap:6px;}
+.wp-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+.wp-row .wp-v{font-weight:800;min-width:22px;font-family:ui-monospace,Menlo,Consolas,monospace;}
+.wp-row input[type=range]{flex:1;accent-color:var(--accent);}
+.wp-row .wp-n{min-width:52px;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--text-dim);}
+.wk-plot-err{font-size:13px;color:var(--danger);}
 /* 넛지 토스트 (73) */
 .nudge-toast{position:fixed;right:18px;bottom:18px;z-index:600;max-width:320px;background:var(--card);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px 16px;display:flex;flex-direction:column;gap:10px;animation:nudgeIn .25s ease-out;}
 @keyframes nudgeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
@@ -2029,6 +2125,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
     <button class="navbtn" id="docsBtn"><svg class="nbi"><use href="#i-docs"/></svg><span class="nbt">문서</span></button>
+    <button class="navbtn" id="boardBtn"><svg class="nbi"><use href="#i-check"/></svg><span class="nbt">진행 보드</span></button>
     <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원 조회</span></button>
     <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">커뮤니티</span></button>
     <button class="navbtn" id="qBtn"><svg class="nbi"><use href="#i-help"/></svg><span class="nbt">질문 게시판</span></button>
@@ -3019,12 +3116,46 @@ function setBotnavActive(key){
 /* ================== 참여 넛지 (문서 편집 유도) ==================
    ★알림(쪽지함)으로 쏘지 않는다 — "편집해보세요" 공지가 알림함에 쌓이면 스팸이 되고
      진짜 알림(답변·쪽지)의 신뢰까지 깎는다. 넛지는 '지나가다 보이는 곳'에만 둔다. */
+/* ================== 문서 과제 (77) ==================
+   기자재·프로그램·KYPT 가이드를 각자 맡아 채우는 과제를 앱 안에서 굴린다.
+   상태를 가지면 과제가 '말'이 아니라 '진행 중인 것'이 된다. */
+const TASK_STATUS = {
+  todo:   { t:'미착수',   ic:'○', cls:'ts-todo' },
+  doing:  { t:'작성 중',  ic:'✎', cls:'ts-doing' },
+  review: { t:'검토 요청', ic:'👀', cls:'ts-review' },
+  done:   { t:'완료',     ic:'✓', cls:'ts-done' },
+};
+const TASK_ORDER = ['todo','doing','review','done'];
+function taskChip(st){
+  const s=TASK_STATUS[st] || TASK_STATUS.todo;
+  return `<span class="task-chip ${s.cls}">${s.ic} ${s.t}</span>`;
+}
+/* 마감까지 남은 날 — D-2 / 오늘 / 2일 지남 */
+function dueChip(due){
+  if(!due) return '';
+  const t=new Date(Date.now()+9*3600*1000);
+  const today=Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
+  const d=new Date(String(due)+'T00:00:00Z').getTime();
+  const days=Math.round((d-today)/86400000);
+  const cls = days<0 ? 'due-over' : (days<=2 ? 'due-soon' : '');
+  const label = days<0 ? `${-days}일 지남` : (days===0 ? '오늘 마감' : `D-${days}`);
+  return `<span class="due-chip ${cls}">${label}</span>`;
+}
+
 const STUB_LEN = 400;                    // 이보다 짧으면 '도움이 필요한 문서'
 const NUDGE_KEY = 'anda_nudge_hide';     // 오늘 하루 숨김
 
 /* ================== 넛지 팝업 (73) ==================
    우하단 토스트. 설정(켜기·빈도·문구·링크)은 전부 owner의 [시스템 → 넛지 설정]에서.
    원칙 유지: 알림(쪽지함)으로는 절대 쏘지 않는다. */
+/* 짧은 확인 메시지 — 우하단에 잠깐 떴다 사라진다 (넛지 토스트와 자리는 겹치지 않게 위로) */
+function toast(text, ms){
+  const old=document.querySelector('.mini-toast'); if(old) old.remove();
+  const el=document.createElement('div'); el.className='mini-toast'; el.textContent=String(text||'');
+  document.body.appendChild(el);
+  setTimeout(()=>{ if(el.isConnected) el.remove(); }, ms||2600);
+}
+
 const NUDGE_LS='anda_nudge2';
 let NUDGE_CFG=null, _nudgeTimer=null;
 async function loadNudgeCfg(){
@@ -3037,7 +3168,8 @@ async function loadNudgeCfg(){
 function nudgeState(){ try{ return JSON.parse(localStorage.getItem(NUDGE_LS)||'{}'); }catch(e){ return {}; } }
 function saveNudgeState(s){ try{ localStorage.setItem(NUDGE_LS, JSON.stringify(s)); }catch(e){} }
 function nudgeLink(t){
-  if(t.link==='@mydoc') return (state.member_no!=null) ? docHash('#'+state.member_no) : null;   // 회원 문서(71)
+  if(t.link==='@mydoc')  return (state.member_no!=null) ? docHash('#'+state.member_no) : null;   // 회원 문서(71)
+  if(t.link==='@mytask') return '#//board';                                                      // 내 과제/진행 보드(77)
   return t.link||null;
 }
 function scheduleNudges(){
@@ -3422,6 +3554,7 @@ async function renderDoc(key){
     <div class="doc-meta">${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
       (String(doc.body||'').length < STUB_LEN && canEdit())
         ? `<span class="stub-badge">${ic('edit')} 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
+    <div id="taskSlot"></div>
     <div id="likeSlot"></div>
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
@@ -3432,7 +3565,9 @@ async function renderDoc(key){
   `;
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
+  activateDynamic($('#doc').querySelector('.doc-body'), key);   // ★동적 블록(절차·그래프) 살리기
   renderLikeBar(key);
+  renderTaskBar(key, _nav);                            // 과제 바(77) — 없으면 아무것도 안 그린다
   if(canEditThis) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   const _delB=$('#delBtn'); if(_delB) _delB.onclick=()=>deleteDoc(doc);
@@ -3548,8 +3683,67 @@ function wTable(rows){
   body.forEach(r=>{ h+='<tr>'+cells(r).map(c=>'<td>'+c+'</td>').join('')+'</tr>'; });
   return h+'</table>';
 }
+/* [[영상: URL]] — 유튜브/직접 링크. 기자재 조작은 사진 10장보다 15초 영상이 낫다. */
+function wVideo(u){
+  const url=String(u||'').trim();
+  const yt=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
+  if(yt) return '<div class="wk-video"><iframe src="https://www.youtube.com/embed/'+wAttr(yt[1])+
+    '" title="영상" loading="lazy" allowfullscreen frameborder="0"></iframe></div>';
+  const safe=wUrl(url);
+  if(/\.(mp4|webm|ogg)(\?|$)/i.test(safe))
+    return '<div class="wk-video"><video src="'+wAttr(safe)+'" controls preload="metadata" playsinline></video></div>';
+  return '<p><a href="'+wAttr(safe)+'" target="_blank" rel="noopener">영상 링크</a></p>';
+}
+
+/* [[절차]] … [[/절차]] — 체크하며 따라가는 실험/조작 절차. 읽는 문서 → 따라 하는 문서 */
+let _stepN = 0;
+function wSteps(steps){
+  if(!steps.length) return '';
+  const id='st'+(_stepN++);
+  return '<div class="wk-steps" data-steps="'+id+'">'
+    + '<div class="ws-head"><b>따라 하기</b><span class="ws-prog">0 / '+steps.length+'</span>'
+    + '<button class="ws-reset" type="button">처음부터</button></div>'
+    + steps.map((s,k)=>'<label class="ws-item"><input type="checkbox" data-k="'+k+'">'
+        + '<span class="ws-n">'+(k+1)+'</span><span class="ws-t">'+wInline(s)+'</span></label>').join('')
+    + '</div>';
+}
+
+/* [[그래프: sin(k*x), x=0..10, k=1..5]] — 슬라이더로 만지는 그래프.
+   KYPT는 현상 이해가 핵심이라, 파라미터를 직접 움직여 보는 게 문단 다섯 개보다 강하다.
+   ★안전: 수식에 허용 문자만 남기고(영숫자·연산자·괄호·콤마·점) 나머지는 전부 버린다. */
+let _plotN = 0;
+const PLOT_FNS = ['sin','cos','tan','asin','acos','atan','sinh','cosh','tanh','exp','log','log10','sqrt','abs','pow','min','max','floor','ceil','round','sign','PI','E'];
+function plotSafeExpr(e){
+  let s=String(e||'');
+  if(!/^[0-9a-zA-Z_+\-*/^().,\s]*$/.test(s)) return null;      // 허용 문자 외엔 즉시 거부
+  const words=s.match(/[a-zA-Z_][a-zA-Z_0-9]*/g) || [];
+  return { expr:s, words };
+}
+function wPlot(spec){
+  // spec: "식, x=0..10, k=1..5" (변수 범위는 몇 개든)
+  const parts=String(spec).split(',').map(s=>s.trim()).filter(Boolean);
+  if(!parts.length) return '';
+  const raw=parts[0];
+  const ranges=[];
+  for(let i=1;i<parts.length;i++){
+    const m=parts[i].match(/^([a-zA-Z_][a-zA-Z_0-9]*)\s*=\s*(-?[0-9.]+)\s*\.\.\s*(-?[0-9.]+)$/);
+    if(m) ranges.push({ v:m[1], lo:parseFloat(m[2]), hi:parseFloat(m[3]) });
+  }
+  if(!ranges.length) return '<p class="wk-plot-err">그래프 문법: [[그래프: sin(k*x), x=0..10, k=1..5]]</p>';
+  const chk=plotSafeExpr(raw);
+  if(!chk) return '<p class="wk-plot-err">그래프 식에 쓸 수 없는 문자가 있어요.</p>';
+  const bad=chk.words.filter(w=>!PLOT_FNS.includes(w) && !ranges.some(r=>r.v===w));
+  if(bad.length) return '<p class="wk-plot-err">그래프에서 모르는 이름: '+wEsc(bad.join(', '))+'</p>';
+  const id='pl'+(_plotN++);
+  const cfg={ expr:raw, x:ranges[0], params:ranges.slice(1) };
+  return '<div class="wk-plot" data-plot="'+wAttr(JSON.stringify(cfg))+'" id="'+id+'">'
+    + '<div class="wp-formula">'+wEsc(raw)+'</div>'
+    + '<canvas class="wp-canvas" width="640" height="300"></canvas>'
+    + '<div class="wp-controls"></div></div>';
+}
+
 function wikiToHtml(src){
-  _imgN = 0;
+  _imgN = 0; _stepN = 0; _plotN = 0;
   // 1) 수식 보호: 파싱 전에 빼두고 마지막에 복원 — *·_ 가 수식을 망가뜨리는 것을 방지
   const math=[];
   src=String(src||'').replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+\$/g, m=>{ math.push(m); return '\uE000'+(math.length-1)+'\uE001'; });
@@ -3573,6 +3767,20 @@ function wikiToHtml(src){
     if(/^\|.*\|\s*$/.test(L)){ endPara(); endList(); const rows=[];
       while(i<lines.length && /^\|.*\|\s*$/.test(lines[i])){ rows.push(lines[i]); i++; }
       out.push(wTable(rows)); continue; }
+    /* ★동적 블록 — 정적 위키를 벗어나는 지점. 물리 동아리 문서엔 글보다 이게 낫다. */
+    if(m=L.match(/^\[\[영상:\s*(.+?)\]\]\s*$/) || (m=L.match(/^\[\[video:\s*(.+?)\]\]\s*$/i))){
+      endPara(); endList(); out.push(wVideo(m[1].trim())); i++; continue; }
+    if(/^\[\[절차\]\]\s*$/.test(L) || /^\[\[steps\]\]\s*$/i.test(L)){
+      endPara(); endList(); const steps=[]; i++;
+      while(i<lines.length && !/^\[\[\/(절차|steps)\]\]\s*$/i.test(lines[i])){
+        const s=lines[i].replace(/^\s*(?:-|\d+[.)])\s*/,'').trim();
+        if(s) steps.push(s);
+        i++;
+      }
+      if(i<lines.length) i++;                       // 닫는 태그 소비
+      out.push(wSteps(steps)); continue; }
+    if(m=L.match(/^\[\[그래프:\s*(.+?)\]\]\s*$/) || (m=L.match(/^\[\[plot:\s*(.+?)\]\]\s*$/i))){
+      endPara(); endList(); out.push(wPlot(m[1].trim())); i++; continue; }
     para.push(L); i++;
   }
   endPara(); endList();
@@ -3581,11 +3789,307 @@ function wikiToHtml(src){
 }
 /* WIKI-PARSER-END */
 
+/* 연구 집중 기간 배너 (78) — 켜져 있을 때만 대문 맨 위에 */
+function focusHTML(f, pg){
+  if(!f) return '';
+  const t=new Date(Date.now()+9*3600*1000);
+  const today=Date.UTC(t.getUTCFullYear(), t.getUTCMonth(), t.getUTCDate());
+  let dday='';
+  if(f.end){
+    const e=new Date(String(f.end)+'T00:00:00Z').getTime();
+    const d=Math.round((e-today)/86400000);
+    dday = d<0 ? '<span class="fc-d over">기간 종료</span>'
+        : d===0 ? '<span class="fc-d soon">오늘 마지막 날</span>'
+        : `<span class="fc-d${d<=3?' soon':''}">D-${d}</span>`;
+  }
+  const total=Number(pg&&pg.total)||0, done=Number(pg&&pg.done)||0;
+  const pct = total ? Math.round(done/total*100) : 0;
+  return `<div class="focus-banner">
+    <div class="fc-top"><span class="fc-title">🔬 ${escapeHtml(f.title||'연구 집중 기간')}</span>${dday}</div>
+    ${f.goal?`<div class="fc-goal">${escapeHtml(f.goal)}</div>`:''}
+    ${total?`<div class="fc-bar"><div class="fc-fill" style="width:${pct}%"></div></div>
+      <div class="fc-num">과제 ${done} / ${total} 완료 · ${pct}%
+        ${Number(pg.review)?` · 검토 대기 ${pg.review}`:''}
+        <a class="bt-more" data-go="#//board">진행 보드 →</a></div>`:''}
+  </div>`;
+}
+
+/* 진행 보드 (77) — 누구나 열람. 남들이 뭘 하고 있는지 보이는 게 핵심이다. */
+async function renderBoard(){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="doc-head"><h1>진행 보드</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('task_board');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){
+    if(_nav!==_navSeq) return;
+    $('#doc').innerHTML=`<div class="doc-head"><h1>진행 보드</h1></div>
+      <p>과제 기능이 아직 배포되지 않았습니다. (77_doc_tasks.sql 실행 필요)</p>`;
+    return;
+  }
+  if(_nav!==_navSeq) return;
+  const col=(st)=>{
+    const list=rows.filter(r=>r.status===st);
+    return `<div class="bd-col">
+      <div class="bd-col-head">${taskChip(st)}<span class="bd-n">${list.length}</span></div>
+      ${list.length? list.map(r=>`<a class="bd-card" data-key="${escapeAttr(r.doc_key)}">
+          <div class="bd-t">${escapeHtml(r.title||r.doc_key)}</div>
+          <div class="bd-m">
+            ${(r.member_names||[]).length
+              ? (r.member_names||[]).map((n,i)=>`<span class="tb-mem"><span class="tb-dot" data-cover="${escapeAttr((r.member_ids||[])[i]||'')}"></span>${escapeHtml(n)}</span>`).join('')
+              : '<span class="muted">담당자 없음</span>'}
+            ${dueChip(r.due)}
+          </div>
+          ${r.note?`<div class="bd-note">${escapeHtml(r.note)}</div>`:''}
+        </a>`).join('')
+        : '<div class="bd-empty">없음</div>'}
+    </div>`;
+  };
+  const doneN=rows.filter(r=>r.status==='done').length;
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>진행 보드</h1>
+      <div class="tabs"><span class="doc-views">${doneN} / ${rows.length} 완료</span></div></div>
+    <div class="doc-meta">누가 어떤 문서를 맡았고 어디까지 왔는지 한눈에 봅니다. 카드를 누르면 그 문서로 가요.
+      ${isAdmin()?' 문서 화면에서 <b>과제 배정</b>을 누르면 담당자를 정할 수 있어요.':''}</div>
+    ${rows.length? `<div class="board">${TASK_ORDER.map(col).join('')}</div>`
+      : '<div class="act-empty">아직 배정된 과제가 없어요.'+(isAdmin()?' 문서를 열고 [과제 배정]을 눌러보세요.':'')+'</div>'}`;
+  $('#doc').querySelectorAll('.bd-card[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
+  const ids=[...new Set(rows.flatMap(r=>r.member_ids||[]).filter(Boolean))];
+  if(ids.length) ensureCovers(ids).then(()=>{ if(_nav===_navSeq) applyCovers($('#doc')); });
+  window.scrollTo(0,0);
+}
+
+/* 문서 화면의 과제 바 (77) — 담당자·상태·마감. 77 미적용이면 조용히 아무것도 안 그린다. */
+async function renderTaskBar(key, nav){
+  const slot=$('#taskSlot'); if(!slot) return;
+  let t=null;
+  try{
+    const { data, error } = await sb.rpc('doc_task', { p_key: key });
+    if(error) throw error;
+    t=(data && data[0]) || null;
+  }catch(e){ if(isAdmin() && !isMemberDocKey(key)) paintAssignBtn(); return; }   // 미적용
+  if(nav!==undefined && nav!==_navSeq) return;
+  if(!$('#taskSlot')) return;
+
+  function paintAssignBtn(){
+    if(!isAdmin() || isMemberDocKey(key)) return;
+    slot.innerHTML=`<div class="task-bar empty"><span class="muted">이 문서는 아직 과제로 배정되지 않았어요.</span>
+      <button class="btn ghost" id="taskAssign" style="width:auto;padding:5px 12px;font-size:13px">과제 배정</button></div>`;
+    const b=$('#taskAssign'); if(b) b.onclick=()=>openTaskAssign(key, null);
+  }
+  if(!t){ paintAssignBtn(); return; }
+
+  const names=(t.member_names||[]);
+  const ids=(t.member_ids||[]);
+  const canMove = !!t.mine || isAdmin();
+  slot.innerHTML=`
+    <div class="task-bar">
+      <div class="tb-left">
+        ${taskChip(t.status)}${dueChip(t.due)}
+        <span class="tb-who">${names.length
+          ? names.map((n,i)=>`<span class="tb-mem"><span class="tb-dot" data-cover="${escapeAttr(ids[i]||'')}"></span>${escapeHtml(n)}</span>`).join('')
+          : '<span class="muted">담당자 없음</span>'}</span>
+      </div>
+      ${t.note?`<div class="tb-note">${escapeHtml(t.note)}</div>`:''}
+      <div class="tb-right">
+        ${canMove?`<span class="usel"><select id="taskSt">${TASK_ORDER.map(s=>`<option value="${s}"${t.status===s?' selected':''}>${TASK_STATUS[s].t}</option>`).join('')}</select></span>`:''}
+        ${isAdmin()?`<button class="btn ghost" id="taskEdit" style="width:auto;padding:5px 12px;font-size:13px">배정 수정</button>`:''}
+      </div>
+    </div>`;
+  if(ids.length) ensureCovers(ids).then(()=>applyCovers(slot));
+  const sel=$('#taskSt');
+  if(sel) sel.onchange=async()=>{
+    const v=sel.value; sel.disabled=true;
+    try{
+      const { error } = await sb.rpc('set_task_status', { p_key:key, p_status:v });
+      if(error) throw error;
+      await renderTaskBar(key);
+      if(v==='review') toast('검토 요청을 보냈어요. 관리자에게 알림이 갑니다.');
+      else if(v==='done') toast('완료로 표시했어요. 고생했어요!');
+    }catch(e){ sel.disabled=false; alert('상태 변경 실패: '+((e&&e.message)||e)); }
+  };
+  const eb=$('#taskEdit'); if(eb) eb.onclick=()=>openTaskAssign(key, t);
+}
+
+/* 과제 배정 모달 (admin) */
+async function openTaskAssign(key, cur){
+  let members=[];
+  try{ const { data } = await sb.rpc('admin_list_members'); members=data||[]; }
+  catch(e){ try{ const { data } = await sb.from('members_public').select('id,name,handle'); members=data||[]; }catch(e2){} }
+  const chosen=new Set((cur && cur.member_ids) || []);
+  const ov=document.createElement('div'); ov.className='qc-ov';
+  ov.innerHTML=`<div class="qc-drawer">
+    <div class="modal-msg">과제 배정</div>
+    <div class="modal-sub">이 문서를 누가 맡을지 정합니다. 담당자에게 알림이 가고, 대문의 <b>내 과제</b>에 뜹니다.</div>
+    <label class="nd-label" style="margin-top:12px">담당자 (여러 명 가능)</label>
+    <div class="ta-list" id="taList">
+      ${members.map(m=>`<label class="ta-item${chosen.has(m.id)?' on':''}">
+        <input type="checkbox" value="${escapeAttr(m.id)}" ${chosen.has(m.id)?'checked':''}>
+        <span>${escapeHtml(m.name||m.handle||'회원')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></label>`).join('')
+        || '<div class="muted">회원 목록을 불러오지 못했어요.</div>'}
+    </div>
+    <div class="ta-row">
+      <div><label class="nd-label">상태</label>
+        <span class="usel"><select id="taSt">${TASK_ORDER.map(s=>`<option value="${s}"${(cur&&cur.status===s)?' selected':''}>${TASK_STATUS[s].t}</option>`).join('')}</select></span></div>
+      <div><label class="nd-label">마감일</label>
+        <input class="he-input" id="taDue" type="date" value="${escapeAttr((cur&&cur.due)||'')}"></div>
+    </div>
+    <label class="nd-label">메모 <span class="muted">(무엇을 채워야 하는지 한 줄)</span></label>
+    <input class="he-input" id="taNote" type="text" maxlength="120" value="${escapeAttr((cur&&cur.note)||'')}" placeholder="예: 사용법 + 자주 하는 실수 중심으로">
+    <div class="he-msg" id="taMsg"></div>
+    <div class="modal-btns">
+      ${cur?`<button class="modal-cancel" id="taClear" style="color:var(--danger)">배정 해제</button>`:''}
+      <button class="modal-cancel">취소</button><button class="modal-ok" id="taSave">저장</button>
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelectorAll('.ta-item input').forEach(c=>c.onchange=()=>c.closest('.ta-item').classList.toggle('on', c.checked));
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const cl=ov.querySelector('#taClear');
+  if(cl) cl.onclick=async()=>{
+    if(!await confirmModal('배정을 해제할까요?','담당자와 상태 기록이 사라집니다. 문서는 그대로예요.','해제')) return;
+    try{ await sb.rpc('clear_doc_task', { p_key:key }); close(); await renderTaskBar(key); }
+    catch(e){ alert('해제 실패: '+((e&&e.message)||e)); }
+  };
+  ov.querySelector('#taSave').onclick=async()=>{
+    const ids=[...ov.querySelectorAll('.ta-item input:checked')].map(c=>c.value);
+    const st=ov.querySelector('#taSt').value;
+    const due=ov.querySelector('#taDue').value || null;
+    const note=ov.querySelector('#taNote').value.trim();
+    const msg=ov.querySelector('#taMsg'); msg.className='he-msg';
+    const btn=ov.querySelector('#taSave'); btn.disabled=true; btn.textContent='저장 중…';
+    try{
+      const { error } = await sb.rpc('set_doc_task', { p_key:key, p_members:ids, p_status:st, p_due:due, p_note:note });
+      if(error) throw error;
+      close();
+      await renderTaskBar(key);
+      toast('과제를 배정했어요.');
+    }catch(e){
+      btn.disabled=false; btn.textContent='저장';
+      msg.className='he-msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e)+' (77_doc_tasks.sql 실행 확인)';
+    }
+  };
+}
+
 /* 문서 렌더 분기: 안전망 — 위키 문서인데 본문이 명백히 HTML(옛 리비전 롤백 등)이면 HTML로 렌더 */
 function looksLikeHtmlBody(b){ return /^\s*<(h[1-6]|p|div|table|ul|ol|aside|blockquote|section|b|i|span|img|a)\b/i.test(String(b||'')); }
 function renderDocBody(doc){
   const wiki = (doc.format==='wiki') && !looksLikeHtmlBody(doc.body);
   return wiki ? wikiToHtml(doc.body||'') : (doc.body||'');
+}
+
+/* ================== 동적 블록 활성화 ==================
+   문서를 그린 뒤 한 번 호출한다. 절차는 체크 상태를 기기에 기억하고(localStorage),
+   그래프는 슬라이더를 움직이면 즉시 다시 그린다. */
+function activateDynamic(root, docKey){
+  if(!root) return;
+
+  // ── 절차: 체크하며 따라가기 (내 기기에만 저장 — 서버로 보내지 않는다)
+  root.querySelectorAll('.wk-steps').forEach(box=>{
+    const id=box.dataset.steps;
+    const LS='anda_steps:'+(docKey||'')+':'+id;
+    let saved={};
+    try{ saved=JSON.parse(localStorage.getItem(LS)||'{}'); }catch(e){}
+    const items=[...box.querySelectorAll('.ws-item input')];
+    const prog=box.querySelector('.ws-prog');
+    const paint=()=>{
+      const n=items.filter(c=>c.checked).length;
+      if(prog) prog.textContent=n+' / '+items.length;
+      box.classList.toggle('all-done', n===items.length && items.length>0);
+      items.forEach(c=>c.closest('.ws-item').classList.toggle('done', c.checked));
+    };
+    items.forEach(c=>{
+      c.checked = !!saved[c.dataset.k];
+      c.onchange=()=>{
+        const st={}; items.forEach(x=>{ if(x.checked) st[x.dataset.k]=1; });
+        try{ localStorage.setItem(LS, JSON.stringify(st)); }catch(e){}
+        paint();
+      };
+    });
+    const rs=box.querySelector('.ws-reset');
+    if(rs) rs.onclick=()=>{ items.forEach(c=>{ c.checked=false; }); try{ localStorage.removeItem(LS); }catch(e){} paint(); };
+    paint();
+  });
+
+  // ── 그래프: 슬라이더로 파라미터를 만지면 즉시 다시 그린다
+  root.querySelectorAll('.wk-plot').forEach(box=>{
+    let cfg=null;
+    try{ cfg=JSON.parse(box.dataset.plot); }catch(e){ return; }
+    const cv=box.querySelector('.wp-canvas'); if(!cv) return;
+    const ctrl=box.querySelector('.wp-controls');
+    const vals={};
+    (cfg.params||[]).forEach(p=>{ vals[p.v]=(p.lo+p.hi)/2; });
+
+    /* 식 평가기: 파서 단계에서 허용 문자·이름을 이미 검증했다.
+       Math 함수만 스코프에 넣고, 그 외 전역은 차단한다. */
+    let fn=null;
+    try{
+      const names=[cfg.x.v].concat((cfg.params||[]).map(p=>p.v));
+      fn=new Function(...names, 'with(Math){ return (' + cfg.expr + '); }');
+    }catch(e){ box.innerHTML='<p class="wk-plot-err">그래프 식을 읽지 못했어요.</p>'; return; }
+
+    const draw=()=>{
+      const w=cv.width, h=cv.height, g=cv.getContext('2d');
+      const cs=getComputedStyle(document.body);
+      const accent=(cs.getPropertyValue('--accent')||'#C00000').trim();
+      const dim=(cs.getPropertyValue('--text-dim')||'#888').trim();
+      const line=(cs.getPropertyValue('--border')||'#ddd').trim();
+      g.clearRect(0,0,w,h);
+      const N=400, xs=[], ys=[];
+      const lo=cfg.x.lo, hi=cfg.x.hi;
+      for(let i=0;i<=N;i++){
+        const x=lo+(hi-lo)*i/N;
+        let y;
+        try{ y=fn(x, ...(cfg.params||[]).map(p=>vals[p.v])); }catch(e){ y=NaN; }
+        xs.push(x); ys.push(Number.isFinite(y)?y:NaN);
+      }
+      const fin=ys.filter(Number.isFinite);
+      if(!fin.length){ g.fillStyle=dim; g.font='13px sans-serif'; g.fillText('그릴 수 있는 값이 없어요', 12, 20); return; }
+      let ymin=Math.min(...fin), ymax=Math.max(...fin);
+      if(ymax-ymin < 1e-9){ ymax+=1; ymin-=1; }
+      const pad=(ymax-ymin)*0.1; ymin-=pad; ymax+=pad;
+      const px=x=>40+(x-lo)/(hi-lo)*(w-55);
+      const py=y=>h-28-(y-ymin)/(ymax-ymin)*(h-45);
+      // 축
+      g.strokeStyle=line; g.lineWidth=1;
+      g.beginPath(); g.moveTo(40,10); g.lineTo(40,h-28); g.lineTo(w-12,h-28); g.stroke();
+      if(ymin<0 && ymax>0){ g.setLineDash([4,4]); g.beginPath(); g.moveTo(40,py(0)); g.lineTo(w-12,py(0)); g.stroke(); g.setLineDash([]); }
+      // 눈금
+      g.fillStyle=dim; g.font='11px sans-serif';
+      g.fillText(String(+lo.toFixed(2)), 34, h-12);
+      g.fillText(String(+hi.toFixed(2)), w-32, h-12);
+      g.fillText(String(+ymax.toFixed(2)), 4, 16);
+      g.fillText(String(+ymin.toFixed(2)), 4, h-32);
+      // 곡선
+      g.strokeStyle=accent; g.lineWidth=2; g.beginPath();
+      let pen=false;
+      for(let i=0;i<=N;i++){
+        if(!Number.isFinite(ys[i])){ pen=false; continue; }
+        const X=px(xs[i]), Y=py(ys[i]);
+        if(!pen){ g.moveTo(X,Y); pen=true; } else g.lineTo(X,Y);
+      }
+      g.stroke();
+    };
+
+    (cfg.params||[]).forEach(p=>{
+      const row=document.createElement('label'); row.className='wp-row';
+      const step=(p.hi-p.lo)/100 || 0.01;
+      row.innerHTML=`<span class="wp-v">${escapeHtml(p.v)}</span>
+        <input type="range" min="${p.lo}" max="${p.hi}" step="${step}" value="${vals[p.v]}">
+        <span class="wp-n">${(+vals[p.v]).toFixed(2)}</span>`;
+      const rg=row.querySelector('input'), nm=row.querySelector('.wp-n');
+      rg.oninput=()=>{ vals[p.v]=parseFloat(rg.value); nm.textContent=(+vals[p.v]).toFixed(2); draw(); };
+      ctrl.appendChild(row);
+    });
+    if(!(cfg.params||[]).length && ctrl) ctrl.remove();
+    draw();
+    // 다크모드 전환 시 색이 바뀌므로 다시 그린다
+    box._redraw = draw;
+  });
 }
 
 /* HTML → 안다 문법 최선 변환 ("차차 변환" 방침용). 결과는 반드시 미리보기로 확인 후 저장. */
@@ -3767,6 +4271,11 @@ function collectInfobox(){
    ★ '결과' 칸을 실제 wikiToHtml()로 렌더한다 → 문법이 바뀌면 표가 저절로 따라오고,
      가이드가 코드와 어긋날 수 없다. 긴 설명 없이 표만. */
 const TIP_ROWS = {
+  '움직이는 블록 ★새로 생김': [
+    ['[[영상: https://youtu.be/xxxx]]',            '유튜브·mp4 영상 삽입. 기자재 조작은 사진보다 15초 영상이 낫습니다'],
+    ['[[절차]]\n- 전원을 켠다\n- 영점을 맞춘다\n[[/절차]]', '체크하며 따라가는 절차. 어디까지 했는지 기기에 기억됩니다'],
+    ['[[그래프: sin(k*x), x=0..10, k=1..5]]',      '슬라이더로 만지는 그래프. k를 움직이면 곡선이 바로 바뀝니다'],
+  ],
   '기본': [
     ['## 제목',            '문서의 章. 목차 자동 생성'],
     ['### 소제목',         '章 안의 節'],
@@ -4061,6 +4570,7 @@ function wkRenderPreview(){
     const prev=$('#wkPrev'); const ta=$('#e-body'); if(!prev||!ta) return;
     prev.innerHTML=wikiToHtml(ta.value);
     renderMath(prev);
+    activateDynamic(prev, 'preview');        // ★절차·그래프도 미리보기에서 바로 움직인다
     bindPreviewImages();
     if(wkSel!=null) wkSelectImg(wkSel);      // 다시 그린 뒤에도 선택 유지
   
@@ -4310,6 +4820,32 @@ async function saveDoc(key){
    본문은 안다 문법, 인포박스는 채울 항목만 미리 깔아 둔다. */
 const DOC_TEMPLATES = {
   free: { icon:'📄', name:'자유 형식', desc:'빈 문서로 시작합니다.', body:'', infobox:null },
+
+  gear: { icon:'🔧', name:'기자재·장비', desc:'실험 기구 사용법. 다음 사람이 혼자 쓸 수 있게.',
+    body:'## 한 줄 요약\n(무엇을 재는/하는 장비인지 한 문장.)\n\n'
+       + '## 실물\n(전체 사진 + 조작부 클로즈업을 넣어 주세요.)\n\n'
+       + '## 처음 쓰는 법\n[[절차]]\n- 보관함에서 꺼내 평평한 곳에 둔다\n- 전원을 연결하고 켠다\n- 영점을 맞춘다\n- 측정한다\n- 끄고 제자리에 둔다\n[[/절차]]\n\n'
+       + '## 조작 영상\n[[영상: 유튜브 링크를 넣으세요]]\n(글로 설명하기 어려운 손동작은 15초 영상이 사진 10장보다 낫습니다.)\n\n'
+       + '## 자주 하는 실수 · 망가뜨리는 법 ★가장 중요\n- \n- \n(이 항목이 이 문서의 진짜 값어치입니다. 내가 처음에 뭘 틀렸는지 꼭 적어 주세요.)\n\n'
+       + '## 주의사항\n- \n\n## 소모품 · 부속\n- \n\n## 문제가 생기면\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'기자재', rows:[['보관 위치',''],['담당자',''],['수량',''],['구입/도입',''],['상태','정상']] } },
+
+  program: { icon:'💻', name:'프로그램·소프트웨어', desc:'프로그램 사용법 · 설치 · 분석 방법.',
+    body:'## 무엇에 쓰나\n(어떤 상황에서 이 프로그램을 쓰는지.)\n\n'
+       + '## 설치\n[[절차]]\n- 내려받기\n- 설치\n- 첫 실행 설정\n[[/절차]]\n\n'
+       + '## 기본 사용법\n[[절차]]\n- \n- \n[[/절차]]\n\n'
+       + '## 자주 하는 실수\n- \n\n## 우리 동아리에서 쓰는 방식\n(우리만의 설정·관례가 있다면.)\n\n## 참고 자료\n- \n',
+    infobox:{ title:'{{TITLE}}', sub:'프로그램', rows:[['용도',''],['운영체제',''],['라이선스',''],['담당자','']] } },
+
+  kypt: { icon:'🏆', name:'KYPT 문제·준비', desc:'문제 분석 · 실험 설계 · 이론 정리.',
+    body:'## 문제\n(문제 원문을 그대로 옮겨 적어 주세요.)\n\n'
+       + '## 핵심 현상\n(무엇이 일어나는지, 무엇이 궁금한지.)\n\n'
+       + '## 이론\n(수식은 $v = f\\lambda$ 처럼 쓰면 됩니다.)\n\n'
+       + '## 모형 · 그래프\n[[그래프: sin(k*x), x=0..10, k=1..5]]\n(슬라이더를 움직여 파라미터 영향을 직접 보여줄 수 있어요.)\n\n'
+       + '## 실험 설계\n[[절차]]\n- 준비물\n- 변인 통제\n- 측정\n[[/절차]]\n\n'
+       + '## 측정 결과\n| 조건 | 측정값 | 비고 |\n| --- | --- | --- |\n|  |  |  |\n\n'
+       + '## 막힌 것 · 다음에 할 것\n- \n(막힌 건 질문 게시판에도 남겨 주세요.)\n',
+    infobox:{ title:'{{TITLE}}', sub:'KYPT', rows:[['문제 번호',''],['담당자',''],['대회/기수',''],['진행 상태','분석 중']] } },
 
   person: { icon:'👤', name:'인물', desc:'회원·선배 등 사람에 대한 문서입니다.',
     body:'## 개요\n(어떤 사람인지 한두 문장으로 소개해 주세요.)\n\n## 활동\n- \n- \n\n## 여담\n- \n',
@@ -5693,6 +6229,50 @@ async function renderMaintenance(target){
    · 글자수·사진 용량 상한 조정 (app_settings, set_app_limit RPC)
    · 시스템 검사 실행 버튼
    · 유지보수(안 쓰는 문서 사진 / 채팅 사진 30일 정리) */
+/* 연구 집중 기간 설정 (owner) — 78 */
+async function renderSysFocus(){
+  let f=null, ok=true;
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','focus').maybeSingle();
+    f = data && data.value ? (typeof data.value==='string' ? JSON.parse(data.value) : data.value) : null;
+    if(!f) ok=false;
+  }catch(e){ ok=false; }
+  if(!ok){
+    $('#doc').innerHTML=`<div class="doc-head"><h1>연구 집중 기간</h1><div class="tabs"><button id="fcBack">${ic('back')}시스템</button></div></div>
+      <p>집중 기간 기능이 아직 배포되지 않았습니다. (78_focus_mode.sql 실행 필요)</p>`;
+    $('#fcBack').onclick=()=>{ location.hash='#//system'; };
+    return;
+  }
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>연구 집중 기간</h1><div class="tabs"><button id="fcBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta">켜면 대문 맨 위에 <b>남은 날짜 · 과제 진행률</b>이 뜹니다. KYPT 준비처럼 몰아서 하는 기간에 켜세요.</div>
+    <section class="hs-sec">
+      <label style="display:flex;align-items:center;gap:8px;font-weight:800;cursor:pointer">
+        <input type="checkbox" id="fcOn" ${f.on?'checked':''}> 집중 기간 켜기</label>
+      <table class="hs-table" style="margin-top:12px">
+        <tr><th style="width:120px">이름</th><td><input class="lim-in" id="fcTitle" type="text" maxlength="40" value="${escapeAttr(f.title||'연구 집중 기간')}" style="width:260px"></td></tr>
+        <tr><th>시작일</th><td><input class="lim-in" id="fcStart" type="date" value="${escapeAttr(f.start||'')}"></td></tr>
+        <tr><th>종료일</th><td><input class="lim-in" id="fcEnd" type="date" value="${escapeAttr(f.end||'')}"> <span class="muted">D-day 계산에 씁니다</span></td></tr>
+        <tr><th>목표 한 줄</th><td><input class="lim-in" id="fcGoal" type="text" maxlength="120" value="${escapeAttr(f.goal||'')}" style="width:100%"></td></tr>
+      </table>
+    </section>
+    <button class="btn primary" id="fcSave" style="width:auto;padding:9px 22px;margin-top:14px">저장</button>
+    <div class="msg" id="fcMsg"></div>`;
+  $('#fcBack').onclick=()=>{ location.hash='#//system'; };
+  $('#fcSave').onclick=async()=>{
+    const msg=$('#fcMsg'); msg.className='msg';
+    const cfg={ on:$('#fcOn').checked, title:$('#fcTitle').value.trim()||'연구 집중 기간',
+      start:$('#fcStart').value||null, end:$('#fcEnd').value||null, goal:$('#fcGoal').value.trim() };
+    $('#fcSave').disabled=true;
+    try{
+      const { error } = await sb.rpc('set_focus_mode', { p_cfg: cfg });
+      if(error) throw error;
+      msg.className='msg ok'; msg.textContent=cfg.on?'켰습니다. 대문 맨 위에 표시됩니다.':'껐습니다.';
+    }catch(e){ msg.className='msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e); }
+    $('#fcSave').disabled=false;
+  };
+}
+
 /* 가입 설정 (owner) — 76. 안다미로 전용을 유지하는 문지기 */
 async function renderSysSignup(){
   let mode='open';
@@ -5771,7 +6351,7 @@ async function renderSysNudges(){
     </section>
     <section class="hs-sec">
       <div style="display:flex;align-items:center;justify-content:space-between;gap:8px"><b>넛지 종류 (최대 20개 · 위에 있을수록 먼저 뜸)</b><button class="btn ghost" id="ngAdd" type="button" style="width:auto;padding:6px 12px">＋ 추가</button></div>
-      <div class="doc-meta" style="margin:6px 0 8px">이동 링크에 <b>@mydoc</b>을 쓰면 보는 회원 각자의 <b>회원 문서</b>로 이동합니다.</div>
+      <div class="doc-meta" style="margin:6px 0 8px">이동 링크에 <b>@mydoc</b>을 쓰면 보는 회원 각자의 <b>회원 문서</b>로, <b>@mytask</b>를 쓰면 <b>진행 보드</b>로 이동합니다.</div>
       <table class="hs-table" id="ngTable">
         <tr><th style="width:40px">켬</th><th>id</th><th>문구</th><th>이동 링크</th><th>버튼 라벨</th><th style="width:70px"></th></tr>
         ${ (cfg.types||[]).map(rowHTML).join('') }
@@ -5826,6 +6406,7 @@ async function renderSystem(){
     { owner:true,          hash:'#//system/site',   ic:'home',  t:'사이트 정보',            d:'사이트 이름·소속·미션 문구. 소개 랜딩과 상단 로고 옆 이름에 쓰입니다.' },
     { owner:true,          hash:'#//system/nudges', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
     { owner:true,          hash:'#//system/signup', ic:'users', t:'가입 설정',              d:'누가 가입할 수 있는지 정합니다. 초대 코드 · 누구나 · 가입 중단.' },
+    { owner:true,          hash:'#//system/focus',  ic:'check', t:'연구 집중 기간',         d:'기간을 켜면 대문 맨 위에 남은 날짜와 과제 진행률이 뜹니다.' },
     { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
@@ -7379,6 +7960,23 @@ async function renderLanding(){
                         .reduce((n,r)=>n+(Number(r[mission.type])||0),0); }
     }
   }catch(e){}
+  let myTasks=[];                                   // ★내 과제 (77)
+  try{ const { data, error } = await sb.rpc('my_tasks'); if(!error) myTasks=data||[]; }catch(e){}
+  let openQs=[];                                    // ★막힌 질문 — 아직 답이 없는 것 (앱을 열 이유)
+  try{
+    const { data, error } = await sb.rpc('list_open_questions');
+    if(!error) openQs=(data||[]).filter(q=>Number(q.answers)===0).slice(0,4);
+  }catch(e){}
+  let focus=null, fprog=null;                       // ★연구 집중 기간 (78)
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','focus').maybeSingle();
+    const f = data && data.value ? (typeof data.value==='string' ? JSON.parse(data.value) : data.value) : null;
+    if(f && f.on){
+      focus=f;
+      const { data:pg } = await sb.rpc('focus_progress');
+      fprog=(pg && pg[0]) || null;
+    }
+  }catch(e){}
   let live=null;                                    // 살아있는 숫자 (67 — 로그인 랜딩과 동일 집계)
   try{ const { data } = await sb.rpc('public_stats'); if(data&&typeof data==='object') live=data; }catch(e){}
   let recent=[];
@@ -7443,9 +8041,26 @@ async function renderLanding(){
   $('#doc').innerHTML=`
     ${nudgeHTML(stats)}
     <div class="landing">
+      ${focusHTML(focus, fprog)}
       ${welcomeHTML(false)}
       <div class="bento">
+        ${myTasks.length?`<div class="bt bt-mytask">
+          <div class="bt-head">${ic('check')}내 과제 <a class="bt-more" data-go="#//board">진행 보드 →</a></div>
+          ${myTasks.slice(0,5).map(t=>`<a class="mt-row${t.status==='done'?' done':''}" data-key="${escapeAttr(t.doc_key)}">
+            <span class="mt-title">${escapeHtml(t.title||t.doc_key)}</span>
+            <span class="mt-meta">${taskChip(t.status)}${dueChip(t.due)}</span>
+            ${t.note?`<span class="mt-note">${escapeHtml(t.note)}</span>`:''}
+          </a>`).join('')}
+        </div>`:''}
         <div class="bt bt-act">${actHTML}</div>
+        ${openQs.length?`<div class="bt bt-openq">
+          <div class="bt-head">${ic('help')}아직 답이 없는 질문 <a class="bt-more" data-go="#//questions">질문 게시판 →</a></div>
+          ${openQs.map(q=>`<a class="oq-row" data-go="#//q/${q.id}">
+            <span class="oq-t">${escapeHtml(q.title||'-')}</span>
+            <span class="oq-m">${escapeHtml(q.author_name||'-')} · ${fmtKST(q.created_at)}</span>
+          </a>`).join('')}
+          <div class="oq-foot">아는 게 있다면 한 줄이라도 남겨주세요 — 답이 곧 문서가 됩니다.</div>
+        </div>`:''}
         <div class="bt bt-cal">
           <div class="bt-head">${ic('calendar')}이번 주 안다미로 <a class="bt-more" data-go="#//calendar">캘린더 →</a></div>
           ${calHTML}
@@ -7500,6 +8115,7 @@ async function renderLanding(){
       </div>
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
+  $('#doc').querySelectorAll('.mt-row[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
     const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
@@ -9702,8 +10318,8 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','feedback','feedback/review','devlog',
-                   'password','me','trash','notfound'];
+                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog',
+                   'password','me','trash','notfound','board'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
@@ -9883,7 +10499,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -9934,6 +10550,8 @@ function route(){
   if(sys && key==='system/site'){    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSite(); return; }
   if(sys && key==='system/nudges'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysNudges(); return; }
   if(sys && key==='system/signup'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSignup(); return; }
+  if(sys && key==='system/focus'){   if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysFocus(); return; }
+  if(sys && key==='board'){ renderBoard(); return; }              // 진행 보드 — 누구나
   if(sys && key==='system/clubs'){  if(!guardPage('club_read'))  return; renderSysClubs();  return; }
   if(sys && key==='system/tracks'){ if(!guardPage('track_read')) return; renderSysTracks(); return; }
   if(sys && key==='password'){ renderPassword(); return; }
@@ -10105,6 +10723,7 @@ $('#dropLogout').onclick=async()=>{
 $('#homeLink').onclick=()=>{ goHash('#//main'); };
 $('#communityBtn').onclick=()=>{ goHash('#//community'); };
   $('#docsBtn').onclick=()=>{ goHash('#//docs'); };
+$('#boardBtn').onclick=()=>{ goHash('#//board'); };
   $('#qBtn').onclick=()=>{ goHash('#//questions'); };
   $('#calBtn').onclick=()=>{ goHash('#//calendar'); };
 
