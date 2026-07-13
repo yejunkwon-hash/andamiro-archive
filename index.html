@@ -2504,10 +2504,13 @@ async function onLoggedIn(){
     }
   }catch(e){}                                      // suspended 컬럼 없음(74 미적용) → 기능 없음
   renderUserbox();
-  await loadDocs();
-  await loadTracks();          // 계열 목록(칩 색상·선택 목록)
-  await loadLimits();          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
-  await loadPerms();           // 등급별 권한 매트릭스
+  /* ★최적화(81): 네 로드는 서로 독립 — 직렬 4왕복이던 것을 동시에 (로그인→첫 화면 시간 단축) */
+  await Promise.all([
+    loadDocs(),
+    loadTracks().catch(()=>{}),          // 계열 목록(칩 색상·선택 목록)
+    loadLimits().catch(()=>{}),          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
+    loadPerms().catch(()=>{}),           // 등급별 권한 매트릭스
+  ]);
   loadNudgeCfg().then(scheduleNudges);   // 넛지(73) — 미배포면 조용히 없음
   setTimeout(maybeShowInstall, 8000);    // PWA 설치 안내 — 들어온 지 8초 뒤 한 번
   await ensureOwner();         // ★owner가 0명이면 회원번호 1번을 자동 승격 (잠김 방지)
@@ -3411,25 +3414,26 @@ function creditText(c){
 async function renderQuestions(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   $('#doc').innerHTML=`<div class="qb-head"><h1>질문 게시판</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  /* ★최적화(81): 본목록(75)과 폴백 재료를 동시에 요청 — 직렬 2~3왕복이 1왕복 시간으로 */
+  const _s=(p)=>Promise.resolve(p).then(r=>r).catch(()=>null);
+  const [rOpen, rAll, rPosts] = await Promise.all([
+    _s(sb.rpc('list_open_questions')),        // 75: 서버가 kind로 게시글을 걸러준 목록
+    _s(sb.rpc('list_questions')),             // 폴백 재료
+    _s(sb.rpc('list_posts')),                 // 폴백 필터 재료(72)
+  ]);
   let rows=[];
-  try{
-    const { data, error } = await sb.rpc('list_questions');
-    if(error) throw error;
-    rows=data||[];
-  }catch(e){
+  if(rOpen && !rOpen.error && Array.isArray(rOpen.data)){
+    rows=rOpen.data;
+  }else if(rAll && !rAll.error){
+    rows=rAll.data||[];
+    if(rPosts && !rPosts.error){              // 75 미적용 폴백: 게시글 id를 빼서 거른다
+      const ps=new Set((rPosts.data||[]).map(p=>String(p.id)));
+      rows=rows.filter(q=>!ps.has(String(q.id)));
+    }
+  }else{
     if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
     $('#doc').innerHTML='<h1>질문 게시판</h1><p>질문 기능이 아직 배포되지 않았습니다. (31_questions.sql 실행 필요)</p>';
     return;
-  }
-  try{                                        // ★커뮤니티 게시글(kind='post')은 질문 게시판에서 제외 — 서버가 kind로 걸러준다(75)
-    const r=await sb.rpc('list_open_questions');
-    if(!r.error && Array.isArray(r.data)) rows=r.data;
-    else throw new Error('fallback');
-  }catch(e){
-    try{                                      // 75 미적용 폴백: 게시글 id 목록을 빼서 거른다
-      const r2=await sb.rpc('list_posts');
-      if(!r2.error){ const ps=new Set((r2.data||[]).map(p=>String(p.id))); rows=rows.filter(q=>!ps.has(String(q.id))); }
-    }catch(e2){}
   }
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   $('#doc').innerHTML=`
@@ -8150,11 +8154,15 @@ const LANDING_CATS = [
 /* 대문 '지금 안다미로는' — 최근 편집·새 문서·질문·답변을 한 흐름으로 (내러티브 2겹) */
 async function fetchActivity(){
   const out=[]; const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
-  let revs=[], docs=[], qs=[], ans=[];
-  try{ const r=await sb.from('revisions').select('doc_key,edited_at,edited_by').order('edited_at',{ascending:false}).limit(7); revs=r.data||[]; }catch(e){}
-  try{ const r=await sb.from('documents').select('key,title,created_at').order('created_at',{ascending:false}).limit(4); docs=r.data||[]; }catch(e){}
-  try{ const r=await sb.from('questions').select('id,title,author,created_at').order('created_at',{ascending:false}).limit(5); qs=r.data||[]; }catch(e){}
-  try{ const r=await sb.from('messages').select('question_id,user_id,author_name,created_at').not('question_id','is',null).eq('kind','user').order('created_at',{ascending:false}).limit(6); ans=r.data||[]; }catch(e){}
+  /* ★최적화(81): 4개 조회는 서로 독립 — 동시에 쏜다 (직렬 4왕복 → 1왕복 시간) */
+  const _s=(p)=>Promise.resolve(p).then(r=>r).catch(()=>({data:[]}));
+  const [rRevs, rDocs, rQs, rAns] = await Promise.all([
+    _s(sb.from('revisions').select('doc_key,edited_at,edited_by').order('edited_at',{ascending:false}).limit(7)),
+    _s(sb.from('documents').select('key,title,created_at').order('created_at',{ascending:false}).limit(4)),
+    _s(sb.from('questions').select('id,title,author,created_at').order('created_at',{ascending:false}).limit(5)),
+    _s(sb.from('messages').select('question_id,user_id,author_name,created_at').not('question_id','is',null).eq('kind','user').order('created_at',{ascending:false}).limit(6)),
+  ]);
+  let revs=rRevs.data||[], docs=rDocs.data||[], qs=rQs.data||[], ans=rAns.data||[];
   // 이름 지도 (편집자·질문자 uuid → 이름). members_public은 전 등급 조회 가능.
   const uids=[...new Set([...revs.map(r=>r.edited_by), ...qs.map(q=>q.author)].filter(Boolean))];
   const nameOf={};
@@ -8198,70 +8206,78 @@ function welcomeHTML(force){
 
 async function renderLanding(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
-  const stats = await fetchDocStats();
-  const activity = await fetchActivity();
-  let evs=[];                                       // 다가오는 일정 3개 (벤토 캘린더 타일)
-  try{ const { data } = await sb.from('events').select('id,title,at,color,is_todo,done')
-        .gte('at', new Date().toISOString()).order('at',{ascending:true}).limit(3); evs=data||[]; }catch(e){}
-  let grass=null, weekNames=[];                     // 우리들의 잔디 (68) + 이번 주 기여자
-  try{
-    grass = await fetchContrib(null, 12);
-    if(grass && grass.rows.length){
-      const now=new Date(Date.now()+9*3600*1000);
-      const wkStart=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
-      wkStart.setUTCDate(wkStart.getUTCDate()-wkStart.getUTCDay());          // 이번 주 일요일
-      const wkKey=wkStart.toISOString().slice(0,10);
-      const wkUids=[...new Set(grass.rows.filter(r=>String(r.day).slice(0,10)>=wkKey).map(r=>r.user_id))].slice(0,10);
-      if(wkUids.length){
-        try{ const { data } = await sb.from('members_public').select('id,name,handle').in('id', wkUids);
-          weekNames=(data||[]).map(m=>({id:m.id, name:m.name||m.handle||'회원'})); }catch(e){}
-        ensureCovers(wkUids);
-      }
-    }
-  }catch(e){}
-  let rewind=null;                                  // 리와인드 (70) — owner 토글 on일 때만
-  try{ const { data } = await sb.rpc('get_rewind'); if(data && data.on && data.label) rewind=data; }catch(e){}
-  let mission=null, msNow=0;                        // 월간 미션 (69)
-  try{
-    const { data } = await sb.rpc('get_monthly_mission');
+  /* ★최적화(81): 예전엔 여기서 네트워크 왕복 15번을 '한 줄씩 차례로' 기다렸다(대문 = 왕복 합).
+     서로 의존이 없는 조회는 전부 동시에 쏜다 → 대문 = 가장 느린 쿼리 하나의 시간.
+     safe(): 하나가 죽어도 나머지가 산다(우아한 실패 유지). */
+  const safe=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
+  const [
+    stats, activity, evsQ, grassQ, rewindQ, missionQ,
+    myTasksQ, openQsQ, focusQ, fprogQ, liveQ, cfgQ
+  ] = await Promise.all([
+    safe(fetchDocStats(), []),
+    safe(fetchActivity(), []),
+    safe(sb.from('events').select('id,title,at,color,is_todo,done')
+          .gte('at', new Date().toISOString()).order('at',{ascending:true}).limit(3), null),
+    safe(fetchContrib(null, 12), null),
+    safe(sb.rpc('get_rewind'), null),
+    safe(sb.rpc('get_monthly_mission'), null),
+    safe(sb.rpc('my_tasks'), null),
+    safe(sb.rpc('list_open_questions'), null),
+    safe(sb.from('app_settings').select('value').eq('key','focus').maybeSingle(), null),
+    safe(sb.rpc('focus_progress'), null),    // focus가 꺼져 있으면 버린다 — 분기해서 왕복을 더 만드는 것보다 싸다
+    safe(sb.rpc('public_stats'), null),
+    safe(loadLandingDocs(), []),
+  ]);
+  const evs = (evsQ && evsQ.data) || [];
+  const grass = grassQ || null;
+  let rewind=null;
+  { const d=rewindQ && rewindQ.data; if(d && d.on && d.label) rewind=d; }
+  let mission=null, msNow=0;                        // 월간 미션 (69) — grass에 의존하므로 도착 후 계산
+  { const d=missionQ && missionQ.data;
     const mKey=(()=>{ const t=new Date(Date.now()+9*3600*1000); return t.toISOString().slice(0,7); })();
-    if(data && data.month===mKey && data.title){
-      mission=data;
+    if(d && d.month===mKey && d.title){
+      mission=d;
       if(grass){ const first=mKey+'-01';
         msNow=grass.rows.filter(r=>String(r.day).slice(0,10)>=first)
                         .reduce((n,r)=>n+(Number(r[mission.type])||0),0); }
-    }
-  }catch(e){}
-  let myTasks=[];                                   // ★내 과제 (77)
-  try{ const { data, error } = await sb.rpc('my_tasks'); if(!error) myTasks=data||[]; }catch(e){}
-  let openQs=[];                                    // ★막힌 질문 — 아직 답이 없는 것 (앱을 열 이유)
-  try{
-    const { data, error } = await sb.rpc('list_open_questions');
-    if(!error) openQs=(data||[]).filter(q=>Number(q.answers)===0).slice(0,4);
-  }catch(e){}
+    } }
+  const myTasks = (myTasksQ && !myTasksQ.error && myTasksQ.data) || [];
+  const openQs  = ((openQsQ && !openQsQ.error && openQsQ.data) || [])
+                    .filter(q=>Number(q.answers)===0).slice(0,4);
   let focus=null, fprog=null;                       // ★연구 집중 기간 (78)
-  try{
-    const { data } = await sb.from('app_settings').select('value').eq('key','focus').maybeSingle();
-    const f = data && data.value ? (typeof data.value==='string' ? JSON.parse(data.value) : data.value) : null;
-    if(f && f.on){
-      focus=f;
-      const { data:pg } = await sb.rpc('focus_progress');
-      fprog=(pg && pg[0]) || null;
+  { const d=focusQ && focusQ.data;
+    const f = d && d.value ? (typeof d.value==='string' ? JSON.parse(d.value) : d.value) : null;
+    if(f && f.on){ focus=f; fprog=(fprogQ && fprogQ.data && fprogQ.data[0]) || null; } }
+  const live = (liveQ && liveQ.data && typeof liveQ.data==='object') ? liveQ.data : null;
+  let cfg = cfgQ || [];
+  /* recent·alldocs: 예전엔 documents를 두 번 더 조회했다.
+     recent은 이미 받은 doc_stats에서 파생(같은 표), alldocs는 로그인 때 받아둔 state.docs 그대로 — 왕복 2회 제거 */
+  let recent = (stats||[]).slice()
+      .sort((a,b)=>String(b.updated_at||'').localeCompare(String(a.updated_at||''))).slice(0,8);
+  if(!recent.length){                               // doc_stats(60) 미배포 환경 폴백
+    try{ const { data } = await sb.from('documents').select('key,title,updated_at')
+          .order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
+  }
+  const alldocs = (state.docs||[]).slice().sort((a,b)=>String(a.title||a.key).localeCompare(String(b.title||b.key),'ko'));
+  /* 이번 주 기여자 — grass 도착 후에만 알 수 있는 2단계 조회(불가피한 +1 왕복) */
+  let weekNames=[];
+  if(grass && grass.rows.length){
+    const now=new Date(Date.now()+9*3600*1000);
+    const wkStart=new Date(Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()));
+    wkStart.setUTCDate(wkStart.getUTCDate()-wkStart.getUTCDay());          // 이번 주 일요일
+    const wkKey=wkStart.toISOString().slice(0,10);
+    const wkUids=[...new Set(grass.rows.filter(r=>String(r.day).slice(0,10)>=wkKey).map(r=>r.user_id))].slice(0,10);
+    if(wkUids.length){
+      try{ const { data } = await sb.from('members_public').select('id,name,handle').in('id', wkUids);
+        weekNames=(data||[]).map(m=>({id:m.id, name:m.name||m.handle||'회원'})); }catch(e){}
+      ensureCovers(wkUids);
     }
-  }catch(e){}
-  let live=null;                                    // 살아있는 숫자 (67 — 로그인 랜딩과 동일 집계)
-  try{ const { data } = await sb.rpc('public_stats'); if(data&&typeof data==='object') live=data; }catch(e){}
-  let recent=[];
-  try{ const { data } = await sb.from('documents').select('key,title,updated_at').order('updated_at',{ascending:false}).limit(8); recent=data||[]; }catch(e){}
-  let alldocs=[];
-  try{ const { data } = await sb.from('documents').select('key,title').order('title',{ascending:true}); alldocs=data||[]; }
-  catch(e){ alldocs=(state.docs||[]).slice(); }
+  }
   // ★추천 문서는 이제 DB(app_settings.landing_docs)에서 온다.
   //   · owner만 편집 가능(set_landing_docs) → 편집자가 임의로 못 바꾼다
   //   · 문서 주소가 바뀌면 서버 트리거가 목록의 주소도 같이 고친다 → 링크가 깨지지 않는다
   //   · 그래도 남아 있는 '없는 문서'는 화면에서 걸러낸다
-  let cfg = await loadLandingDocs();
-  if(!cfg.length) cfg = LANDING_CATS;                                  // 아직 설정 전 → 기본값
+  if(!cfg.length) cfg = LANDING_CATS;                                  // 아직 설정 전 → 기본값 (병렬 배치에서 이미 받음)
   const titleOf = {}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
   const cats = cfg.map(c=>({ name:c.name||c.title||'', items:(c.items||[]).filter(it=>titleOf[it.key]!==undefined) }))
                   .filter(c=>c.items.length)
@@ -8643,11 +8659,11 @@ function subscribeInbox(){
       // 지금 열어둔 대화의 메시지면 그 창에 바로 덧붙인다
       if(inbox.sel==='dm:'+m.thread_id) await refreshOpenThread();
       await loadInbox(true);          // 목록은 변경 있을 때만 다시 그림
-      refreshInboxBadge();
+      refreshInboxBadge(true);
     })
     .on('postgres_changes', { event:'INSERT', schema:'public', table:'notifications' }, async ()=>{
       await loadInbox(true);
-      refreshInboxBadge();
+      refreshInboxBadge(true);
     })
     .subscribe();
 }
@@ -8676,8 +8692,14 @@ function dmTime(ts){
   if(sameDay) return d.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
   return d.toLocaleDateString('ko-KR',{month:'numeric',day:'numeric'});
 }
-async function refreshInboxBadge(){
+let _badgeAt=0;
+async function refreshInboxBadge(force){
   const el=$('#inboxBadge'); if(!el) return;
+  /* ★최적화(81): route()마다 호출되는데 매번 서버 왕복이었다.
+     10초 스로틀 — 탭을 빠르게 오가도 요청이 튀지 않는다. (쪽지 읽음 처리 등은 force로 즉시) */
+  const now=Date.now();
+  if(!force && now - _badgeAt < 10000) return;
+  _badgeAt = now;
   try{
     let n=0;
     const r1 = await sb.rpc('inbox_unread_total');          // 쪽지 + 알림
@@ -8802,7 +8824,7 @@ async function loadInbox(quiet=false){
   });
   ensureCovers(rows.filter(t=>t.kind==='dm').map(t=>t.other_id)).then(()=>applyCovers(list));
   list.scrollTop=keepScroll;
-  refreshInboxBadge();
+  refreshInboxBadge(true);
   refreshPresence();          // 다시 그린 목록에 접속 표시 즉시 반영
 }
 
@@ -8845,7 +8867,7 @@ async function refreshOpenThread(){
   if(added){
     if(atBottom) box.scrollTop=box.scrollHeight;          // 맨 아래를 보고 있었을 때만 따라감
     bindDmDelete(tid);                                    // 새로 붙은 메시지의 삭제 버튼도 배선
-    refreshInboxBadge();
+    refreshInboxBadge(true);
   }
 }
 
@@ -8894,7 +8916,7 @@ async function openSystemThread(){
   for(const n of notices){
     if(Number(n.unread)>0){ try{ await sb.rpc('mark_notification_read', { p_id: Number(n.ref) }); }catch(_){} }
   }
-  refreshInboxBadge();
+  refreshInboxBadge(true);
 }
 
 /* 폰에서 대화창을 팝업으로 띄우고 내린다 (PC에선 아무 일도 하지 않음) */
@@ -8995,7 +9017,7 @@ async function openDmThread(tid){
   $('#ipSend').onclick=send;
   bindChatKeys($('#ipInput'), send);      // Enter=보내기 · Ctrl+Enter=줄바꿈
   initDmImages();
-  refreshInboxBadge();
+  refreshInboxBadge(true);
 }
 
 /* [메시지] 버튼 → 쪽지함으로 이동. 기존 대화가 있으면 그 스레드를, 없으면 새 쪽지 작성창을 연다. */
@@ -9155,21 +9177,18 @@ async function loadQuestionPanel(){
 async function renderQuestion(qid){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   community.qid = qid;
-  let q=null;
+  /* ★최적화(81): 본문과 게시글 메타(72)는 독립 — 동시에 요청 (직렬 2왕복 → 1왕복 시간) */
+  let q=null, pstat=null;
   try{
-    const { data, error } = await sb.rpc('get_question', { p_id: qid });
-    if(error) throw error;
-    q = Array.isArray(data) ? (data[0]||null) : (data||null);
+    const [rq, rs] = await Promise.all([
+      sb.rpc('get_question', { p_id: qid }),
+      sb.rpc('post_stats',  { p_id: qid }).catch(()=>null),   // 72 미적용 → 조용히 '질문'으로
+    ]);
+    if(rq.error) throw rq.error;
+    q = Array.isArray(rq.data) ? (rq.data[0]||null) : (rq.data||null);
+    if(rs && !rs.error) pstat=(rs.data && rs.data[0]) || null;
   }catch(e){}
   if(!q){ location.hash='#//community'; return; }
-
-  /* ★이 글이 질문인지 커뮤니티 게시글인지 먼저 확인한다 — 뒤로가기·안내 문구가 달라진다.
-     72 미적용이면 post_stats가 없으므로 조용히 '질문'으로 본다. */
-  let pstat=null;
-  try{
-    const r=await sb.rpc('post_stats', { p_id: qid });
-    if(!r.error) pstat=(r.data && r.data[0]) || null;
-  }catch(e){}
   const isPost = !!(pstat && pstat.kind==='post');
   const backHash  = isPost ? '#//community' : '#//questions';
   const backLabel = isPost ? '커뮤니티' : '질문 게시판';
@@ -10225,7 +10244,11 @@ async function loadEvents(y, m){
     const from = new Date(y, m-1, 1).toISOString();
     const to   = new Date(y, m+2, 1).toISOString();
     let cols='id,title,at,color,note,created_by,is_todo,done,done_at,doc_key';
-    let r = await sb.from('events').select(cols).gte('at', from).lt('at', to).order('at',{ascending:true});
+    /* ★최적화(81): 일정과 과제 보드는 독립 — 동시에 요청 */
+    let [r, rTb] = await Promise.all([
+      sb.from('events').select(cols).gte('at', from).lt('at', to).order('at',{ascending:true}),
+      sb.rpc('task_board').catch(()=>null),
+    ]);
     if(r.error){                                  // 79 미적용(doc_key 없음) → 예전 컬럼으로 재시도
       r = await sb.from('events').select('id,title,at,color,note,created_by,is_todo,done,done_at')
             .gte('at', from).lt('at', to).order('at',{ascending:true});
@@ -10236,7 +10259,7 @@ async function loadEvents(y, m){
     /* ★과제 마감(77)을 달력에 얹는다 — 따로 일정을 만들지 않아도 마감이 저절로 보인다.
        읽기 전용 '가상 일정'이라 편집·삭제 대상이 아니다(id 없음, due=true). */
     try{
-      const { data:tb, error:te } = await sb.rpc('task_board');
+      const tb = rTb && !rTb.error ? rTb.data : null, te = !tb;
       if(!te){
         (tb||[]).filter(t=>t.due && t.status!=='done').forEach(t=>{
           calState.events.push({
