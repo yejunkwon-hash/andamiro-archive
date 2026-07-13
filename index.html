@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>안다 아카이브</title>
+<!-- PWA: 홈 화면에 설치하면 주소창 없는 앱처럼 뜬다. manifest·sw.js·아이콘은 index.html과 같은 폴더에 둘 것. -->
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#C00000">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="안다">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit" async defer></script>
 <style>
@@ -538,6 +545,31 @@ body.has-botnav .mini-toast{bottom:calc(150px + env(safe-area-inset-bottom));}
 .wp-row input[type=range]{flex:1;accent-color:var(--accent);}
 .wp-row .wp-n{min-width:52px;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--text-dim);}
 .wk-plot-err{font-size:13px;color:var(--danger);}
+/* PWA 설치 안내 바 */
+.install-bar{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;z-index:620;
+  display:flex;align-items:center;gap:10px;max-width:min(560px, calc(100vw - 24px));
+  background:var(--card);border:1px solid var(--border-strong);border-radius:12px;padding:10px 14px;
+  box-shadow:0 10px 30px rgba(0,0,0,.18);animation:nudgeIn .25s ease-out;}
+body.has-botnav .install-bar{bottom:calc(78px + env(safe-area-inset-bottom));}
+.install-bar .ib-t{font-size:13px;line-height:1.45;flex:1;}
+.install-bar .ib-go{width:auto;padding:7px 14px;font-size:13px;flex:none;}
+.install-bar .ib-x{border:none;background:none;color:var(--text-dim);font-size:12.5px;cursor:pointer;flex:none;}
+/* QR */
+.qr-box{margin:14px auto 8px;width:220px;height:220px;display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border);border-radius:10px;background:#fff;overflow:hidden;}
+.qr-box svg{display:block;width:100%;height:100%;}
+.qr-url{font-size:11.5px;color:var(--text-dim);word-break:break-all;margin-bottom:4px;}
+.qs-list{max-height:420px;overflow:auto;border:1px solid var(--border);border-radius:8px;padding:6px;}
+/* 일정 ↔ 문서 (79) */
+.ev-doc{display:flex;align-items:center;gap:6px;justify-content:center;margin-top:10px;padding:8px;border-radius:8px;
+  border:1px solid var(--border-strong);cursor:pointer;font-size:13px;font-weight:700;}
+.ev-doc:hover{border-color:var(--accent);color:var(--accent);}
+.doc-evs{margin-top:8px;display:flex;flex-direction:column;gap:4px;}
+.de-row{display:flex;align-items:center;gap:8px;padding:7px 12px;border:1px dashed var(--border-strong);border-radius:9px;
+  font-size:13px;cursor:pointer;text-decoration:none;color:inherit;}
+.de-row:hover{border-style:solid;border-color:var(--accent);}
+.de-dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.de-t{margin-left:auto;font-size:12px;color:var(--text-dim);}
 /* 넛지 토스트 (73) */
 .nudge-toast{position:fixed;right:18px;bottom:18px;z-index:600;max-width:320px;background:var(--card);border:1px solid var(--border-strong);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.18);padding:14px 16px;display:flex;flex-direction:column;gap:10px;animation:nudgeIn .25s ease-out;}
 @keyframes nudgeIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
@@ -2472,6 +2504,7 @@ async function onLoggedIn(){
   await loadLimits();          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
   await loadPerms();           // 등급별 권한 매트릭스
   loadNudgeCfg().then(scheduleNudges);   // 넛지(73) — 미배포면 조용히 없음
+  setTimeout(maybeShowInstall, 8000);    // PWA 설치 안내 — 들어온 지 8초 뒤 한 번
   await ensureOwner();         // ★owner가 0명이면 회원번호 1번을 자동 승격 (잠김 방지)
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
@@ -3148,6 +3181,50 @@ const NUDGE_KEY = 'anda_nudge_hide';     // 오늘 하루 숨김
 /* ================== 넛지 팝업 (73) ==================
    우하단 토스트. 설정(켜기·빈도·문구·링크)은 전부 owner의 [시스템 → 넛지 설정]에서.
    원칙 유지: 알림(쪽지함)으로는 절대 쏘지 않는다. */
+/* ================== PWA — 홈 화면 앱 ==================
+   실험실에서 '기구 앞에 서서 폰으로 절차를 따라가는' 게 이 앱의 진짜 쓰임새다.
+   그러려면 브라우저 탭이 아니라 홈 화면 아이콘이어야 한다. */
+let _installPrompt = null;
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('sw.js').catch(()=>{});   // 파일이 없으면 조용히 무시
+  });
+}
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  _installPrompt = e;
+  maybeShowInstall();
+});
+function isStandalone(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function maybeShowInstall(){
+  if(isStandalone() || !state.user) return;
+  let hid=0; try{ hid=Number(localStorage.getItem('anda_install_hide')||0); }catch(e){}
+  if(Date.now() < hid) return;                       // '나중에'를 누르면 2주간 침묵
+  if(document.querySelector('.install-bar')) return;
+  const iOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  if(!_installPrompt && !iOS) return;                // 설치할 방법이 없으면 띄우지 않는다
+  const el=document.createElement('div'); el.className='install-bar';
+  el.innerHTML = iOS && !_installPrompt
+    ? `<span class="ib-t">📲 홈 화면에 추가하면 앱처럼 열려요 — 공유 버튼 → <b>홈 화면에 추가</b></span>
+       <button class="ib-x" type="button">나중에</button>`
+    : `<span class="ib-t">📲 홈 화면에 설치하면 실험실에서 바로 열 수 있어요</span>
+       <button class="ib-go btn primary" type="button">설치</button>
+       <button class="ib-x" type="button">나중에</button>`;
+  document.body.appendChild(el);
+  const later=()=>{ el.remove(); try{ localStorage.setItem('anda_install_hide', String(Date.now()+14*86400000)); }catch(e){} };
+  el.querySelector('.ib-x').onclick=later;
+  const go=el.querySelector('.ib-go');
+  if(go) go.onclick=async()=>{
+    el.remove();
+    if(!_installPrompt) return;
+    _installPrompt.prompt();
+    try{ await _installPrompt.userChoice; }catch(e){}
+    _installPrompt=null;
+  };
+}
+
 /* 짧은 확인 메시지 — 우하단에 잠깐 떴다 사라진다 (넛지 토스트와 자리는 겹치지 않게 위로) */
 function toast(text, ms){
   const old=document.querySelector('.mini-toast'); if(old) old.remove();
@@ -3544,6 +3621,7 @@ async function renderDoc(key){
   tabs.push(`<span class="doc-views" id="docViews" title="열람 수 (회원당 하루 1회 집계)">${eyeSVG(13)} <span id="docViewsN">${Number(doc.view_count)||0}</span></span>`);
   const canEditThis = canEdit() || isMyMemberDoc(key);                 // 회원 문서(71): 본인은 등급 무관 편집
   if(canEditThis) tabs.push(`<button id="editBtn">${ic('edit')}편집</button>`);
+  if(!isMemberDocKey(key)) tabs.push(`<button id="qrBtn" title="기구에 붙일 QR 스티커">${ic('camera')}QR</button>`);   // 실물↔문서
   tabs.push(`<button id="histBtn">${ic('history')}역사</button>`);
   if(isAdmin() && (!isMemberDocKey(key) || isOwner())) tabs.push(`<button id="delBtn" class="danger">${ic('trash')}삭제</button>`);   // 회원 문서 삭제는 owner만(서버가 최종 방어)
 
@@ -3568,8 +3646,10 @@ async function renderDoc(key){
   activateDynamic($('#doc').querySelector('.doc-body'), key);   // ★동적 블록(절차·그래프) 살리기
   renderLikeBar(key);
   renderTaskBar(key, _nav);                            // 과제 바(77) — 없으면 아무것도 안 그린다
+  renderDocEvents(key, _nav);                          // 이 문서와 연결된 일정(79)
   if(canEditThis) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
+  const _qrB=$('#qrBtn'); if(_qrB) _qrB.onclick=()=>openDocQR(key, doc.title||key);
   const _delB=$('#delBtn'); if(_delB) _delB.onclick=()=>deleteDoc(doc);
   // 열람 기록 (회원당 하루 1회) — 즉시 +1 되고 화면에 반영
   (async()=>{
@@ -3789,6 +3869,143 @@ function wikiToHtml(src){
 }
 /* WIKI-PARSER-END */
 
+/* ================== QR — 실물과 문서를 잇는다 ==================
+   문서를 안 읽는 이유는 문서가 나빠서가 아니라, 기구 앞에 섰을 때 문서가 손에 없어서다.
+   기구에 스티커를 붙여 두면 스캔 한 번으로 '따라 하기' 절차가 폰에 뜬다. 인수인계도 저절로 된다.
+   ★라이브러리는 쓸 때만 내려받는다(평소 로딩에 부담 0). 못 받으면 링크만 보여주고 조용히 넘어간다. */
+let _qrLib = null, _qrLoading = null;
+function loadQrLib(){
+  if(_qrLib) return Promise.resolve(_qrLib);
+  if(_qrLoading) return _qrLoading;
+  _qrLoading = new Promise((res, rej)=>{
+    const s=document.createElement('script');
+    s.src='https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+    s.onload=()=>{ _qrLib = window.qrcode || null; _qrLib ? res(_qrLib) : rej(new Error('no lib')); };
+    s.onerror=()=>rej(new Error('load fail'));
+    document.head.appendChild(s);
+  });
+  return _qrLoading;
+}
+/* 문서 주소 → 전체 URL (회원 문서의 '#'까지 안전하게) */
+function docUrl(key){
+  const base = location.origin + location.pathname;
+  return base + docHash(key);
+}
+/* QR을 SVG 문자열로 (인쇄 시 선명하게 — 캔버스는 확대하면 뭉갠다) */
+function qrSvg(text, size){
+  const q = _qrLib(0, 'M');            // 타입 자동, 오류 정정 M (스티커가 좀 긁혀도 읽힘)
+  q.addData(String(text));
+  q.make();
+  const n = q.getModuleCount();
+  const cell = size / n;
+  let path = '';
+  for(let r=0; r<n; r++) for(let c=0; c<n; c++){
+    if(q.isDark(r, c)) path += `M${(c*cell).toFixed(2)} ${(r*cell).toFixed(2)}h${cell.toFixed(2)}v${cell.toFixed(2)}h-${cell.toFixed(2)}z`;
+  }
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}" width="${size}" height="${size}">
+    <rect width="${size}" height="${size}" fill="#fff"/><path d="${path}" fill="#000"/></svg>`;
+}
+/* 인쇄 — 숨은 iframe에 라벨만 넣고 찍는다(팝업 차단에 안 걸린다) */
+function printHTML(html){
+  const f=document.createElement('iframe');
+  f.style.cssText='position:fixed;right:0;bottom:0;width:0;height:0;border:0;';
+  document.body.appendChild(f);
+  const d=f.contentDocument;
+  d.open();
+  d.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>안다 아카이브 QR</title><style>
+    @page{ margin:12mm; }
+    body{ font-family:system-ui,-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif; margin:0; }
+    .sheet{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10mm; }
+    .lb{ border:1px dashed #bbb; border-radius:3mm; padding:5mm; text-align:center; break-inside:avoid; }
+    .lb svg{ width:34mm; height:34mm; display:block; margin:0 auto 3mm; }
+    .lb .t{ font-size:11pt; font-weight:800; line-height:1.3; word-break:keep-all; }
+    .lb .s{ font-size:7.5pt; color:#666; margin-top:1.5mm; }
+    .lb .b{ font-size:7pt; color:#999; margin-top:2mm; }
+  </style></head><body>${html}</body></html>`);
+  d.close();
+  const go=()=>{ try{ f.contentWindow.focus(); f.contentWindow.print(); }catch(e){} setTimeout(()=>f.remove(), 1500); };
+  if(d.readyState==='complete') setTimeout(go, 250); else f.onload=()=>setTimeout(go, 250);
+}
+function qrLabelHTML(key, title, sub){
+  return `<div class="lb">${qrSvg(docUrl(key), 200)}
+    <div class="t">${escapeHtml(title||key)}</div>
+    ${sub?`<div class="s">${escapeHtml(sub)}</div>`:''}
+    <div class="b">안다 아카이브 · 스캔하면 사용법이 열려요</div></div>`;
+}
+
+/* 문서 화면의 [QR] — 이 기구/문서 하나의 스티커 */
+async function openDocQR(key, title){
+  const ov=document.createElement('div'); ov.className='qc-ov';
+  ov.innerHTML=`<div class="qc-drawer" style="max-width:380px;text-align:center">
+    <div class="modal-msg">QR 스티커</div>
+    <div class="modal-sub">기구에 붙여 두면, 스캔 한 번으로 이 문서가 폰에 열려요.</div>
+    <div class="qr-box" id="qrBox"><div class="muted" style="padding:40px 0">만드는 중…</div></div>
+    <div class="qr-url" id="qrUrl"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button>
+      <button class="modal-ok" id="qrPrint" disabled>인쇄</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const box=ov.querySelector('#qrBox');
+  ov.querySelector('#qrUrl').textContent=docUrl(key);
+  try{
+    await loadQrLib();
+    box.innerHTML=qrSvg(docUrl(key), 220);
+    const pb=ov.querySelector('#qrPrint');
+    pb.disabled=false;
+    pb.onclick=()=>printHTML('<div class="sheet">'+qrLabelHTML(key, title, '')+'</div>');
+  }catch(e){
+    box.innerHTML='<div class="muted" style="padding:24px 0">QR을 만들지 못했어요(인터넷 확인).<br>아래 주소를 직접 써도 됩니다.</div>';
+  }
+}
+
+/* QR 라벨 시트 (admin) — 여러 기구를 한 장에 뽑아 한 번에 붙인다 */
+async function renderQrSheet(){
+  const _nav=_navSeq;
+  const docs=(state.docs||[]).slice().sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'ko'));
+  if(_nav!==_navSeq) return;
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>QR 라벨 인쇄</h1></div>
+    <div class="doc-meta">기구·장비에 붙일 스티커를 한 장에 모아 인쇄합니다. 스캔하면 그 문서의 <b>따라 하기 절차</b>가 폰에 바로 열려요.</div>
+    <section class="hs-sec">
+      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+        <input class="he-input" id="qsFind" type="text" placeholder="문서 검색…" style="max-width:240px">
+        <button class="btn ghost" id="qsNone" style="width:auto;padding:6px 12px">선택 해제</button>
+        <span class="muted" id="qsN">0개 선택</span>
+        <button class="btn primary" id="qsPrint" style="width:auto;padding:8px 18px;margin-left:auto">선택한 라벨 인쇄</button>
+      </div>
+      <div class="qs-list" id="qsList">
+        ${docs.map(d=>`<label class="ta-item" data-t="${escapeAttr((d.title||'')+' '+d.key)}">
+          <input type="checkbox" value="${escapeAttr(d.key)}" data-title="${escapeAttr(d.title||d.key)}">
+          <span>${escapeHtml(d.title||d.key)} <span class="muted">/${escapeHtml(d.key)}</span></span></label>`).join('')
+          || '<div class="muted">문서가 없어요.</div>'}
+      </div>
+    </section>
+    <div class="msg" id="qsMsg"></div>`;
+  const list=$('#qsList'), cnt=$('#qsN');
+  const upd=()=>{ const n=list.querySelectorAll('input:checked').length; cnt.textContent=n+'개 선택'; };
+  list.querySelectorAll('input').forEach(c=>c.onchange=()=>{ c.closest('.ta-item').classList.toggle('on', c.checked); upd(); });
+  $('#qsFind').oninput=()=>{
+    const q=$('#qsFind').value.trim().toLowerCase();
+    list.querySelectorAll('.ta-item').forEach(it=>{
+      it.style.display = !q || it.dataset.t.toLowerCase().includes(q) ? 'flex' : 'none';
+    });
+  };
+  $('#qsNone').onclick=()=>{ list.querySelectorAll('input').forEach(c=>{ c.checked=false; c.closest('.ta-item').classList.remove('on'); }); upd(); };
+  $('#qsPrint').onclick=async()=>{
+    const picked=[...list.querySelectorAll('input:checked')];
+    const msg=$('#qsMsg'); msg.className='msg';
+    if(!picked.length){ msg.className='msg err'; msg.textContent='인쇄할 문서를 골라주세요.'; return; }
+    try{
+      await loadQrLib();
+      printHTML('<div class="sheet">'+picked.map(c=>qrLabelHTML(c.value, c.dataset.title, '')).join('')+'</div>');
+    }catch(e){ msg.className='msg err'; msg.textContent='QR 라이브러리를 불러오지 못했어요. 인터넷을 확인해 주세요.'; }
+  };
+  window.scrollTo(0,0);
+}
+
 /* 연구 집중 기간 배너 (78) — 켜져 있을 때만 대문 맨 위에 */
 function focusHTML(f, pg){
   if(!f) return '';
@@ -3859,6 +4076,30 @@ async function renderBoard(){
   const ids=[...new Set(rows.flatMap(r=>r.member_ids||[]).filter(Boolean))];
   if(ids.length) ensureCovers(ids).then(()=>{ if(_nav===_navSeq) applyCovers($('#doc')); });
   window.scrollTo(0,0);
+}
+
+/* 이 문서에 연결된 다가오는 일정 (79) — 캘린더와 문서를 잇는다 */
+async function renderDocEvents(key, nav){
+  const slot=$('#taskSlot'); if(!slot) return;
+  let evs=[];
+  try{
+    const { data, error } = await sb.from('events')
+      .select('id,title,at,color').eq('doc_key', key)
+      .gte('at', new Date(Date.now()-6*3600*1000).toISOString())
+      .order('at',{ascending:true}).limit(3);
+    if(error) throw error;
+    evs=data||[];
+  }catch(e){ return; }                                  // 79 미적용 → 조용히 없음
+  if(!evs.length) return;
+  if(nav!==undefined && nav!==_navSeq) return;
+  const box=document.createElement('div');
+  box.className='doc-evs';
+  box.innerHTML = evs.map(e=>`<a class="de-row" data-go="#//calendar">
+      <span class="de-dot" style="background:${escapeAttr(e.color||'#AEC6F6')}"></span>
+      <b>${escapeHtml(e.title||'')}</b><span class="de-t">${escapeHtml(fmtKST(e.at))}</span>
+    </a>`).join('');
+  slot.appendChild(box);
+  box.querySelectorAll('[data-go]').forEach(a=>a.onclick=()=>{ location.hash=a.dataset.go; });
 }
 
 /* 문서 화면의 과제 바 (77) — 담당자·상태·마감. 77 미적용이면 조용히 아무것도 안 그린다. */
@@ -9952,11 +10193,33 @@ async function loadEvents(y, m){
   try{
     const from = new Date(y, m-1, 1).toISOString();
     const to   = new Date(y, m+2, 1).toISOString();
-    const { data, error } = await sb.from('events')
-      .select('id,title,at,color,note,created_by,is_todo,done,done_at')
-      .gte('at', from).lt('at', to).order('at',{ascending:true});
-    if(error) throw error;
-    calState.events = data||[]; calState.loaded=true;
+    let cols='id,title,at,color,note,created_by,is_todo,done,done_at,doc_key';
+    let r = await sb.from('events').select(cols).gte('at', from).lt('at', to).order('at',{ascending:true});
+    if(r.error){                                  // 79 미적용(doc_key 없음) → 예전 컬럼으로 재시도
+      r = await sb.from('events').select('id,title,at,color,note,created_by,is_todo,done,done_at')
+            .gte('at', from).lt('at', to).order('at',{ascending:true});
+    }
+    if(r.error) throw r.error;
+    calState.events = r.data||[]; calState.loaded=true;
+
+    /* ★과제 마감(77)을 달력에 얹는다 — 따로 일정을 만들지 않아도 마감이 저절로 보인다.
+       읽기 전용 '가상 일정'이라 편집·삭제 대상이 아니다(id 없음, due=true). */
+    try{
+      const { data:tb, error:te } = await sb.rpc('task_board');
+      if(!te){
+        (tb||[]).filter(t=>t.due && t.status!=='done').forEach(t=>{
+          calState.events.push({
+            id:'due:'+t.doc_key, due:true, doc_key:t.doc_key,
+            title:(t.title||t.doc_key)+' 마감',
+            at:new Date(String(t.due)+'T23:00:00+09:00').toISOString(),
+            color:'#F7C0C7', note:(t.member_names||[]).join(', '),
+            is_todo:false, done:false,
+            mine:(t.member_ids||[]).includes(state.user && state.user.id)
+          });
+        });
+        calState.events.sort((a,b)=>String(a.at).localeCompare(String(b.at)));
+      }
+    }catch(e){}
   }catch(e){ calState.events=[]; calState.loaded=false; }
   return calState.events;
 }
@@ -10166,7 +10429,9 @@ function drawCalendarPage(prefs, keepScroll){
     });
     $('#doc').querySelectorAll('[data-ev]').forEach(el=>{
       el.onclick=(ev)=>{ ev.stopPropagation();
-        const e=(calState.events||[]).find(x=>String(x.id)===String(el.dataset.ev));
+        const id=el.dataset.ev;
+        if(String(id).startsWith('due:')){ location.hash=docHash(String(id).slice(4)); return; }   // ★과제 마감 → 그 문서로
+        const e=(calState.events||[]).find(x=>String(x.id)===String(id));
         if(e) openEventDetail(e);
       };
     });
@@ -10225,6 +10490,12 @@ function openEventModal(dateObj, edit){
       ${EVENT_COLORS.map(c=>`<button type="button" class="ev-color${c===color?' on':''}" data-c="${c}" style="background:${c}" aria-label="색"></button>`).join('')}
     </div>
     <div class="ev-preview" id="evPrev" style="background:${escapeAttr(color)}"><b>${isEdit?hh+':'+mi:'18:00'}</b> <span id="evPrevT">${escapeHtml(isEdit?(edit.title||'일정 이름'):'일정 이름')}</span></div>
+    <label class="nd-label">관련 문서 <span class="hint">(선택 — 일정에서 문서로 바로 갈 수 있어요)</span></label>
+    <span class="usel block"><select id="evDoc">
+      <option value="">없음</option>
+      ${(state.docs||[]).slice().sort((a,b)=>String(a.title||'').localeCompare(String(b.title||''),'ko'))
+        .map(d=>`<option value="${escapeAttr(d.key)}"${(isEdit&&edit.doc_key===d.key)?' selected':''}>${escapeHtml(d.title||d.key)}</option>`).join('')}
+    </select></span>
     <label class="cp-chk" style="margin-top:6px">
       <input type="checkbox" id="evTodo" ${isEdit&&edit.is_todo?'checked':''}>
       <span><b>할 일</b>로도 표시 (캘린더 탭의 할 일 목록에 체크박스로 나타납니다)</span></label>
@@ -10262,10 +10533,16 @@ function openEventModal(dateObj, edit){
     ok.disabled=true; ok.textContent=isEdit?'저장 중…':'추가 중…';
     try{
       const at=new Date(`${yy}-${mm}-${dd}T${time}:00`);           // 로컬(KST) → ISO
-      const payload={ title, at: at.toISOString(), color, is_todo:isTodo };
-      const q = isEdit
-        ? await sb.from('events').update(payload).eq('id', edit.id)
-        : await sb.from('events').insert({ ...payload, created_by: state.user.id });
+      const docKey=(ov.querySelector('#evDoc')||{}).value || null;
+      const payload={ title, at: at.toISOString(), color, is_todo:isTodo, doc_key: docKey };
+      const run = (p)=> isEdit
+        ? sb.from('events').update(p).eq('id', edit.id)
+        : sb.from('events').insert({ ...p, created_by: state.user.id });
+      let q = await run(payload);
+      if(q.error && /doc_key/i.test(String(q.error.message||''))){   // 79 미적용 → 문서 연결 없이 저장
+        const { doc_key, ...rest } = payload;
+        q = await run(rest);
+      }
       if(q.error) throw q.error;
       close();
       await loadEvents(calPage.y, calPage.m);
@@ -10286,6 +10563,7 @@ function openEventDetail(e){
     <div class="ev-head" style="background:${escapeAttr(e.color)}"></div>
     <div class="modal-msg">${escapeHtml(e.title||'')}</div>
     <div class="modal-sub">${escapeHtml(fmtKST(e.at))}${e.is_todo?` · <b>할 일</b>${e.done?' (완료)':''}`:''}</div>
+    ${e.doc_key?`<a class="ev-doc" id="edDoc">${ic('docs')} 관련 문서 열기</a>`:''}
     <div class="he-msg" id="edMsg"></div>
     <div class="modal-btns">
       ${canDel?'<button class="modal-cancel danger" id="edDel">삭제</button>':''}
@@ -10296,6 +10574,8 @@ function openEventDetail(e){
   document.body.appendChild(ov);
   const close=()=>ov.remove();
   ov.querySelector('#edClose').onclick=close;
+  const edd=ov.querySelector('#edDoc');
+  if(edd) edd.onclick=()=>{ close(); location.hash=docHash(e.doc_key); };   // 일정 → 문서(79)
   ov.addEventListener('click',ev=>{ if(ev.target===ov) close(); });
   const ed=ov.querySelector('#edEdit');
   if(ed) ed.onclick=()=>{ close(); openEventModal(new Date(e.at), e); };    // 수정 모드로 재사용
@@ -10319,7 +10599,7 @@ function openEventDetail(e){
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
                    'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog',
-                   'password','me','trash','notfound','board'];
+                   'password','me','trash','notfound','board','qr'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
@@ -10499,7 +10779,7 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -10552,6 +10832,9 @@ function route(){
   if(sys && key==='system/signup'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSignup(); return; }
   if(sys && key==='system/focus'){   if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysFocus(); return; }
   if(sys && key==='board'){ renderBoard(); return; }              // 진행 보드 — 누구나
+  if(sys && key==='qr'){                                          // QR 라벨 인쇄 — 편집 권한자
+    if(!canEdit()){ showDenied('doc_edit', ()=>{ location.hash='#//docs'; }); return; }
+    renderQrSheet(); return; }
   if(sys && key==='system/clubs'){  if(!guardPage('club_read'))  return; renderSysClubs();  return; }
   if(sys && key==='system/tracks'){ if(!guardPage('track_read')) return; renderSysTracks(); return; }
   if(sys && key==='password'){ renderPassword(); return; }
