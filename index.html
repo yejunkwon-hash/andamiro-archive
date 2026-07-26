@@ -2023,6 +2023,19 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;animation-iteration-count:1 !important;}
 }
 </style>
+<style>
+/* ===== 조판 v3 — 탈(脫)나무위키 (세션 J) =====
+   '위키 항목'이 아니라 '동아리의 연구 노트'로 읽히게 하는 최소 개입.
+   · 인포박스: 나무위키식 빨간 머리띠 → 중립 스펙 카드 (데이터·문법은 그대로)
+   · 본문: 행간을 넉넉히, 제목은 여백으로 계층을 만든다
+   ※기존 규칙을 덮어쓰기만 하는 추가 전용 블록 — 반드시 본 스타일 뒤에 둘 것 */
+.infobox{border-radius:10px;}
+.infobox .ib-title{background:var(--box-bg);color:var(--text);border-bottom:1px solid var(--border);}
+.infobox .ib-sub{background:var(--box-bg);color:var(--text-dim);padding-bottom:10px;}
+.doc-body{line-height:1.8;}
+.doc-body h2{margin-top:1.9em;}
+.doc-body h3{margin-top:1.5em;}
+</style>
 </head>
 <body>
 
@@ -2197,7 +2210,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   <div class="layout">
     <main class="content">
       <div class="doc" id="doc"></div>
-      <footer class="site">안다 아카이브 · 로그인한 부원 전용 · 편집은 editor/admin</footer>
+      <footer class="site">안다 아카이브 · 부원 전용 기록 공간 — 짧게라도 남기면 기록이 됩니다</footer>
     </main>
     <aside class="rightrail" id="rightrail" style="display:none"></aside>
   </div>
@@ -2510,6 +2523,7 @@ async function onLoggedIn(){
     loadTracks().catch(()=>{}),          // 계열 목록(칩 색상·선택 목록)
     loadLimits().catch(()=>{}),          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
     loadPerms().catch(()=>{}),           // 등급별 권한 매트릭스
+    loadFeatures().catch(()=>{}),        // ★기능 스위치(82) — 미배포면 기본값(간결 모드)
   ]);
   loadNudgeCfg().then(scheduleNudges);   // 넛지(73) — 미배포면 조용히 없음
   setTimeout(maybeShowInstall, 8000);    // PWA 설치 안내 — 들어온 지 8초 뒤 한 번
@@ -3207,6 +3221,7 @@ function isStandalone(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
 function maybeShowInstall(){
+  if(!featOn('pwa_banner')) return;                      // ★기능 스위치(82)
   if(isStandalone() || !state.user) return;
   let hid=0; try{ hid=Number(localStorage.getItem('anda_install_hide')||0); }catch(e){}
   if(Date.now() < hid) return;                       // '나중에'를 누르면 2주간 침묵
@@ -3241,6 +3256,60 @@ function toast(text, ms){
   setTimeout(()=>{ if(el.isConnected) el.remove(); }, ms||2600);
 }
 
+/* ================== 기능 스위치 (82) — 세션 J ==================
+   가치 재정립: 심장은 '문서·과제'다. 그 밖의 모듈은 owner가 [시스템 → 기능 켜기/끄기]에서
+   개별로 켜고 끈다. DB에 설정이 없으면(82 미적용 포함) 아래 기본값 = '간결 모드'로 동작한다.
+   ※화면 차원의 통제다 — 서버 RLS/RPC는 그대로이므로 '닫는' 방향으로만 작동해 안전하다.
+   ※끄면 화면에서 사라질 뿐 데이터는 남는다. 다시 켜면 그대로 돌아온다. */
+const DEFAULT_FEATURES = {
+  community:false,       // 커뮤니티(채팅·게시글)
+  questions:true,        // 질문 게시판 — 질문이 문서가 되는 루프라 기본 켬
+  inbox:true,            // 쪽지·알림함 — 답변·과제 알림 통로라 기본 켬
+  calendar:true,         // 캘린더
+  tasks:true,            // 과제·진행 보드 — 앱을 여는 이유
+  directory:true,        // 회원 조회
+  qr:false,              // QR 라벨
+  nudges:false,          // 참여 넛지(대문 배너·우하단 토스트)
+  gamify:false,          // 잔디·월간 미션·리와인드
+  landing_extras:false,  // 대문 곁가지(최근 활동·통계·오늘의 문서)
+  pwa_banner:false       // 앱 설치 배너
+};
+let FEATURES = Object.assign({}, DEFAULT_FEATURES);
+function featOn(k){ return !!FEATURES[k]; }
+async function loadFeatures(){
+  try{
+    const { data } = await sb.from('app_settings').select('value').eq('key','features').maybeSingle();
+    const v = data && data.value ? (typeof data.value==='string' ? JSON.parse(data.value) : data.value) : null;
+    if(v && typeof v==='object') FEATURES = Object.assign({}, DEFAULT_FEATURES, v);
+  }catch(e){ /* 82 미적용 → 기본값(간결 모드) 유지 — 우아한 실패 */ }
+  applyFeatureNav();
+  return FEATURES;
+}
+/* 꺼진 모듈의 진입점(상단 네비·하단 탭·내 메뉴)을 화면에서 걷어낸다 */
+function applyFeatureNav(){
+  const show=(el,on)=>{ if(el) el.style.display = on ? '' : 'none'; };
+  show($('#communityBtn'), featOn('community'));
+  show($('#qBtn'),         featOn('questions'));
+  show($('#inboxBtn'),     featOn('inbox'));
+  show($('#calBtn'),       featOn('calendar'));
+  show($('#boardBtn'),     featOn('tasks'));
+  show($('#directoryBtn'), featOn('directory'));
+  document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
+    const need = ({ community:'community', inbox:'inbox', questions:'questions' })[b.dataset.nav];
+    if(need) b.style.display = featOn(need) ? '' : 'none';
+  });
+  const dd=document.getElementById('userdrop');
+  if(dd){ const a=dd.querySelector('a[data-go="directory"]'); if(a) a.style.display = featOn('directory') ? '' : 'none'; }
+}
+/* 꺼진 모듈로 직접 이동했을 때 보여주는 안내 (owner는 점검용으로 통과) */
+function renderFeatureOff(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>지금은 쉬고 있는 기능이에요</h1></div>
+    <p class="doc-meta">운영진이 이 기능을 잠시 꺼 두었습니다. 데이터는 그대로 남아 있고, 다시 켜면 그대로 돌아옵니다.</p>
+    <button class="btn primary" id="foHome" style="width:auto;padding:9px 22px">대문으로</button>`;
+  const b=$('#foHome'); if(b) b.onclick=()=>{ location.hash='#//main'; };
+}
+
 const NUDGE_LS='anda_nudge2';
 let NUDGE_CFG=null, _nudgeTimer=null;
 async function loadNudgeCfg(){
@@ -3259,6 +3328,7 @@ function nudgeLink(t){
 }
 function scheduleNudges(){
   if(_nudgeTimer){ clearTimeout(_nudgeTimer); _nudgeTimer=null; }
+  if(!featOn('nudges')) return;                          // ★기능 스위치(82)
   const cfg=NUDGE_CFG; if(!cfg || cfg.enabled===false) return;
   let sess=0; try{ sess=Number(sessionStorage.getItem('anda_nudge_sess')||0); }catch(e){}
   if(sess >= (Number(cfg.session_max)||1)) return;
@@ -3266,6 +3336,7 @@ function scheduleNudges(){
   _nudgeTimer=setTimeout(showNudge, delay);
 }
 function showNudge(){
+  if(!featOn('nudges')) return;                          // ★기능 스위치(82)
   const cfg=NUDGE_CFG;
   if(!cfg || cfg.enabled===false || !state.user) return;
   if(document.querySelector('.nudge-toast')) return;
@@ -3634,7 +3705,7 @@ async function renderDoc(key){
   tabs.push(`<span class="doc-views" id="docViews" title="열람 수 (회원당 하루 1회 집계)">${eyeSVG(13)} <span id="docViewsN">${Number(doc.view_count)||0}</span></span>`);
   const canEditThis = canEdit() || isMyMemberDoc(key);                 // 회원 문서(71): 본인은 등급 무관 편집
   if(canEditThis) tabs.push(`<button id="editBtn">${ic('edit')}편집</button>`);
-  if(!isMemberDocKey(key)) tabs.push(`<button id="qrBtn" title="기구에 붙일 QR 스티커">${ic('camera')}QR</button>`);   // 실물↔문서
+  if(featOn('qr') && !isMemberDocKey(key)) tabs.push(`<button id="qrBtn" title="기구에 붙일 QR 스티커">${ic('camera')}QR</button>`);   // 실물↔문서 · ★기능 스위치(82)
   if(isOwner()) tabs.push(`<button id="hideBtn" title="${doc.hidden?'다시 공개합니다':'나(owner)에게만 보이게 합니다'}">${doc.hidden?'🙈 숨김 해제':'👁 숨기기'}</button>`);   // 문서 숨김(80)
   tabs.push(`<button id="histBtn">${ic('history')}역사</button>`);
   if(isAdmin() && (!isMemberDocKey(key) || isOwner())) tabs.push(`<button id="delBtn" class="danger">${ic('trash')}삭제</button>`);   // 회원 문서 삭제는 owner만(서버가 최종 방어)
@@ -3659,8 +3730,8 @@ async function renderDoc(key){
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   activateDynamic($('#doc').querySelector('.doc-body'), key);   // ★동적 블록(절차·그래프) 살리기
   renderLikeBar(key);
-  renderTaskBar(key, _nav);                            // 과제 바(77) — 없으면 아무것도 안 그린다
-  renderDocEvents(key, _nav);                          // 이 문서와 연결된 일정(79)
+  if(featOn('tasks'))    renderTaskBar(key, _nav);     // 과제 바(77) — 없으면 아무것도 안 그린다 · ★기능 스위치(82)
+  if(featOn('calendar')) renderDocEvents(key, _nav);   // 이 문서와 연결된 일정(79) · ★기능 스위치(82)
   if(canEditThis) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   const _qrB=$('#qrBtn'); if(_qrB) _qrB.onclick=()=>openDocQR(key, doc.title||key);
@@ -6672,10 +6743,62 @@ async function renderSysNudges(){
   };
 }
 
+/* 기능 켜기/끄기 (owner) — 82. '간결한 기본, 필요할 때만 켠다'가 원칙 */
+async function renderSysFeatures(){
+  await loadFeatures();                                   // 최신 상태를 서버에서 다시 읽는다
+  const GROUPS=[
+    { name:'핵심 (기본 켬)', items:[
+      ['tasks',     '과제 · 진행 보드', '문서 배정→작성→검토→완료 루프. 대문의 내 과제 타일, 문서의 과제 바, 캘린더의 마감 표시가 함께 사라집니다.'],
+      ['calendar',  '캘린더',           '동아리 일정. 끄면 대문의 이번 주 타일과 문서 연결 일정도 숨습니다.'],
+      ['questions', '질문 게시판',      '질문이 답변이 되고, 답변이 문서가 되는 루프.'],
+      ['inbox',     '쪽지 · 알림함',    '⚠ 답변·과제·일정 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요.'],
+      ['directory', '회원 조회',        '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
+    ]},
+    { name:'부가 (기본 끔)', items:[
+      ['community',      '커뮤니티 (채팅·게시글)', '실시간 채팅과 자유 게시글.'],
+      ['qr',             'QR 라벨',                '기자재에 붙이는 문서 QR 스티커·라벨 시트 인쇄.'],
+      ['nudges',         '참여 넛지',              '대문의 "짧은 문서" 배너와 우하단 안내 토스트. (세부 조정은 [넛지 설정])'],
+      ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
+      ['landing_extras', '대문 곁가지',            '최근 활동 피드 · 누적 통계 · 오늘의 문서 타일.'],
+      ['pwa_banner',     '앱 설치 배너',           '홈 화면 설치 안내. 꺼도 브라우저 메뉴로 직접 설치는 가능해요.'],
+    ]},
+  ];
+  const row=(k,t,d)=>`
+    <label class="sg-opt${featOn(k)?' on':''}" style="align-items:flex-start">
+      <input type="checkbox" class="ft-on" data-k="${k}" ${featOn(k)?'checked':''}>
+      <span><b>${t}</b><br><span class="muted">${d}</span></span>
+    </label>`;
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>기능 켜기/끄기</h1><div class="tabs"><button id="ftBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta"><b>간결한 기본, 필요할 때만 켠다.</b> 끈 기능은 화면과 메뉴에서 사라질 뿐,
+      데이터는 전부 남습니다 — 다시 켜면 그대로 돌아와요. 바꾼 값은 저장 즉시 내 화면에,
+      다른 회원에게는 <b>다음 접속부터</b> 적용됩니다. (owner는 꺼진 기능도 주소로 직접 들어가 점검할 수 있어요)</div>
+    ${GROUPS.map(g=>`<section class="hs-sec"><b>${g.name}</b><div style="margin-top:10px">${g.items.map(i=>row(i[0],i[1],i[2])).join('')}</div></section>`).join('')}
+    <button class="btn primary" id="ftSave" style="width:auto;padding:9px 22px;margin-top:14px">저장</button>
+    <div class="msg" id="ftMsg"></div>`;
+  $('#ftBack').onclick=()=>{ location.hash='#//system'; };
+  $('#doc').querySelectorAll('.ft-on').forEach(ch=>ch.onchange=()=>{ ch.closest('.sg-opt').classList.toggle('on', ch.checked); });
+  $('#ftSave').onclick=async()=>{
+    const msg=$('#ftMsg'); msg.className='msg';
+    const cfg={};
+    $('#doc').querySelectorAll('.ft-on').forEach(ch=>{ cfg[ch.dataset.k]=ch.checked; });
+    $('#ftSave').disabled=true;
+    try{
+      const { error } = await sb.rpc('set_features', { p_cfg: cfg });
+      if(error) throw error;
+      FEATURES = Object.assign({}, DEFAULT_FEATURES, cfg);
+      applyFeatureNav();
+      msg.className='msg ok'; msg.textContent='저장했습니다. 내 화면에는 지금, 다른 회원에게는 다음 접속부터 적용돼요.';
+    }catch(e){ msg.className='msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e)+' (82_feature_flags.sql 실행 확인)'; }
+    $('#ftSave').disabled=false;
+  };
+}
+
 /* 시스템 = 메뉴만 보여주는 목록. 각 항목은 자기 주소를 가진다. */
 async function renderSystem(){
   if(!guardPage('system_access')) return;
   const items=[
+    { owner:true,          hash:'#//system/features', ic:'check', t:'기능 켜기/끄기',        d:'커뮤니티·질문·쪽지·캘린더·과제 등 모듈을 개별로 켜고 끕니다. 끄면 화면에서만 사라지고 데이터는 남아요.' },
     { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
     { owner:true,          hash:'#//system/landing', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
@@ -8213,19 +8336,19 @@ async function renderLanding(){
   const [
     stats, activity, evsQ, grassQ, rewindQ, missionQ,
     myTasksQ, openQsQ, focusQ, fprogQ, liveQ, cfgQ
-  ] = await Promise.all([
+  ] = await Promise.all([                    /* ★기능 스위치(82): 꺼진 타일은 조회 자체를 생략 — 대문이 더 가벼워진다 */
     safe(fetchDocStats(), []),
-    safe(fetchActivity(), []),
-    safe(sb.from('events').select('id,title,at,color,is_todo,done')
-          .gte('at', new Date().toISOString()).order('at',{ascending:true}).limit(3), null),
-    safe(fetchContrib(null, 12), null),
-    safe(sb.rpc('get_rewind'), null),
-    safe(sb.rpc('get_monthly_mission'), null),
-    safe(sb.rpc('my_tasks'), null),
-    safe(sb.rpc('list_open_questions'), null),
+    featOn('landing_extras') ? safe(fetchActivity(), []) : Promise.resolve([]),
+    featOn('calendar') ? safe(sb.from('events').select('id,title,at,color,is_todo,done')
+          .gte('at', new Date().toISOString()).order('at',{ascending:true}).limit(3), null) : Promise.resolve(null),
+    featOn('gamify') ? safe(fetchContrib(null, 12), null) : Promise.resolve(null),
+    featOn('gamify') ? safe(sb.rpc('get_rewind'), null) : Promise.resolve(null),
+    featOn('gamify') ? safe(sb.rpc('get_monthly_mission'), null) : Promise.resolve(null),
+    featOn('tasks') ? safe(sb.rpc('my_tasks'), null) : Promise.resolve(null),
+    featOn('questions') ? safe(sb.rpc('list_open_questions'), null) : Promise.resolve(null),
     safe(sb.from('app_settings').select('value').eq('key','focus').maybeSingle(), null),
     safe(sb.rpc('focus_progress'), null),    // focus가 꺼져 있으면 버린다 — 분기해서 왕복을 더 만드는 것보다 싸다
-    safe(sb.rpc('public_stats'), null),
+    featOn('landing_extras') ? safe(sb.rpc('public_stats'), null) : Promise.resolve(null),
     safe(loadLandingDocs(), []),
   ]);
   const evs = (evsQ && evsQ.data) || [];
@@ -8327,7 +8450,7 @@ async function renderLanding(){
   } else todayHTML='<div class="act-empty">아직 문서가 없어요.</div>';
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   $('#doc').innerHTML=`
-    ${nudgeHTML(stats)}
+    ${featOn('nudges')?nudgeHTML(stats):''}
     <div class="landing">
       ${focusHTML(focus, fprog)}
       ${welcomeHTML(false)}
@@ -8340,7 +8463,7 @@ async function renderLanding(){
             ${t.note?`<span class="mt-note">${escapeHtml(t.note)}</span>`:''}
           </a>`).join('')}
         </div>`:''}
-        <div class="bt bt-act">${actHTML}</div>
+        ${featOn('landing_extras')?`<div class="bt bt-act">${actHTML}</div>`:''}
         ${openQs.length?`<div class="bt bt-openq">
           <div class="bt-head">${ic('help')}아직 답이 없는 질문 <a class="bt-more" data-go="#//questions">질문 게시판 →</a></div>
           ${openQs.map(q=>`<a class="oq-row" data-go="#//q/${q.id}">
@@ -8349,22 +8472,22 @@ async function renderLanding(){
           </a>`).join('')}
           <div class="oq-foot">아는 게 있다면 한 줄이라도 남겨주세요 — 답이 곧 문서가 됩니다.</div>
         </div>`:''}
-        <div class="bt bt-cal">
+        ${featOn('calendar')?`<div class="bt bt-cal">
           <div class="bt-head">${ic('calendar')}이번 주 안다미로 <a class="bt-more" data-go="#//calendar">캘린더 →</a></div>
           ${calHTML}
-        </div>
+        </div>`:''}
         <div class="bt bt-reco">
           <div class="bt-head">${ic('book')}추천 문서 ${isOwner()?`<a class="bt-more" data-go="#//system/landing">편집 →</a>`:''}</div>
           ${cats || '<div class="act-empty">추천 문서가 아직 없어요.</div>'}
         </div>
-        <div class="bt bt-stats">
+        ${featOn('landing_extras')?`<div class="bt bt-stats">
           <div class="bt-head">${ic('check')}우리가 쌓아온 것</div>
           ${statsHTML}
-        </div>
-        <div class="bt bt-today" id="btToday">
+        </div>`:''}
+        ${featOn('landing_extras')?`<div class="bt bt-today" id="btToday">
           <div class="bt-head">${ic('dice')}오늘의 문서</div>
           ${todayHTML}
-        </div>
+        </div>`:''}
         ${rewind?`<div class="bt bt-rewind" id="btRewind">
           <div class="bt-head">🎁 ${escapeHtml(rewind.label)}</div>
           <div class="rw-sub">올해 나의 기록을 되감아 보고, 카드로 저장해 보세요 →</div>
@@ -8388,9 +8511,9 @@ async function renderLanding(){
             ${weekNames.map(m=>`<span class="gw-chip"><span class="gw-dot" data-cover="${escapeAttr(m.id)}"></span>${escapeHtml(m.name)}</span>`).join('')}</div>`:''}
         </div>`:''}
         <div class="bt bt-notice">
-          <div class="hn-title">안다 아카이브에 오신 것을 환영합니다!</div>
-          <p>경기북과학고 물리 탐구 동아리 <b>안다미로</b>의 연구와 활동을 기록하는 위키입니다.
-             부원이라면 누구나 열람할 수 있고, 편집 권한이 있으면 함께 채워 나갈 수 있어요.</p>
+          <div class="hn-title">기록이 다음 사람의 시간을 아낍니다</div>
+          <p><b>안다미로</b>의 공동 기록 공간입니다. 기자재 사용법, 실험 절차, 자주 하는 실수 —
+             한 번 겪은 사람이 짧게 남기면 다음 사람은 헤매지 않아요. 길게 쓸 필요 없습니다.</p>
           <p class="hn-first">처음이신가요? <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
         </div>
         <div class="bt bt-alldocs" id="btAll">
@@ -8695,6 +8818,7 @@ function dmTime(ts){
 let _badgeAt=0;
 async function refreshInboxBadge(force){
   const el=$('#inboxBadge'); if(!el) return;
+  if(!featOn('inbox')) return;                           // ★기능 스위치(82) — 배지도 왕복도 생략
   /* ★최적화(81): route()마다 호출되는데 매번 서버 왕복이었다.
      10초 스로틀 — 탭을 빠르게 오가도 요청이 튀지 않는다. (쪽지 읽음 처리 등은 force로 즉시) */
   const now=Date.now();
@@ -10247,7 +10371,7 @@ async function loadEvents(y, m){
     /* ★최적화(81): 일정과 과제 보드는 독립 — 동시에 요청 */
     let [r, rTb] = await Promise.all([
       sb.from('events').select(cols).gte('at', from).lt('at', to).order('at',{ascending:true}),
-      sb.rpc('task_board').catch(()=>null),
+      featOn('tasks') ? sb.rpc('task_board').catch(()=>null) : Promise.resolve(null),   // ★기능 스위치(82)
     ]);
     if(r.error){                                  // 79 미적용(doc_key 없음) → 예전 컬럼으로 재시도
       r = await sb.from('events').select('id,title,at,color,note,created_by,is_todo,done,done_at')
@@ -10652,7 +10776,7 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog',
+                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','feedback','feedback/review','devlog',
                    'password','me','trash','notfound','board','qr'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
@@ -10833,7 +10957,17 @@ function route(){
   const isHist = key.startsWith('hist/');
   const isEdit = key.startsWith('edit/');
   setBotnavActive(key);
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr'];
+  /* ★기능 스위치(82) — 꺼진 모듈은 직접 주소로도 못 들어간다 (owner는 점검을 위해 통과) */
+  if(sys && !isOwner()){
+    const FEAT_PAGE={ community:'community', questions:'questions', inbox:'inbox', calendar:'calendar',
+                      board:'tasks', qr:'qr', directory:'directory' };
+    const fk = FEAT_PAGE[key]
+            || ((isQuestion||isUserQ) ? 'questions' : null)
+            || (isDm ? 'inbox' : null)
+            || (isMember ? 'directory' : null);
+    if(fk && !featOn(fk)){ renderFeatureOff(); return; }
+  }
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -10885,6 +11019,7 @@ function route(){
   if(sys && key==='system/nudges'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysNudges(); return; }
   if(sys && key==='system/signup'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSignup(); return; }
   if(sys && key==='system/focus'){   if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysFocus(); return; }
+  if(sys && key==='system/features'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysFeatures(); return; }
   if(sys && key==='board'){ renderBoard(); return; }              // 진행 보드 — 누구나
   if(sys && key==='qr'){                                          // QR 라벨 인쇄 — 편집 권한자
     if(!canEdit()){ showDenied('doc_edit', ()=>{ location.hash='#//docs'; }); return; }
