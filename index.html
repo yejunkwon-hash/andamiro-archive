@@ -2035,6 +2035,45 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .doc-body{line-height:1.8;}
 .doc-body h2{margin-top:1.9em;}
 .doc-body h3{margin-top:1.5em;}
+
+/* ===== 문서 목록 v2 (세션 K) — 분류별 묶음 · 이름이 주인공 =====
+   카드를 크게 늘어놓으면 39개가 39개의 덩어리로 보인다. 한 줄짜리 항목으로 낮추고
+   분류로 묶어야 '훑어서 찾기'가 된다. 부가 정보(조회·좋아요·수정자)는 문서 화면에 있으니
+   목록에서는 뺀다 — 목록의 일은 '찾게 해주는 것' 하나다. */
+.docs-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 6px;}
+.docs-q{flex:1;min-width:190px;border:1px solid var(--border);background:var(--card);
+  border-radius:var(--r-2);padding:9px 13px;font-size:14px;color:var(--text);}
+.docs-q:focus{outline:none;border-color:var(--accent);}
+.docs-sel{border:1px solid var(--border);background:var(--card);border-radius:var(--r-2);
+  padding:9px 11px;font-size:13px;color:var(--text-dim);cursor:pointer;}
+.docs-chip{background:var(--box-bg);border:1px solid var(--border);color:var(--text-dim);
+  font-size:12px;font-weight:700;padding:8px 13px;border-radius:var(--r-2);cursor:pointer;}
+.docs-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.dgrp{border-top:1px solid var(--border);}
+.dgrp:first-of-type{border-top:0;}
+.dgrp-h{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;
+  padding:15px 2px 9px;cursor:pointer;color:var(--text);font:inherit;text-align:left;}
+.dgrp-n{font-size:14px;font-weight:800;letter-spacing:-.2px;}
+.dgrp-c{font-size:12px;color:var(--text-dim);font-family:var(--mono);}
+.dgrp-cv{font-size:10px;color:var(--text-dim);transition:transform var(--dur-2) var(--ease);}
+.dgrp.closed .dgrp-cv{transform:rotate(-90deg);}
+.dgrp.closed .dgrp-b{display:none;}
+.dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:1px 14px;padding-bottom:12px;}
+.dl2{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:var(--r-1);
+  color:var(--text);text-decoration:none;}
+.dl2:hover{background:var(--box-bg);text-decoration:none;}
+.dl2-t{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;max-width:64%;}
+.dl2:hover .dl2-t{text-decoration:underline;text-underline-offset:3px;}
+.dl2-k{font-size:11px;color:var(--text-dim);font-family:var(--mono);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
+.dl2-dot{width:5px;height:5px;border-radius:50%;background:var(--warn);flex:none;align-self:center;}
+.dl2.hid{opacity:.6;}
+.dl2.hid .dl2-t::after{content:' 👁';font-size:11px;}
+.dl2-e{margin-left:auto;opacity:0;border:0;background:none;color:var(--text-dim);
+  cursor:pointer;padding:0 2px;line-height:0;flex:none;align-self:center;}
+.dl2:hover .dl2-e{opacity:1;}
+.dl2-e:hover{color:var(--accent);}
+@media(max-width:640px){ .dgrp-b{grid-template-columns:1fr;} .dl2-e{opacity:1;} }
 </style>
 </head>
 <body>
@@ -3530,104 +3569,156 @@ async function renderQuestions(){
 
 /* ================== 문서 탭 (#docs) — 문서의 정문 ==================
    전체 문서 카드 + 정렬(최근 수정/가나다·좋아요) + [＋ 새 문서] + 편집 유도 */
-const docsPage = { sort: 'recent' };
+/* ================== 문서 분류 (세션 K) ==================
+   39개가 한 판에 쏟아지면 '이름으로 찾기'가 불가능해진다. 분류로 묶어 이름만 보고 찾게 한다.
+   묶는 순서 — 먼저 맞는 것이 이긴다:
+     1) 회원 문서(#번호)      → '회원' (맨 아래 · 기본 접힘)
+     2) 편집기 [분류]의 첫 값 → 그 이름 그대로 (★사람이 정한 것이 언제나 최우선)
+     3) 아래 키워드 추론      → 폴백. 분류를 아직 안 넣은 문서를 그럴듯하게 얹어준다
+     4) 아무것도 안 맞으면    → '분류 없음' (편집자에게 "여기 채워주세요"라는 신호)
+   ★새 분류를 만들려면 편집기 [분류]에 쓰면 그만 — 이 코드를 고칠 필요 없다. */
+const DOC_GROUPS = [
+  { name:'기자재',         match:['oscilloscope','multimeter','function-generator','dc-power','power-supply',
+        'high-speed-camera','fog-machine','mbl','laser-cutting','3d-printer','sensor','camera','machine',
+        '오실로','멀티미터','발생기','전원공급','센서','카메라','프린터','커팅','장비','기자재'] },
+  { name:'프로그램 · 도구', match:['matlab','arduino','tracker','python','labview','logger','origin','excel',
+        'tools','매트랩','아두이노','파이썬','프로그램','소프트웨어','실험 도구'] },
+  { name:'대회 · 발표',     match:['kypt','kape','speech','poster','presentation','대회','발표','포스터','논문'] },
+  { name:'연구 · 방법',     match:['method','stats','topics','transistor','circuit','연구','통계','분석',
+        '실험 방법','주제','회로','트랜지스터'] },
+  { name:'동아리',         match:['home','member_tier','rule','notice','안다미로','동아리','규칙','등급','연혁','공지'] },
+];
+const DOC_G_ETC = '분류 없음';        // ★한 줄 한 선언 — 다중 선언은 전수 감사(§0-6)가 놓친다
+const DOC_G_MEMBER = '회원';
+function docGroupOf(d){
+  if(isMemberDocKey(d.key)) return DOC_G_MEMBER;
+  const c = Array.isArray(d.category) ? String(d.category[0]||'').trim() : '';
+  if(c) return c;                                        // 사람이 정한 분류가 언제나 이긴다
+  const hay = (String(d.key||'')+' '+String(d.title||'')+' '+String(d.eng||'')).toLowerCase();
+  for(const g of DOC_GROUPS){ if(g.match.some(m=>hay.includes(m))) return g.name; }
+  return DOC_G_ETC;
+}
+/* 나열 순서: 정해둔 순서 → 사람이 만든 분류(가나다) → 분류 없음 → 회원 */
+function docGroupOrder(names){
+  const fixed = DOC_GROUPS.map(g=>g.name);
+  const custom = names.filter(n=>!fixed.includes(n) && n!==DOC_G_ETC && n!==DOC_G_MEMBER)
+                      .sort((a,b)=>a.localeCompare(b,'ko'));
+  return [...fixed, ...custom, DOC_G_ETC, DOC_G_MEMBER].filter(n=>names.includes(n));
+}
+const DOCCAT_LS='anda_doccat';                      // 접어둔 분류 기억(기기별)
+function docCatClosed(){ try{ const v=JSON.parse(localStorage.getItem(DOCCAT_LS)||'null');
+  return Array.isArray(v)? v : [DOC_G_MEMBER]; }catch(e){ return [DOC_G_MEMBER]; } }
+function saveDocCatClosed(a){ try{ localStorage.setItem(DOCCAT_LS, JSON.stringify(a)); }catch(e){} }
+
+const docsPage = { sort:'abc', q:'', stub:false };   // ★기본 정렬 '가나다' — 이름으로 찾는 화면이니까
+
 async function renderDocsPage(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
-  $('#doc').innerHTML = `<div class="docs-head"><h1>문서 목록</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML = `<div class="docs-head"><h1>문서</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let rows=[];
   try{
     const { data, error } = await sb.from('documents')
       .select('key,title,eng,category,updated_at,updated_by,view_count');
     if(error) throw error;
     rows=data||[];
+    if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
+  }catch(e){ $('#doc').innerHTML='<h1>문서</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
+
+  /* ★성능(§6): 좋아요 수와 본문 길이는 서로 독립 — 동시에 쏜다.
+     '누가 마지막에 고쳤는지'는 이 화면에서 뺐다 → members_public 왕복 1회도 사라짐.
+     (그 정보는 문서 화면과 우측 '최근 변경'에 그대로 있다) */
+  const _s=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
+  const [likes, stats] = await Promise.all([ _s(loadLikeCounts(true), {}), _s(fetchDocStats(), []) ]);
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
-  }catch(e){ $('#doc').innerHTML='<h1>문서 목록</h1><p>목록을 불러오지 못했습니다: '+escapeHtml((e&&e.message)||e)+'</p>'; return; }
+  const lenOf={}; (stats||[]).forEach(d=>{ lenOf[d.key]=Number(d.len)||0; });
+  const lc=k=>((likes||{})[k]&&likes[k].cnt)||0;
+  /* ★회원 문서는 '도움 필요'에서 뺀다 — 개인 문서가 짧은 건 자연스러운 일이고,
+     공개 목록에서 개인을 재촉하는 모양새가 된다. */
+  const isStub=k=>(!isMemberDocKey(k) && lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
+  const stubCount=rows.filter(d=>isStub(d.key)).length;
 
-  // 수정자 이름 (members_public 일괄 조회)
-  const likes = await loadLikeCounts(true);
-  const stats = await fetchDocStats();                       // 본문 길이(짧은 문서 감지) — 서버에서 숫자만
-  const lenOf={}; stats.forEach(d=>{ lenOf[d.key]=Number(d.len)||0; });
-  const uids=[...new Set(rows.map(r=>r.updated_by).filter(Boolean))];
-  const names={};
-  if(uids.length){
-    try{
-      const { data:ps } = await sb.from('members_public').select('id,handle,name').in('id', uids);
-      (ps||[]).forEach(p=>{ names[p.id]=p.handle||p.name||''; });
-    }catch(_){}
-  }
-
-  const lc=k=>(likes[k]&&likes[k].cnt)||0;
-  const isStub=k=>(lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
-  const sortedRows=()=>{
-    let out=rows.slice();
-    if(docsPage.sort==='stub') out=out.filter(d=>isStub(d.key));
-    out.sort((a,b)=>{
-      if(docsPage.sort==='stub')   return (lenOf[a.key]||0)-(lenOf[b.key]||0);
-      if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key) || new Date(b.updated_at||0)-new Date(a.updated_at||0);
-      if(docsPage.sort==='abc')    return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');
-      if(docsPage.sort==='views')  return (Number(b.view_count)||0)-(Number(a.view_count)||0)
-                                       || new Date(b.updated_at||0)-new Date(a.updated_at||0);
-      return new Date(b.updated_at||0) - new Date(a.updated_at||0);
-    });
-    return out;
-  };
-  const cardHTML=d=>`
-    <a class="doc-card ${isStub(d.key)?'stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
-      <div class="dc-title">${escapeHtml(d.title||d.key)}</div>
-      <div class="dc-key">/${escapeHtml(d.key)}${d.eng?' · '+escapeHtml(d.eng):''}</div>
-      <div class="dc-meta">
-        ${isStub(d.key)?`<span class="dc-stub">✏ ${lenOf[d.key]||0}자 — 이어 써주세요</span>`
-                       :`<span>${escapeHtml(fmtKST(d.updated_at))}</span>${names[d.updated_by]?`<span>· ${escapeHtml(names[d.updated_by])}</span>`:''}`}
-        <span class="dc-views">${eyeSVG(11)} ${Number(d.view_count)||0}</span>
-        ${lc(d.key)?`<span class="dc-like">❤ ${lc(d.key)}</span>`:''}
-        ${(d.category||[]).slice(0,2).map(c=>`<span class="dc-cat">${escapeHtml(c)}</span>`).join('')}
-        ${canEdit()?`<button class="dc-edit" data-edit="${escapeAttr(d.key)}">편집</button>`:''}
-      </div>
+  const rowHTML=d=>`
+    <a class="dl2${isStub(d.key)?' stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
+      <span class="dl2-t">${escapeHtml(d.title||d.key)}</span>
+      <span class="dl2-k">${escapeHtml(isMemberDocKey(d.key)? d.key : '/'+d.key)}</span>
+      ${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자"></span>`:''}
+      ${canEdit()?`<button class="dl2-e" data-edit="${escapeAttr(d.key)}" title="편집">${ic('edit')}</button>`:''}
     </a>`;
 
-  /* ★정렬 버튼을 눌러도 화면 전체를 다시 그리지 않는다 — 카드 그리드와 버튼 상태만 갱신.
-     (예전엔 innerHTML을 통째로 바꿔 스크롤·포커스가 튀고 깜빡였다) */
+  /* ★화면 전체를 다시 그리지 않는다 — 목록 영역과 컨트롤 상태만 갱신(스크롤·포커스 유지) */
   const paint=()=>{
-    const sorted=sortedRows();
-    const grid=$('#dpGrid');
-    if(grid) grid.innerHTML = sorted.map(cardHTML).join('');
-    const cnt=$('#dpCount'); if(cnt) cnt.textContent=sorted.length+'개';
-    const empty=$('#dpEmpty'); if(empty) empty.style.display = sorted.length ? 'none' : 'block';
-    $('#doc').querySelectorAll('.docs-sort button').forEach(b=>b.classList.toggle('on', b.dataset.s===docsPage.sort));
-    $('#doc').querySelectorAll('[data-edit]').forEach(b=>{
-      b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
-        location.hash='#//edit/'+encodeURIComponent(b.dataset.edit); };
+    const q=docsPage.q.trim().toLowerCase();
+    let list=rows.filter(d=>{
+      if(docsPage.stub && !isStub(d.key)) return false;
+      if(!q) return true;
+      return (String(d.title||'')+' '+String(d.key||'')+' '+String(d.eng||'')).toLowerCase().includes(q);
     });
+    list.sort((a,b)=>{
+      if(docsPage.sort==='recent') return new Date(b.updated_at||0)-new Date(a.updated_at||0);
+      if(docsPage.sort==='views')  return (Number(b.view_count)||0)-(Number(a.view_count)||0);
+      if(docsPage.sort==='likes')  return lc(b.key)-lc(a.key);
+      return String(a.title||a.key).localeCompare(String(b.title||b.key),'ko');   // 가나다(기본)
+    });
+    const byG={};
+    list.forEach(d=>{ const g=docGroupOf(d); (byG[g]=byG[g]||[]).push(d); });
+    const order=docGroupOrder(Object.keys(byG));
+    const closed=new Set(q ? [] : docCatClosed());        // 검색 중엔 전부 펼친다
+    const box=$('#dpList');
+    if(box) box.innerHTML = order.map(g=>`
+      <section class="dgrp${closed.has(g)?' closed':''}" data-g="${escapeAttr(g)}">
+        <button class="dgrp-h" type="button">
+          <span class="dgrp-cv">▾</span><span class="dgrp-n">${escapeHtml(g)}</span>
+          <span class="dgrp-c">${byG[g].length}</span>
+        </button>
+        <div class="dgrp-b">${byG[g].map(rowHTML).join('')}</div>
+      </section>`).join('');
+    const cnt=$('#dpCount'); if(cnt) cnt.textContent = list.length+'개';
+    const empty=$('#dpEmpty'); if(empty) empty.style.display = list.length ? 'none' : 'block';
+    const sb2=$('#dpStub'); if(sb2) sb2.classList.toggle('on', docsPage.stub);
+    if(box){
+      box.querySelectorAll('.dgrp-h').forEach(h=>{
+        h.onclick=()=>{
+          const sec=h.closest('.dgrp'), g=sec.dataset.g;
+          const now=sec.classList.toggle('closed');
+          const cur=new Set(docCatClosed());
+          if(now) cur.add(g); else cur.delete(g);
+          saveDocCatClosed([...cur]);
+        };
+      });
+      box.querySelectorAll('[data-edit]').forEach(b=>{
+        b.onclick=e=>{ e.preventDefault(); e.stopPropagation();
+          location.hash='#//edit/'+encodeURIComponent(b.dataset.edit); };
+      });
+    }
   };
 
-  const stubCount=rows.filter(d=>isStub(d.key)).length;
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   $('#doc').innerHTML = `
     <div class="docs-head">
-      <h1>문서 목록 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
-      <div class="docs-sort">
-        <button data-s="recent" class="${docsPage.sort==='recent'?'on':''}">최근 수정</button>
-        <button data-s="likes" class="${docsPage.sort==='likes'?'on':''}">좋아요순</button>
-        <button data-s="abc" class="${docsPage.sort==='abc'?'on':''}">가나다</button>
-        <button data-s="views" class="${docsPage.sort==='views'?'on':''}">열람순</button>
-        ${stubCount?`<button data-s="stub" class="${docsPage.sort==='stub'?'on':''}">✏ 도움 필요 ${stubCount}</button>`:''}
-      </div>
+      <h1>문서 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
       ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
     </div>
-    ${(canEdit() && stubCount) ? `<div class="nudge">
-      <span class="nz-t">짧은 문서가 <b>${stubCount}개</b> 있어요. 아는 만큼만 이어 써주시면 됩니다 — <b>실수해도 역사에서 되돌릴 수 있어요.</b></span>
-      <button class="btn ghost" id="dpStub" style="font-size:12px;padding:6px 12px">${ic('edit')} 도움 필요한 문서 보기</button>
-    </div>` : ''}
-    <div class="qb-empty" id="dpEmpty" style="display:none">조건에 맞는 문서가 없습니다.</div>
-    <div class="docs-grid" id="dpGrid"></div>`;
+    <div class="docs-tools">
+      <input class="docs-q" id="dpQ" type="text" placeholder="문서 이름으로 찾기…" autocomplete="off" spellcheck="false" value="${escapeAttr(docsPage.q)}">
+      <select class="docs-sel" id="dpSort">
+        <option value="abc">가나다</option>
+        <option value="recent">최근 수정</option>
+        <option value="views">열람순</option>
+        <option value="likes">좋아요순</option>
+      </select>
+      ${stubCount?`<button class="docs-chip${docsPage.stub?' on':''}" id="dpStub" type="button" title="본문이 ${STUB_LEN}자보다 짧은 문서">✏ 도움 필요 ${stubCount}</button>`:''}
+    </div>
+    <div class="qb-empty" id="dpEmpty" style="display:none">찾는 문서가 없어요. 다른 낱말로 찾아보세요.</div>
+    <div id="dpList"></div>`;
 
-  $('#doc').querySelectorAll('.docs-sort button').forEach(b=>{
-    b.onclick=()=>{ docsPage.sort=b.dataset.s; paint(); };     // ← 카드만 다시 그림
-  });
+  const qEl=$('#dpQ');
+  if(qEl){ qEl.oninput=()=>{ docsPage.q=qEl.value; paint(); }; }
+  const sEl=$('#dpSort');
+  if(sEl){ sEl.value=docsPage.sort; sEl.onchange=()=>{ docsPage.sort=sEl.value; paint(); }; }
+  const stEl=$('#dpStub');
+  if(stEl) stEl.onclick=()=>{ docsPage.stub=!docsPage.stub; paint(); };
   const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
-  const st=$('#dpStub'); if(st) st.onclick=()=>{ docsPage.sort='stub'; paint(); };
   paint();
-  mountOrgSection();         // 동아리·계열 조회 (맨 아래)
   window.scrollTo(0,0);
 }
 
