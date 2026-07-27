@@ -2241,16 +2241,33 @@ body.fx-full::before{
 .wc-step{ background:none; border:0; border-bottom:1px solid var(--border); border-radius:0; padding:9px 2px; }
 .wc-step:hover{ transform:none; box-shadow:none; background:var(--card); }
 
-/* 집중 배너 — 히어로와 경쟁하지 않게 한 톤 낮춘다 */
-.focus-card{ box-shadow:none; }
+/* 집중 배너 — 히어로와 경쟁하지 않게 박스를 벗긴다.
+   ★세션 P 사고: 여기에 `.focus-card`라고 썼는데 실제 클래스는 `.focus-banner`였다.
+   존재하지 않는 선택자는 조용히 아무 일도 하지 않는다 — CSS는 오타를 알려주지 않는다.
+   교훈: 스타일을 덮어쓸 땐 클래스명을 grep으로 확인하고, 화면으로 결과를 검증할 것. */
+.focus-banner{ border:0; background:none; border-radius:0; padding:0 0 16px;
+  margin-bottom:18px; border-bottom:1px solid var(--border); }
+.focus-banner .fc-title{ font-size:14px; font-weight:800; }
+.focus-banner .fc-top{ margin-bottom:6px; }
 
 /* ═══════════ 커뮤니케이션 허브 (세션 N) ═══════════
    중앙 = 실시간 채팅, 우측 = 지금 접속 중인 사람 + 게시글.
    ★좌측 '채널 목록'은 만들지 않았다 — 이 앱엔 채널이 하나뿐이라 목록이 성립하지 않는다.
    채널을 만들려면 스키마 변경이 필요하고, 그건 별개의 작업이다. */
-.hub{ display:grid; grid-template-columns:170px minmax(0,1fr) 250px; gap:20px; align-items:start; }
-@media(max-width:1100px){ .hub{ grid-template-columns:150px minmax(0,1fr); } .hub-side{ display:none; } }
-@media(max-width:760px){ .hub{ grid-template-columns:1fr; } .hub-nav{ display:flex !important; overflow-x:auto; gap:4px; } }
+/* ★기본은 2단(채널 레일 없음). 83이 적용돼 채널이 있을 때만 .has-ch로 3단이 된다.
+   ─ 세션 P 사고: 레일을 display:none으로 숨겼는데 그리드 칸 정의는 3개 그대로라
+     채팅이 첫 칸(170px)으로 밀려 들어가 화면이 찌그러졌다. 숨기는 것과 칸을 없애는 것은 다르다. */
+.hub{ display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:20px; align-items:start; }
+.hub.has-ch{ grid-template-columns:170px minmax(0,1fr) 250px; }
+@media(max-width:1100px){
+  .hub{ grid-template-columns:minmax(0,1fr); }
+  .hub.has-ch{ grid-template-columns:150px minmax(0,1fr); }
+  .hub-side{ display:none; }
+}
+@media(max-width:760px){
+  .hub, .hub.has-ch{ grid-template-columns:1fr; }
+  .hub-nav{ display:flex !important; overflow-x:auto; gap:4px; }
+}
 
 /* 좌측 채널 레일 (83) */
 .hub-nav{ min-width:0; position:sticky; top:70px; }
@@ -9725,7 +9742,7 @@ async function renderQuestion(qid){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   community.qid = qid;
   /* ★최적화(81): 본문과 게시글 메타(72)는 독립 — 동시에 요청 (직렬 2왕복 → 1왕복 시간) */
-  let q=null, pstat=null;
+  let q=null, pstat=null, qErr=null;
   try{
     const [rq, rs] = await Promise.all([
       sb.rpc('get_question', { p_id: qid }),
@@ -9734,8 +9751,25 @@ async function renderQuestion(qid){
     if(rq.error) throw rq.error;
     q = Array.isArray(rq.data) ? (rq.data[0]||null) : (rq.data||null);
     if(rs && !rs.error) pstat=(rs.data && rs.data[0]) || null;
-  }catch(e){}
-  if(!q){ location.hash='#//community'; return; }
+  }catch(e){ qErr=e; }
+  /* ★세션 P 사고: 예전엔 여기서 에러를 통째로 삼키고 아무 말 없이 커뮤니티로 튕겨냈다.
+     "눌러도 그냥 돌아온다"로만 보여서 원인을 알 길이 없었다.
+     이제는 무엇이 잘못됐는지 화면에 말한다 — 조용한 실패는 실패가 아니라 미스터리다. */
+  if(!q){
+    if(_nav!==_navSeq) return;
+    $('#doc').innerHTML=`
+      <div class="doc-head"><h1>이 글을 열 수 없어요</h1></div>
+      <p class="doc-meta">${ qErr
+        ? '불러오는 중 문제가 생겼습니다 — '+escapeHtml((qErr&&qErr.message)||String(qErr))
+        : '이미 지워졌거나, 열람 권한이 없는 글일 수 있어요.' }</p>
+      <div style="display:flex;gap:8px;margin-top:14px">
+        <button class="btn primary" id="qeBack" style="width:auto;padding:9px 20px">커뮤니티로</button>
+        <button class="btn ghost" id="qeQs" style="width:auto;padding:9px 20px">질문 게시판으로</button>
+      </div>`;
+    const b1=$('#qeBack'); if(b1) b1.onclick=()=>{ location.hash='#//community'; };
+    const b2=$('#qeQs');   if(b2) b2.onclick=()=>{ location.hash='#//questions'; };
+    return;
+  }
   const isPost = !!(pstat && pstat.kind==='post');
   const backHash  = isPost ? '#//community' : '#//questions';
   const backLabel = isPost ? '커뮤니티' : '질문 게시판';
@@ -10109,8 +10143,15 @@ async function renderCommunity(){
 /* 좌측 채널 레일 (83). ★83 미적용이면 레일 자체를 숨긴다 — 예전 단일 채팅 그대로 동작. */
 function renderChannelRail(){
   const rail=$('#chRail'); if(!rail) return;
-  if(!community.chOk){ rail.style.display='none'; return; }
+  const hub=document.querySelector('.hub');
+  /* ★레일을 숨길 땐 그리드 칸도 함께 없애야 한다 (세션 P 사고) */
+  if(!community.chOk){
+    rail.style.display='none';
+    if(hub) hub.classList.remove('has-ch');
+    return;
+  }
   rail.style.display='';
+  if(hub) hub.classList.add('has-ch');
   const item=(id,name)=>`<button class="ch-item${String(community.ch)===String(id)?' on':''}"
       data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}</button>`;
   rail.innerHTML=`
