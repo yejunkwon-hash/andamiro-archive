@@ -2243,6 +2243,44 @@ body.fx-full::before{
 
 /* 집중 배너 — 히어로와 경쟁하지 않게 한 톤 낮춘다 */
 .focus-card{ box-shadow:none; }
+
+/* ═══════════ 커뮤니케이션 허브 (세션 N) ═══════════
+   중앙 = 실시간 채팅, 우측 = 지금 접속 중인 사람 + 게시글.
+   ★좌측 '채널 목록'은 만들지 않았다 — 이 앱엔 채널이 하나뿐이라 목록이 성립하지 않는다.
+   채널을 만들려면 스키마 변경이 필요하고, 그건 별개의 작업이다. */
+.hub{ display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:20px; align-items:start; }
+@media(max-width:900px){ .hub{ grid-template-columns:1fr; } }
+.hub-side{ min-width:0; position:sticky; top:70px; }
+.hub-side .ls{ margin-top:22px; }
+
+.ho-row{ display:flex; align-items:center; gap:9px; padding:6px 6px; border-radius:var(--r-1);
+  color:var(--text); text-decoration:none; transition:background var(--dur-1); }
+.ho-row:hover{ background:var(--box-bg); text-decoration:none; }
+.ho-ava{ flex:none; width:26px; height:26px; border-radius:50%; background-size:cover; background-position:center;
+  display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
+.ho-n{ flex:1; min-width:0; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.ho-row .pres-dot{ flex:none; }
+
+/* 게시글을 레일 폭에 맞춰 한 줄 항목으로 */
+.hub-side #postGrid{ display:block; }
+.hub-side #postGrid .qb-card{ display:block; border:0; border-bottom:1px solid var(--border);
+  border-radius:0; padding:9px 2px; background:none; box-shadow:none; }
+.hub-side #postGrid .qb-card:last-child{ border-bottom:0; }
+.hub-side #postGrid .qb-card:hover{ transform:none; box-shadow:none; background:var(--box-bg); }
+.hub-side #postGrid .qb-t{ font-size:13px; }
+
+/* 채팅창이 허브 안에서 자기 폭을 지키게 */
+.hub .chat{ min-width:0; }
+
+/* ═══ 회원 그리드 다듬기 (세션 N) ═══
+   이미 포토 그리드였다. 새 토큰에 맞춰 배너 그라디언트를 걷어내고 카드를 낮춘다. */
+.dir-banner{ background:var(--cv, var(--cover-default)); height:52px; }
+.dir-card{ border-radius:var(--r-3); box-shadow:var(--sh-1); padding-bottom:12px; }
+.dir-card:hover{ transform:translateY(-3px); box-shadow:var(--sh-3), 0 0 0 2px var(--cv,var(--cover-default)); }
+.dir-card .dir-ava{ border-width:3px; box-shadow:var(--sh-1); }
+.dir-btn{ border-radius:var(--r-round); }
+.dir-btn:hover{ transform:none; box-shadow:none; background:var(--box-bg); }
+.dir-btn.primary:hover{ background:var(--accent); filter:brightness(1.06); }
 </style>
 </head>
 <body>
@@ -9972,11 +10010,7 @@ async function renderCommunity(){
   community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
   $('#doc').innerHTML=`
     <div class="qb-head"><h1>커뮤니티</h1><button class="btn primary" id="pbWrite" style="width:auto;padding:8px 16px">${ic('plus')} 글쓰기</button></div>
-    <section id="postSec" style="margin-bottom:18px">
-      <div class="doc-meta" style="margin-bottom:10px">게시글 — 남겨둘 이야기·후기·자료는 여기에. 가벼운 대화는 아래 채팅으로.</div>
-      <div class="qb-grid" id="postGrid"><div class="qb-empty">게시글을 불러오는 중…</div></div>
-    </section>
-    <div class="community">
+    <div class="hub">
       <section class="chat">
         <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
@@ -10002,6 +10036,17 @@ async function renderCommunity(){
         <div class="preview-hint">👁 왼쪽 <b>눈</b> 아이콘 또는 <span class="eye-key">Ctrl</span> 키로 <b>미리보기</b>를 켜고 끌 수 있어요. · <b>Enter</b> 전송 · <b>Ctrl+Enter</b> 줄바꿈</div>
         <div class="chat-admin" id="chatAdmin" style="display:none"></div>
       </section>
+      <aside class="hub-side">
+        <section class="ls" style="margin-top:0">
+          <div class="ls-h">지금 접속 중 <span class="ls-n" id="hubOnCount">·</span></div>
+          <div id="hubOnline"><p class="ls-empty">확인하는 중…</p></div>
+        </section>
+        <section class="ls" id="postSec">
+          <div class="ls-h">게시글</div>
+          <p class="ls-empty" style="margin-top:0">남겨둘 이야기·후기·자료는 여기에. 가벼운 대화는 채팅으로.</p>
+          <div id="postGrid"><p class="ls-empty">불러오는 중…</p></div>
+        </section>
+      </aside>
     </div>`;
   $('#pbWrite').onclick=()=>openQuestionCompose(true);   // 게시글 쓰기 (질문 작성기 재사용 → mark_post 전환)
   loadCommunityPosts();                                  // 게시글 목록 (72 미적용이면 섹션 자체를 숨긴다)
@@ -10016,8 +10061,40 @@ async function renderCommunity(){
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
+  renderHubOnline(_nav);                          // 우측 레일: 지금 접속 중인 회원
   window.scrollTo(0,0);
   typeToFocus('#chatText');    // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
+}
+
+/* 커뮤니티 우측 레일 — 지금 접속 중인 회원.
+   ★채널 개념이 없는 앱이라(커뮤니티 채팅은 하나뿐) 좌측 채널 목록 대신
+   '누가 지금 있는가'를 보여주는 편이 실제로 쓸모 있다. */
+async function renderHubOnline(_nav){
+  const box=$('#hubOnline'); if(!box) return;
+  let rows=[];
+  try{
+    const since=new Date(Date.now()-ONLINE_WINDOW_MS).toISOString();
+    const { data, error } = await sb.from('members_public')
+      .select('id,name,handle,avatar_url,last_active_at')
+      .gte('last_active_at', since).order('last_active_at',{ascending:false}).limit(24);
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){
+    box.innerHTML='<p class="ls-empty">접속 정보를 불러오지 못했어요.</p>'; return;
+  }
+  if(_nav!==undefined && _nav!==_navSeq) return;      // ★낡은 렌더 폐기
+  const cnt=$('#hubOnCount'); if(cnt) cnt.textContent=rows.length;
+  if(!rows.length){ box.innerHTML='<p class="ls-empty">지금은 아무도 없네요. 먼저 말을 걸어보세요.</p>'; return; }
+  box.innerHTML=rows.map(m=>{
+    const av=avatarFor(m.name, m.handle);
+    const face = m.avatar_url
+      ? `<span class="ho-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
+      : `<span class="ho-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
+    return `<a class="ho-row" data-open="${escapeAttr(m.id)}">${face}
+      <span class="ho-n">${escapeHtml(m.name||m.handle||'회원')}</span>
+      <span class="pres-dot on" data-pres="${escapeAttr(m.id)}" title="접속 중"></span></a>`;
+  }).join('');
+  box.querySelectorAll('[data-open]').forEach(a=>a.onclick=()=>{ location.hash='#//member/'+a.dataset.open; });
 }
 
 /* ---- 채팅 내부 콘텐츠 배율 (축소/확대) : 창 크기는 고정, 프로필사진·텍스트·말풍선만 스케일 ---- */
