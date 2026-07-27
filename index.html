@@ -2172,6 +2172,77 @@ body.fx-full::before{
 .login-card{ animation:fxrise var(--dur-3) var(--spring) both; }
 @keyframes fxrise{ from{ opacity:0; transform:translate3d(0,26px,0) scale(.97); } to{ opacity:1; transform:none; } }
 .intro-title{ letter-spacing:-.035em; }
+
+/* ═══════════ 대문 v2 (세션 M) — 박스를 걷어낸다 ═══════════
+   테두리는 '묶기'의 가장 무거운 수단이다. 여백과 작은 제목이 같은 일을 조용히 한다.
+   원칙: ①채워진 박스는 화면에 하나 ②나머지는 라벨+여백 ③목록은 카드가 아니라 실선 행
+        ④박스 안에 박스 금지 */
+
+/* ★버그 수정(세션 M): 12칸 벤토에서 grid-column 규칙이 없는 타일은 기본 1칸(≈75px)이 되어
+   글자가 세로로 한 자씩 떨어졌다(.bt-mytask/.bt-openq가 그랬다).
+   앞으로 규칙을 빠뜨린 타일이 생겨도 절반 폭으로 안전하게 떨어지도록 기본값을 준다. */
+.bento > .bt{ grid-column:span 6; }
+.bento > .bt-act{ grid-column:span 7; } .bento > .bt-cal{ grid-column:span 5; }
+.bento > .bt-stats{ grid-column:span 5; } .bento > .bt-reco{ grid-column:span 7; }
+.bento > .bt-today{ grid-column:span 5; }
+.bento > .bt-notice, .bento > .bt-alldocs, .bento > .bt-grass, .bento > .bt-mission{ grid-column:span 12; }
+@media(max-width:900px){ .bento > .bt{ grid-column:span 12 !important; } }
+
+/* 유일한 채워진 요소 — 시선이 앉을 자리 */
+.lhero{ background:var(--accent); border-radius:var(--r-3); padding:15px 17px 13px; margin:0 0 8px;
+  box-shadow:var(--sh-2); animation:fxrise var(--dur-3) var(--spring) both; }
+.lh-top{ display:flex; align-items:baseline; gap:10px; margin-bottom:9px; }
+.lh-eyebrow{ font-family:var(--mono); font-size:11px; letter-spacing:.08em; color:rgba(255,255,255,.78); }
+.lh-go{ margin-left:auto; font-size:11.5px; font-weight:700; color:#fff; opacity:.85; cursor:pointer; }
+.lh-go:hover{ opacity:1; text-decoration:none; }
+.lh-row{ display:flex; align-items:baseline; gap:9px; padding:7px 9px; border-radius:var(--r-1);
+  color:#fff; text-decoration:none; transition:background var(--dur-1); }
+.lh-row:hover{ background:rgba(255,255,255,.14); text-decoration:none; }
+.lh-t{ font-size:14.5px; font-weight:700; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lh-m{ flex:none; display:flex; gap:5px; align-items:center; opacity:.92; }
+.lh-chip{ font-family:var(--mono); font-size:11px; background:rgba(255,255,255,.2); border-radius:var(--r-round); padding:2px 9px; }
+.lh-foot{ font-size:11.5px; color:rgba(255,255,255,.8); margin:8px 0 0; padding:0 9px; }
+
+/* 나머지 — 테두리 없이 라벨과 여백으로만 */
+.ls{ margin:26px 0 0; }
+.ls-h{ display:flex; align-items:baseline; gap:7px; font-size:11.5px; font-weight:800;
+  color:var(--text-dim); letter-spacing:.05em; margin:0 0 4px; }
+.ls-h a{ margin-left:auto; font-size:11.5px; font-weight:700; color:var(--text-dim); cursor:pointer; }
+.ls-h a:hover{ color:var(--accent); text-decoration:none; }
+.ls-n{ font-family:var(--mono); font-weight:400; }
+.ls-empty, .ls-foot{ font-size:12.5px; color:var(--text-dim); margin:8px 2px 0; }
+.lr{ display:flex; align-items:baseline; gap:9px; padding:9px 2px;
+  border-bottom:1px solid var(--border); color:var(--text); text-decoration:none; }
+.lr:last-of-type{ border-bottom:0; }
+.lr:hover{ background:var(--box-bg); text-decoration:none; }
+.lr-dot{ flex:none; width:7px; height:7px; border-radius:2px; background:var(--evc,#AEC6F6); align-self:center; }
+.lr-t{ font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.lr-t.done{ text-decoration:line-through; color:var(--text-dim); }
+.lr-m{ flex:none; font-family:var(--mono); font-size:11px; color:var(--text-dim); }
+.ls-reco .cat{ border:none; background:none; padding:0; margin:0; }
+
+/* 문서 분류 요약 — 숫자가 '어디를 채워야 하는지' 알려준다 */
+.lg-wrap{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.lg-chip{ font-size:12.5px; color:var(--text-dim); background:var(--box-bg);
+  border-radius:var(--r-round); padding:5px 12px; cursor:pointer; }
+.lg-chip b{ font-family:var(--mono); color:var(--text); margin-left:3px; }
+.lg-chip:hover{ background:var(--accent); color:#fff; text-decoration:none; }
+.lg-chip:hover b{ color:#fff; }
+.lg-chip.need b{ color:var(--warn); }
+.lg-chip.need:hover b{ color:#fff; }
+
+.lnote{ font-size:13px; color:var(--text-dim); line-height:1.75; margin:30px 0 0;
+  padding-top:18px; border-top:1px solid var(--border); }
+.lnote b{ color:var(--text); }
+
+/* 온보딩 — 박스 안의 박스를 편다 */
+.welcome-card{ background:var(--box-bg); border:1px solid var(--border); }
+.wc-steps{ gap:0; }
+.wc-step{ background:none; border:0; border-bottom:1px solid var(--border); border-radius:0; padding:9px 2px; }
+.wc-step:hover{ transform:none; box-shadow:none; background:var(--card); }
+
+/* 집중 배너 — 히어로와 경쟁하지 않게 한 톤 낮춘다 */
+.focus-card{ box-shadow:none; }
 </style>
 </head>
 <body>
@@ -8445,6 +8516,9 @@ async function renderDirectory(){
     renderDirGrid();
   });
   renderDirGrid();
+  /* ★세션 M: 동아리·계열 목록을 대문에서 여기로 옮겼다. 대문은 '오늘 할 일'을 보여주는
+     자리이고, 조직 구조는 사람을 찾는 이 화면에 속한다. */
+  mountOrgSection();
   window.scrollTo(0,0);
   typeToFocus('#dirSearch');   // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
   startPresence();             // 접속 표시(초록 점) 20초마다 갱신
@@ -8725,40 +8799,75 @@ async function renderLanding(){
     <div class="landing">
       ${focusHTML(focus, fprog)}
       ${welcomeHTML(false)}
-      <div class="bento">
-        ${myTasks.length?`<div class="bt bt-mytask">
-          <div class="bt-head">${ic('check')}내 과제 <a class="bt-more" data-go="#//board">진행 보드 →</a></div>
-          ${myTasks.slice(0,5).map(t=>`<a class="mt-row${t.status==='done'?' done':''}" data-key="${escapeAttr(t.doc_key)}">
-            <span class="mt-title">${escapeHtml(t.title||t.doc_key)}</span>
-            <span class="mt-meta">${taskChip(t.status)}${dueChip(t.due)}</span>
-            ${t.note?`<span class="mt-note">${escapeHtml(t.note)}</span>`:''}
-          </a>`).join('')}
-        </div>`:''}
+      ${/* ★대문의 유일한 '채워진' 요소 — 시선이 앉을 자리는 하나여야 한다.
+             과제가 있으면 과제, 없으면 이어 쓸 짧은 문서. 빈 강조 박스는 자리 낭비다. */''}
+      ${(()=>{
+        if(featOn('tasks') && myTasks.length){
+          return `<div class="lhero">
+            <div class="lh-top"><span class="lh-eyebrow">내 과제 ${myTasks.length}</span>
+              <a class="lh-go" data-go="#//board">진행 보드 →</a></div>
+            ${myTasks.slice(0,3).map(t=>`<a class="lh-row" data-key="${escapeAttr(t.doc_key)}">
+              <span class="lh-t">${escapeHtml(t.title||t.doc_key)}</span>
+              <span class="lh-m">${taskChip(t.status)}${dueChip(t.due)}</span></a>`).join('')}
+          </div>`;
+        }
+        const short=(stats||[]).filter(d=>Number(d.len)<STUB_LEN && !isMemberDocKey(d.key))
+                               .sort((a,b)=>Number(a.len)-Number(b.len))[0];
+        if(short && canEdit()){
+          return `<div class="lhero">
+            <div class="lh-top"><span class="lh-eyebrow">이어 써주세요</span>
+              <a class="lh-go" data-go="#//docs">문서 전체 →</a></div>
+            <a class="lh-row" data-key="${escapeAttr(short.key)}">
+              <span class="lh-t">${escapeHtml(short.title||short.key)}</span>
+              <span class="lh-m"><span class="lh-chip">${Number(short.len)||0}자</span></span></a>
+            <p class="lh-foot">아는 만큼만 쓰면 됩니다. 실수해도 역사에서 되돌릴 수 있어요.</p>
+          </div>`;
+        }
+        return '';
+      })()}
+
+      ${featOn('calendar')?`<section class="ls">
+        <div class="ls-h">이번 주<a data-go="#//calendar">캘린더 →</a></div>
+        ${evs.length ? evs.map(e=>`<a class="lr" data-go="#//calendar">
+            <span class="lr-dot" style="--evc:${escapeAttr(e.color||'#AEC6F6')}"></span>
+            <span class="lr-t${e.is_todo&&e.done?' done':''}">${e.is_todo?'☑ ':''}${escapeHtml(e.title)}</span>
+            <span class="lr-m">${fmtWhen(e.at)}</span></a>`).join('')
+          : '<p class="ls-empty">다가오는 일정이 없어요 — 캘린더에 올려보세요.</p>'}
+      </section>`:''}
+
+      ${(featOn('questions') && openQs.length)?`<section class="ls">
+        <div class="ls-h">아직 답이 없는 질문<a data-go="#//questions">질문 게시판 →</a></div>
+        ${openQs.map(q=>`<a class="lr" data-go="#//q/${q.id}">
+          <span class="lr-t">${escapeHtml(q.title||'-')}</span>
+          <span class="lr-m">${escapeHtml(q.author_name||'-')} · ${fmtKST(q.created_at)}</span></a>`).join('')}
+        <p class="ls-foot">아는 게 있다면 한 줄이라도 남겨주세요 — 답이 곧 문서가 됩니다.</p>
+      </section>`:''}
+
+      ${cats?`<section class="ls ls-reco">
+        <div class="ls-h">추천 문서${isOwner()?`<a data-go="#//system/landing">편집 →</a>`:''}</div>
+        ${cats}
+      </section>`:''}
+
+      ${alldocs.length?`<section class="ls">
+        <div class="ls-h">문서 <span class="ls-n">${alldocs.length}</span><a data-go="#//docs">전체 보기 →</a></div>
+        <div class="lg-wrap">${(()=>{
+          const gc={}; alldocs.forEach(d=>{ const g=docGroupOf(d); gc[g]=(gc[g]||0)+1; });
+          return docGroupOrder(Object.keys(gc)).map(g=>
+            `<a class="lg-chip${g===DOC_G_ETC?' need':''}" data-go="#//docs">${escapeHtml(g)} <b>${gc[g]}</b></a>`).join('');
+        })()}</div>
+      </section>`:''}
+
+      <p class="lnote"><b>안다미로</b>의 공동 기록 공간입니다. 기자재 사용법, 실험 절차, 자주 하는 실수 —
+        한 번 겪은 사람이 짧게 남기면 다음 사람은 헤매지 않아요. 길게 쓸 필요 없습니다.
+        <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
+
+      ${/* 곁가지 타일(기본 꺼짐)은 예전 벤토 그리드를 그대로 쓴다 — 켰을 때만 나타난다 */''}
+      ${(featOn('landing_extras')||featOn('gamify'))?`<div class="bento">
         ${featOn('landing_extras')?`<div class="bt bt-act">${actHTML}</div>`:''}
-        ${openQs.length?`<div class="bt bt-openq">
-          <div class="bt-head">${ic('help')}아직 답이 없는 질문 <a class="bt-more" data-go="#//questions">질문 게시판 →</a></div>
-          ${openQs.map(q=>`<a class="oq-row" data-go="#//q/${q.id}">
-            <span class="oq-t">${escapeHtml(q.title||'-')}</span>
-            <span class="oq-m">${escapeHtml(q.author_name||'-')} · ${fmtKST(q.created_at)}</span>
-          </a>`).join('')}
-          <div class="oq-foot">아는 게 있다면 한 줄이라도 남겨주세요 — 답이 곧 문서가 됩니다.</div>
-        </div>`:''}
-        ${featOn('calendar')?`<div class="bt bt-cal">
-          <div class="bt-head">${ic('calendar')}이번 주 안다미로 <a class="bt-more" data-go="#//calendar">캘린더 →</a></div>
-          ${calHTML}
-        </div>`:''}
-        <div class="bt bt-reco">
-          <div class="bt-head">${ic('book')}추천 문서 ${isOwner()?`<a class="bt-more" data-go="#//system/landing">편집 →</a>`:''}</div>
-          ${cats || '<div class="act-empty">추천 문서가 아직 없어요.</div>'}
-        </div>
         ${featOn('landing_extras')?`<div class="bt bt-stats">
-          <div class="bt-head">${ic('check')}우리가 쌓아온 것</div>
-          ${statsHTML}
-        </div>`:''}
+          <div class="bt-head">${ic('check')}우리가 쌓아온 것</div>${statsHTML}</div>`:''}
         ${featOn('landing_extras')?`<div class="bt bt-today" id="btToday">
-          <div class="bt-head">${ic('dice')}오늘의 문서</div>
-          ${todayHTML}
-        </div>`:''}
+          <div class="bt-head">${ic('dice')}오늘의 문서</div>${todayHTML}</div>`:''}
         ${rewind?`<div class="bt bt-rewind" id="btRewind">
           <div class="bt-head">🎁 ${escapeHtml(rewind.label)}</div>
           <div class="rw-sub">올해 나의 기록을 되감아 보고, 카드로 저장해 보세요 →</div>
@@ -8781,23 +8890,10 @@ async function renderLanding(){
           ${weekNames.length?`<div class="grass-week"><span class="gw-label">이번 주 기여자</span>
             ${weekNames.map(m=>`<span class="gw-chip"><span class="gw-dot" data-cover="${escapeAttr(m.id)}"></span>${escapeHtml(m.name)}</span>`).join('')}</div>`:''}
         </div>`:''}
-        <div class="bt bt-notice">
-          <div class="hn-title">기록이 다음 사람의 시간을 아낍니다</div>
-          <p><b>안다미로</b>의 공동 기록 공간입니다. 기자재 사용법, 실험 절차, 자주 하는 실수 —
-             한 번 겪은 사람이 짧게 남기면 다음 사람은 헤매지 않아요. 길게 쓸 필요 없습니다.</p>
-          <p class="hn-first">처음이신가요? <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
-        </div>
-        <div class="bt bt-alldocs" id="btAll">
-          <div class="bt-head">${ic('docs')}모든 문서 목록 <span class="ad-count">(${alldocs.length})</span>
-            <a class="bt-more" id="adToggle">펼치기 ▾</a></div>
-          <div class="alldocs-grid">
-            ${alldocs.length ? alldocs.map(d=>`<a class="doc-link alldoc" data-key="${escapeAttr(d.key)}"><span class="dl-title">${escapeHtml(d.title||d.key)}</span><span class="dl-key">/${escapeHtml(d.key)}</span></a>`).join('') : '<div class="ad-empty">아직 문서가 없습니다. 새 문서를 만들면 여기에 표시됩니다.</div>'}
-          </div>
-        </div>
-      </div>
+      </div>`:''}
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
-  $('#doc').querySelectorAll('.mt-row[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
+  $('#doc').querySelectorAll('.lh-row[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
     const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
@@ -8806,7 +8902,6 @@ async function renderLanding(){
   // ── 벤토: 이동 링크 · 오늘의 문서 · 전체 목록 토글
   $('#doc').querySelectorAll('[data-go]').forEach(el=>el.onclick=(ev)=>{ ev.stopPropagation(); location.hash=el.dataset.go; });
   const bt=$('#btToday'); if(bt){ const w=bt.querySelector('.btd-wrap'); if(w) bt.onclick=()=>{ location.hash=docHash(w.dataset.key); }; }
-  const at=$('#adToggle'); if(at) at.onclick=()=>{ const open=$('#btAll').classList.toggle('open'); at.textContent=open?'접기 ▴':'펼치기 ▾'; };
   const bg=$('#btGrass'); if(bg){ wireGrass(bg); applyCovers(bg); }
   const rw=$('#btRewind'); if(rw) rw.onclick=()=>openRewind(rewind.label);
   // ── 최근 활동: 클릭 이동 + 커버색 점
@@ -8821,10 +8916,14 @@ async function renderLanding(){
   wireWelcome();
   const hw=$('#hnWelcome'); if(hw) hw.onclick=()=>{
     if($('#welcomeCard')){ $('#welcomeCard').scrollIntoView({behavior:'smooth',block:'center'}); return; }
-    $('#actCard').insertAdjacentHTML('beforebegin', welcomeHTML(true));
-    wireWelcome(); $('#welcomeCard').scrollIntoView({behavior:'smooth',block:'center'});
+    /* ★기준점을 .landing 맨 앞으로 — 예전엔 #actCard 기준이었는데 그 타일은 기본으로 꺼져 있어
+       (기능 스위치 82) 눌러도 아무 일이 없었다. */
+    const host=$('#doc').querySelector('.landing');
+    if(!host) return;
+    host.insertAdjacentHTML('afterbegin', welcomeHTML(true));
+    wireWelcome();
+    const wc=$('#welcomeCard'); if(wc) wc.scrollIntoView({behavior:'smooth',block:'center'});
   };
-  mountOrgSection();         // 동아리·계열 조회 (맨 아래)
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   window.scrollTo(0,0);
