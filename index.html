@@ -2248,8 +2248,23 @@ body.fx-full::before{
    중앙 = 실시간 채팅, 우측 = 지금 접속 중인 사람 + 게시글.
    ★좌측 '채널 목록'은 만들지 않았다 — 이 앱엔 채널이 하나뿐이라 목록이 성립하지 않는다.
    채널을 만들려면 스키마 변경이 필요하고, 그건 별개의 작업이다. */
-.hub{ display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:20px; align-items:start; }
-@media(max-width:900px){ .hub{ grid-template-columns:1fr; } }
+.hub{ display:grid; grid-template-columns:170px minmax(0,1fr) 250px; gap:20px; align-items:start; }
+@media(max-width:1100px){ .hub{ grid-template-columns:150px minmax(0,1fr); } .hub-side{ display:none; } }
+@media(max-width:760px){ .hub{ grid-template-columns:1fr; } .hub-nav{ display:flex !important; overflow-x:auto; gap:4px; } }
+
+/* 좌측 채널 레일 (83) */
+.hub-nav{ min-width:0; position:sticky; top:70px; }
+.ch-item{ display:flex; align-items:center; gap:6px; width:100%; text-align:left; background:none;
+  border:0; border-radius:var(--r-1); padding:7px 10px; font:inherit; font-size:13.5px;
+  color:var(--text-dim); cursor:pointer; transition:background var(--dur-1), color var(--dur-1); }
+.ch-item:hover{ background:var(--box-bg); color:var(--text); }
+.ch-item.on{ background:var(--accent); color:#fff; font-weight:700; }
+.ch-h{ font-family:var(--mono); opacity:.6; }
+.ch-item.on .ch-h{ opacity:.85; }
+.ch-add{ width:100%; text-align:left; background:none; border:0; padding:7px 10px; margin-top:4px;
+  font:inherit; font-size:12.5px; color:var(--text-dim); cursor:pointer; border-radius:var(--r-1); }
+.ch-add:hover{ background:var(--box-bg); color:var(--accent); }
+@media(max-width:760px){ .ch-item, .ch-add{ width:auto; flex:none; white-space:nowrap; } }
 .hub-side{ min-width:0; position:sticky; top:70px; }
 .hub-side .ls{ margin-top:22px; }
 
@@ -8841,25 +8856,25 @@ async function renderLanding(){
              과제가 있으면 과제, 없으면 이어 쓸 짧은 문서. 빈 강조 박스는 자리 낭비다. */''}
       ${(()=>{
         if(featOn('tasks') && myTasks.length){
-          return `<div class="lhero">
+          return `<div class="persp"><div class="lhero tilt-hover">
             <div class="lh-top"><span class="lh-eyebrow">내 과제 ${myTasks.length}</span>
               <a class="lh-go" data-go="#//board">진행 보드 →</a></div>
             ${myTasks.slice(0,3).map(t=>`<a class="lh-row" data-key="${escapeAttr(t.doc_key)}">
               <span class="lh-t">${escapeHtml(t.title||t.doc_key)}</span>
               <span class="lh-m">${taskChip(t.status)}${dueChip(t.due)}</span></a>`).join('')}
-          </div>`;
+          </div></div>`;
         }
         const short=(stats||[]).filter(d=>Number(d.len)<STUB_LEN && !isMemberDocKey(d.key))
                                .sort((a,b)=>Number(a.len)-Number(b.len))[0];
         if(short && canEdit()){
-          return `<div class="lhero">
+          return `<div class="persp"><div class="lhero tilt-hover">
             <div class="lh-top"><span class="lh-eyebrow">이어 써주세요</span>
               <a class="lh-go" data-go="#//docs">문서 전체 →</a></div>
             <a class="lh-row" data-key="${escapeAttr(short.key)}">
               <span class="lh-t">${escapeHtml(short.title||short.key)}</span>
               <span class="lh-m"><span class="lh-chip">${Number(short.len)||0}자</span></span></a>
             <p class="lh-foot">아는 만큼만 쓰면 됩니다. 실수해도 역사에서 되돌릴 수 있어요.</p>
-          </div>`;
+          </div></div>`;
         }
         return '';
       })()}
@@ -9976,7 +9991,28 @@ function openQuestionEdit(q, isPost){
 
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
-const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4 };
+const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4,
+  /* ★다중 채널(83). ch=null 은 '일반' — 83 이전에 쌓인 메시지가 전부 여기 속한다.
+     chOk=false 면 83 미적용이므로 채널 레일을 아예 그리지 않고 예전처럼 단일 채팅으로 돈다. */
+  ch:null, chOk:false, channels:[] };
+
+/* 채널 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패) */
+async function loadChannels(){
+  try{
+    const { data, error } = await sb.from('channels')
+      .select('id,key,name,description,sort,archived')
+      .eq('archived', false).order('sort',{ascending:true}).order('id',{ascending:true});
+    if(error) throw error;
+    community.channels = data||[];
+    community.chOk = true;
+  }catch(e){ community.channels=[]; community.chOk=false; }
+  return community.chOk;
+}
+function chName(id){
+  if(id==null) return '일반';
+  const c=community.channels.find(x=>String(x.id)===String(id));
+  return c ? c.name : '채널';
+}
 
 function unsubscribeChat(){ resetTyping(); if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
 
@@ -10011,6 +10047,7 @@ async function renderCommunity(){
   $('#doc').innerHTML=`
     <div class="qb-head"><h1>커뮤니티</h1><button class="btn primary" id="pbWrite" style="width:auto;padding:8px 16px">${ic('plus')} 글쓰기</button></div>
     <div class="hub">
+      <nav class="hub-nav" id="chRail" style="display:none"></nav>
       <section class="chat">
         <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
@@ -10058,12 +10095,59 @@ async function renderCommunity(){
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
+  await loadChannels();                           // ★83 — 실패하면 chOk=false로 단일 채팅 모드
+  if(_nav!==_navSeq) return;
+  renderChannelRail();
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
   renderHubOnline(_nav);                          // 우측 레일: 지금 접속 중인 회원
   window.scrollTo(0,0);
   typeToFocus('#chatText');    // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
+}
+
+/* 좌측 채널 레일 (83). ★83 미적용이면 레일 자체를 숨긴다 — 예전 단일 채팅 그대로 동작. */
+function renderChannelRail(){
+  const rail=$('#chRail'); if(!rail) return;
+  if(!community.chOk){ rail.style.display='none'; return; }
+  rail.style.display='';
+  const item=(id,name)=>`<button class="ch-item${String(community.ch)===String(id)?' on':''}"
+      data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}</button>`;
+  rail.innerHTML=`
+    <div class="ls-h" style="margin-bottom:6px">채널</div>
+    ${item(null,'일반')}
+    ${community.channels.map(c=>item(c.id,c.name)).join('')}
+    ${canManageChannels()?`<button class="ch-add" id="chAdd">+ 채널 만들기</button>`:''}`;
+  rail.querySelectorAll('.ch-item').forEach(b=>{
+    b.onclick=()=>{ const v=b.dataset.ch; switchChannel(v===''?null:Number(v)); };
+  });
+  const add=$('#chAdd'); if(add) add.onclick=addChannel;
+}
+function canManageChannels(){ return state.role==='owner' || state.role==='admin'; }
+async function switchChannel(id){
+  if(String(community.ch)===String(id)) return;
+  community.ch = id;
+  renderChannelRail();
+  const head=document.querySelector('.chat-head span'); if(head) head.textContent='# '+chName(id);
+  const log=$('#chatLog'); if(log) log.innerHTML='<div class="chat-empty">불러오는 중…</div>';
+  await loadMessages();
+  subscribeChat();                                  // 채널이 바뀌면 구독도 갈아탄다
+}
+async function addChannel(){
+  const name=(prompt('새 채널 이름 (예: 실험실, 대회준비)')||'').trim();
+  if(!name) return;
+  const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+  const key=base || ('ch'+Date.now().toString(36));
+  try{
+    const { data, error } = await sb.from('channels')
+      .insert({ key, name, sort:(community.channels.length+1) }).select().single();
+    if(error) throw error;
+    community.channels.push(data);
+    renderChannelRail();
+    toast('채널을 만들었어요: # '+name);
+  }catch(e){
+    alert('채널을 만들지 못했습니다: '+((e&&e.message)||e)+'\n(83_channels.sql 실행 여부와 권한을 확인하세요)');
+  }
 }
 
 /* 커뮤니티 우측 레일 — 지금 접속 중인 회원.
@@ -10219,6 +10303,11 @@ async function loadMessages(){
     let sel = sb.from('messages')
       .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id,images');
     sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
+    /* ★채널 필터는 커뮤니티 채팅에서만. 질문 스레드는 채널 개념이 없다.
+       83 미적용(chOk=false)이면 필터를 아예 걸지 않는다 — 없는 컬럼을 참조하면 조회가 통째로 죽는다. */
+    if(!q && community.chOk){
+      sel = (community.ch==null) ? sel.is('channel_id', null) : sel.eq('channel_id', community.ch);
+    }
     const { data, error } = await sel.order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
     const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
@@ -10506,8 +10595,10 @@ async function sendMessage(){
   try{
     let images=[];
     if(files.length) images = await uploadChatImages(files, t=>{ if(btn) btn.textContent=t.replace('사진 올리는 중… ',''); });
-    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null,
-      author_handle:state.handle||null, body, question_id: community.qid || null, images });
+    const row={ user_id:state.user.id, author_name:state.name||null,
+      author_handle:state.handle||null, body, question_id: community.qid || null, images };
+    if(!community.qid && community.chOk && community.ch!=null) row.channel_id=community.ch;   // ★83
+    const { error } = await sb.from('messages').insert(row);
     if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨
   }catch(e){
     inp.value=body; chatPick=files; drawChatTray();
@@ -10654,7 +10745,7 @@ async function refreshReactionsFor(mid){
 function subscribeChat(){
   unsubscribeChat();
   // 채널명을 스레드별로 분리 → 커뮤니티에서 친 '입력 중'이 질문방에 새지 않는다
-  chatChannel = sb.channel('chat:'+(community.qid || 'main'))
+  chatChannel = sb.channel('chat:'+(community.qid || ('main#'+(community.ch==null?'gen':community.ch))))
     .on('broadcast', { event:'typing' }, ({ payload })=>{
       if(!payload || !payload.id) return;
       if(state.user && payload.id===state.user.id) return;      // 내 신호는 무시
@@ -10671,6 +10762,11 @@ function subscribeChat(){
       const cur = community.qid || null;
       const got = (payload.new && payload.new.question_id) || null;
       if(String(cur) !== String(got)) return;
+      if(!cur && community.chOk){                       // ★83: 지금 보고 있는 채널만
+        const mc = (payload.new && payload.new.channel_id!=null) ? String(payload.new.channel_id) : null;
+        const vc = community.ch!=null ? String(community.ch) : null;
+        if(mc !== vc) return;
+      }
       appendMessage(payload.new, true);
     })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
