@@ -23,27 +23,31 @@
      변수 이름은 그대로 두었다 — 앱 전체(수천 줄)가 이 이름들을 참조하므로
      값만 갈아끼우면 전파된다. 이름을 바꾸면 그 순간 전부 깨진다. */
   /* 표면: L0 배경 → L1 카드 → L2 떠 있는 요소 */
-  --bg:#EDEFF6; --card:#ffffff; --box-bg:#F4F6FB; --surface-3:#ffffff;
-  /* 브랜드 · 의미색 — 일렉트릭 블루 / 비비드 그린 / 소프트 퍼플 */
-  --accent:#3D5AFE; --accent-soft:#7089FF;
-  --accent-2:#00B87C;             /* 비비드 그린 — 완료·진행 */
+  --bg:#EFEEEE; --card:#ffffff; --box-bg:#F7F5F5; --surface-3:#ffffff;
+  /* 브랜드 · 의미색 — ★동아리 상징색(빨강)을 유지한다 (세션 Q).
+     세션 L에서 파랑으로 바꿨다가 되돌렸다. 레이아웃·유리 질감·모션은 그대로 두고
+     '색'만 상징색으로 돌린다 — 바꿔야 했던 건 밀도와 소음이지 정체성이 아니었다. */
+  --accent:#C00000; --accent-soft:#D9483F;
+  --accent-2:#00875A;             /* 진초록 — 완료·진행 (빨강 옆에서 탁해지지 않게 어둡게) */
   --accent-3:#8B5CF6;             /* 소프트 퍼플 — 보조 강조 */
   --cover-default:#9AA3B8;        /* 커버 미선택 회원의 기본색 — 브랜드색과 분리 */
-  --ok:#00B87C; --warn:#F5A524; --info:#3D5AFE; --danger:#F2385A; --teacher:#8B5CF6;
+  --ok:#00875A; --warn:#C77D0A; --info:#1E6BE0; --danger:#C0392B; --teacher:#8B5CF6;
+  /* ★위험(danger)과 브랜드(accent)가 둘 다 빨강이므로 danger를 살짝 어둡고 탁하게 두어
+     '삭제'가 '브랜드 강조'로 오해되지 않게 한다. */
   /* 텍스트 · 선 */
-  --text:#14161F; --text-dim:#5A6178;
-  --border:#E1E5EF; --border-strong:#C3CADB;
-  --link:#3D5AFE; --link-red:#F2385A;
-  --infobox-head:#3D5AFE; --table-head:#EEF1F9;
+  --text:#1B1A1C; --text-dim:#5F5B5D;
+  --border:#E6E2E2; --border-strong:#CBC5C5;
+  --link:#1E6BE0; --link-red:#C0392B;   /* 링크는 파랑 유지 — 빨강 링크는 본문에서 경고로 읽힌다 */
+  --infobox-head:#C00000; --table-head:#F3F0F0;
   /* 타이포: 숫자·시간·카운트는 계측기처럼 — 모노스페이스 */
   --mono:ui-monospace,'SF Mono','Cascadia Mono',Consolas,'Roboto Mono',monospace;
   /* 간격(4px 기반) · 모서리 */
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
   --r-1:6px; --r-2:10px; --r-3:14px; --r-round:99px;
   /* 그림자 3단 — 파랑기를 섞어 '떠 있는' 느낌 */
-  --sh-1:0 1px 2px rgba(20,30,70,.06);
-  --sh-2:0 4px 14px rgba(20,30,70,.10);
-  --sh-3:0 16px 40px rgba(20,30,70,.16);
+  --sh-1:0 1px 2px rgba(40,20,20,.06);
+  --sh-2:0 4px 14px rgba(40,20,20,.10);
+  --sh-3:0 16px 40px rgba(40,20,20,.16);
   --shadow:var(--sh-1);
   /* ── 글래스 ── ★--blur는 fx 설정이 0px으로 덮어써서 렉을 끈다 */
   --glass:rgba(255,255,255,.72); --glass-2:rgba(255,255,255,.55);
@@ -57,23 +61,23 @@
      ★fx 설정이 --tilt-*를 0deg으로 덮어써서 3D를 통째로 끈다 */
   --persp:900px; --tilt-x:14deg; --tilt-y:-18deg; --tilt-hover:9deg; --lift:18px;
   /* 배경 그리드 */
-  --grid-line:rgba(30,40,90,.045);
+  --grid-line:rgba(80,30,30,.045);
 }
 body.dark{
   /* 남색기 섞인 3단 — 순수 검정 금지(OLED halation 회피) */
-  --bg:#0E1018; --card:#171A26; --box-bg:#1E2231; --surface-3:#252A3A;
-  --accent:#6B82FF; --accent-soft:#93A5FF;
-  --accent-2:#2ED9A0; --accent-3:#A78BFA;
+  --bg:#151213; --card:#211D1E; --box-bg:#2A2526; --surface-3:#332D2E;
+  --accent:#E35049; --accent-soft:#EC7871;   /* 야간용 상징색 — 어두운 배경에서 #C00000은 탁하다 */
+  --accent-2:#3FBF7F; --accent-3:#A78BFA;
   --cover-default:#6B7488;
-  --ok:#2ED9A0; --warn:#FFBF4D; --info:#6B82FF; --danger:#FF5C7A; --teacher:#A78BFA;
-  --text:#E7EAF3; --text-dim:#9BA3B8;
-  --border:#2A2F42; --border-strong:#3D4459;
-  --link:#8CA0FF; --link-red:#FF7A93;
-  --infobox-head:#6B82FF; --table-head:#1E2231;
+  --ok:#3FBF7F; --warn:#E6A23C; --info:#6BA4FF; --danger:#E0645B; --teacher:#A78BFA;
+  --text:#EDE8E8; --text-dim:#A79FA0;
+  --border:#393234; --border-strong:#4E4547;
+  --link:#6BA4FF; --link-red:#FF6B6B;
+  --infobox-head:#A83232; --table-head:#2A2526;
   --sh-1:0 1px 2px rgba(0,0,0,.5);
   --sh-2:0 5px 18px rgba(0,0,0,.55);
   --sh-3:0 18px 46px rgba(0,0,0,.65);
-  --glass:rgba(30,35,52,.72); --glass-2:rgba(30,35,52,.55);
+  --glass:rgba(38,33,34,.72); --glass-2:rgba(38,33,34,.55);
   --glass-brd:rgba(255,255,255,.09);
   --grid-line:rgba(255,255,255,.035);
 }
@@ -2113,9 +2117,9 @@ body.fx-lite .glass, body.fx-flat .glass, body.fx-lite .topbar, body.fx-flat .to
 body.fx-full::before{
   content:''; position:fixed; inset:0; z-index:-1; pointer-events:none;
   background-image:
-    radial-gradient(circle at 12% 18%, rgba(61,90,254,.11), transparent 26%),
-    radial-gradient(circle at 86% 10%, rgba(0,184,124,.10), transparent 24%),
-    radial-gradient(circle at 72% 80%, rgba(139,92,246,.10), transparent 28%);
+    radial-gradient(circle at 12% 18%, rgba(192,0,0,.07), transparent 26%),
+    radial-gradient(circle at 86% 10%, rgba(0,135,90,.06), transparent 24%),
+    radial-gradient(circle at 72% 80%, rgba(139,92,246,.06), transparent 28%);
 }
 
 /* ═══ 유리 크롬 ═══ 빨간 띠를 걷어내고 밝은 반투명 판으로 */
@@ -2128,7 +2132,7 @@ body.fx-full::before{
 .topbar .logo .mark{ background:var(--card); border:1px solid var(--border); border-radius:8px; box-shadow:none; }
 .topbar .search input{ height:36px; border-radius:var(--r-round); background:var(--box-bg);
   color:var(--text); border:1px solid var(--border); padding:0 14px; }
-.topbar .search input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(61,90,254,.16); }
+.topbar .search input:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px rgba(192,0,0,.14); }
 .topbar button.mode, .topbar button.logout, .topbar button.navbtn{
   background:transparent; color:var(--text-dim); border-radius:var(--r-round); transition:background var(--dur-1), color var(--dur-1); }
 .topbar button.mode:hover, .topbar button.logout:hover, .topbar button.navbtn:hover,
