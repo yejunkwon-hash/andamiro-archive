@@ -1857,7 +1857,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   .landing-reco{min-height:0;}
   .community{flex-direction:column;align-items:stretch;}
   .calendar-wrap{width:100%;position:static;}
-  .chat{height:60vh;}
+  /* .chat 높이는 세션 X의 모바일 규칙(맨 아래)이 담당한다 — 여기서 60vh로 묶지 않는다 */
   .infobox{float:none;width:100%;margin:0 0 16px;}
   .doc{padding:18px 16px 28px;}
   .topbar .search{max-width:none;}
@@ -2323,6 +2323,38 @@ body.fx-full::before{
   color:var(--text); cursor:pointer; }
 .ch-retry:hover{ border-color:var(--accent); color:var(--accent); }
 
+/* ═══ 세션 X ═══ */
+
+/* ★2. 모바일 상단 아이콘이 흰 배경에 묻히던 문제.
+   `.navtoggle`이 `color:#fff` + 흰 반투명 배경으로 고정돼 있었다 —
+   상단바가 빨간 띠 → 밝은 유리판이 되면서 안 보이게 됐다.
+   사용자명(#userlabel)과 **똑같은 원인**이다. 배경을 바꿀 땐 그 위의 전경색을 전부 찾아야 한다. */
+.topbar .navtoggle{ background:var(--box-bg); color:var(--text-dim); }
+.topbar .navtoggle:hover,
+.topbar .navtoggle:focus-visible{ background:var(--border); color:var(--accent); }
+.topbar .navtoggle svg{ stroke:currentColor; }
+
+/* ★3. 모바일에서 채널 대화를 더 길게 — 한 번에 더 많은 메시지가 보이게.
+   dvh를 쓴다: 모바일 브라우저 주소창이 접혔다 펴져도 높이가 튀지 않는다. */
+@media(max-width:768px){
+  .hub .chat, .chat{
+    height:auto;
+    min-height:calc(100dvh - 210px);      /* 상단바·제목·하단 탭을 뺀 나머지를 채운다 */
+    max-height:none;
+  }
+  .hub .chat .chat-log{ min-height:0; }   /* 로그가 남는 공간을 전부 먹는다 */
+  /* 채널 레일을 가로 한 줄로 접어 세로 공간을 대화에 넘긴다 */
+  .hub-nav{ position:static; margin-bottom:6px; }
+  .hub-nav .ls-h{ display:none; }
+  /* 작업 공간은 대화 아래로 — 모바일에서는 대화가 먼저다 */
+  .hub-side{ order:3; }
+  .hub .chat{ order:2; }
+  .hub-nav{ order:1; }
+}
+@supports not (height: 100dvh){
+  @media(max-width:768px){ .hub .chat, .chat{ min-height:calc(100vh - 210px); } }
+}
+
 /* ═══ 채널 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
 .ws-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:0 0 9px; }
 .ws-meet{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%;
@@ -2356,14 +2388,6 @@ body.fx-full::before{
   display:flex; align-items:center; justify-content:center; color:#fff; font-size:12px; font-weight:800; }
 .ho-n{ flex:1; min-width:0; font-size:13px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .ho-row .pres-dot{ flex:none; }
-
-/* 게시글을 레일 폭에 맞춰 한 줄 항목으로 */
-.hub-side #postGrid{ display:block; }
-.hub-side #postGrid .qb-card{ display:block; border:0; border-bottom:1px solid var(--border);
-  border-radius:0; padding:9px 2px; background:none; box-shadow:none; }
-.hub-side #postGrid .qb-card:last-child{ border-bottom:0; }
-.hub-side #postGrid .qb-card:hover{ transform:none; box-shadow:none; background:var(--box-bg); }
-.hub-side #postGrid .qb-t{ font-size:13px; }
 
 /* 채팅창이 허브 안에서 자기 폭을 지키게 */
 .hub .chat{ min-width:0; }
@@ -10137,35 +10161,13 @@ function chName(id){
 function unsubscribeChat(){ resetTyping(); if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
 
 /* 커뮤니티 게시글 목록 (72) — questions에서 kind='post'만. RPC가 없으면(미배포) 섹션을 통째로 숨겨 우아하게 실패 */
-async function loadCommunityPosts(){
-  const box=$('#postGrid'); if(!box) return;
-  try{
-    const { data, error } = await sb.rpc('list_posts');
-    if(error) throw error;
-    const rows=data||[];
-    if(!$('#postGrid')) return;                          // 로딩 중 화면 이탈
-    box.innerHTML = rows.length ? rows.map(p=>`
-      <a class="qb-card" href="#//q/${p.id}">
-        <div class="qb-t">${escapeHtml(p.title||'-')}</div>
-        <div class="qb-m">
-          <span>${p.author?`<span class="qm-dot" data-cover="${escapeAttr(p.author)}"></span>`:''}${escapeHtml(p.author_name||'-')}</span>
-          <span class="qb-ans ${Number(p.answers)>0?'hot':''}">댓글 ${p.answers||0}</span>
-          <span class="pb-chip">♥ ${p.likes||0}</span>
-          <span class="pb-chip">${eyeSVG(12)} ${p.views||0}</span>
-        </div>
-      </a>`).join('') : '<div class="qb-empty">아직 게시글이 없어요.<br>첫 글을 올려보세요.</div>';
-    const ids=[...new Set(rows.map(p=>p.author).filter(Boolean))];
-    if(ids.length) ensureCovers(ids).then(()=>{ const g=$('#postGrid'); if(g) applyCovers(g); });
-  }catch(e){
-    const sec=$('#postSec'); if(sec) sec.style.display='none';   // 72 미적용 → 채팅만 보이는 기존 모습
-  }
-}
+
 
 async function renderCommunity(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
   $('#doc').innerHTML=`
-    <div class="qb-head"><h1>채널</h1><button class="btn primary" id="pbWrite" style="width:auto;padding:8px 16px">${ic('plus')} 글쓰기</button></div>
+    <div class="qb-head"><h1>채널</h1></div>
     <div class="hub">
       <nav class="hub-nav" id="chRail" style="display:none"></nav>
       <section class="chat">
@@ -10199,15 +10201,10 @@ async function renderCommunity(){
           <div class="ls-h">지금 접속 중 <span class="ls-n" id="hubOnCount">·</span></div>
           <div id="hubOnline"><p class="ls-empty">확인하는 중…</p></div>
         </section>
-        <section class="ls" id="postSec">
-          <div class="ls-h">게시글</div>
-          <p class="ls-empty" style="margin-top:0">남겨둘 이야기·후기·자료는 여기에. 가벼운 대화는 채팅으로.</p>
-          <div id="postGrid"><p class="ls-empty">불러오는 중…</p></div>
-        </section>
       </aside>
     </div>`;
-  $('#pbWrite').onclick=()=>openQuestionCompose(true);   // 게시글 쓰기 (질문 작성기 재사용 → mark_post 전환)
-  loadCommunityPosts();                                  // 게시글 목록 (72 미적용이면 섹션 자체를 숨긴다)
+  /* ★세션 X: 채널에서 게시글을 걷어냈다. 채널은 '대화 + 작업 공간'이고,
+     남겨둘 글은 질문 게시판과 문서가 맡는다. 자리를 나눠 갖던 것이 채팅에 돌아갔다. */
   $('#chatSend').onclick=sendMessage;
   bindChatKeys($('#chatText'), sendMessage);      // Enter=전송 · Ctrl+Enter=줄바꿈
   $('#chatText').addEventListener('input', ()=>{ autoGrow($('#chatText')); updateCharCount(); updatePreview(); sendTyping(); });
