@@ -2355,6 +2355,33 @@ body.fx-full::before{
   @media(max-width:768px){ .hub .chat, .chat{ min-height:calc(100vh - 210px); } }
 }
 
+/* ═══ 지층 막대 (86 · 세션 Y) ═══
+   이 앱의 현재 톤은 '조용한 목록'이다. 지층도 그 톤을 지킨다 —
+   작고, 채도 낮고, 마우스를 올렸을 때만 또렷해진다. 시선을 뺏지 않는다. */
+.strata{ display:flex; overflow:hidden; border-radius:2px; flex:none;
+  background:var(--border); opacity:.72; transition:opacity var(--dur-1); }
+.strata i{ display:block; flex-basis:0; }
+.dl2:hover .strata, .strata:hover{ opacity:1; }
+
+/* 목록 — 제목 왼쪽의 얇은 세로 막대. 오래된 층이 아래 (지층이니까) */
+.strata-b{ width:4px; height:19px; flex-direction:column-reverse; align-self:center; }
+.strata-b i{ min-height:2px; }
+
+/* 문서 상단 — 가로. 오래된 층이 왼쪽 (시간이 왼→오른쪽으로 흐른다) */
+.strata-w{ height:7px; flex-direction:row; flex:1; min-width:0; border-radius:3px; opacity:.85; }
+.strata-w i{ min-width:5px; }
+.strata-row{ display:flex; align-items:center; gap:10px; margin:-4px 0 16px; }
+.strata-cap{ flex:none; font-family:var(--mono); font-size:10.5px; color:var(--text-dim); }
+
+/* 층 사이 실낱 구분 — 인접한 흙빛끼리 뭉쳐 보이는 걸 막는다 */
+.strata-b i + i{ box-shadow:0 1px 0 rgba(255,255,255,.5) inset; }
+.strata-w i + i{ box-shadow:1px 0 0 rgba(255,255,255,.5) inset; }
+body.dark .strata-b i + i{ box-shadow:0 1px 0 rgba(0,0,0,.35) inset; }
+body.dark .strata-w i + i{ box-shadow:1px 0 0 rgba(0,0,0,.35) inset; }
+body.dark .strata{ opacity:.85; }
+
+@media(max-width:640px){ .strata-b{ height:17px; } }
+
 /* ═══ 채널 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
 .ws-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:0 0 9px; }
 .ws-meet{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%;
@@ -3969,6 +3996,12 @@ const DOC_GROUPS = [
         '실험 방법','주제','회로','트랜지스터'] },
   { name:'동아리',         match:['home','member_tier','rule','notice','안다미로','동아리','규칙','등급','연혁','공지'] },
 ];
+/* ★고를 수 있는 분류 = DOC_GROUPS의 이름들 (세션 Y).
+   자유 입력을 없앤 이유: 예전엔 자유 입력 + 선택 사항이었고, 그 결과 39개 중 대부분이
+   '분류 없음'이 됐다. **선택 사항인 필드는 채워지지 않는다.**
+   분류를 늘리려면 DOC_GROUPS에 한 줄만 추가하면 목록·편집기·새 문서 전부 따라온다. */
+function docCategoryOptions(){ return DOC_GROUPS.map(g=>g.name); }
+
 const DOC_G_ETC = '분류 없음';        // ★한 줄 한 선언 — 다중 선언은 전수 감사(§0-6)가 놓친다
 const DOC_G_MEMBER = '회원';
 function docGroupOf(d){
@@ -3986,6 +4019,58 @@ function docGroupOrder(names){
                       .sort((a,b)=>a.localeCompare(b,'ko'));
   return [...fixed, ...custom, DOC_G_ETC, DOC_G_MEMBER].filter(n=>names.includes(n));
 }
+/* ================== 지층 (86) — 세션 Y ==================
+   문서마다 '누가 언제 쌓았는지'를 얇은 막대로 보여준다.
+   층 하나 = 한 기수가 연달아 편집한 구간, 색 = 그 기수.
+
+   ★반드시 지킬 것 — 이걸 어기면 이 앱은 '성과 측정 도구'가 된다:
+     1. 이 값으로 정렬하지 마라 ("편집 많은 순" 같은 건 만들지 않는다)
+     2. 숫자를 크게 쓰지 마라 — 막대는 형태로 말한다
+     3. 층이 하나면 "편집 1회"가 아니라 "첫 층" — 시작은 부족함이 아니다
+     4. 색만으로 구분하게 두지 마라 — 반드시 툴팁으로 기수를 함께 준다
+     5. 사람을 비교하는 데 쓰지 마라 — 문서의 이력이지 개인의 실적이 아니다
+
+   ★색은 상징색(빨강)과 부딪히지 않게 채도를 낮춘 흙빛 계열로 골랐다.
+     명도가 서로 다르므로 색을 못 봐도 층 경계가 보인다. */
+const STRATA_COLORS = ['#8C6239','#5B7C6B','#6B6E8F','#A08447','#7A5C6E'];
+const STRATA_UNKNOWN = '#B4ADA8';
+let STRATA = null;                            // { doc_key: [{c:기수,n:편집수}, …] } · null = 아직/미적용
+
+async function loadStrata(keys){
+  try{
+    const { data, error } = await sb.rpc('doc_strata', { p_keys: keys || null });
+    if(error) throw error;
+    STRATA = data || {};
+  }catch(e){ STRATA = null; }                 // 86 미적용 → 조용히 안 그린다
+  return STRATA;
+}
+function strataColor(c){
+  if(c==null) return STRATA_UNKNOWN;
+  const i=((Number(c) % STRATA_COLORS.length) + STRATA_COLORS.length) % STRATA_COLORS.length;
+  return STRATA_COLORS[i];
+}
+/* 사람이 읽는 한 줄. ★층이 하나뿐인 문서를 "편집 1회"라고 부르지 않는다. */
+function strataLabel(layers){
+  if(!layers || !layers.length) return '';
+  const edits=layers.reduce((n,l)=>n+(l.n||0),0);
+  if(layers.length===1 && edits===1) return '첫 층';
+  const cohorts=new Set(layers.filter(l=>l.c!=null).map(l=>l.c)).size;
+  return cohorts>1 ? `${cohorts}기수 · 편집 ${edits}회` : `편집 ${edits}회`;
+}
+/* 막대 HTML. mode: 'bar'(목록·세로) | 'wide'(문서 상단·가로) */
+function strataHTML(key, mode){
+  if(!STRATA) return '';
+  const layers=STRATA[key];
+  if(!layers || !layers.length) return '';
+  const tip=strataLabel(layers);
+  const segs=layers.map(l=>{
+    const who = l.c==null ? '기수 미상' : (l.c+'기');
+    return `<i style="flex-grow:${l.n};background:${strataColor(l.c)}" title="${escapeAttr(who+' · 편집 '+l.n+'회')}"></i>`;
+  }).join('');
+  return `<span class="strata ${mode==='wide'?'strata-w':'strata-b'}" role="img"
+    aria-label="편집 이력: ${escapeAttr(tip)}" title="${escapeAttr(tip)}">${segs}</span>`;
+}
+
 const DOCCAT_LS='anda_doccat';                      // 접어둔 분류 기억(기기별)
 function docCatClosed(){ try{ const v=JSON.parse(localStorage.getItem(DOCCAT_LS)||'null');
   return Array.isArray(v)? v : [DOC_G_MEMBER]; }catch(e){ return [DOC_G_MEMBER]; } }
@@ -4009,7 +4094,10 @@ async function renderDocsPage(){
      '누가 마지막에 고쳤는지'는 이 화면에서 뺐다 → members_public 왕복 1회도 사라짐.
      (그 정보는 문서 화면과 우측 '최근 변경'에 그대로 있다) */
   const _s=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
-  const [likes, stats] = await Promise.all([ _s(loadLikeCounts(true), {}), _s(fetchDocStats(), []) ]);
+  const [likes, stats] = await Promise.all([
+    _s(loadLikeCounts(true), {}), _s(fetchDocStats(), []),
+    _s(loadStrata(null), null),                       // ★지층(86) — 미적용이면 null
+  ]);
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   const lenOf={}; (stats||[]).forEach(d=>{ lenOf[d.key]=Number(d.len)||0; });
   const lc=k=>((likes||{})[k]&&likes[k].cnt)||0;
@@ -4020,6 +4108,7 @@ async function renderDocsPage(){
 
   const rowHTML=d=>`
     <a class="dl2${isStub(d.key)?' stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
+      ${strataHTML(d.key,'bar')}
       <span class="dl2-t">${escapeHtml(d.title||d.key)}</span>
       <span class="dl2-k">${escapeHtml(isMemberDocKey(d.key)? d.key : '/'+d.key)}</span>
       ${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자"></span>`:''}
@@ -4238,6 +4327,19 @@ async function renderDoc(key){
         if(el) el.textContent = String(Number(data)||0);
       }
     }catch(e){}
+  })();
+  /* ★지층(86) — 문서 상단. 본문을 이미 그린 뒤에 붙인다:
+     지층이 없거나 86 미적용이어도 문서는 정상적으로 열려야 하므로. */
+  (async()=>{
+    await loadStrata([key]);
+    if(_nav!==_navSeq) return;
+    const bar=strataHTML(key,'wide');
+    if(!bar) return;
+    const head=$('#doc').querySelector('.doc-head');
+    if(!head) return;
+    const lay=(STRATA||{})[key]||[];
+    head.insertAdjacentHTML('afterend',
+      `<div class="strata-row">${bar}<span class="strata-cap">${escapeHtml(strataLabel(lay))}</span></div>`);
   })();
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
@@ -5484,7 +5586,16 @@ async function enterWikiEdit(doc, opts){
       </div>
       <div class="wk-row3">
         <div><label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}"></div>
-        <div><label>분류 <span class="hint">(쉼표로 구분)</span></label><input id="e-cat" value="${escapeAttr(catStr)}"></div>
+        <div><label>분류 <span class="hint">(목록에서 이 이름으로 묶여요)</span></label>
+          <span class="usel block"><select id="e-cat">
+            <option value="">고르기…</option>
+            ${(()=>{ const cur=String(catStr||'').split(',')[0].trim();
+              const opts=docCategoryOptions();
+              /* ★예전 자유 입력으로 들어간 값도 목록에 남겨둔다 — 저장할 때 지워지면 안 된다 */
+              if(cur && !opts.includes(cur)) opts.push(cur);
+              return opts.map(c=>`<option value="${escapeAttr(c)}"${c===cur?' selected':''}>${escapeHtml(c)}</option>`).join('');
+            })()}
+          </select></span></div>
       </div>
       <label style="display:flex;align-items:center;gap:8px">본문
         <span class="hint">— 버튼만 눌러도 작성돼요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span>
@@ -5744,6 +5855,11 @@ function openNewDocModal(prefill){
     <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off" value="${escapeAttr(typeof prefill==='string'?prefill:'')}">
     <label class="nd-label">문서 제목</label>
     <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
+    <label class="nd-label">분류 <span style="color:var(--text-dim);font-weight:400">(목록에서 이 이름으로 묶여요)</span></label>
+    <span class="usel block"><select class="he-input" id="ndCat">
+      <option value="">고르기…</option>
+      ${docCategoryOptions().map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('')}
+    </select></span>
     <div class="he-msg" id="ndMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
   </div>`;
@@ -5797,6 +5913,11 @@ function openNewDocModal(prefill){
     if(k.indexOf('/')>=0){ msg.className='he-msg err'; msg.textContent='문서 주소에는 슬래시(/)를 쓸 수 없어요.'; return; }
     if(!/^[a-z0-9_-]+$/.test(k)){ msg.className='he-msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
     if(!t){ msg.className='he-msg err'; msg.textContent='문서 제목을 입력하세요.'; return; }
+    /* ★분류는 필수다 (세션 Y). 지금 3초 고르면 나중에 39개를 뒤지지 않아도 된다. */
+    const catEl=ov.querySelector('#ndCat');
+    const cat=(catEl && catEl.value || '').trim();
+    if(!cat){ msg.className='he-msg err'; msg.textContent='분류를 골라주세요. 목록에서 이 이름으로 묶입니다.';
+      if(catEl) catEl.focus(); return; }
     okb.disabled=true; okb.textContent='만드는 중…';
     try{
       const { data:ex } = await sb.from('documents').select('key').eq('key', k).maybeSingle();
@@ -5813,7 +5934,7 @@ function openNewDocModal(prefill){
         if(inf && inf.title) inf.title = t;             // 인포박스 제목은 새 제목으로
         const { error:cerr } = await sb.from('documents').update({
           body: src.body || '', infobox: inf, notice: src.notice || null,
-          category: src.category || null, eng: src.eng || null,
+          category: [cat], eng: src.eng || null,
           format: src.format || 'wiki'
         }).eq('key', k);
         if(cerr) throw cerr;
@@ -5829,8 +5950,10 @@ function openNewDocModal(prefill){
               rows: tpl.infobox.rows.map(r=>[r[0], r[1]]) }
           : null;
         const { error:uerr } = await sb.from('documents')
-          .update({ body: tpl.body || '', infobox: info, format:'wiki' }).eq('key', k);
+          .update({ body: tpl.body || '', infobox: info, format:'wiki', category:[cat] }).eq('key', k);
         if(uerr) throw uerr;   // 문서는 이미 생성됨 — 실패해도 빈 문서로 열림
+      }else{
+        await sb.from('documents').update({ category:[cat] }).eq('key', k);   // 뼈대가 없는 템플릿
       }
       close(); await loadDocs(); location.hash='#'+k;
     }catch(e){
