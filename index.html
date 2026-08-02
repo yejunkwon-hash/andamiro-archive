@@ -2315,6 +2315,13 @@ body.fx-full::before{
 .ch-add:hover{ background:var(--box-bg); color:var(--accent); }
 .ch-off{ font-size:12px; color:var(--text-dim); line-height:1.7; margin:0;
   padding:9px 10px; background:var(--box-bg); border-radius:var(--r-2); }
+.ch-off code{ font-family:var(--mono); font-size:11px; background:var(--card);
+  padding:1px 5px; border-radius:4px; }
+.ch-err{ font-family:var(--mono); font-size:10.5px; color:var(--danger); word-break:break-all; }
+.ch-retry{ margin-top:8px; background:var(--card); border:1px solid var(--border);
+  border-radius:var(--r-1); padding:5px 11px; font:inherit; font-size:12px;
+  color:var(--text); cursor:pointer; }
+.ch-retry:hover{ border-color:var(--accent); color:var(--accent); }
 
 /* ═══ 채널 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
 .ws-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:0 0 9px; }
@@ -10099,7 +10106,7 @@ let chatChannel=null;
 const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4,
   /* ★다중 채널(83). ch=null 은 '일반' — 83 이전에 쌓인 메시지가 전부 여기 속한다.
      chOk=false 면 83 미적용이므로 채널 레일을 아예 그리지 않고 예전처럼 단일 채팅으로 돈다. */
-  ch:null, chOk:false, channels:[] };
+  ch:null, chOk:false, channels:[], chErr:null };
 
 /* 채널 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패) */
 async function loadChannels(){
@@ -10110,7 +10117,15 @@ async function loadChannels(){
     if(error) throw error;
     community.channels = data||[];
     community.chOk = true;
-  }catch(e){ community.channels=[]; community.chOk=false; }
+  }catch(e){
+    community.channels=[]; community.chOk=false;
+    /* ★세션 W: 예전엔 오류를 통째로 버리고 "83 실행하세요"라고 추측을 보여줬다.
+       실제 원인이 스키마 캐시·RLS·권한일 수도 있는데 그걸 알 길이 없었다.
+       조용한 실패는 실패가 아니라 미스터리다 — 세 번째로 배운다. */
+    community.chErr = e || null;
+    return false;
+  }
+  community.chErr = null;
   return community.chOk;
 }
 function chName(id){
@@ -10223,10 +10238,29 @@ function renderChannelRail(){
        운영진에게는 이유를 말해준다 — 조용한 실패는 실패가 아니라 미스터리다. */
     if(hub) hub.classList.remove('has-ch');
     if(canManageChannels()){
+      const e=community.chErr||{};
+      const msg=String(e.message||e||'');
+      const code=String(e.code||'');
+      /* 원인별로 다음 할 일이 다르다 — 뭉뚱그리지 않는다 */
+      let hint;
+      if(/does not exist|relation .* does not exist/i.test(msg) || code==='42P01'){
+        hint='아직 <b>83_channels.sql</b>을 실행하지 않았어요. Supabase → SQL Editor에서 실행해 주세요.';
+      }else if(/schema cache|PGRST\d+/i.test(msg) || /^PGRST/.test(code)){
+        hint='표는 만들어졌는데 <b>Supabase가 아직 인식하지 못했어요.</b><br>'
+           + 'SQL Editor에서 <code>notify pgrst, \'reload schema\';</code> 를 실행하거나, '
+           + '1~2분 뒤 새로고침해 보세요.';
+      }else if(/permission denied|row-level|RLS/i.test(msg) || code==='42501'){
+        hint='표는 있는데 <b>읽을 권한이 없어요.</b> 83의 RLS 정책이 제대로 만들어졌는지 확인해 주세요.';
+      }else{
+        hint='채널을 불러오지 못했어요.';
+      }
       rail.style.display='';
       rail.innerHTML=`<div class="ls-h" style="margin-bottom:6px">채널</div>
-        <p class="ch-off">채널 기능이 아직 켜지지 않았어요.<br>
-        Supabase에서 <b>83_channels.sql</b>을 실행하면 여기에 채널이 나타납니다.</p>`;
+        <p class="ch-off">${hint}
+        ${msg?`<br><br><span class="ch-err">원인: ${escapeHtml(msg)}${code?` (${escapeHtml(code)})`:''}</span>`:''}
+        <br><button class="ch-retry" id="chRetry">다시 시도</button></p>`;
+      const rt=$('#chRetry');
+      if(rt) rt.onclick=async()=>{ await loadChannels(); renderChannelRail(); renderWorkspace(); };
     }else{
       rail.style.display='none';
     }
