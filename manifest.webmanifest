@@ -1,12 +1,12 @@
 {
   "name": "안다 아카이브",
   "short_name": "안다",
-  "description": "경기북과학고 물리 탐구 동아리 안다미로의 위키·아카이브",
+  "description": "경기북과학고 물리 탐구 동아리 안다미로의 공동 기록 공간",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#eef1f5",
+  "background_color": "#EFEEEE",
   "theme_color": "#C00000",
   "lang": "ko",
   "icons": [
@@ -15,8 +15,8 @@
     { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
+    { "name": "문서", "url": "./#//docs" },
     { "name": "진행 보드", "url": "./#//board" },
-    { "name": "질문 게시판", "url": "./#//questions" },
-    { "name": "문서", "url": "./#//docs" }
+    { "name": "질문 게시판", "url": "./#//questions" }
   ]
 }
