@@ -2840,7 +2840,7 @@ async function onLoggedIn(){
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
-  setTimeout(()=>{ sb.rpc('dispatch_event_reminders').catch(()=>{}); }, 2500);   // 일정 리마인더(전날·1시간 전) 발송
+  setTimeout(()=>{ Promise.resolve(sb.rpc('dispatch_event_reminders')).catch(()=>{}); }, 2500);   // ★세션 S: 빌더는 catch가 없다   // 일정 리마인더(전날·1시간 전) 발송
   setTimeout(()=>{ purgeOldTrash(); }, 6000);                                    // 휴지통 30일 지난 문서 영구 삭제
 }
 const ROLE_RANK={ viewer:0, teacher:0, editor:1, admin:2, owner:3 };
@@ -9782,7 +9782,11 @@ async function renderQuestion(qid){
   try{
     const [rq, rs] = await Promise.all([
       sb.rpc('get_question', { p_id: qid }),
-      sb.rpc('post_stats',  { p_id: qid }).catch(()=>null),   // 72 미적용 → 조용히 '질문'으로
+      /* ★세션 S 사고: sb.rpc()는 Promise가 아니라 PostgREST 빌더다.
+         .catch()를 바로 붙이면 "sb.rpc(...).catch is not a function"으로 터지고,
+         Promise.all이 통째로 실패해 **글이 아예 안 열렸다.**
+         빌더는 then이 있어 await는 되지만 catch는 없다 → Promise.resolve()로 감싼다. */
+      Promise.resolve(sb.rpc('post_stats', { p_id: qid })).catch(()=>null),   // 72 미적용 → 조용히 '질문'으로
     ]);
     if(rq.error) throw rq.error;
     q = Array.isArray(rq.data) ? (rq.data[0]||null) : (rq.data||null);
@@ -10991,7 +10995,7 @@ async function loadEvents(y, m){
     /* ★최적화(81): 일정과 과제 보드는 독립 — 동시에 요청 */
     let [r, rTb] = await Promise.all([
       sb.from('events').select(cols).gte('at', from).lt('at', to).order('at',{ascending:true}),
-      featOn('tasks') ? sb.rpc('task_board').catch(()=>null) : Promise.resolve(null),   // ★기능 스위치(82)
+      featOn('tasks') ? Promise.resolve(sb.rpc('task_board')).catch(()=>null) : Promise.resolve(null),   // ★기능 스위치(82) · 세션 S: 빌더 감싸기
     ]);
     if(r.error){                                  // 79 미적용(doc_key 없음) → 예전 컬럼으로 재시도
       r = await sb.from('events').select('id,title,at,color,note,created_by,is_todo,done,done_at')
