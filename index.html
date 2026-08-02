@@ -2081,6 +2081,19 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .dgrp.closed .dgrp-cv{transform:rotate(-90deg);}
 .dgrp.closed .dgrp-b{display:none;}
 .dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:1px 14px;padding-bottom:12px;}
+/* ★세션 R — 목록 가독성.
+   4열로 넓게 흩어놓으니 눈이 갈지자로 훑어야 했다. 열을 줄여 시선이 아래로만 흐르게 하고,
+   분류 제목을 본문보다 확실히 위로 올려 덩어리가 먼저 보이게 한다. */
+.dgrp-b{ grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); max-width:940px; }
+.dgrp-h{ padding-top:20px; padding-bottom:6px; }
+.dgrp-n{ font-size:12px; letter-spacing:.06em; color:var(--text-dim); }
+.dgrp.closed .dgrp-n, .dgrp-h:hover .dgrp-n{ color:var(--text); }
+.dgrp-c{ background:var(--box-bg); border-radius:var(--r-round); padding:1px 8px; }
+.dl2{ padding:7px 10px; }
+.dl2-t{ max-width:none; flex:0 1 auto; }
+.dl2-k{ flex:0 1 auto; opacity:.65; }
+.dl2-dot{ margin-left:auto; }
+.dl2-e{ margin-left:8px; }
 .dl2{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:var(--r-1);
   color:var(--text);text-decoration:none;}
 .dl2:hover{background:var(--box-bg);text-decoration:none;}
@@ -2129,6 +2142,17 @@ body.fx-full::before{
   border-bottom:1px solid var(--border); box-shadow:none;
   backdrop-filter:blur(var(--blur)) saturate(1.5); -webkit-backdrop-filter:blur(var(--blur)) saturate(1.5); }
 .topbar .refresh, .topbar .logo, .topbar .userbox{ color:var(--text); }
+/* ★세션 R 사고: #userlabel과 .role-badge가 `color:#fff`로 고정돼 있었다.
+   상단바가 빨간 띠 → 밝은 유리판으로 바뀌자 흰 글씨가 흰 배경에 묻혀 안 보였다.
+   세션 L에서 .userbox만 고치고 더 구체적인 #userlabel 규칙을 놓친 것. */
+.topbar #userlabel{ color:var(--text); }
+.topbar #userlabel .role-badge{
+  background:var(--box-bg); color:var(--text-dim);
+  border:1px solid var(--border);
+}
+.topbar #userlabel .role-badge-teacher{
+  background:var(--teacher); color:#fff; border-color:transparent;
+}
 .topbar .logo .mark{ background:var(--card); border:1px solid var(--border); border-radius:8px; box-shadow:none; }
 .topbar .search input{ height:36px; border-radius:var(--r-round); background:var(--box-bg);
   color:var(--text); border:1px solid var(--border); padding:0 14px; }
@@ -3017,7 +3041,8 @@ function canEdit(){ return can('doc_edit'); }
 function isAdmin(){ return myRank() >= ROLE_RANK.admin; }   // 서열(메시지 삭제 등) — 권한 매트릭스와 별개
 function renderUserbox(){
   const who = state.name || state.handle || (state.email ? state.email.split('@')[0] : '') || '회원';
-  $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge${state.role==='teacher'?' role-badge-teacher':''}" style="background:${state.role==='teacher'?'var(--teacher)':'rgba(255,255,255,.22)'}">${escapeHtml(state.role)}</span>`;
+  /* ★인라인 style은 CSS를 이긴다 — 배경을 여기서 박지 말고 클래스에 맡긴다 (세션 R) */
+  $('#userlabel').innerHTML = `${escapeHtml(who)} 님 <span class="role-badge${state.role==='teacher'?' role-badge-teacher':''}">${escapeHtml(state.role)}</span>`;
   $('#dropSystem').style.display = can('system_access') ? 'block' : 'none';   // 피드백은 전 등급 노출(별도 제어 없음)
   $('#dropAdmin').style.display = isAdmin() ? 'block' : 'none';
   const ui=$('#usericon');   // 계정 아이콘: 상시 내 프로필 사진(없으면 기본 아이콘)
@@ -6887,7 +6912,8 @@ async function renderHealth(){
   // 요약
   const prog=$('#hsProg'); if(prog) prog.classList.add('done');
   const pl=$('#hsProgLabel'); if(pl) pl.textContent='검사 완료';
-  $('#hsSummary').innerHTML = `<div class="hs-sum ${bad?'bad':'ok'}">
+  const sum=$('#hsSummary'); if(!sum) return;      // ★검사 도중 화면을 떠났으면 그만둔다 (세션 R)
+  sum.innerHTML = `<div class="hs-sum ${bad?'bad':'ok'}">
     ${bad?icBad():icOk()}
     <div><b>${bad ? `문제 ${bad}건 발견` : '모든 항목 정상'}</b>
       <div class="hs-sum-sub">정상 ${ok} · 문제 ${bad} · 총 ${ok+bad}개 항목</div></div></div>`;
@@ -8556,6 +8582,11 @@ async function renderDirectory(){
   // 데이터 로드
   try{ const { data } = await sb.from('members_public').select('id,member_no,name,handle,club,avatar_url'); dir.data=data||[]; }catch(e){ dir.data=[]; }
   let clubs=[]; try{ const { data } = await sb.from('clubs').select('name,is_none'); clubs=data||[]; }catch(e){}
+  /* ★세션 R 사고: _nav를 캡처해놓고 정작 검사를 안 했다. await 두 개를 건너오는 사이
+     사용자가 다른 화면으로 옮기면 #dirFilter가 사라져 있고, 그 다음 줄이
+     "Cannot set properties of null (setting 'innerHTML')"로 터졌다.
+     ※터진 렌더가 다음 화면의 DOM을 덮어써 엉뚱한 페이지가 보이기도 한다. */
+  if(_nav!==_navSeq) return;
   // 동아리 목록: 테이블 + 목록외(프로필에만 있는 값), 무소속 맨 뒤
   const tableNames=clubs.filter(c=>!c.is_none).map(c=>c.name);
   const orphan=[...new Set(dir.data.map(m=>m.club||'무소속'))].filter(n=>n!=='무소속' && !tableNames.includes(n));
@@ -9302,6 +9333,7 @@ async function renderInbox(target){
     const list=$('#ibList'); if(list) list.classList.add('ib-reload');   // 살짝 사라졌다가
     inbox.sig='';                                                        // 강제로 다시 그리게
     await loadInbox();
+    if(_nav!==_navSeq) return;                                           // ★낡은 렌더 폐기 (세션 R)
     if(list){ list.classList.remove('ib-reload'); list.classList.add('ib-in'); // 다시 떠오름
       setTimeout(()=>list.classList.remove('ib-in'), 320); }
   };
