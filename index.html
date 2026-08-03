@@ -2531,6 +2531,39 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
   .login-contact{ position:static; display:block; text-align:center; margin:16px auto 0; }
 }
 
+/* ═══ 카드 위 제목 (세션 AF) ═══
+   카드 안의 작은 h1 대신, 여기가 첫인상을 맡는다. */
+.login-head{ text-align:center; margin:0 0 18px; }
+.login-mark{ width:44px; height:44px; border-radius:10px; display:block;
+  margin:0 auto 10px; box-shadow:var(--sh-2); }
+.login-title{ font-size:34px; font-weight:800; letter-spacing:-.035em;
+  margin:0; color:var(--text); line-height:1.1; }
+.login-tag{ font-size:13px; color:var(--text-dim); margin:7px 0 0; }
+body.fx-full .login-head{ animation:loginIn .55s var(--spring-soft) both; }
+@media(max-width:999px){
+  .login-head{ margin-bottom:14px; }
+  .login-title{ font-size:27px; }
+  .login-mark{ width:38px; height:38px; }
+}
+@media(max-height:720px){
+  .login-mark{ display:none; }             /* 낮은 화면에서는 로고를 접어 세로를 번다 */
+  .login-title{ font-size:26px; }
+  .login-head{ margin-bottom:12px; }
+}
+
+/* ═══ 회원가입 2열 격자 (세션 AF) ═══ */
+.su-grid{ display:grid; grid-template-columns:1fr 1fr; gap:0 14px; }
+.su-grid > div{ min-width:0; }
+.su-full{ grid-column:1 / -1; }
+.su-hint{ color:var(--text-dim); font-weight:400; }
+.su-grid label{ display:block; }
+.su-grid input, .su-grid .usel{ width:100%; }
+@media(max-width:520px){ .su-grid{ grid-template-columns:1fr; } }
+
+/* 가입 카드는 항목이 많으니 조금 더 넓게 */
+#signupCard{ max-width:none; width:100%; }
+@media(min-width:1000px){ .login-scene #signupCard{ max-width:470px; } }
+
 /* 카드를 더 조밀하게 — 한 화면에 들어오는 게 목표다 */
 .login-card{ padding:26px 24px; }
 .login-card h1{ font-size:22px; margin:0 0 4px; }
@@ -2644,8 +2677,13 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
   <div class="login-scene">
     <!-- ★문의는 떠다니는 원형 버튼 대신 조용한 텍스트로 (세션 AE) -->
     <a class="login-contact" id="contactLink">관리자에게 문의</a>
+    <!-- ★카드 위 제목 (세션 AF) — 카드 안의 작은 제목 대신 여기가 첫인상을 맡는다 -->
+    <div class="login-head">
+      <img class="login-mark" id="loginMark" alt="" aria-hidden="true">
+      <h1 class="login-title brand-text">안다 아카이브</h1>
+      <p class="login-tag">기록이 다음 사람의 시간을 아낍니다</p>
+    </div>
   <div class="login-card" id="loginCard">
-    <h1>안다 아카이브</h1>
     <div class="sub">경기북과학고 물리 탐구 동아리 · 부원 로그인</div>
     <label>이메일</label>
     <input id="li-email" type="email" autocomplete="username" placeholder="you@example.com">
@@ -2694,28 +2732,47 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
   </div>
 
   <div class="login-card" id="signupCard" style="display:none">
-    <h1>회원 가입</h1>
     <div class="sub" id="su-sub">가입 버튼을 누르면 <b>바로 계정이 만들어지고 로그인</b>됩니다. (초기 등급: viewer)</div>
     <div id="su-codewrap">
       <label>초대 코드 <span style="color:var(--text-dim);font-weight:400">(동아리에서 받은 코드)</span></label>
       <input id="su-code" type="text" maxlength="40" placeholder="동아리에서 받은 코드" autocomplete="off" spellcheck="false">
     </div>
-    <label>이메일 <span style="color:var(--text-dim);font-weight:400">(로그인 아이디)</span></label>
-    <input id="su-email" type="email" placeholder="you@example.com">
-    <label>비밀번호 <span style="color:var(--text-dim);font-weight:400">(8자 이상)</span></label>
-    <input id="su-pw" type="password" placeholder="••••••••" autocomplete="new-password">
-    <label>비밀번호 확인</label>
-    <input id="su-pw2" type="password" placeholder="••••••••" autocomplete="new-password">
-    <label>기수 <span style="color:var(--text-dim);font-weight:400">(숫자, 예: 22)</span></label>
-    <input id="su-cohort" type="number" min="1" placeholder="22">
-    <label>이름 <span style="color:var(--text-dim);font-weight:400">(실명)</span></label>
-    <input id="su-name" type="text" placeholder="홍길동">
-    <label>활동명 <span style="color:var(--text-dim);font-weight:400">(표시용 아이디)</span></label>
-    <input id="su-handle" type="text" placeholder="gildong">
-    <label>소속 <span style="color:var(--text-dim);font-weight:400">(동아리 목록에서 선택)</span></label>
-    <span class="usel block"><select id="su-club"><option value="무소속">무소속</option></select></span>
-    <label>계열 <span style="color:var(--text-dim);font-weight:400">(나중에 바꿀 수 있어요)</span></label>
-    <span class="usel block"><select id="su-track"><option value="">선택 안 함</option></select></span>
+    <!-- ★2열 격자 (세션 AF) — 짝지을 수 있는 항목만 나란히 두어 한 화면에 들어오게.
+         이메일은 길어서 전체 폭을 유지한다. -->
+    <div class="su-grid">
+      <div class="su-full">
+        <label>이메일 <span class="su-hint">(로그인 아이디)</span></label>
+        <input id="su-email" type="email" placeholder="you@example.com">
+      </div>
+      <div>
+        <label>비밀번호 <span class="su-hint">(8자 이상)</span></label>
+        <input id="su-pw" type="password" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div>
+        <label>비밀번호 확인</label>
+        <input id="su-pw2" type="password" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <div>
+        <label>이름 <span class="su-hint">(실명)</span></label>
+        <input id="su-name" type="text" placeholder="홍길동">
+      </div>
+      <div>
+        <label>기수 <span class="su-hint">(예: 22)</span></label>
+        <input id="su-cohort" type="number" min="1" placeholder="22">
+      </div>
+      <div>
+        <label>활동명 <span class="su-hint">(표시용)</span></label>
+        <input id="su-handle" type="text" placeholder="gildong">
+      </div>
+      <div>
+        <label>소속 <span class="su-hint">(동아리)</span></label>
+        <span class="usel block"><select id="su-club"><option value="무소속">무소속</option></select></span>
+      </div>
+      <div class="su-full">
+        <label>계열 <span class="su-hint">(나중에 바꿀 수 있어요)</span></label>
+        <span class="usel block"><select id="su-track"><option value="">선택 안 함</option></select></span>
+      </div>
+    </div>
     <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">가입하기</button>
     <div class="login-row"><a id="go-login">← 로그인으로</a></div>
@@ -12368,7 +12425,7 @@ async function initIntro(){
        한 화면에 들어오는 게 우선이고, 그 설명들은 로그인 뒤 대문에 이미 있다.
        이제 사이트 이름만 반영한다. */
     if(data && data.name){
-      const lc=$('#loginCard'); if(lc){ const h=lc.querySelector('h1'); if(h) h.textContent = data.name; }
+      /* ★제목이 카드 밖으로 나갔다 (세션 AF) — .brand-text가 그 자리도 함께 덮는다 */
       document.querySelectorAll('.brand-text').forEach(el=>{ el.textContent = data.name; });
       document.title = data.name;
       const sub=$('#loginCard') && $('#loginCard').querySelector('.sub');
@@ -12376,6 +12433,11 @@ async function initIntro(){
     }
   }catch(e){}
 }
+/* 로그인 제목 옆 로고 — 상단바와 같은 이미지를 쓴다 (파일 추가 없음) */
+(function(){
+  const m=document.getElementById('loginMark'), b=document.getElementById('brandLogo');
+  if(m && b && b.getAttribute('src')) m.src=b.getAttribute('src');
+})();
 initIntro();
 
 /* 이벤트 바인딩 */
