@@ -2531,6 +2531,39 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
   .login-contact{ position:static; display:block; text-align:center; margin:16px auto 0; }
 }
 
+/* ═══════════ 모바일 상단바 대비 (세션 AG) ═══════════
+   ★세 번째 같은 사고다 (세션 R: #userlabel, 세션 X: .navtoggle, 지금: 나머지 전부).
+   원인 구조: 상단바가 '빨간 띠 → 밝은 유리판'으로 바뀌었는데,
+   흰색 전경(color:#fff, background:rgba(255,255,255,.14))이 여러 규칙에 흩어져 있고
+   그중 일부가 **모바일 미디어 쿼리 안**에 있어 나중에 나와 앞선 수정을 덮어썼다.
+
+   → 이번엔 한 곳에서 전부 잡는다. 모바일 규칙보다 뒤에 있으므로 이게 최종이다. */
+.topbar .navbtn,
+.topbar .mode,
+.topbar .logout,
+.topbar .navtoggle,
+.topbar .usericon{
+  background:var(--box-bg) !important;
+  color:var(--text-dim) !important;
+  box-shadow:none;
+}
+.topbar .navbtn:hover, .topbar .navbtn:focus-visible,
+.topbar .mode:hover, .topbar .mode:focus-visible,
+.topbar .logout:hover,
+.topbar .navtoggle:hover, .topbar .navtoggle:focus-visible,
+.topbar .usericon:hover, .topbar .usericon:focus-visible{
+  background:var(--border) !important;
+  color:var(--accent) !important;
+}
+/* 선택된 항목만 상징색을 채운다 — 어디에 있는지가 한눈에 보이게 */
+.topbar .navbtn.on{ background:var(--accent) !important; color:#fff !important; }
+.topbar .navbtn svg, .topbar .mode svg,
+.topbar .navtoggle svg, .topbar .usericon svg{ stroke:currentColor; }
+/* 프로필 사진이 있는 계정 버튼은 사진이 배경이므로 덮지 않는다 */
+.topbar .usericon.has-photo{ background:var(--card) !important; }
+.topbar .search input{ background:var(--box-bg); color:var(--text); }
+.topbar .search input:focus{ outline:none; }
+
 /* ═══ 카드 위 제목 (세션 AF) ═══
    카드 안의 작은 h1 대신, 여기가 첫인상을 맡는다. */
 .login-head{ text-align:center; margin:0 0 18px; }
@@ -3014,9 +3047,12 @@ function closePinCard(){
   $('#pinCard').style.display='none';
   $('#loginCard').style.display='block';
 }
-function pinMsg(t, kind){
+function pinMsg(t, kind, html){
   const m=$('#pin-msg'); if(!m) return;
-  m.className='msg'+(kind?' '+kind:''); m.textContent=t||'';
+  m.className='msg'+(kind?' '+kind:'');
+  /* ★기본은 textContent다 — 사용자가 넣은 값이 섞일 수 있는 메시지를 HTML로 넣으면 안 된다.
+     우리가 직접 쓴 안내문일 때만 html=true로 명시한다 (세션 AG). */
+  if(html) m.innerHTML = t||''; else m.textContent = t||'';
 }
 function stopPinTimer(){ if(pinFlow.timer){ clearInterval(pinFlow.timer); pinFlow.timer=null; } }
 function startPinTimer(){
@@ -3065,12 +3101,15 @@ async function sendPin(resend){
        supabase-js는 에러 본문에 msg/message가 없으면 JSON.stringify를 메시지로 쓰기 때문에 "{}"가 된다. */
     const blank = !m || m==='{}' || m==='[object Object]' || m==='undefined';
     pinMsg(blank
-      ? `메일 서버가 발송에 실패했어요 (status ${ (e&&e.status)||'?' }). 이메일 문제가 아니라 서버의 SMTP 설정 문제일 가능성이 높습니다 — 관리자에게 알려주세요. (관리자: Supabase → Logs → Auth 에서 실제 오류 확인)`
+      ? `메일을 보내지 못했어요 (status ${ (e&&e.status)||'?' }). 입력하신 주소 문제가 아니라 <b>메일 발송 설정</b> 문제입니다.
+         <br>운영진에게 알려주시면 곧 고칠 수 있어요. 급하시면 관리자에게 직접 문의해 주세요.
+         <br><span style="opacity:.75">운영진 안내: Supabase 기본 메일은 개발용이라 팀원 주소로만, 시간당 2~4통만 갑니다.
+         커스텀 SMTP(예: Resend)를 붙여야 해요 — SMTP_메일설정.md 참고</span>`
       : /rate|limit|too many/i.test(m)
         ? '메일 발송 한도에 걸렸어요. 잠시 뒤 다시 시도하거나 관리자에게 문의해 주세요.'
         : /captcha/i.test(m)
           ? '보안 확인(CAPTCHA)을 완료한 뒤 다시 눌러주세요.'
-          : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err');
+          : ('발송 실패: '+m+' — 가입된 이메일이 맞는지 확인해 주세요.'), 'err', blank);
   }finally{
     resetPinCaptcha();                     // 토큰은 1회용 → 재발송 전에 새로 풀어야 한다
     btn.disabled=false;
