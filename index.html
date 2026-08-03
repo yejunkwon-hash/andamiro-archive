@@ -1782,26 +1782,8 @@ footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--te
 .login-scene{display:flex;flex-direction:column;align-items:center;gap:0;width:100%;max-width:940px;margin:auto;}  /* 짧으면 세로 중앙, 길면 스크롤 */
 /* ===== 비로그인 소개 랜딩 (67) ===== */
 .intro{width:100%;text-align:center;padding:26px 8px 30px;}
-.intro-badge{display:inline-flex;align-items:center;font-size:12px;font-weight:800;color:var(--accent);
-  border:1px solid color-mix(in srgb, var(--accent) 40%, transparent);
-  background:color-mix(in srgb, var(--accent) 6%, transparent);border-radius:99px;padding:4px 14px;margin-bottom:14px;}
-.intro-title{margin:0;font-size:40px;letter-spacing:-1.5px;font-weight:900;color:var(--text);}
-.intro-mission{margin:10px 0 0;font-size:16px;color:var(--text-dim);font-weight:600;}
-.intro-stats{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:20px;}
-.intro-stat{display:inline-flex;align-items:baseline;gap:5px;background:var(--card);border:1px solid var(--border);
-  border-radius:99px;padding:6px 15px;font-size:12.5px;color:var(--text-dim);font-weight:700;box-shadow:0 1px 2px rgba(0,0,0,.05);}
-.intro-stat b{font-size:16px;color:var(--accent);font-weight:900;letter-spacing:-.3px;}
-.intro-feats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:26px;text-align:left;}
-.intro-feat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 15px;box-shadow:0 1px 2px rgba(0,0,0,.05);}
-.intro-feat .ic16{width:20px;height:20px;color:var(--accent);}
-.intro-feat b{display:block;font-size:13.5px;margin:8px 0 4px;color:var(--text);}
-.intro-feat span{font-size:12px;line-height:1.55;color:var(--text-dim);}
-.intro-cta{margin-top:22px;font-size:13px;color:var(--text-dim);}
 @media(max-width:768px){
   .intro{padding-top:12px;}
-  .intro-title{font-size:30px;}
-  .intro-mission{font-size:14px;}
-  .intro-feats{grid-template-columns:1fr 1fr;}
 }
 .login-card{background:var(--card);border:1px solid var(--border);border-top:4px solid var(--accent);border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.12);width:100%;max-width:360px;padding:28px 26px;}
 .login-card h1{margin:0 0 4px;font-size:22px;letter-spacing:-.5px;}
@@ -1814,12 +1796,6 @@ footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--te
 .pin-timer.expired{color:var(--link-red);font-weight:700;}
 .pin-note{font-size:11.5px;color:var(--text-dim);line-height:1.55;margin-top:10px;background:var(--box-bg);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
 /* 로그인 화면 바깥의 원형 문의 버튼 */
-.contact-fab{position:fixed;right:24px;bottom:24px;z-index:80;width:92px;height:92px;border-radius:50%;
-  background:var(--accent);color:#fff;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;gap:3px;font-size:11.5px;font-weight:800;line-height:1.25;
-  box-shadow:0 8px 24px rgba(0,0,0,.22);transition:transform .12s, box-shadow .12s;}
-.contact-fab:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 12px 30px rgba(0,0,0,.28);}
-@media(max-width:640px){ .contact-fab{width:74px;height:74px;right:14px;bottom:14px;font-size:10.5px;} }
 .ct-ta{width:100%;min-height:120px;resize:vertical;border:1px solid var(--border-strong);border-radius:8px;
   padding:10px;font:inherit;font-size:14px;background:var(--card);color:var(--text);}
 .login-card input:focus{outline:2px solid var(--accent-soft);border-color:var(--accent);}
@@ -2023,23 +1999,15 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 
 /* ===== 테마 2.0 통합 레이어 — 토큰 일괄 적용 (캐스케이드 마지막에 두어 개별 규칙을 정리) ===== */
 /* 계측 숫자: 시간·날짜·카운트·타이머는 모노스페이스 + 고정폭 숫자 */
-.msg-time,.act-time,.dl-date,.intro-stat b,.cal-range,.pin-timer,.ad-count,.doc-views,.dc-views,.ib-time,.hl-time,.rc-time,.dl-edited{
-  font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.2px;}
 /* 모션 표준화 — 인터랙티브 요소의 전이를 토큰 2종으로 통일 */
-.btn,.ibtn,.abtn,button.mode,button.navbtn,.seg-opt,.doc-link,.dir-card,.intro-feat,.wc-step,.act-row,.club-mem,.usermenu-drop a,.dl-entry,.tabs button,.wiki-btn,.cat-head{
-  transition:background var(--dur-2) var(--ease),color var(--dur-2) var(--ease),
-             border-color var(--dur-2) var(--ease),box-shadow var(--dur-2) var(--ease),
-             transform var(--dur-1) var(--ease),opacity var(--dur-2) var(--ease);}
 .btn:not(:disabled):active,.ibtn:not(:disabled):active,.abtn:not(:disabled):active{transform:translateY(1px);}
 /* 위계: 떠 있는 요소는 L2 표면 + 3단 그림자 */
 .usermenu-drop a{background:var(--surface-3);}
 .usermenu-drop{filter:drop-shadow(0 12px 26px rgba(0,0,0,.2));}
 /* 카드 그림자 1단으로 통일 */
-.act-card,.dl-entry,.intro-feat,.wc-step,.dl-form,.welcome-card,.login-card{box-shadow:var(--sh-1);}
 .login-card{box-shadow:var(--sh-2);}
 /* 헤드라인 마감 */
 .doc-head h1{letter-spacing:-1px;}
-.intro-title{letter-spacing:-2px;}
 /* 키보드 접근 링 (접근성 = 2026 표준) */
 :focus-visible{outline:2px solid color-mix(in srgb, var(--accent) 60%, transparent);outline-offset:2px;}
 /* 모션 감소 설정 존중 — 전부 즉시 전환 */
@@ -2199,18 +2167,8 @@ body.fx-full::before{
 /* ═══ 로그인 · 소개 구역 (원근 허용 지대) ═══
    읽을 텍스트가 있으므로 '기울인 채 두되 마우스를 올리면 펴진다'.
    읽으려는 순간엔 언제나 평면 — 구역제의 타협안이다. */
-.intro-feats.persp{ perspective:1100px; }
-.intro-feats.persp .intro-feat{
-  transform:rotateY(calc(var(--tilt-y) * .5)) rotateX(calc(var(--tilt-x) * .3));
-  transform-origin:left center;
-  transition:transform var(--dur-3) var(--spring), box-shadow var(--dur-2), border-color var(--dur-2);
-}
-.intro-feats.persp .intro-feat:hover{
-  transform:none; box-shadow:var(--sh-3); border-color:var(--accent);
-}
 .login-card{ animation:fxrise var(--dur-3) var(--spring) both; }
 @keyframes fxrise{ from{ opacity:0; transform:translate3d(0,26px,0) scale(.97); } to{ opacity:1; transform:none; } }
-.intro-title{ letter-spacing:-.035em; }
 
 /* ═══════════ 대문 v2 (세션 M) — 박스를 걷어낸다 ═══════════
    테두리는 '묶기'의 가장 무거운 수단이다. 여백과 작은 제목이 같은 일을 조용히 한다.
@@ -2531,6 +2489,97 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
   .doc-body table:not(.ib-tbl) th{ background:var(--table-head); }
 }
 
+/* ═══════════ 로그인 2단 레이아웃 + 셰이더 (세션 AC) ═══════════
+   왼쪽에 폼, 오른쪽에 움직이는 브랜드 색 히어로.
+   ★셰이더는 fx가 'full'일 때만 돈다. 못 쓰는 기기에서는 CSS 그라디언트가 대신한다. */
+/* ★한 화면에 들어오게 한다 (세션 AE).
+   예전엔 소개 카드 4장이 폼 위에 쌓여 스크롤이 생겼다. 그 설명들은 로그인 뒤 대문에 있다. */
+#login{ align-items:center; padding:24px; }
+.login-scene{ justify-content:center; }
+
+@media(min-width:1000px){
+  #login{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+    /* ★행 높이를 1fr로 못 박는다 — 안 그러면 캔버스가 내용 높이에 맞춰 잘린다 */
+    grid-template-rows:1fr;
+    align-items:stretch; padding:0; overflow:hidden; }
+  .login-scene{ grid-column:1; grid-row:1; max-width:none; margin:0;
+    /* 넘칠 때만 스크롤. 스크롤바는 이 칸 안(=화면 왼쪽 절반 끝)에만 생긴다 */
+    overflow-y:auto; padding:40px 48px;
+    align-items:center; justify-content:center; position:relative; }
+  .login-scene .login-card{ max-width:400px; margin:0; }
+
+  /* 오른쪽 히어로 — 셰이더가 실패해도 이 그라디언트가 남는다 */
+  #loginShader{ grid-column:2; grid-row:1; position:relative; display:block;
+    width:100%; height:100%; min-height:0; }
+  #login::after{
+    content:''; grid-column:2; grid-row:1; pointer-events:none;
+    background:
+      radial-gradient(120% 90% at 70% 20%, rgba(217,72,63,.55), transparent 60%),
+      linear-gradient(160deg, #140404, #8A0A0A 55%, #D9483F);
+    z-index:-1;
+  }
+}
+
+/* 관리자 문의 — 떠다니는 원형 버튼 대신 왼쪽 칸 우하단의 조용한 텍스트 */
+.login-contact{
+  position:absolute; right:22px; bottom:18px; z-index:4;
+  font-size:12.5px; color:var(--text-dim); cursor:pointer;
+  text-decoration:none; padding:5px 2px;
+}
+.login-contact:hover{ color:var(--accent); text-decoration:underline; text-underline-offset:3px; }
+@media(max-width:999px){
+  .login-contact{ position:static; display:block; text-align:center; margin:16px auto 0; }
+}
+
+/* 카드를 더 조밀하게 — 한 화면에 들어오는 게 목표다 */
+.login-card{ padding:26px 24px; }
+.login-card h1{ font-size:22px; margin:0 0 4px; }
+.login-card .sub{ font-size:12.5px; margin-bottom:16px; }
+.login-card label{ font-size:12px; margin-top:12px; }
+.login-card input{ padding:11px 13px; font-size:14px; }
+.login-card .btn.primary{ margin-top:16px; padding:12px; }
+.login-row{ margin-top:12px; font-size:12.5px; }
+/* 좁은 화면에서는 셰이더를 아예 그리지 않는다 — 폼이 주인공이고 배터리도 아낀다 */
+@media(max-width:999px){ #loginShader{ display:none !important; } }
+body.fx-lite #loginShader, body.fx-flat #loginShader{ display:none !important; }
+
+/* ── 유리 입력창 ── */
+.login-card{ background:var(--glass); border:1px solid var(--glass-brd); border-top:0;
+  border-radius:var(--r-3); box-shadow:var(--sh-3);
+  backdrop-filter:blur(var(--blur)) saturate(1.4);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4); }
+body.fx-lite .login-card, body.fx-flat .login-card{
+  background:var(--card); backdrop-filter:none; -webkit-backdrop-filter:none; }
+.login-card input{ border-radius:var(--r-2); background:var(--box-bg);
+  border:1px solid var(--border); transition:border-color var(--dur-1), background var(--dur-1); }
+.login-card input:focus{ border-color:var(--accent); background:var(--card);
+  box-shadow:0 0 0 3px rgba(192,0,0,.12); outline:none; }
+
+/* 비밀번호 보기 */
+.pw-wrap{ position:relative; }
+.pw-wrap input{ padding-right:44px; }
+.pw-eye{ position:absolute; right:6px; top:50%; transform:translateY(-50%);
+  background:none; border:0; padding:6px; color:var(--text-dim); cursor:pointer;
+  line-height:0; border-radius:var(--r-1); }
+.pw-eye:hover{ color:var(--accent); }
+.pw-eye.on{ color:var(--accent); }
+
+/* ── 순차 등장 (참고 디자인의 animate-delay 계열) ── */
+@keyframes loginIn{ from{ opacity:0; filter:blur(4px); transform:translateY(14px); }
+                    to  { opacity:1; filter:blur(0);   transform:none; } }
+body.fx-full .login-card > *{ animation:loginIn .5s var(--spring-soft) both; }
+body.fx-full .login-card > *:nth-child(1){ animation-delay:.05s }
+body.fx-full .login-card > *:nth-child(2){ animation-delay:.10s }
+body.fx-full .login-card > *:nth-child(3){ animation-delay:.15s }
+body.fx-full .login-card > *:nth-child(4){ animation-delay:.20s }
+body.fx-full .login-card > *:nth-child(5){ animation-delay:.25s }
+body.fx-full .login-card > *:nth-child(6){ animation-delay:.30s }
+body.fx-full .login-card > *:nth-child(7){ animation-delay:.35s }
+body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
+@media(prefers-reduced-motion: reduce){
+  body.fx-full .login-card > *{ animation:none; }
+}
+
 /* 인용 — 왼쪽 상징색 선 */
 .doc-body blockquote{
   border-left:3px solid var(--accent); background:var(--box-bg);
@@ -2590,35 +2639,29 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
 
 <!-- ===== 로그인 화면 ===== -->
 <div id="login">
+  <!-- ★셰이더 배경 (세션 AC) — 오른쪽 히어로 판. fx 설정이 'full'일 때만 그린다 -->
+  <canvas id="loginShader" aria-hidden="true"></canvas>
   <div class="login-scene">
-  <div class="intro" id="introHero">
-    <div class="intro-badge" id="inOrg">안다미로 · 경기북과학고 물리 탐구 동아리</div>
-    <h1 class="intro-title" id="inName">안다 아카이브</h1>
-    <p class="intro-mission" id="inMission">기록이 다음 사람의 시간을 아낍니다.</p>
-    <div class="intro-stats" id="inStats" style="display:none"></div>
-    <div class="intro-feats persp">
-      <div class="intro-feat"><svg class="ic16"><use href="#i-book"/></svg><b>한 번 겪은 일은 한 번만</b><span>기자재 사용법, 실험 절차, 자주 하는 실수. 짧게 남겨두면 다음 사람은 헤매지 않습니다.</span></div>
-      <div class="intro-feat"><svg class="ic16"><use href="#i-check"/></svg><b>과제로 흘러가는 기록</b><span>배정하고, 쓰고, 검토하고, 끝냅니다. 쌓아두는 문서가 아니라 움직이는 기록이에요.</span></div>
-      <div class="intro-feat"><svg class="ic16"><use href="#i-help"/></svg><b>질문이 곧 문서가 됩니다</b><span>한 번 답한 질문은 다음 기수의 검색 결과가 됩니다. 같은 질문을 두 번 받지 않아요.</span></div>
-      <div class="intro-feat"><svg class="ic16"><use href="#i-calendar"/></svg><b>되돌릴 수 있으니 편하게</b><span>편집 이력이 전부 남고, 지워도 30일 안엔 되살립니다. 실수를 겁내지 않아도 됩니다.</span></div>
-    </div>
-    <div class="intro-cta">부원이라면 로그인, 처음이라면 아래에서 <b>회원 가입</b>을 해주세요 ↓</div>
-  </div>
-  <button class="contact-fab" id="contactFab" title="관리자에게 문의">
-    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-      <path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9.6 9.6 0 0 1-2.8-.4L3 21l1.6-4.6A8.2 8.2 0 0 1 3.6 11.5C3.6 6.9 7.6 3.5 12.3 3.5S21 6.9 21 11.5Z"/>
-    </svg>
-    <span>관리자에게<br>문의</span>
-  </button>
+    <!-- ★문의는 떠다니는 원형 버튼 대신 조용한 텍스트로 (세션 AE) -->
+    <a class="login-contact" id="contactLink">관리자에게 문의</a>
   <div class="login-card" id="loginCard">
     <h1>안다 아카이브</h1>
-    <div class="sub">경기북과학고등학교 물리 탐구 동아리 · 부원 로그인</div>
+    <div class="sub">경기북과학고 물리 탐구 동아리 · 부원 로그인</div>
     <label>이메일</label>
     <input id="li-email" type="email" autocomplete="username" placeholder="you@example.com">
     <label>비밀번호</label>
-    <input id="li-pw" type="password" autocomplete="current-password" placeholder="••••••••">
+    <div class="pw-wrap">
+      <input id="li-pw" type="password" autocomplete="current-password" placeholder="••••••••">
+      <button type="button" class="pw-eye" id="li-eye" aria-label="비밀번호 보기">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+    </div>
     <div id="li-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="li-btn">로그인</button>
+
     <div class="login-row">
       <a id="li-reset">비밀번호를 잊으셨나요?</a>
       <a id="go-signup">회원 가입 →</a>
@@ -2819,8 +2862,20 @@ async function init(){
   const { data:{ session } } = await sb.auth.getSession();
   if(session){ await onLoggedIn(); } else { showLogin(); }
 }
-function showLogin(){ $('#login').style.display='flex'; $('#app').style.display='none'; document.body.classList.remove('has-botnav'); }
-function showApp(){ $('#login').style.display='none'; $('#app').style.display='block'; initBotnav(); }
+function showLogin(){
+  /* ★넓은 화면에서는 2단 그리드, 좁으면 세로 배치 (세션 AC).
+     CSS 미디어 쿼리가 display를 결정하도록 인라인 값을 비운다. */
+  $('#login').style.display='';
+  $('#app').style.display='none';
+  document.body.classList.remove('has-botnav');
+  startLoginShader();                       // 로그인 화면에서만 돈다
+}
+function showApp(){
+  stopLoginShader();                        // ★앱에 들어가면 GPU를 놓아준다
+  $('#login').style.display='none';
+  $('#app').style.display='block';
+  initBotnav();
+}
 
 /* 접속 heartbeat: 5초 단위로 로컬 측정 → 30초마다 서버로 한 번에 전송(트래픽 절감). 탭 보일 때만 카운트. */
 let hbTimer=null, hbTick=null, hbAccum=0;
@@ -3815,6 +3870,179 @@ function toast(text, ms){
      lite — 블러·3D 끔, 움직임은 유지 (구형 기기)
      flat — 전부 끔 (멀미·접근성·최후 수단)
    ★서버가 아니라 기기에 저장한다 — 같은 계정도 노트북과 폰의 사정이 다르다. */
+/* ================== 로그인 셰이더 배경 (세션 AC) ==================
+   "Mesh drift" — 라이브러리 없이 WebGL1로 전체 화면 삼각형 하나를 그린다.
+   ★색만 안다 아카이브 브랜드로 바꿨다 (초록 램프 → 빨강 램프).
+   ★화면 효과가 'full'일 때만 돈다. lite/flat이면 아예 시작하지 않는다.
+   ★탭이 숨겨지면 루프를 멈춘다 — 배경 애니메이션이 배터리를 먹으면 안 된다.
+   ★WebGL을 못 쓰는 기기에서는 조용히 CSS 그라디언트로 떨어진다. */
+const LOGIN_SHADER_FS = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec3 u_colors[8];
+uniform vec4 u_scene;
+uniform vec4 u_shape;
+uniform vec4 u_surface;
+uniform vec4 u_finish;
+uniform vec4 u_transform;
+uniform vec4 u_space;
+uniform vec4 u_cursor;
+#define u_resolution u_scene.xy
+#define u_time u_scene.z
+#define u_colorCount u_scene.w
+#define u_scale u_shape.x
+#define u_intensity u_shape.y
+#define u_warp u_shape.w
+#define u_contrast u_surface.y
+#define u_brightness u_surface.z
+#define u_saturation u_surface.w
+#define u_vignette u_finish.y
+#define u_grain u_finish.w
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+#define u_seed u_transform.x
+#else
+#define u_seed mod(u_transform.x, 31.0)
+#endif
+#define u_drift u_transform.z
+float grainHash(vec2 p){
+  vec3 p3 = fract(vec3(p.xyx) * 0.1031);
+  p3 += dot(p3, p3.yzx + 33.33);
+  return fract((p3.x + p3.y) * p3.z);
+}
+/* 색 여덟 개 중 앞의 넷을 섞어 부드러운 덩어리를 만든다 */
+vec3 shade(vec2 p, float t){
+  vec3 acc = u_colors[0] * 0.15;
+  float total = 0.15;
+  for(int i=0;i<8;i++){
+    if(float(i) >= u_colorCount) break;
+    float fi = float(i);
+    vec2 c = vec2(
+      sin(t * (0.21 + fi*0.071) + fi*2.4 + u_seed),
+      cos(t * (0.17 + fi*0.093) + fi*1.7)) * (0.45 + u_intensity*0.35);
+    float w = exp(-dot(p-c, p-c) * 6.0);
+    acc += u_colors[i] * w;
+    total += w;
+  }
+  return acc / total;
+}
+void main(){
+  vec2 screenUv = gl_FragCoord.xy / u_resolution.xy;
+  vec2 p = (gl_FragCoord.xy - 0.5*u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+  p *= u_scale;
+  if(u_drift > 0.0001) p += u_drift * vec2(sin(u_time*0.31), cos(u_time*0.23));
+  vec3 col = shade(p, u_time);
+  if(abs(u_contrast - 1.0) > 0.0001) col = (col - 0.5)*u_contrast + 0.5;
+  if(abs(u_saturation - 1.0) > 0.0001){
+    float luma = dot(col, vec3(0.299,0.587,0.114));
+    col = mix(vec3(luma), col, u_saturation);
+  }
+  if(abs(u_brightness) > 0.0001) col += u_brightness;
+  if(u_vignette > 0.0001){
+    float vd = length(screenUv - 0.5) * 1.41421356;
+    col *= 1.0 - u_vignette * smoothstep(0.35, 1.0, vd);
+  }
+  if(u_grain > 0.0001)
+    col += (grainHash(gl_FragCoord.xy + vec2(u_seed*17.0, u_seed*31.0)) - 0.5) * u_grain;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}`;
+
+/* 안다 아카이브 브랜드 램프 (어두움 → 밝음): 검붉은 밤 → 상징색 → 코랄 → 따뜻한 흰빛 */
+const LOGIN_SHADER_COLORS = [
+  0.078,0.016,0.016,   // #140404
+  0.541,0.039,0.039,   // #8A0A0A
+  0.851,0.282,0.247,   // #D9483F (accent-soft)
+  1.000,0.929,0.894,   // #FFEDE4
+  0,0,0, 0,0,0, 0,0,0, 0,0,0,
+];
+
+let _shaderStop = null;
+function startLoginShader(){
+  stopLoginShader();
+  const cv = document.getElementById('loginShader');
+  if(!cv) return;
+  /* ★실패해도 로그인은 멀쩡해야 하지만, 왜 실패했는지는 남긴다 (조용한 실패 금지) */
+  const bail = why => { window.__shaderFail = why; cv.style.display='none'; };
+  if(fxLevel() !== 'full'){ return bail('화면 효과가 full이 아님: '+fxLevel()); }
+  let gl;
+  try{ gl = cv.getContext('webgl', { antialias:false, alpha:false, powerPreference:'low-power' })
+         || cv.getContext('experimental-webgl'); }catch(e){ return bail('getContext 예외: '+e.message); }
+  if(!gl){ return bail('WebGL 미지원'); }                        // 미지원 → CSS 그라디언트가 대신한다
+  cv.style.display='';
+
+  const compile = (type, src)=>{
+    const sh = gl.createShader(type);
+    gl.shaderSource(sh, src); gl.compileShader(sh);
+    if(!gl.getShaderParameter(sh, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(sh)||'compile');
+    return sh;
+  };
+  let prog;
+  try{
+    prog = gl.createProgram();
+    gl.attachShader(prog, compile(gl.VERTEX_SHADER,
+      'attribute vec2 a;void main(){gl_Position=vec4(a,0.0,1.0);}'));
+    gl.attachShader(prog, compile(gl.FRAGMENT_SHADER, LOGIN_SHADER_FS));
+    gl.linkProgram(prog);
+    if(!gl.getProgramParameter(prog, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(prog)||'link');
+  }catch(e){ return bail('셰이더 실패: '+e.message); }
+  window.__shaderFail = null;
+  gl.useProgram(prog);
+
+  /* 전체 화면을 덮는 삼각형 하나 — 사각형 두 장보다 싸다 */
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1, 3,-1, -1,3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(prog, 'a');
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  const U = n => gl.getUniformLocation(prog, n);
+  gl.uniform3fv(U('u_colors[0]'), new Float32Array(LOGIN_SHADER_COLORS));
+  gl.uniform4f(U('u_shape'),     1.16, 0.34, 0.50, 0.00);
+  gl.uniform4f(U('u_surface'),   2.40, 1.16, 0.00, 1.00);
+  gl.uniform4f(U('u_finish'),    0.00, 0.00, 0.00, 0.09);
+  gl.uniform4f(U('u_transform'), 1453.0, 0.00, 0.00, 0.0);
+  gl.uniform4f(U('u_space'),     0, 0, 0, 0);
+  gl.uniform4f(U('u_cursor'),    0, 2.0, 0.65, 0.46);   // 커서 반응 없음
+  const uScene = U('u_scene');
+
+  const resize = ()=>{
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);        // ★2배까지만 — 그 이상은 낭비다
+    const w = Math.max(1, Math.round(cv.clientWidth  * dpr));
+    const h = Math.max(1, Math.round(cv.clientHeight * dpr));
+    if(cv.width !== w || cv.height !== h){ cv.width = w; cv.height = h; }
+    gl.viewport(0, 0, cv.width, cv.height);
+  };
+
+  let raf = 0, running = true;
+  const t0 = performance.now();
+  const frame = ()=>{
+    if(!running) return;
+    resize();
+    gl.uniform4f(uScene, cv.width, cv.height, (performance.now()-t0)/1000 * 0.73, 4.0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    raf = requestAnimationFrame(frame);
+  };
+  const onVis = ()=>{                                            // ★탭이 숨으면 멈춘다
+    if(document.hidden){ running=false; cancelAnimationFrame(raf); }
+    else if(!running){ running=true; raf=requestAnimationFrame(frame); }
+  };
+  document.addEventListener('visibilitychange', onVis);
+  raf = requestAnimationFrame(frame);
+
+  _shaderStop = ()=>{
+    running=false; cancelAnimationFrame(raf);
+    document.removeEventListener('visibilitychange', onVis);
+    /* ★loseContext()를 부르면 안 된다 (세션 AC 사고).
+       그건 이 캔버스의 컨텍스트를 '영구히' 죽여서, 다시 켤 때
+       createShader가 null을 돌려준다. 루프만 멈추면 GPU는 놀고 있으므로 충분하다. */
+    _shaderStop = null;
+  };
+}
+function stopLoginShader(){ if(_shaderStop) _shaderStop(); }
+
 const FX_LS='anda_fx';
 const FX_LEVELS=['full','lite','flat'];
 function fxPref(){
@@ -3835,6 +4063,11 @@ function applyFx(){
   const lv=fxLevel();
   document.body.classList.remove('fx-full','fx-lite','fx-flat');
   document.body.classList.add('fx-'+lv);
+  /* ★단계가 바뀌면 로그인 셰이더도 따라온다 (세션 AC) */
+  if(typeof startLoginShader==='function' && document.getElementById('login')
+     && getComputedStyle(document.getElementById('login')).display!=='none'){
+    startLoginShader();
+  }
   return lv;
 }
 function setFx(v){ try{ localStorage.setItem(FX_LS, v); }catch(e){} return applyFx(); }
@@ -12131,23 +12364,15 @@ window.addEventListener('hashchange',()=>{ if($('#app').style.display!=='none') 
 async function initIntro(){
   try{                                                       // 사이트 정체성 (67 미적용이면 기본 문구 유지)
     const { data } = await sb.rpc('public_site_config');
+    /* ★세션 AE: 로그인 화면의 소개 영역(배지·미션·통계·카드 4장)을 걷어냈다.
+       한 화면에 들어오는 게 우선이고, 그 설명들은 로그인 뒤 대문에 이미 있다.
+       이제 사이트 이름만 반영한다. */
     if(data && data.name){
-      $('#inName').textContent = data.name;
       const lc=$('#loginCard'); if(lc){ const h=lc.querySelector('h1'); if(h) h.textContent = data.name; }
       document.querySelectorAll('.brand-text').forEach(el=>{ el.textContent = data.name; });
       document.title = data.name;
-      if(data.org)     $('#inOrg').textContent = data.org;
-      if(data.mission) $('#inMission').textContent = data.mission;
-    }
-  }catch(e){}
-  try{                                                       // 살아있는 숫자
-    const { data:st } = await sb.rpc('public_stats');
-    if(st && typeof st==='object'){
-      const chip=(n,label)=>`<span class="intro-stat"><b>${Number(n)||0}</b>${label}</span>`;
-      $('#inStats').innerHTML =
-        chip(st.docs,'개의 문서') + chip(st.edits,'번의 편집') + chip(st.answers,'개의 답변')
-        + chip(st.members,'명의 부원') + chip(st.days,'일째 운영 중');
-      $('#inStats').style.display='flex';
+      const sub=$('#loginCard') && $('#loginCard').querySelector('.sub');
+      if(sub && data.org) sub.textContent = data.org + ' · 부원 로그인';
     }
   }catch(e){}
 }
@@ -12155,9 +12380,20 @@ initIntro();
 
 /* 이벤트 바인딩 */
 $('#li-btn').onclick=doLogin;
+
+/* 비밀번호 보기 (세션 AC) */
+$('#li-eye').onclick=()=>{
+  const inp=$('#li-pw'), on=inp.type==='password';
+  inp.type = on ? 'text' : 'password';
+  $('#li-eye').classList.toggle('on', on);
+  $('#li-eye').setAttribute('aria-label', on ? '비밀번호 숨기기' : '비밀번호 보기');
+  inp.focus();
+};
+
+
 $('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 $('#li-reset').onclick=openPinCard;
-$('#contactFab').onclick=openContactModal;
+$('#contactLink').onclick=openContactModal;
 $('#pin-back').onclick=closePinCard;
 $('#pin-send').onclick=()=>sendPin(false);
 $('#pin-resend').onclick=()=>sendPin(true);
