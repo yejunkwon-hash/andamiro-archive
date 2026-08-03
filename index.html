@@ -2610,6 +2610,23 @@ body.fx-full #doc:not(.pg-in) > *{ will-change:auto; }
   body.fx-full #doc.pg-in ~ .rightrail > *{ animation:none; }
 }
 
+/* ═══ 마이그레이션 적용 상태 (88 · 세션 AK) ═══ */
+.mig-ok{ font-size:12.5px; color:var(--text-dim); margin:0 0 14px; }
+.mig-warn{ border:1px solid var(--warn); border-radius:var(--r-2);
+  background:color-mix(in srgb, var(--warn) 8%, var(--card));
+  padding:13px 15px; margin:0 0 16px; font-size:13px; line-height:1.7; }
+@supports not (background: color-mix(in srgb, red, blue)){
+  .mig-warn{ background:var(--box-bg); }
+}
+.mig-warn p{ margin:6px 0 8px; color:var(--text-dim); font-size:12.5px; }
+.mig-warn ul{ margin:0; padding-left:18px; }
+.mig-warn li{ margin:3px 0; font-size:12.5px; }
+.mig-warn code{ font-family:var(--mono); font-size:12px;
+  background:var(--card); border-radius:4px; padding:1px 6px; }
+
+/* 자동으로 실린 변경 기록은 사람이 쓴 글과 살짝 구분한다 */
+.dl-entry .dl-title{ }
+
 /* ═══ 회원 탈퇴 (87 · 세션 AH) ═══
    되돌릴 수 없는 기능이라 눈에 띄게 두지 않는다 — 프로필 맨 아래, 조용한 상자. */
 .wd-sec{ margin-top:34px; padding-top:20px; border-top:1px solid var(--border); }
@@ -8038,6 +8055,36 @@ async function renderSysFeatures(){
 }
 
 /* 시스템 = 메뉴만 보여주는 목록. 각 항목은 자기 주소를 가진다. */
+/* 마이그레이션 적용 상태 (88 · 세션 AK).
+   ★"83번 돌렸나?"를 한 곳에서 답한다. 예전엔 알 방법이 없어 한 세션을 썼다.
+   ★진단이지 관문이 아니다 — 88이 없어도, 빠진 게 있어도 앱은 그대로 돈다. */
+const MIG_NAMES = {
+  '82':'기능 켜기/끄기', '83':'채널', '83b':'채널 점검', '84':'가입 정보 복구',
+  '85':'채널 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
+};
+async function renderMigStatus(){
+  const box=$('#migBox'); if(!box) return;
+  let st=null;
+  try{
+    const { data, error } = await sb.rpc('migration_status');
+    if(error) throw error;
+    st=data;
+  }catch(e){ box.innerHTML=''; return; }      // 88 미적용 → 조용히 안 그린다
+  if(!st) { box.innerHTML=''; return; }
+  const missing=(st.missing||[]).filter(v=>v!=='88');
+  if(!missing.length){
+    box.innerHTML=`<p class="mig-ok">데이터베이스 설정이 모두 적용돼 있어요.</p>`;
+    return;
+  }
+  box.innerHTML=`
+    <div class="mig-warn">
+      <b>아직 적용되지 않은 설정이 ${missing.length}개 있어요.</b>
+      <p>그 기능만 화면에서 빠져 있고, 나머지는 정상입니다.
+        Supabase → SQL Editor에서 아래 파일을 순서대로 실행해 주세요.</p>
+      <ul>${missing.map(v=>`<li><code>${escapeHtml(v)}_*.sql</code> — ${escapeHtml(MIG_NAMES[v]||'')}</li>`).join('')}</ul>
+    </div>`;
+}
+
 async function renderSystem(){
   if(!guardPage('system_access')) return;
   const items=[
@@ -8061,6 +8108,7 @@ async function renderSystem(){
     <div class="doc-head"><h1>시스템</h1>
       <div class="tabs"><button id="sysBack">${ic('back')}대문</button></div></div>
     <div class="doc-meta">관리 기능을 한곳에 모았어요. 항목을 눌러 들어가세요.</div>
+    <div id="migBox"></div>
     <div class="sys-menu">
       ${items.map(it=>`
         <button class="sys-item" data-go="${escapeAttr(it.hash)}">
@@ -8070,6 +8118,7 @@ async function renderSystem(){
           <span class="sys-arrow">›</span>
         </button>`).join('')}
     </div>`;
+  renderMigStatus();                    // ★적용 상태(88)
   $('#sysBack').onclick=()=>{ location.hash='#//main'; };
   $('#doc').querySelectorAll('.sys-item[data-go]').forEach(b=>{
     b.onclick=()=>{ location.hash=b.dataset.go; };
@@ -8523,12 +8572,41 @@ async function renderSysSite(){
 }
 
 /* ================== 운영 일지 (66) — 전 등급 열람 · owner 현장 편집 ================== */
+/* ================== 변경 기록 (세션 AK) ==================
+   ★이 배열은 index.html과 함께 실려 나간다. 배포하는 순간 부원들이 바로 본다 —
+     DB에 따로 적을 필요가 없고, 배포와 공지가 어긋나지 않는다.
+
+   ★적는 기준: **일반 사용자가 화면에서 체감하는 변화만.**
+     리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
+     새 항목은 맨 위에 넣는다. */
+const RELEASE_NOTES = [
+  { date:'2026-08-05', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
+  { date:'2026-08-05', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
+  { date:'2026-08-04', text:'문서마다 누가 언제 쌓았는지 보여주는 얇은 색 막대가 생겼어요. 색은 기수를 뜻합니다.' },
+  { date:'2026-08-04', text:'새 문서를 만들 때 분류를 고르게 됐어요. 목록에서 분류별로 묶여 찾기 쉬워집니다.' },
+  { date:'2026-08-03', text:'문서 화면이 읽기 편하게 정리됐어요. 기자재 정보는 본문 위로 올라갔고, 사진을 누르면 크게 볼 수 있어요.' },
+  { date:'2026-08-02', text:'커뮤니티가 [채널]로 바뀌었어요. 주제별로 문서·자료·과제를 모아둘 수 있습니다.' },
+  { date:'2026-08-01', text:'로그인 화면이 새로워졌어요. 설치 아이콘도 안다미로 로고로 바뀌었습니다.' },
+];
+
+/* 파일에 실린 기록 + DB에 쓴 글을 한 줄로 합친다 (날짜 내림차순) */
+function mergeDevLog(dbRows){
+  const fromFile = RELEASE_NOTES.map((n,i)=>({
+    id: 'rn'+i, entry_date: n.date, title: '업데이트', body: n.text, _auto: true
+  }));
+  return [...(dbRows||[]), ...fromFile]
+    .sort((a,b)=> String(b.entry_date).localeCompare(String(a.entry_date)));
+}
+
 async function renderDevLog(){
   let rows=null, failed=false;
   try{
     const r = await sb.from('dev_log').select('*').order('entry_date',{ascending:false}).order('id',{ascending:false}).limit(200);
     if(r.error) failed=true; else rows=r.data||[];
   }catch(e){ failed=true; }
+  /* ★DB를 못 읽어도 파일에 실린 변경 기록은 보여준다 — 배포만 하면 공지가 된다 */
+  rows = mergeDevLog(failed ? [] : rows);
+  failed = false;
   const owner=isOwner();
   const fmtD=d=>{ try{ const [y,m,dd]=String(d).slice(0,10).split('-'); return `${y}. ${Number(m)}. ${Number(dd)}.`; }catch(_){ return d; } };
   const entryHTML=e=>`
@@ -8536,7 +8614,7 @@ async function renderDevLog(){
       <div class="dl-head">
         <span class="dl-date">${fmtD(e.entry_date)}</span>
         <span class="dl-title">${escapeHtml(e.title)}</span>
-        ${owner?`<span class="dl-acts"><button class="ibtn dl-edit" title="수정">${ic('edit')}</button><button class="ibtn danger dl-del" title="삭제">${ic('trash')}</button></span>`:''}
+        ${(owner && !e._auto)?`<span class="dl-acts"><button class="ibtn dl-edit" title="수정">${ic('edit')}</button><button class="ibtn danger dl-del" title="삭제">${ic('trash')}</button></span>`:''}
       </div>
       <div class="dl-body">${escapeHtml(e.body)}</div>
       ${e.updated_at?`<div class="dl-edited">마지막 수정 ${fmtKST(e.updated_at)}</div>`:''}
