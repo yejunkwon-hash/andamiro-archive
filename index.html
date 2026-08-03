@@ -18,15 +18,17 @@
    표면 3계층 / 의미색 / 타이포·간격·모서리·그림자·모션 스케일.
    ★기존 변수명(--accent,--card,--border,--box-bg,--shadow …)은 전부 유지 — 8천 줄 기존 규칙과 호환. */
 :root{
-  /* ═══ 디자인 토큰 v4 (세션 L) — '연결된 생태계' ═══
-     빨간 위키 크롬을 버리고 라이트 글래스 + 일렉트릭 블루로 간다.
-     변수 이름은 그대로 두었다 — 앱 전체(수천 줄)가 이 이름들을 참조하므로
-     값만 갈아끼우면 전파된다. 이름을 바꾸면 그 순간 전부 깨진다. */
-  /* 표면: L0 배경 → L1 카드 → L2 떠 있는 요소 */
+  /* ═══ 디자인 토큰 v5 — 상징색 빨강 + 라이트 글래스 ═══
+     세션 L에서 파랑으로 갔다가 세션 Q에서 동아리 상징색으로 되돌렸다.
+     바꿔야 했던 건 '밀도와 소음'이지 정체성이 아니었다 —
+     레이아웃·유리 질감·모션은 그대로 두고 색만 돌렸다.
+
+     ★변수 이름은 절대 바꾸지 마라. 앱 전체(수천 줄)가 이 이름들을 참조한다.
+       값만 갈아끼우면 전파되고, 이름을 바꾸면 그 순간 전부 깨진다. */
+  /* 표면 3단: L0 배경(모눈) → L1 카드 → L2 떠 있는 요소.
+     회색에 아주 옅은 붉은기를 섞어 상징색과 한 계열로 묶었다. */
   --bg:#EFEEEE; --card:#ffffff; --box-bg:#F7F5F5; --surface-3:#ffffff;
-  /* 브랜드 · 의미색 — ★동아리 상징색(빨강)을 유지한다 (세션 Q).
-     세션 L에서 파랑으로 바꿨다가 되돌렸다. 레이아웃·유리 질감·모션은 그대로 두고
-     '색'만 상징색으로 돌린다 — 바꿔야 했던 건 밀도와 소음이지 정체성이 아니었다. */
+  /* 브랜드 · 의미색 — 동아리 상징색 빨강 */
   --accent:#C00000; --accent-soft:#D9483F;
   --accent-2:#00875A;             /* 진초록 — 완료·진행 (빨강 옆에서 탁해지지 않게 어둡게) */
   --accent-3:#8B5CF6;             /* 소프트 퍼플 — 보조 강조 */
@@ -44,7 +46,7 @@
   /* 간격(4px 기반) · 모서리 */
   --sp-1:4px; --sp-2:8px; --sp-3:12px; --sp-4:16px; --sp-5:24px; --sp-6:32px;
   --r-1:6px; --r-2:10px; --r-3:14px; --r-round:99px;
-  /* 그림자 3단 — 파랑기를 섞어 '떠 있는' 느낌 */
+  /* 그림자 3단 — 붉은기를 아주 옅게 섞어 배경과 겉돌지 않게 */
   --sh-1:0 1px 2px rgba(40,20,20,.06);
   --sh-2:0 4px 14px rgba(40,20,20,.10);
   --sh-3:0 16px 40px rgba(40,20,20,.16);
@@ -64,7 +66,8 @@
   --grid-line:rgba(80,30,30,.045);
 }
 body.dark{
-  /* 남색기 섞인 3단 — 순수 검정 금지(OLED halation 회피) */
+  /* 붉은기 섞인 3단 — 순수 검정 금지(OLED halation 회피).
+     상징색도 #E35049로 밝힌다 — 어두운 배경에서 #C00000은 탁해진다. */
   --bg:#151213; --card:#211D1E; --box-bg:#2A2526; --surface-3:#332D2E;
   --accent:#E35049; --accent-soft:#EC7871;   /* 야간용 상징색 — 어두운 배경에서 #C00000은 탁하다 */
   --accent-2:#3FBF7F; --accent-3:#A78BFA;
@@ -2386,6 +2389,155 @@ body.dark .strata{ opacity:.85; }
 
 @media(max-width:640px){ .strata-b{ height:17px; } }
 
+/* ═══════════ 문서 본문 조판 v4 (세션 AA) ═══════════
+   진단: 지금 본문이 '나무위키 항목'처럼 읽히는 이유는 네 가지였다.
+     ①제목마다 가로 밑줄 → 문서가 잘게 썰려 보인다
+     ②번호가 상징색 굵은 글씨 → 제목보다 번호가 먼저 보인다
+     ③인포박스가 우측 부유 → 짧은 문서의 본문이 좁은 기둥에 갇힌다
+     ④짧은 글에도 목차 상자
+   문서가 대부분 한 화면 분량이므로, 긴 글을 위한 장치를 걷어낸다. */
+
+/* ── ① 제목: 밑줄 대신 여백으로 계층을 만든다 ── */
+.doc-body h2{
+  border-bottom:0; padding-bottom:0;
+  margin:2.1em 0 .5em; font-size:19px; letter-spacing:-.015em;
+  display:flex; align-items:baseline; gap:8px;
+}
+.doc-body h3{ margin:1.6em 0 .4em; font-size:16px; letter-spacing:-.01em; }
+.doc-body h2:first-child, .doc-body h3:first-child{ margin-top:.2em; }
+
+/* ── ② 번호: 있되 조용하게. 가리킬 땐 쓰고, 읽을 땐 안 보인다 ── */
+.doc-body h2 .sec-num, .doc-body h3 .sec-num, .doc-body h4 .sec-num{
+  color:var(--text-dim); font-family:var(--mono); font-weight:400;
+  font-size:.62em; margin-right:0; flex:none; opacity:.8;
+}
+
+/* ── ③ 인포박스 → 본문 위 가로 스펙 격자 ──
+   ★편집 문법은 그대로다. 표시 방식만 바꾼다 — 기존 문서를 하나도 안 고쳐도 된다. */
+.infobox{
+  float:none; width:auto; max-width:none; margin:0 0 20px;
+  border:1px solid var(--border); border-radius:var(--r-2);
+  background:var(--card); font-size:13px; overflow:hidden;
+}
+.infobox .ib-title{
+  background:var(--box-bg); color:var(--text); border-bottom:1px solid var(--border);
+  text-align:left; padding:9px 13px; font-size:13px; font-weight:800;
+}
+.infobox .ib-sub{ background:var(--box-bg); color:var(--text-dim); text-align:left; padding:0 13px 9px; }
+.infobox table{ width:100%; border-collapse:collapse; }
+/* 넓은 화면에서는 2열로 접어 세로 길이를 절반으로 */
+@media(min-width:760px){
+  .infobox tbody{ display:grid; grid-template-columns:1fr 1fr; }
+  .infobox tbody tr{ display:flex; min-width:0; }
+  .infobox tbody th{ flex:0 0 96px; }
+  .infobox tbody td{ flex:1; min-width:0; }
+}
+.infobox th, .infobox td{ border-top:1px solid var(--border); padding:7px 13px; text-align:left; }
+.infobox th{ background:var(--box-bg); font-size:11.5px; color:var(--text-dim); font-weight:600; }
+
+/* ── ④ 목차: 짧은 문서에서는 숨긴다 (JS가 .toc-hide를 붙인다) ── */
+.toc{ background:none; border:0; padding:0; margin:4px 0 20px; font-size:12.5px; }
+.toc.toc-hide{ display:none; }
+
+/* ── 읽기 폭: 글만 좁히고 사진은 그대로 넓게 ──
+   ★한 줄이 너무 길면 다음 줄 첫머리를 못 찾는다. 그런데 폭을 통째로 줄이면
+     회로도까지 작아지므로, 문단·목록만 좁힌다. */
+.doc-body > p, .doc-body > ul, .doc-body > ol, .doc-body > blockquote{ max-width:54em; }
+
+/* ── 사진·회로도 (이 동아리 문서의 주 내용) ── */
+.doc-body img, .doc-img{
+  max-width:100%; height:auto; display:block; margin:16px 0;
+  border:1px solid var(--border); border-radius:var(--r-2);
+  background:#fff;                       /* ★회로도는 배경이 투명한 경우가 많다 — 야간에 선이 사라진다 */
+  cursor:zoom-in;
+}
+.doc-body figure{ margin:18px 0; }
+.doc-body figure img{ margin:0 0 7px; }
+.doc-body figcaption{ font-size:12px; color:var(--text-dim); line-height:1.6; }
+
+/* 표 — 회로 부품표 등 */
+.doc-body table:not(.ib-tbl){ border-collapse:collapse; margin:16px 0; font-size:13px; }
+.doc-body table:not(.ib-tbl) th{ background:var(--table-head); font-weight:700; }
+.doc-body table:not(.ib-tbl) th,
+.doc-body table:not(.ib-tbl) td{ border:1px solid var(--border); padding:7px 11px; }
+
+@media(max-width:640px){
+  .doc-body h2{ font-size:17px; }
+  .infobox tbody th{ flex:0 0 80px; }
+}
+
+/* ═══════════ 문서 화면 라이트 글래스 (세션 AB) ═══════════
+   상단바에만 있던 유리 질감을 문서 화면까지 끌어온다.
+   ★단, 본문이 얹히는 판에는 블러를 걸지 않는다 —
+     긴 글을 스크롤할 때 backdrop-filter는 매 프레임 다시 계산되어 끊긴다.
+     블러는 '작고 고정된' 요소(인포박스·과제 바·스펙 격자)에만 쓴다. */
+
+/* 문서 판 — 반투명하되 블러 없음. 모눈 배경이 은은하게 비친다 */
+.doc{
+  background:var(--glass);
+  border:1px solid var(--glass-brd);
+  border-radius:var(--r-3);
+  box-shadow:var(--sh-2);
+}
+body.fx-lite .doc, body.fx-flat .doc{ background:var(--card); border-color:var(--border); }
+
+/* 제목 아래 굵은 상징색 선 → 은은한 그라데이션. 현대적이면서 조용하다 */
+.doc-head{
+  border-bottom:0;
+  padding-bottom:14px; margin-bottom:6px;
+  position:relative;
+}
+.doc-head::after{
+  content:''; position:absolute; left:0; right:0; bottom:0; height:2px;
+  border-radius:2px;
+  background:linear-gradient(90deg, var(--accent), color-mix(in srgb, var(--accent) 22%, transparent) 62%, transparent);
+}
+@supports not (background: color-mix(in srgb, red, blue)){
+  .doc-head::after{ background:linear-gradient(90deg, var(--accent), rgba(192,0,0,.18) 62%, transparent); }
+}
+
+/* 인포박스 — 여기에 유리를 쓴다. 작고 고정된 요소라 비용이 싸다 */
+.infobox{
+  background:var(--glass-2);
+  border-color:var(--glass-brd);
+  backdrop-filter:blur(var(--blur)) saturate(1.4);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4);
+  box-shadow:var(--sh-1);
+}
+.infobox .ib-title, .infobox .ib-sub, .infobox th{ background:transparent; }
+.infobox th{ border-right:1px solid var(--border); }
+body.fx-lite .infobox, body.fx-flat .infobox{
+  background:var(--card); backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+
+/* 우측 레일도 같은 결로 */
+.rightrail .recent, .rightrail .addbtn{
+  background:var(--glass-2);
+  border-color:var(--glass-brd);
+  backdrop-filter:blur(var(--blur)) saturate(1.4);
+  -webkit-backdrop-filter:blur(var(--blur)) saturate(1.4);
+}
+body.fx-lite .rightrail .recent, body.fx-flat .rightrail .recent,
+body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
+  background:var(--card); backdrop-filter:none; -webkit-backdrop-filter:none;
+}
+
+/* 표 머리 — 채운 회색 대신 옅은 상징색 기운 */
+.doc-body table:not(.ib-tbl) th{
+  background:color-mix(in srgb, var(--accent) 6%, var(--card));
+  border-bottom-color:var(--border-strong);
+}
+@supports not (background: color-mix(in srgb, red, blue)){
+  .doc-body table:not(.ib-tbl) th{ background:var(--table-head); }
+}
+
+/* 인용 — 왼쪽 상징색 선 */
+.doc-body blockquote{
+  border-left:3px solid var(--accent); background:var(--box-bg);
+  border-radius:0 var(--r-1) var(--r-1) 0;
+  margin:16px 0; padding:11px 15px; color:var(--text-dim);
+}
+
 /* ═══ 채널 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
 .ws-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:0 0 9px; }
 .ws-meet{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%;
@@ -4360,16 +4512,27 @@ function buildToc(){
     else{c4++;num=`${c2}.${c3}.${c4}`;}
     const id='sec-'+num.replace(/\./g,'-'); h.id=id;
     const t=h.textContent;
-    h.innerHTML=`<span class="sec-num">${num}.</span>${t}`+(h.tagName==='H2'?`<span class="fold">［접기］</span>`:'');
+    /* ★세션 AA: 번호 뒤 마침표를 뺐다. 있어도 가리킬 수 있고, 없으면 더 조용하다. */
+    h.innerHTML=`<span class="sec-num">${num}</span>${t}`+(h.tagName==='H2'?`<span class="fold">［접기］</span>`:'');
     items.push({level:h.tagName,num,id,text:t});
   });
   if(items.length){
     const lis=items.map(it=>{const cls=it.level==='H3'?'l3':it.level==='H4'?'l4':'';
       return `<li class="${cls}"><a data-target="${it.id}"><span class="n">${it.num}.</span>${it.text}</a></li>`;}).join('');
-    $('#doc').querySelector('.toc-slot').innerHTML=`<div class="toc"><div class="toc-title">목차</div><ul>${lis}</ul></div>`;
+    /* ★한 화면에 다 들어오는 글에 목차는 자리만 차지한다 (세션 AA).
+       기준: 절이 4개 미만이거나 본문이 1200자 미만이면 숨긴다. */
+    const short = items.length < 4 || (body.textContent||'').length < 1200;
+    $('#doc').querySelector('.toc-slot').innerHTML=
+      `<div class="toc${short?' toc-hide':''}"><div class="toc-title">목차</div><ul>${lis}</ul></div>`;
   }
   $('#doc').querySelectorAll('.toc a').forEach(a=>a.onclick=e=>{e.preventDefault();
     const t=document.getElementById(a.dataset.target); if(t)t.scrollIntoView({behavior:'smooth',block:'start'});});
+  /* ★회로도·실험 사진이 많은 동아리라 본문 이미지는 확대해서 볼 수 있어야 한다 (세션 AA).
+     인포박스 안의 사진은 제외 — 거긴 스펙 영역이다. */
+  body.querySelectorAll('img').forEach(im=>{
+    if(im.closest('.infobox')) return;
+    im.addEventListener('click', ()=>openLightbox(im.dataset.full || im.src));
+  });
   body.querySelectorAll('h2').forEach(h=>h.addEventListener('click',()=>{
     let el=h.nextElementSibling; const col=h.classList.toggle('is-collapsed');
     const f=h.querySelector('.fold'); if(f)f.textContent=col?'［펼치기］':'［접기］';
