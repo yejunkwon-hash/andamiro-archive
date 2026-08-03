@@ -2623,9 +2623,20 @@ body.fx-full #doc:not(.pg-in) > *{ will-change:auto; }
 .dir-card:hover{ transform:translateY(-2px); box-shadow:var(--sh-2); border-color:var(--border-strong); }
 
 /* 사진 — 정사각. 참고 디자인의 핵심이다 */
-.dir-ava-wrap{ display:block; position:relative; width:100%; aspect-ratio:1/1; }
+/* ★예전 디자인은 사진을 배너 위에 띄우려고 .dir-ava-wrap을 position:absolute로,
+   .dir-body에 padding-top:48px를 줬다. 그 규칙들이 남아 있어서 이름이 사진 위로
+   밀려 올라가고 카드가 가로로 늘어났다 (세션 AM 사고).
+   → 겹침 배치를 완전히 되돌린다. */
+.dir-card .dir-ava-wrap{
+  display:block; position:relative; top:auto; left:auto; transform:none; z-index:auto;
+  width:100%; aspect-ratio:1/1;
+}
+.dir-card .dir-body{
+  padding:12px 13px 0; text-align:left;
+  display:block; align-items:initial; gap:0;
+}
 .dir-card .dir-ava{
-  width:100%; height:100%; border:0; border-radius:0; margin:0;
+  width:100% !important; height:100% !important; border:0; border-radius:0; margin:0;
   background-size:cover; background-position:center; box-shadow:none;
   display:flex; align-items:center; justify-content:center;
   font-size:44px; font-weight:800; color:#fff;
@@ -2648,7 +2659,6 @@ body.fx-full #doc:not(.pg-in) > *{ will-change:auto; }
 @media(hover:none){ .dir-dm{ opacity:1; transform:none; } }   /* 터치 기기엔 항상 보이게 */
 body.fx-lite .dir-dm, body.fx-flat .dir-dm{ background:var(--card); backdrop-filter:none; -webkit-backdrop-filter:none; }
 
-.dir-body{ padding:12px 13px 0; text-align:left; }
 .dir-name{ font-size:14px; font-weight:800; letter-spacing:-.01em; color:var(--text);
   overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .dir-sub{ font-size:12px; color:var(--link); margin-top:3px;
@@ -8629,21 +8639,26 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
-  { date:'2026-08-06', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
-  { date:'2026-08-05', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
-  { date:'2026-08-05', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
-  { date:'2026-08-04', text:'문서마다 누가 언제 쌓았는지 보여주는 얇은 색 막대가 생겼어요. 색은 기수를 뜻합니다.' },
-  { date:'2026-08-04', text:'새 문서를 만들 때 분류를 고르게 됐어요. 목록에서 분류별로 묶여 찾기 쉬워집니다.' },
-  { date:'2026-08-03', text:'문서 화면이 읽기 편하게 정리됐어요. 기자재 정보는 본문 위로 올라갔고, 사진을 누르면 크게 볼 수 있어요.' },
-  { date:'2026-08-02', text:'커뮤니티가 [채널]로 바뀌었어요. 주제별로 문서·자료·과제를 모아둘 수 있습니다.' },
+  { date:'2026-08-03', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
+  { date:'2026-08-03', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
+  { date:'2026-08-03', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
+  { date:'2026-08-02', text:'문서마다 누가 언제 쌓았는지 보여주는 얇은 색 막대가 생겼어요. 색은 기수를 뜻합니다.' },
+  { date:'2026-08-02', text:'새 문서를 만들 때 분류를 고르게 됐어요. 목록에서 분류별로 묶여 찾기 쉬워집니다.' },
+  { date:'2026-08-02', text:'문서 화면이 읽기 편하게 정리됐어요. 기자재 정보는 본문 위로 올라갔고, 사진을 누르면 크게 볼 수 있어요.' },
+  { date:'2026-08-01', text:'커뮤니티가 [채널]로 바뀌었어요. 주제별로 문서·자료·과제를 모아둘 수 있습니다.' },
   { date:'2026-08-01', text:'로그인 화면이 새로워졌어요. 설치 아이콘도 안다미로 로고로 바뀌었습니다.' },
 ];
 
 /* 파일에 실린 기록 + DB에 쓴 글을 한 줄로 합친다 (날짜 내림차순) */
 function mergeDevLog(dbRows){
-  const fromFile = RELEASE_NOTES.map((n,i)=>({
-    id: 'rn'+i, entry_date: n.date, title: '업데이트', body: n.text, _auto: true
-  }));
+  /* ★오늘보다 뒤인 항목은 감춘다 (세션 AM 사고 — 미래 날짜를 적어 넣었다).
+     KST 기준 오늘까지만 보여준다. */
+  const todayKST = new Date(Date.now() + 9*3600*1000).toISOString().slice(0,10);
+  const fromFile = RELEASE_NOTES
+    .filter(n => String(n.date) <= todayKST)
+    .map((n,i)=>({
+      id: 'rn'+i, entry_date: n.date, title: '업데이트', body: n.text, _auto: true
+    }));
   return [...(dbRows||[]), ...fromFile]
     .sort((a,b)=> String(b.entry_date).localeCompare(String(a.entry_date)));
 }
