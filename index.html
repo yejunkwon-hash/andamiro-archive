@@ -2564,6 +2564,30 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
 .topbar .search input{ background:var(--box-bg); color:var(--text); }
 .topbar .search input:focus{ outline:none; }
 
+/* ═══ 회원 탈퇴 (87 · 세션 AH) ═══
+   되돌릴 수 없는 기능이라 눈에 띄게 두지 않는다 — 계정 정보 맨 아래, 조용한 상자. */
+.wd-sec{ margin-top:34px; padding-top:20px; border-top:1px solid var(--border); }
+.wd-head{ font-size:13px; font-weight:800; color:var(--text-dim); letter-spacing:.03em; margin-bottom:8px; }
+.wd-body{ font-size:12.5px; color:var(--text-dim); line-height:1.8; margin:0 0 14px; max-width:56em; }
+.wd-body b{ color:var(--text); }
+.btn.ghost.danger{ border-color:var(--border-strong); color:var(--danger); background:none; }
+.btn.ghost.danger:hover{ border-color:var(--danger); background:var(--box-bg); }
+
+/* 운영진 승인 목록 */
+.wd-reqs{ margin-top:16px; padding:14px 16px; border:1px solid var(--border);
+  border-radius:var(--r-2); background:var(--box-bg); border-top:1px solid var(--border); }
+.wd-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+  padding:9px 0; border-top:1px solid var(--border); font-size:13px; }
+.wd-who{ flex:none; }
+.wd-when{ font-family:var(--mono); font-size:11px; color:var(--text-dim); }
+.wd-why{ color:var(--text-dim); font-size:12px; font-style:italic; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:22em; }
+.wd-ok{ margin-left:auto; flex:none; background:var(--card); color:var(--danger);
+  border:1px solid var(--border-strong); border-radius:var(--r-1);
+  padding:5px 14px; font:inherit; font-size:12.5px; cursor:pointer; }
+.wd-ok:hover{ border-color:var(--danger); background:var(--danger); color:#fff; }
+.wd-ok:disabled{ opacity:.5; cursor:default; }
+
 /* ═══ 카드 위 제목 (세션 AF) ═══
    카드 안의 작은 h1 대신, 여기가 첫인상을 맡는다. */
 .login-head{ text-align:center; margin:0 0 18px; }
@@ -3479,7 +3503,7 @@ async function orgSectionHTML(){
       : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
     return `<a class="org-mem" href="#//member/${escapeAttr(m.id)}">
       <span class="org-cv" data-cover="${escapeAttr(m.id)}"></span>${ava}
-      <span class="org-mem-t">#${m.member_no??'-'} <b>${escapeHtml(m.name||'-')}</b>
+      <span class="org-mem-t">#${m.member_no??'-'} <b>${escapeHtml(memberName(m))}</b>
         <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
   };
   const group = (title, items) => `
@@ -6792,6 +6816,52 @@ function startAdminPresence(){
 }
 function stopAdminPresence(){ if(adminPresenceTimer){ clearInterval(adminPresenceTimer); adminPresenceTimer=null; } }
 
+/* 탈퇴 신청 대기 목록 (87 · 세션 AH) — owner/admin만.
+   ★처리는 되돌릴 수 없다. 그래서 무엇이 벌어지는지 확인창에서 다시 말한다. */
+async function renderWithdrawReqs(_nav){
+  const box=$('#wdReqs'); if(!box) return;
+  let rows=[];
+  try{
+    const { data, error } = await sb.rpc('list_withdraw_requests');
+    if(error) throw error;
+    rows=data||[];
+  }catch(e){ box.innerHTML=''; return; }        // 87 미적용 → 조용히 안 그린다
+  if(_nav!==undefined && _nav!==_navSeq) return;
+  if(!rows.length){ box.innerHTML=''; return; }
+
+  box.innerHTML=`
+    <section class="wd-sec wd-reqs">
+      <div class="wd-head">탈퇴 신청 ${rows.length}건</div>
+      <p class="wd-body muted">처리하면 로그인이 막히고 이름·활동명·사진이 지워집니다.
+        문서 편집과 답변은 '${WITHDRAWN_LABEL}'으로 남고, 회원번호도 그대로 남습니다.
+        <b>되돌릴 수 없어요.</b></p>
+      ${rows.map(r=>`<div class="wd-row">
+        <span class="wd-who">#${r.member_no??'-'} <b>${escapeHtml(r.name||r.handle||'-')}</b></span>
+        <span class="wd-when">${fmtKST(r.req_at)}</span>
+        ${r.reason?`<span class="wd-why">"${escapeHtml(r.reason)}"</span>`:''}
+        <button class="wd-ok" data-wd="${escapeAttr(r.id)}"
+          data-name="${escapeAttr(r.name||r.handle||('#'+(r.member_no??'')))}">처리</button>
+      </div>`).join('')}
+      <div class="msg" id="wdAdminMsg"></div>
+    </section>`;
+
+  box.querySelectorAll('[data-wd]').forEach(b=>b.onclick=async()=>{
+    const who=b.dataset.name;
+    if(!confirm(`${who} 님의 탈퇴를 처리할까요?\n\n· 로그인이 막힙니다\n· 이름·활동명·사진이 지워집니다\n· 문서 편집과 답변은 '${WITHDRAWN_LABEL}'으로 남습니다\n· 회원번호는 남고 재사용되지 않습니다\n\n되돌릴 수 없습니다.`)) return;
+    b.disabled=true;
+    const m=$('#wdAdminMsg');
+    try{
+      const { error } = await sb.rpc('approve_withdraw', { p_user: b.dataset.wd });
+      if(error) throw error;
+      m.className='msg ok'; m.textContent=who+' 님의 탈퇴를 처리했습니다.';
+      setTimeout(()=>renderAdmin(), 900);
+    }catch(e){
+      m.className='msg err'; m.textContent='처리하지 못했습니다: '+((e&&e.message)||e);
+      b.disabled=false;
+    }
+  });
+}
+
 async function renderAdmin(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   const { data, error } = await sb.rpc('admin_list_members');
@@ -6827,7 +6897,7 @@ async function renderAdmin(){
         <div class="mem-who">
           ${avaCellHTML(m.name, m.handle, ex.avatar_url)}
           <div class="mem-txt">
-            <div class="mem-name">${escapeHtml(m.name||'-')}</div>
+            <div class="mem-name">${escapeHtml(memberName(m))}</div>
             <div class="mem-handle">@${escapeHtml(m.handle||'-')}</div>
           </div>
         </div>
@@ -6846,6 +6916,7 @@ async function renderAdmin(){
     <div class="doc-head"><h1>회원 관리</h1>
       <div class="tabs">${(can('signup_review') && pend>0)?`<button id="reqBtn">${ic('inbox')}예전 가입 신청 ${pend}</button>`:''}${sysBtnHTML()}</div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
+    <div id="wdReqs"></div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
     <div class="table-scroll">
@@ -6856,6 +6927,7 @@ async function renderAdmin(){
     </div>
     <div class="doc-meta" style="margin-top:18px">동아리·계열 목록은 <b>[시스템]</b> 탭에서 관리합니다.</div>`;
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
+  renderWithdrawReqs(_nav);             // ★탈퇴 신청 대기(87)
   bindSysBtn();
   if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
@@ -6908,7 +6980,7 @@ async function renderClubSection(){
       const ava = m.avatar_url
         ? `<span class="club-mem-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></span>`
         : `<span class="club-mem-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span>`;
-      return `<a class="club-mem" href="#member/${m.id}"><span class="club-cv" data-cover="${escapeAttr(m.id)}"></span>${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(m.name||'-')} <span class="muted">@${escapeHtml(m.handle||'-')}</span></span></a>`;
+      return `<a class="club-mem" href="#member/${m.id}"><span class="club-cv" data-cover="${escapeAttr(m.id)}"></span>${ava}<span class="club-mem-t">#${m.member_no??'-'} ${escapeHtml(memberName(m))} ${m.handle?`<span class="muted">@${escapeHtml(m.handle)}</span>`:''}</span></a>`;
     }).join('') : '<div class="club-empty">소속 회원이 없습니다.</div>';
     return `<div class="club-item">
       <div class="club-row">
@@ -8668,8 +8740,10 @@ async function savePassword(){
 
 /* ================== 개인정보 (본인) ================== */
 async function renderMe(){
+  const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지 · 규칙 12)
   let p={};
   try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club,track,bio,cover_color').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  if(_nav!==_navSeq) return;              // ★낡은 렌더 폐기
   const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
   coverCache[state.user.id] = p.cover_color || null;      // 내 커버색 캐시(쪽지함·질문 아바타 링에 즉시 반영)
   const av=avatarFor(p.name, p.handle);
@@ -8894,7 +8968,76 @@ async function renderMe(){
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
+  mountWithdraw(_nav);                     // ★탈퇴 신청(87) — 맨 아래, 조용히
   window.scrollTo(0,0);
+}
+
+/* ── 회원 탈퇴 (87 · 세션 AH) ──
+   ★되돌릴 수 없다. 그래서 ①맨 아래에 조용히 두고 ②운영진 승인을 거치고
+     ③무엇이 남고 무엇이 사라지는지 먼저 말한다.
+   ★owner에게는 아예 보이지 않는다 — 나가버리면 아무도 승인·운영을 못 한다. */
+async function mountWithdraw(_nav){
+  const box=$('#doc'); if(!box) return;
+  if(state.role==='owner') return;
+  let req=null;
+  try{
+    const { data, error } = await sb.from('profiles')
+      .select('withdraw_req_at').eq('id', state.user.id).maybeSingle();
+    if(error) throw error;
+    req = data && data.withdraw_req_at;
+  }catch(e){ return; }                     // 87 미적용 → 조용히 안 그린다
+  if(_nav!==undefined && _nav!==_navSeq) return;
+
+  const wrap=document.createElement('section');
+  wrap.className='wd-sec';
+  wrap.innerHTML = req
+    ? `<div class="wd-head">탈퇴 신청됨</div>
+       <p class="wd-body">운영진이 확인하면 처리됩니다. 그전까지는 평소처럼 쓰실 수 있어요.<br>
+         <span class="muted">신청: ${fmtKST(req)}</span></p>
+       <button class="btn ghost" id="wdCancel" style="width:auto;padding:8px 18px">신청 취소</button>
+       <div class="msg" id="wdMsg"></div>`
+    : `<div class="wd-head">회원 탈퇴</div>
+       <p class="wd-body">
+         <b>남는 것</b> — 문서 편집 이력, 질문과 답변, 회원 문서.
+         <span class="muted">작성자는 '${WITHDRAWN_LABEL}'으로 표시돼요.</span><br>
+         <b>사라지는 것</b> — 로그인, 이름·활동명·프로필 사진.<br>
+         <span class="muted">회원번호는 남습니다. 다른 사람에게 넘어가지 않아요.
+         그리고 <b>되돌릴 수 없습니다.</b></span>
+       </p>
+       <button class="btn ghost danger" id="wdAsk" style="width:auto;padding:8px 18px">탈퇴 신청하기</button>
+       <div class="msg" id="wdMsg"></div>`;
+  box.appendChild(wrap);
+
+  const msg=()=>$('#wdMsg');
+  const ask=$('#wdAsk');
+  if(ask) ask.onclick=async()=>{
+    if(!confirm('탈퇴를 신청할까요?\n\n운영진이 확인한 뒤 처리되며, 처리된 뒤에는 되돌릴 수 없습니다.')) return;
+    const reason=(prompt('떠나는 이유를 한 줄 남겨주시겠어요? (선택 — 비워도 됩니다)')||'').trim();
+    ask.disabled=true;
+    try{
+      const { error } = await sb.rpc('request_withdraw', { p_reason: reason || null });
+      if(error) throw error;
+      msg().className='msg ok'; msg().textContent='신청했어요. 운영진이 확인하면 처리됩니다.';
+      setTimeout(()=>renderMe(), 900);
+    }catch(e){
+      msg().className='msg err';
+      msg().textContent='신청하지 못했습니다: '+((e&&e.message)||e);
+      ask.disabled=false;
+    }
+  };
+  const cancel=$('#wdCancel');
+  if(cancel) cancel.onclick=async()=>{
+    cancel.disabled=true;
+    try{
+      const { error } = await sb.rpc('cancel_withdraw');
+      if(error) throw error;
+      msg().className='msg ok'; msg().textContent='신청을 취소했어요.';
+      setTimeout(()=>renderMe(), 700);
+    }catch(e){
+      msg().className='msg err'; msg().textContent='취소하지 못했습니다: '+((e&&e.message)||e);
+      cancel.disabled=false;
+    }
+  };
 }
 
 /* ── 회원별 질문 목록 (#uq/<uid>) — 표에서 행을 누르면 그 질문 스레드로 ── */
@@ -9364,7 +9507,7 @@ function renderDirGrid(){
       <div class="dir-banner"></div>
       <span class="dir-ava-wrap">${avaInner}<span class="pres-dot" data-pres="${escapeAttr(m.id)}" title="접속 중"></span></span>
       <div class="dir-body">
-        <div class="dir-name">${escapeHtml(m.name||'-')}</div>
+        <div class="dir-name">${escapeHtml(memberName(m))}</div>
         <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
         <div class="dir-chips">
           <span class="dir-chip">#${m.member_no??'-'}</span>
@@ -12202,6 +12345,21 @@ const SYS_PAGES = ['main','home','community','questions','calendar','directory',
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
+/* ================== 탈퇴 회원 표시 (87 · 세션 AH) ==================
+   ★탈퇴하면 이름·활동명이 비워진다. 그 자리를 '-'로 두면 목록이 고장 난 것처럼 보인다.
+     한 곳에서 "탈퇴한 회원"으로 바꿔주고, 이름을 쓰는 곳은 전부 이걸 거친다.
+   ★기록(편집·답변)은 남는다 — 이 앱의 명제가 "기록이 다음 사람의 시간을 아낀다"이므로. */
+const WITHDRAWN_LABEL = '탈퇴한 회원';
+function memberName(m){
+  if(!m) return WITHDRAWN_LABEL;
+  const n = (m.name||'').trim() || (m.handle||'').trim();
+  if(n) return n;
+  /* 이름도 활동명도 없다 = 탈퇴했거나 아직 안 채운 회원.
+     withdrawn_at을 알 수 있으면 그걸 믿고, 모르면 안전하게 같은 문구를 쓴다. */
+  return WITHDRAWN_LABEL;
+}
+function isWithdrawn(m){ return !!(m && (m.withdrawn_at || (!m.name && !m.handle))); }
+
 function isMemberDocKey(k){ return String(k||'').startsWith('#'); }
 function isMyMemberDoc(k){ return !!(state.user && state.member_no!=null && String(k)===('#'+state.member_no)); }
 function docHash(key){ return '#'+encodeURIComponent(key); }
