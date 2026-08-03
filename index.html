@@ -235,7 +235,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
   .hh-first{white-space:nowrap;}
 }
 .profile-ava{background-size:cover;background-position:center;border-radius:50%;box-shadow:0 3px 12px rgba(0,0,0,.14);}
-/* 계정 정보 상단의 커버 미리보기 — 지금 색이 무엇인지 한눈에 보이고, 바로 바꿀 수 있다 */
+/* 프로필 상단의 커버 미리보기 — 지금 색이 무엇인지 한눈에 보이고, 바로 바꿀 수 있다 */
 .me-cover{border-radius:14px;height:92px;margin:0 0 18px;position:relative;overflow:hidden;
   background:linear-gradient(135deg, var(--cv, var(--cover-default)), color-mix(in srgb, var(--cv, var(--cover-default)) 65%, #fff));
   box-shadow:var(--shadow);}
@@ -2564,8 +2564,41 @@ body.fx-lite .rightrail .addbtn,  body.fx-flat .rightrail .addbtn{
 .topbar .search input{ background:var(--box-bg); color:var(--text); }
 .topbar .search input:focus{ outline:none; }
 
+/* ═══════════ 페이지 진입 애니메이션 (세션 AI) ═══════════
+   로그인 화면에서 쓰던 '순서대로 올라오기'를 앱 전체로 확장한다.
+
+   ★설계 판단 세 가지:
+   1. **최상위 자식만** 애니메이트한다. 안쪽까지 걸면 문서 39개가 하나씩 뜨느라
+      마지막 항목이 몇 초 뒤에 나타난다 — 그건 '멋'이 아니라 '느림'이다.
+   2. **지연에 상한**을 둔다(.28s). 요소가 많아도 전체가 0.3초 안에 끝난다.
+   3. `fx-full`에서만. '가볍게'·'전부 끄기'와 prefers-reduced-motion에서는 없다.
+
+   ★재생 방식: route()가 #doc에 .pg-in을 다시 붙인다(리플로우로 강제 재시작). */
+@keyframes pgIn{
+  from{ opacity:0; transform:translateY(10px); }
+  to  { opacity:1; transform:none; }
+}
+body.fx-full #doc.pg-in > *{ animation:pgIn .42s var(--spring-soft) both; }
+body.fx-full #doc.pg-in > *:nth-child(1){ animation-delay:0s }
+body.fx-full #doc.pg-in > *:nth-child(2){ animation-delay:.06s }
+body.fx-full #doc.pg-in > *:nth-child(3){ animation-delay:.12s }
+body.fx-full #doc.pg-in > *:nth-child(4){ animation-delay:.18s }
+body.fx-full #doc.pg-in > *:nth-child(5){ animation-delay:.23s }
+body.fx-full #doc.pg-in > *:nth-child(n+6){ animation-delay:.28s }   /* ★상한 */
+
+/* 우측 레일도 같은 결로, 살짝 늦게 */
+body.fx-full #doc.pg-in ~ .rightrail > *{ animation:pgIn .42s var(--spring-soft) both; }
+body.fx-full #doc.pg-in ~ .rightrail > *:nth-child(1){ animation-delay:.10s }
+body.fx-full #doc.pg-in ~ .rightrail > *:nth-child(2){ animation-delay:.16s }
+body.fx-full #doc.pg-in ~ .rightrail > *:nth-child(n+3){ animation-delay:.22s }
+
+@media (prefers-reduced-motion: reduce){
+  body.fx-full #doc.pg-in > *,
+  body.fx-full #doc.pg-in ~ .rightrail > *{ animation:none; }
+}
+
 /* ═══ 회원 탈퇴 (87 · 세션 AH) ═══
-   되돌릴 수 없는 기능이라 눈에 띄게 두지 않는다 — 계정 정보 맨 아래, 조용한 상자. */
+   되돌릴 수 없는 기능이라 눈에 띄게 두지 않는다 — 프로필 맨 아래, 조용한 상자. */
 .wd-sec{ margin-top:34px; padding-top:20px; border-top:1px solid var(--border); }
 .wd-head{ font-size:13px; font-weight:800; color:var(--text-dim); letter-spacing:.03em; margin-bottom:8px; }
 .wd-body{ font-size:12.5px; color:var(--text-dim); line-height:1.8; margin:0 0 14px; max-width:56em; }
@@ -2902,7 +2935,7 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
         </button>
         <div class="usermenu-drop" id="userdrop">
           <a data-go="directory" class="drop-mobile">회원 조회</a>
-          <a data-go="me">계정 정보</a>
+          <a data-go="me">프로필</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="system" id="dropSystem" style="display:none">시스템</a>
@@ -3680,7 +3713,7 @@ async function openClubPicker(cur){
 }
 
 /* ================== 계열(tracks) ==================
-   회원의 속성. 본인이 [계정 정보]에서 고르고, owner가 [회원 관리]에서 목록·색을 관리한다.
+   회원의 속성. 본인이 [프로필]에서 고르고, owner가 [회원 관리]에서 목록·색을 관리한다.
    색은 회원 목록·프로필의 계열 칩에 쓰인다. */
 async function loadTracks(){
   try{
@@ -7117,7 +7150,7 @@ async function renderTrackSection(){
     </div>
     <div class="ce-msg" id="tkSecMsg"></div>
     <div class="ce-list">${(state.tracks||[]).map(rowHTML).join('') || '<div class="club-empty" style="padding:10px">계열이 없습니다.</div>'}</div>
-    <div class="doc-meta">계열은 회원이 [계정 정보]에서 직접 고릅니다. 색은 회원 프로필·목록의 계열 표시에 쓰여요.</div>`;
+    <div class="doc-meta">계열은 회원이 [프로필]에서 직접 고릅니다. 색은 회원 프로필·목록의 계열 표시에 쓰여요.</div>`;
 
   const setMsg=(t,ok)=>{ const m=$('#tkSecMsg'); if(!m) return;
     m.innerHTML = ok ? (icOk()+' '+escapeHtml(t||'')) : escapeHtml(t||'');
@@ -8117,7 +8150,7 @@ async function renderSysTracks(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>계열 목록</h1>
       <div class="tabs"><button id="stBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">${can('track_edit')?'이름·색을 <b>한 번에 하나씩</b> 수정할 수 있어요.':'계열은 회원이 [계정 정보]에서 직접 고릅니다.'}</div>
+    <div class="doc-meta">${can('track_edit')?'이름·색을 <b>한 번에 하나씩</b> 수정할 수 있어요.':'계열은 회원이 [프로필]에서 직접 고릅니다.'}</div>
     <div id="trackSection" class="club-sec"></div>
     <div id="trackView"></div>`;
   $('#stBack').onclick=()=>{ location.hash='#//system'; };
@@ -8751,7 +8784,7 @@ async function renderMe(){
     ? `<div class="me-avatar" id="meAvatar" style="background-image:url('${escapeAttr(p.avatar_url)}')"></div>`
     : `<div class="me-avatar" id="meAvatar" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>계정 정보</h1>
+    <div class="doc-head"><h1>프로필</h1>
       <div class="tabs"><button id="meProfile">${ic('user')}내 프로필 보기</button><button id="meBack">${ic('back')}문서로</button></div></div>
     <div class="me-cover" id="meCoverBar"${p.cover_color?` style="--cv:${escapeAttr(p.cover_color)}"`:''}>
       <div class="me-cover-in" id="meCoverIn"></div>
@@ -9256,7 +9289,7 @@ async function renderMemberProfile(id){
     <div class="doc-head"${cv?` style="border-bottom-color:${escapeAttr(cv)}"`:''}><h1>회원 프로필</h1>
       <div class="tabs">
         ${(p.member_no!=null && (state.docs||[]).some(d=>d.key===('#'+p.member_no))) ? `<button id="mpDoc">${ic('docs')}회원 문서</button>` : ''}
-        ${(state.user && id===state.user.id) ? `<button id="mpEdit">${ic('edit')}계정 정보 수정</button>` : ''}
+        ${(state.user && id===state.user.id) ? `<button id="mpEdit">${ic('edit')}프로필 수정</button>` : ''}
         <button id="mpBack">${ic('back')}뒤로</button>
       </div></div>
     <div class="grass" id="mpGrass"${cv?` style="--gcv:${escapeAttr(cv)}"`:''} hidden></div>
@@ -12500,9 +12533,24 @@ function renderNotFound(raw){
 function startLoading(){ const m=$('#refreshMark'); if(m) m.classList.add('spinning'); }
 function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classList.remove('spinning'),280); }
 
+/* 페이지 진입 애니메이션 재생 (세션 AI).
+   ★렌더는 대부분 비동기라 route() 직후엔 #doc이 아직 비어 있다.
+     그래서 클래스를 '지금' 붙이지 않고 다음 프레임 두 번 뒤에 붙인다 —
+     그때쯤 첫 그리기가 끝나 있고, 늦게 오는 데이터는 어차피 자기 자리에서 나타난다. */
+function playPageIn(){
+  const el=document.getElementById('doc'); if(!el) return;
+  if(!document.body.classList.contains('fx-full')){ el.classList.remove('pg-in'); return; }
+  el.classList.remove('pg-in');
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    void el.offsetWidth;                 // 리플로우 강제 → 같은 클래스라도 애니메이션이 다시 시작된다
+    el.classList.add('pg-in');
+  }));
+}
+
 function route(){
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   _navSeq++;               // ★새 네비 세대 — 진행 중이던 이전 렌더의 뒤늦은 화면 쓰기를 무효화
+  playPageIn();            // ★페이지 진입 애니메이션 (세션 AI)
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   refreshInboxBadge();     // 안 읽은 쪽지 개수 갱신 (네비 배지)
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
