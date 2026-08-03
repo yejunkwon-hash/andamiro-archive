@@ -2610,6 +2610,55 @@ body.fx-full #doc:not(.pg-in) > *{ will-change:auto; }
   body.fx-full #doc.pg-in ~ .rightrail > *{ animation:none; }
 }
 
+/* ═══════════ 회원 카드 v2 (세션 AL) ═══════════
+   큰 정사각 사진 + 이름 + 소속. 배너·칩·소개·통계·버튼 두 개를 걷어냈다.
+   ★한 카드에 정보가 많으면 목록이 아니라 '카드 더미'가 된다 —
+     목록의 일은 '찾게 해주는 것'이고, 자세한 건 눌러서 들어가는 프로필에 있다. */
+.dir-grid{ grid-template-columns:repeat(auto-fill, minmax(168px, 1fr)); gap:18px; }
+.dir-card{
+  display:block; padding:0 0 14px; overflow:hidden;
+  border:1px solid var(--border); border-radius:var(--r-3);
+  background:var(--card); box-shadow:var(--sh-1); cursor:pointer;
+}
+.dir-card:hover{ transform:translateY(-2px); box-shadow:var(--sh-2); border-color:var(--border-strong); }
+
+/* 사진 — 정사각. 참고 디자인의 핵심이다 */
+.dir-ava-wrap{ display:block; position:relative; width:100%; aspect-ratio:1/1; }
+.dir-card .dir-ava{
+  width:100%; height:100%; border:0; border-radius:0; margin:0;
+  background-size:cover; background-position:center; box-shadow:none;
+  display:flex; align-items:center; justify-content:center;
+  font-size:44px; font-weight:800; color:#fff;
+}
+.dir-card .pres-dot{ position:absolute; right:9px; top:9px; width:9px; height:9px;
+  border-radius:50%; border:2px solid var(--card); }
+
+/* 메시지 — 평소엔 숨고 사진 위에 얹힌다 */
+.dir-dm{
+  position:absolute; right:8px; bottom:8px; width:32px; height:32px;
+  display:flex; align-items:center; justify-content:center;
+  border:0; border-radius:50%; cursor:pointer; line-height:0;
+  background:var(--glass); color:var(--text);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  opacity:0; transform:translateY(3px);
+  transition:opacity var(--dur-1), transform var(--dur-1) var(--ease-out);
+}
+.dir-card:hover .dir-dm, .dir-dm:focus-visible{ opacity:1; transform:none; }
+.dir-dm:hover{ background:var(--accent); color:#fff; }
+@media(hover:none){ .dir-dm{ opacity:1; transform:none; } }   /* 터치 기기엔 항상 보이게 */
+body.fx-lite .dir-dm, body.fx-flat .dir-dm{ background:var(--card); backdrop-filter:none; -webkit-backdrop-filter:none; }
+
+.dir-body{ padding:12px 13px 0; text-align:left; }
+.dir-name{ font-size:14px; font-weight:800; letter-spacing:-.01em; color:var(--text);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.dir-sub{ font-size:12px; color:var(--link); margin-top:3px;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+@media(max-width:560px){
+  .dir-grid{ grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:13px; }
+  .dir-card .dir-ava{ font-size:34px; }
+}
+
 /* ═══ 마이그레이션 적용 상태 (88 · 세션 AK) ═══ */
 .mig-ok{ font-size:12.5px; color:var(--text-dim); margin:0 0 14px; }
 .mig-warn{ border:1px solid var(--warn); border-radius:var(--r-2);
@@ -2947,7 +2996,7 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
     <div class="spacer"></div>
     <button class="navbtn" id="docsBtn"><svg class="nbi"><use href="#i-docs"/></svg><span class="nbt">문서</span></button>
     <button class="navbtn" id="boardBtn"><svg class="nbi"><use href="#i-check"/></svg><span class="nbt">진행 보드</span></button>
-    <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원 조회</span></button>
+    <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원</span></button>
     <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">채널</span></button>
     <button class="navbtn" id="qBtn"><svg class="nbi"><use href="#i-help"/></svg><span class="nbt">질문 게시판</span></button>
     <button class="navbtn" id="calBtn"><svg class="nbi"><use href="#i-calendar"/></svg><span class="nbt">캘린더</span></button>
@@ -2966,7 +3015,7 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
             <path d="M4 7h16M4 12h16M4 17h16"/></svg>
         </button>
         <div class="usermenu-drop" id="userdrop">
-          <a data-go="directory" class="drop-mobile">회원 조회</a>
+          <a data-go="directory" class="drop-mobile">회원</a>
           <a data-go="me">프로필</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
@@ -3366,7 +3415,7 @@ const PERM_CAPS = [
     ['msg_delete','자기보다 낮은 등급 회원의 메시지 삭제 (쪽지 제외)'],
   ]},
   { sec:'회원 · 조직', items:[
-    ['dir_read',     '회원 조회 열람'],
+    ['dir_read',     '회원 목록 열람'],
     ['admin_access', '회원 관리 접근'],
     ['admin_role',   '회원 관리 — 등급 조정'],
     ['admin_club',   '회원 관리 — 소속 변경'],
@@ -3684,7 +3733,7 @@ function openNameEditor(cur){
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box">
     <div class="modal-msg">이름 변경</div>
-    <div class="modal-sub">실명입니다. 회원 조회·프로필에 표시돼요.</div>
+    <div class="modal-sub">실명입니다. 회원 목록·프로필에 표시돼요.</div>
     <input class="he-input" id="nmInput" type="text" maxlength="30" value="${escapeAttr(cur||'')}">
     <div class="he-msg" id="nmMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">저장</button></div>
@@ -8012,7 +8061,7 @@ async function renderSysFeatures(){
       ['calendar',  '캘린더',           '동아리 일정. 끄면 대문의 이번 주 타일과 문서 연결 일정도 숨습니다.'],
       ['questions', '질문 게시판',      '질문이 답변이 되고, 답변이 문서가 되는 루프.'],
       ['inbox',     '쪽지 · 알림함',    '⚠ 답변·과제·일정 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요.'],
-      ['directory', '회원 조회',        '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
+      ['directory', '회원',            '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
     ]},
     { name:'부가 (기본 끔)', items:[
       ['community',      '채널 (작업 공간·채팅)', '★<b>채널이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 채널도 함께 사라져요.'],
@@ -8580,6 +8629,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-08-06', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
   { date:'2026-08-05', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
   { date:'2026-08-05', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
   { date:'2026-08-04', text:'문서마다 누가 언제 쌓았는지 보여주는 얇은 색 막대가 생겼어요. 색은 기수를 뜻합니다.' },
@@ -9516,7 +9566,7 @@ const dir={ data:[], clubNames:[], q:'', sort:'no_asc', selClubs:new Set() };
 async function renderDirectory(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>회원 조회</h1>
+    <div class="doc-head"><h1>회원</h1>
       <div class="dir-top">
         ${can('admin_access')?`<button id="dirAdminBtn" class="abtn">${ic('users')}회원 관리</button>`:''}
         <button id="dirFilterBtn" class="abtn">${ic('docs')}필터</button>
@@ -9599,28 +9649,11 @@ function renderDirGrid(){
   else if(dir.sort==='name_desc') arr.sort((x,y)=>byName(y,x));
   const cnt=$('#dirCount'); if(cnt) cnt.textContent='전체 '+dir.data.length+'명'+(arr.length!==dir.data.length?(' · 표시 '+arr.length+'명'):'');
   refreshPresence();                             // 카드에 접속 표시(초록 점)
-  setTimeout(async()=>{                          // 카드에 기여 크레딧 채우기(비차단)
-    const ids=arr.map(m=>m.id);
-    const cs=await fetchCredits(ids);
-    // 답변 수(48) — profiles에서 한 번에
-    const ans={};
-    try{ let r = await sb.from('member_extras').select('id,answer_count').in('id', ids);
-      if(r.error) r = await sb.from('profiles').select('id,answer_count').in('id', ids);   // 65 미적용 폴백
-      (r.data||[]).forEach(p0=>{ ans[p0.id]=Number(p0.answer_count)||0; }); }catch(e){}
-    document.querySelectorAll('[data-credit]').forEach(el=>{
-      const c=cs[el.dataset.credit] || {};
-      const a=ans[el.dataset.credit] || 0;
-      const rows=[];
-      if(c.d) rows.push(`${ic('docs')}<span>문서 <b>${c.d}</b>개 생성</span>`);
-      if(c.e) rows.push(`${ic('edit')}<span><b>${c.e}</b>회 편집</span>`);
-      if(a)   rows.push(`${ic('chat')}<span>답변 <b>${a}</b>개</span>`);
-      el.innerHTML = rows.length ? rows.map(r=>`<div class="dst-row">${r}</div>`).join('') : '';
-    });
-    await ensureCovers(ids); applyCovers();                     // 카드 배너 색
-    document.querySelectorAll('[data-bio]').forEach(el=>{      // 한 줄 소개
-      const c=cs[el.dataset.bio];
-      if(c && c.bio) el.textContent=c.bio; else el.remove();
-    });
+  /* ★세션 AL: 기여 통계·한 줄 소개를 카드에서 뺐으므로 그걸 채우던 조회도 없앤다(규칙 7).
+     회원 수만큼의 크레딧·답변 수 왕복 두 번이 사라져 목록이 더 빨리 뜬다.
+     그 정보는 프로필 화면에 그대로 있다. */
+  setTimeout(async()=>{
+    await ensureCovers(arr.map(m=>m.id)); applyCovers();        // 사진 없는 회원의 기본색
   },0);
   if(!arr.length){ grid.innerHTML='<div class="club-empty" style="padding:16px">조건에 맞는 회원이 없습니다.</div>'; return; }
   grid.innerHTML=arr.map(m=>{
@@ -9629,22 +9662,20 @@ function renderDirGrid(){
       ? `<div class="dir-ava" style="background-image:url('${escapeAttr(m.avatar_url)}')"></div>`
       : `<div class="dir-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</div>`;
     const me = state.user && m.id===state.user.id;
+    /* ★세션 AL: 카드를 '큰 사진 + 이름 + 소속' 세 줄로 줄였다.
+       배너·칩·소개·기여 통계·버튼 두 개가 한 카드에 다 있어서 시선이 흩어졌다.
+       나머지 정보는 카드를 눌러 들어가는 프로필에 이미 전부 있다.
+       메시지 버튼만 남기되 사진 위에 얹어 평소엔 숨긴다. */
     return `<div class="dir-card" data-open="${escapeAttr(m.id)}" data-cover="${escapeAttr(m.id)}">
-      <div class="dir-banner"></div>
-      <span class="dir-ava-wrap">${avaInner}<span class="pres-dot" data-pres="${escapeAttr(m.id)}" title="접속 중"></span></span>
+      <span class="dir-ava-wrap">${avaInner}
+        <span class="pres-dot" data-pres="${escapeAttr(m.id)}" title="접속 중"></span>
+        <button class="dir-dm dm-btn" data-dm="${escapeAttr(m.id)}"
+          data-dmname="${escapeAttr(m.name||'회원')}"
+          title="${me?'나에게 쪽지':'메시지 보내기'}" aria-label="${me?'나에게 쪽지':'메시지 보내기'}">${ic('mail')}</button>
+      </span>
       <div class="dir-body">
         <div class="dir-name">${escapeHtml(memberName(m))}</div>
-        <div class="dir-handle">@${escapeHtml(m.handle||'-')}</div>
-        <div class="dir-chips">
-          <span class="dir-chip">#${m.member_no??'-'}</span>
-          <span class="dir-chip">${escapeHtml(m.club||'무소속')}</span>
-        </div>
-        <div class="dir-bio" data-bio="${escapeAttr(m.id)}"></div>
-        <div class="dir-acts">
-          <button class="dir-btn primary" data-open="${escapeAttr(m.id)}">${ic('user')}프로필</button>
-          <button class="dir-btn dm-btn" data-dm="${escapeAttr(m.id)}" data-dmname="${escapeAttr(m.name||'회원')}">${ic('mail')}${me?'나에게':'메시지'}</button>
-        </div>
-        <div class="dir-stats" data-credit="${escapeAttr(m.id)}"></div>
+        <div class="dir-sub">${escapeHtml(m.club||'무소속')}${m.member_no!=null?` · #${m.member_no}`:''}</div>
       </div>
     </div>`;
   }).join('');
@@ -10273,7 +10304,7 @@ async function renderInbox(target){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>쪽지함</h1>
       <div class="tabs"><button id="ibRefresh">${ic('refresh')}새로고침</button><button id="ibBack">${ic('back')}문서로</button></div></div>
-    <div class="doc-meta">받은 <b>쪽지</b>와 <b>알림</b>(내 질문의 답변, 등급 변경)을 한 곳에서 확인해요. 쪽지를 보내려면 <b>회원 조회</b>에서 [메시지] 버튼을 누르세요.</div>
+    <div class="doc-meta">받은 <b>쪽지</b>와 <b>알림</b>(내 질문의 답변, 등급 변경)을 한 곳에서 확인해요. 쪽지를 보내려면 <b>회원</b>에서 사진 위의 봉투 아이콘을 누르세요.</div>
     <div class="inbox-wrap">
       <div class="inbox-list" id="ibList"><div class="ip-empty">불러오는 중…</div></div>
       <div class="inbox-pane" id="ibPane"><div class="ip-empty">왼쪽에서 항목을 선택하면 내용이 여기에 열립니다.</div></div>
