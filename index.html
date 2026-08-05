@@ -1107,6 +1107,11 @@ body.dark .pick-tbl tr.pk.on{background:rgba(255,255,255,.07);}
     animation:ibPop .18s ease-out;
   }
   .inbox-wrap.pane-open .ip-msgs{ max-height:none; flex:1; overflow-y:auto; }
+  /* ★팝업이 열려 있으면 페이지 등장 애니메이션에서 이 요소를 뺀다.
+     pg-in의 will-change:transform이 남아 있으면 position:fixed 팝업의 기준점을
+     .inbox-wrap이 가로채고, body의 배경막이 팝업 위를 덮는다(모바일 블러 먹통 사고).
+     JS 타이밍(rAF 늦은 재부착)과 무관하게 CSS에서 결정적으로 막는다. */
+  body.fx-full #doc.pg-in > .inbox-wrap.pane-open{ will-change:auto; animation:none; }
   .ib-backdrop{ position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:95;
     -webkit-backdrop-filter:blur(2px); backdrop-filter:blur(2px); }
   .inbox-pane .ip-close{ font-size:22px; padding:2px 8px; }
@@ -2179,6 +2184,32 @@ body.fx-full::before{
   border-radius:var(--r-1); padding:5px 11px; font:inherit; font-size:12px;
   color:var(--text); cursor:pointer; }
 .ch-retry:hover{ border-color:var(--accent); color:var(--accent); }
+/* ── 채널 관리 (세션 AO) — 행 = 채널 버튼 + 톱니. 톱니는 평소 흐리고 행 호버 시 또렷 ── */
+.ch-row{ display:flex; align-items:center; gap:2px; }
+.ch-row .ch-item{ flex:1; min-width:0; }
+.ch-gear{ flex:none; background:none; border:0; padding:4px; border-radius:6px; color:var(--text-dim);
+  opacity:.4; cursor:pointer; line-height:0; }
+.ch-row:hover .ch-gear{ opacity:1; }
+.ch-gear:hover{ background:var(--box-bg); color:var(--accent); }
+.ch-gear svg{ width:14px; height:14px; }
+.ch-lock{ margin-left:auto; line-height:0; opacity:.55; }
+.ch-lock svg{ width:12px; height:12px; }
+.ch-arch-h{ margin:12px 0 4px; }
+.ch-item.ch-arch{ opacity:.5; }
+.ch-visrow{ display:flex; gap:16px; margin-top:8px; font-size:13px; }
+.ch-visrow label{ display:flex; align-items:center; gap:6px; cursor:pointer; }
+.chm-box{ max-height:180px; overflow-y:auto; border:1px solid var(--border); border-radius:8px;
+  padding:6px 12px; margin-top:8px; background:var(--card); }
+.chm-row{ display:flex; align-items:center; gap:8px; padding:4px 0; font-size:13px; cursor:pointer; }
+.ch-note{ font-size:12px; color:var(--text-dim); margin:8px 0 0; line-height:1.6; }
+.ch-note code{ font-family:var(--mono); font-size:11px; }
+.ch-actrow{ display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.ch-act{ background:var(--card); border:1px solid var(--border); border-radius:8px; padding:6px 12px;
+  font-size:13px; cursor:pointer; color:var(--text); }
+.ch-act:hover{ border-color:var(--accent); color:var(--accent); }
+.ch-act.danger{ color:var(--danger); }
+.ch-act.danger:hover{ border-color:var(--danger); }
+.modal-ok.danger{ background:var(--danger); }
 
 /* ═══ 세션 X ═══ */
 
@@ -2683,7 +2714,8 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
 .ws-x:hover{ color:var(--danger); }
 .ls-h a{ cursor:pointer; }
 @media(max-width:1100px){ .ws-x{ opacity:1; } }
-@media(max-width:760px){ .ch-item, .ch-add{ width:auto; flex:none; white-space:nowrap; } }
+@media(max-width:760px){ .ch-item, .ch-add, .ch-row{ width:auto; flex:none; white-space:nowrap; }
+  .ch-row .ch-item{ flex:none; } }
 .hub-side{ min-width:0; position:sticky; top:70px; }
 .hub-side .ls{ margin-top:22px; }
 
@@ -2845,6 +2877,8 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
 <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
 <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M18.7 5.3l-1.8 1.8M7.1 16.9l-1.8 1.8"/></symbol>
 <symbol id="i-image" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.6"/><path d="M4 17l5-5 4 4 3-3 4 4"/></symbol>
+<symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="9.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></symbol>
+<symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.8v3M12 18.2v3M2.8 12h3M18.2 12h3M5.5 5.5l2.1 2.1M16.4 16.4l2.1 2.1M18.5 5.5l-2.1 2.1M7.6 16.4l-2.1 2.1"/></symbol>
 </defs></svg>
 
 <div id="app" style="display:none">
@@ -7973,6 +8007,7 @@ async function renderSysFeatures(){
 const MIG_NAMES = {
   '82':'기능 켜기/끄기', '83':'채널', '83b':'채널 점검', '84':'가입 정보 복구',
   '85':'채널 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
+  '89':'채널 공개 범위',
 };
 async function renderMigStatus(){
   const box=$('#migBox'); if(!box) return;
@@ -8492,6 +8527,8 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
+  { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
   { date:'2026-08-03', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
   { date:'2026-08-03', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
   { date:'2026-08-03', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
@@ -10372,6 +10409,10 @@ async function openSystemThread(){
 function isPhone(){ return window.matchMedia && window.matchMedia('(max-width:768px)').matches; }
 function openInboxPane(){
   const wrap=document.querySelector('.inbox-wrap'); if(!wrap) return;
+  /* ★페이지 등장 애니메이션이 아직 도는 중이면 즉시 끝낸다 (#dm/ 직행 경로 방어).
+     .pg-in이 남긴 will-change:transform 때문에 fixed 팝업이 .inbox-wrap 기준으로
+     배치되고 body의 배경막이 팝업 위를 덮는다 — "블러만 되고 아무것도 못 함"의 정체. */
+  const doc=document.getElementById('doc'); if(doc) doc.classList.remove('pg-in');
   wrap.classList.add('pane-open');
   if(!isPhone()) return;
   if(!document.querySelector('.ib-backdrop')){
@@ -10917,25 +10958,33 @@ let chatChannel=null;
 const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4,
   /* ★다중 채널(83). ch=null 은 '일반' — 83 이전에 쌓인 메시지가 전부 여기 속한다.
      chOk=false 면 83 미적용이므로 채널 레일을 아예 그리지 않고 예전처럼 단일 채팅으로 돈다. */
-  ch:null, chOk:false, channels:[], chErr:null };
+  ch:null, chOk:false, permOk:false, channels:[], chErr:null };
 
-/* 채널 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패) */
+/* 채널 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패)
+   ★보관된 채널도 함께 받는다 — 레일에서 갈라 그린다(운영진에게만 '보관됨' 목록). */
 async function loadChannels(){
-  try{
-    const { data, error } = await sb.from('channels')
+  /* ★89(공개 범위)의 visibility 컬럼은 미적용 DB에서 select 전체를 죽인다(규칙 9).
+     먼저 새 컬럼으로 시도하고, 실패하면 예전 컬럼으로 재시도 (loadDocs 표본 패턴).
+     permOk = 89 적용 여부 — 공개 범위·삭제 UI가 이 플래그 뒤에 숨는다. */
+  let r = await sb.from('channels')
+    .select('id,key,name,description,sort,archived,visibility')
+    .order('sort',{ascending:true}).order('id',{ascending:true});
+  community.permOk = !r.error;
+  if(r.error){
+    r = await sb.from('channels')
       .select('id,key,name,description,sort,archived')
-      .eq('archived', false).order('sort',{ascending:true}).order('id',{ascending:true});
-    if(error) throw error;
-    community.channels = data||[];
-    community.chOk = true;
-  }catch(e){
+      .order('sort',{ascending:true}).order('id',{ascending:true});
+  }
+  if(r.error){
     community.channels=[]; community.chOk=false;
     /* ★세션 W: 예전엔 오류를 통째로 버리고 "83 실행하세요"라고 추측을 보여줬다.
        실제 원인이 스키마 캐시·RLS·권한일 수도 있는데 그걸 알 길이 없었다.
        조용한 실패는 실패가 아니라 미스터리다 — 세 번째로 배운다. */
-    community.chErr = e || null;
+    community.chErr = r.error || null;
     return false;
   }
+  community.channels = r.data||[];
+  community.chOk = true;
   community.chErr = null;
   return community.chOk;
 }
@@ -10958,7 +11007,7 @@ async function renderCommunity(){
     <div class="hub">
       <nav class="hub-nav" id="chRail" style="display:none"></nav>
       <section class="chat">
-        <div class="chat-head"><span>커뮤니티 채팅</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
+        <div class="chat-head"><span># 일반</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
         <div class="chat-preview" id="chatPreview" style="display:none"></div>
         <div class="typing-bar" id="typingBar"></div>
@@ -11052,15 +11101,29 @@ function renderChannelRail(){
   }
   rail.style.display='';
   if(hub) hub.classList.add('has-ch');
-  const item=(id,name)=>`<button class="ch-item${String(community.ch)===String(id)?' on':''}"
-      data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}</button>`;
+  const mgr=canManageChannels();
+  const live=community.channels.filter(c=>!c.archived);
+  const dead=community.channels.filter(c=>c.archived);
+  /* 잠금 표시 = '멤버만' 채널. 멤버가 아니면 RLS(89)가 목록에서 이미 걸렀으므로,
+     여기 보인다는 것 자체가 '나는 볼 수 있다'는 뜻이다. */
+  const item=(id,name,c)=>`<div class="ch-row${String(community.ch)===String(id)?' on':''}">
+      <button class="ch-item${String(community.ch)===String(id)?' on':''}"
+        data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}${(c&&c.visibility==='members')?`<span class="ch-lock" title="지정한 멤버와 운영진만 보는 채널">${ic('lock')}</span>`:''}</button>
+      ${(mgr&&id!=null)?`<button class="ch-gear" data-chset="${escapeAttr(String(id))}" title="채널 설정" aria-label="채널 설정">${ic('gear')}</button>`:''}
+    </div>`;
   rail.innerHTML=`
     <div class="ls-h" style="margin-bottom:6px">채널</div>
     ${item(null,'일반')}
-    ${community.channels.map(c=>item(c.id,c.name)).join('')}
-    ${canManageChannels()?`<button class="ch-add" id="chAdd">+ 채널 만들기</button>`:''}`;
-  rail.querySelectorAll('.ch-item').forEach(b=>{
+    ${live.map(c=>item(c.id,c.name,c)).join('')}
+    ${mgr?`<button class="ch-add" id="chAdd">+ 채널 만들기</button>`:''}
+    ${(mgr&&dead.length)?`<div class="ls-h ch-arch-h">보관됨</div>${dead.map(c=>`
+      <button class="ch-item ch-arch" data-chset="${escapeAttr(String(c.id))}"
+        title="눌러서 설정 열기 (보관 해제 · 삭제)"><span class="ch-h">#</span>${escapeHtml(c.name)}</button>`).join('')}`:''}`;
+  rail.querySelectorAll('.ch-item[data-ch]').forEach(b=>{
     b.onclick=()=>{ const v=b.dataset.ch; switchChannel(v===''?null:Number(v)); };
+  });
+  rail.querySelectorAll('[data-chset]').forEach(b=>{
+    b.onclick=(e)=>{ e.stopPropagation(); openChannelSettings(Number(b.dataset.chset)); };
   });
   const add=$('#chAdd'); if(add) add.onclick=addChannel;
 }
@@ -11075,21 +11138,269 @@ async function switchChannel(id){
   await loadMessages();
   subscribeChat();                                  // 채널이 바뀌면 구독도 갈아탄다
 }
-async function addChannel(){
-  const name=(prompt('새 채널 이름 (예: 실험실, 대회준비)')||'').trim();
-  if(!name) return;
-  const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-  const key=base || ('ch'+Date.now().toString(36));
+/* ── 채널 만들기·설정 모달 (세션 AO — §0-A의 'prompt() 정식화' 해소) ──
+   공개 범위·멤버·삭제는 89 적용 시에만 나타난다(community.permOk).
+   ★'일반'(ch=null)은 설정이 없다 — 채널 행이 아니라 'channel_id 없는 메시지 묶음'이므로. */
+
+/* 멤버 고르기 조각 — 만들기·설정 모달이 같이 쓴다 */
+async function chMemberPicker(box, checked){
+  box.innerHTML='<p class="ch-note" style="margin:4px 0">회원을 불러오는 중…</p>';
+  let rows=[];
   try{
-    const { data, error } = await sb.from('channels')
-      .insert({ key, name, sort:(community.channels.length+1) }).select().single();
+    const { data, error } = await sb.from('members_public').select('id,name,handle').order('name',{ascending:true});
     if(error) throw error;
-    community.channels.push(data);
-    renderChannelRail();
-    toast('채널을 만들었어요: # '+name);
+    rows = data||[];
   }catch(e){
-    alert('채널을 만들지 못했습니다: '+((e&&e.message)||e)+'\n(83_channels.sql 실행 여부와 권한을 확인하세요)');
+    box.innerHTML='<p class="ch-note" style="margin:4px 0">회원 목록을 불러오지 못했어요: '+escapeHtml(String((e&&e.message)||e))+'</p>';
+    return;
   }
+  box.innerHTML = rows.map(m=>`<label class="chm-row">
+      <input type="checkbox" value="${escapeAttr(m.id)}" ${checked.has(String(m.id))?'checked':''}>
+      <span>${escapeHtml(m.name||'탈퇴한 회원')}</span> <span class="muted">@${escapeHtml(m.handle||'-')}</span>
+    </label>`).join('');
+}
+function chPickedIds(box){
+  return [...box.querySelectorAll('input:checked')].map(i=>i.value);
+}
+
+function addChannel(){
+  const permOk=community.permOk;
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:420px">
+    <div class="modal-msg">새 채널 만들기</div>
+    <div class="modal-sub">채널은 주제 하나를 둘러싼 작업 공간이에요 — 대화·문서·자료를 한곳에 모읍니다.</div>
+    <label class="nd-label">채널 이름</label>
+    <input class="he-input" id="chNewName" type="text" maxlength="30" placeholder="예: 실험실, 대회준비" autocomplete="off">
+    ${permOk?`
+    <label class="nd-label">공개 범위</label>
+    <div class="ch-visrow">
+      <label><input type="radio" name="chVis" value="all" checked> 부원 전체</label>
+      <label><input type="radio" name="chVis" value="members"> 멤버만</label>
+    </div>
+    <div class="chm-box" id="chMembers" style="display:none"></div>
+    <p class="ch-note" id="chVisNote" style="display:none">선택한 멤버와 운영진(owner/admin)만 이 채널을 볼 수 있어요.</p>`:''}
+    <div class="he-msg" id="chMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const nameIn=ov.querySelector('#chNewName');
+  nameIn.focus();
+  const mbox=ov.querySelector('#chMembers');
+  let pickerLoaded=false;
+  if(permOk){
+    ov.querySelectorAll('input[name=chVis]').forEach(rd=>{
+      rd.onchange=async()=>{
+        const members = ov.querySelector('input[name=chVis]:checked').value==='members';
+        mbox.style.display = members?'':'none';
+        ov.querySelector('#chVisNote').style.display = members?'':'none';
+        if(members && !pickerLoaded){ pickerLoaded=true; await chMemberPicker(mbox, new Set()); }
+      };
+    });
+  }
+  ov.querySelector('.modal-ok').onclick=async()=>{
+    const name=(nameIn.value||'').trim();
+    const msg=ov.querySelector('#chMsg');
+    if(!name){ msg.className='msg err'; msg.textContent='채널 이름을 입력해 주세요.'; return; }
+    const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+    const key=base || ('ch'+Date.now().toString(36));
+    const row={ key, name, sort:(community.channels.length+1) };
+    const vis = permOk ? ov.querySelector('input[name=chVis]:checked').value : 'all';
+    if(permOk) row.visibility=vis;   // ★89 미적용 DB에 새 컬럼을 보내면 insert가 통째로 죽는다(규칙 9)
+    const okb=ov.querySelector('.modal-ok');
+    okb.disabled=true;
+    try{
+      const { data, error } = await sb.from('channels').insert(row).select().single();
+      if(error) throw error;
+      if(permOk && vis==='members'){
+        const ids=chPickedIds(mbox);
+        if(ids.length){
+          const { error:e2 } = await sb.from('channel_members')
+            .insert(ids.map(u=>({ channel_id:data.id, user_id:u, added_by:(state.user&&state.user.id)||null })));
+          if(e2) throw e2;
+        }
+      }
+      close();
+      await loadChannels();
+      renderChannelRail();
+      toast('채널을 만들었어요: # '+name);
+    }catch(e){
+      okb.disabled=false;
+      msg.className='msg err';
+      msg.textContent='만들지 못했습니다: '+((e&&e.message)||e)+' (83_channels.sql 실행 여부와 권한을 확인하세요)';
+    }
+  };
+}
+
+/* 채널 설정 — 이름 · 공개 범위(89) · 순서 · 보관 · 삭제(89) */
+async function openChannelSettings(id){
+  const c=community.channels.find(x=>String(x.id)===String(id));
+  if(!c) return;
+  const permOk=community.permOk;
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:440px">
+    <div class="modal-msg"># ${escapeHtml(c.name)} 설정</div>
+    <label class="nd-label">채널 이름</label>
+    <input class="he-input" id="csName" type="text" maxlength="30" value="${escapeAttr(c.name)}">
+    ${permOk?`
+    <label class="nd-label">공개 범위</label>
+    <div class="ch-visrow">
+      <label><input type="radio" name="csVis" value="all" ${c.visibility!=='members'?'checked':''}> 부원 전체</label>
+      <label><input type="radio" name="csVis" value="members" ${c.visibility==='members'?'checked':''}> 멤버만</label>
+    </div>
+    <div class="chm-box" id="csMembers" style="display:${c.visibility==='members'?'':'none'}"></div>
+    <p class="ch-note" id="csVisNote" style="display:${c.visibility==='members'?'':'none'}">선택한 멤버와 운영진(owner/admin)만 이 채널을 볼 수 있어요.</p>`
+    :`<p class="ch-note">공개 범위 지정과 삭제는 <code>89_channel_perms.sql</code>을 실행하면 쓸 수 있어요.</p>`}
+    <label class="nd-label">정리</label>
+    <div class="ch-actrow">
+      <button class="ch-act" id="csUp">↑ 위로</button>
+      <button class="ch-act" id="csDown">↓ 아래로</button>
+      <button class="ch-act" id="csArch">${c.archived?'보관 해제':'보관'}</button>
+      ${permOk?`<button class="ch-act danger" id="csDel">삭제…</button>`:''}
+    </div>
+    <p class="ch-note">보관하면 목록에서 내려가고 대화는 그대로 남아요 — 언제든 되돌릴 수 있어요.</p>
+    <div class="he-msg" id="csMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="modal-ok">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const mbox=ov.querySelector('#csMembers');
+  const orig=new Set();
+  let pickerLoaded=false;
+  if(permOk){
+    try{
+      const { data } = await sb.from('channel_members').select('user_id').eq('channel_id', id);
+      (data||[]).forEach(r=>orig.add(String(r.user_id)));
+    }catch(e){}
+    if(c.visibility==='members'){ pickerLoaded=true; await chMemberPicker(mbox, orig); }
+    ov.querySelectorAll('input[name=csVis]').forEach(rd=>{
+      rd.onchange=async()=>{
+        const members = ov.querySelector('input[name=csVis]:checked').value==='members';
+        mbox.style.display = members?'':'none';
+        ov.querySelector('#csVisNote').style.display = members?'':'none';
+        if(members && !pickerLoaded){ pickerLoaded=true; await chMemberPicker(mbox, orig); }
+      };
+    });
+  }
+  const showErr=(t)=>{ const m=ov.querySelector('#csMsg'); m.className='msg err'; m.textContent=t; };
+  /* 순서: 전체 목록을 index로 다시 매긴다 — sort가 중복돼 있어도 한 번에 정상화된다 */
+  const move=async(dir)=>{
+    const list=community.channels.slice();
+    const i=list.findIndex(x=>String(x.id)===String(id));
+    const j=i+dir;
+    if(i<0 || j<0 || j>=list.length) return;
+    const tmp=list[i]; list[i]=list[j]; list[j]=tmp;
+    try{
+      for(let k=0;k<list.length;k++){
+        const { error } = await sb.from('channels').update({ sort:k+1 }).eq('id', list[k].id);
+        if(error) throw error;
+      }
+      await loadChannels();
+      renderChannelRail();
+    }catch(e){ showErr('순서를 바꾸지 못했습니다: '+((e&&e.message)||e)); }
+  };
+  ov.querySelector('#csUp').onclick=()=>move(-1);
+  ov.querySelector('#csDown').onclick=()=>move(1);
+  ov.querySelector('#csArch').onclick=async()=>{
+    try{
+      const { error } = await sb.from('channels').update({ archived: !c.archived }).eq('id', id);
+      if(error) throw error;
+      close();
+      const viewing = String(community.ch)===String(id);
+      await loadChannels();
+      if(!c.archived && viewing){ await switchChannel(null); }   // 보고 있던 채널을 보관하면 '일반'으로
+      else { renderChannelRail(); renderWorkspace(); }
+      toast(c.archived ? '보관을 해제했어요.' : '채널을 보관했어요. 대화는 그대로 남아 있어요.');
+    }catch(e){ showErr('바꾸지 못했습니다: '+((e&&e.message)||e)); }
+  };
+  const del=ov.querySelector('#csDel');
+  if(del) del.onclick=async()=>{
+    /* 삭제 전에 규모를 알려준다 — 몇 건이 지워지는지 모르고 지우게 하지 않는다 */
+    let cnt=null;
+    try{
+      const r = await sb.from('messages').select('id',{ count:'exact', head:true }).eq('channel_id', id);
+      if(typeof r.count==='number') cnt=r.count;
+    }catch(e){}
+    const ov2=document.createElement('div'); ov2.className='modal-ov';
+    ov2.innerHTML=`<div class="modal-box" style="max-width:400px">
+      <div class="modal-msg">채널 삭제</div>
+      <div class="modal-sub"><b># ${escapeHtml(c.name)}</b> 채널과 그 안의 대화${cnt==null?'':` <b>${cnt}건</b>`}·자료 목록이 <b>완전히 삭제</b>됩니다. 되돌릴 수 없어요.<br>가볍게 치우는 게 목적이면 '보관'을 쓰세요 — 대화가 남습니다.</div>
+      <label class="nd-label">확인을 위해 채널 이름을 그대로 입력하세요</label>
+      <input class="he-input" id="cdName" type="text" placeholder="${escapeAttr(c.name)}" autocomplete="off">
+      <div class="he-msg" id="cdMsg"></div>
+      <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok danger">삭제</button></div>
+    </div>`;
+    document.body.appendChild(ov2);
+    ov2.querySelector('.modal-cancel').onclick=()=>ov2.remove();
+    ov2.addEventListener('click',e=>{ if(e.target===ov2) ov2.remove(); });
+    ov2.querySelector('#cdName').focus();
+    ov2.querySelector('.modal-ok').onclick=async()=>{
+      const m2=ov2.querySelector('#cdMsg');
+      if((ov2.querySelector('#cdName').value||'').trim()!==c.name){
+        m2.className='msg err'; m2.textContent='채널 이름이 일치하지 않아요.'; return;
+      }
+      try{
+        const { error } = await sb.rpc('delete_channel', { p_channel: id });
+        if(error) throw error;
+        ov2.remove();
+        close();
+        const viewing = String(community.ch)===String(id);
+        await loadChannels();
+        if(viewing){ await switchChannel(null); }
+        else { renderChannelRail(); renderWorkspace(); }
+        toast('채널을 삭제했어요: # '+c.name);
+      }catch(e){
+        m2.className='msg err';
+        m2.textContent='삭제하지 못했습니다: '+((e&&e.message)||e)+' (89_channel_perms.sql 실행 여부를 확인하세요)';
+      }
+    };
+  };
+  ov.querySelector('.modal-ok').onclick=async()=>{
+    const name=(ov.querySelector('#csName').value||'').trim();
+    if(!name){ showErr('채널 이름을 입력해 주세요.'); return; }
+    const okb=ov.querySelector('.modal-ok');
+    okb.disabled=true;
+    try{
+      const patch={ name };
+      let vis=null;
+      if(permOk){
+        vis=ov.querySelector('input[name=csVis]:checked').value;
+        patch.visibility=vis;
+      }
+      const { error } = await sb.from('channels').update(patch).eq('id', id);
+      if(error) throw error;
+      if(permOk && vis==='members' && pickerLoaded){
+        const want=new Set(chPickedIds(mbox).map(String));
+        const addIds=[...want].filter(u=>!orig.has(u));
+        const delIds=[...orig].filter(u=>!want.has(u));
+        if(addIds.length){
+          const { error:e2 } = await sb.from('channel_members')
+            .insert(addIds.map(u=>({ channel_id:id, user_id:u, added_by:(state.user&&state.user.id)||null })));
+          if(e2) throw e2;
+        }
+        if(delIds.length){
+          const { error:e3 } = await sb.from('channel_members')
+            .delete().eq('channel_id', id).in('user_id', delIds);
+          if(e3) throw e3;
+        }
+      }
+      close();
+      await loadChannels();
+      renderChannelRail();
+      renderWorkspace();
+      /* 지금 보고 있는 채널의 이름이 바뀌었으면 채팅 제목도 맞춘다 */
+      const head=document.querySelector('.chat-head span');
+      if(head && String(community.ch)===String(id)) head.textContent='# '+chName(id);
+      toast('채널 설정을 저장했어요.');
+    }catch(e){
+      okb.disabled=false;
+      showErr('저장하지 못했습니다: '+((e&&e.message)||e));
+    }
+  };
 }
 
 /* ── 채널 작업 공간 (85) ──
@@ -12529,13 +12840,20 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
    ★렌더는 대부분 비동기라 route() 직후엔 #doc이 아직 비어 있다.
      그래서 클래스를 '지금' 붙이지 않고 다음 프레임 두 번 뒤에 붙인다 —
      그때쯤 첫 그리기가 끝나 있고, 늦게 오는 데이터는 어차피 자기 자리에서 나타난다. */
+let _pgInTimer=null;
 function playPageIn(){
   const el=document.getElementById('doc'); if(!el) return;
+  clearTimeout(_pgInTimer);
   if(!document.body.classList.contains('fx-full')){ el.classList.remove('pg-in'); return; }
   el.classList.remove('pg-in');
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     void el.offsetWidth;                 // 리플로우 강제 → 같은 클래스라도 애니메이션이 다시 시작된다
     el.classList.add('pg-in');
+    /* ★등장이 끝나면 클래스를 뗀다 (최대 지연 .21s + 재생 .34s ≈ .55s).
+       붙여두면 자식들의 will-change:transform이 남는데, 그 요소는 position:fixed 자손의
+       기준점을 가로챈다 — 모바일 쪽지 팝업이 배경막 뒤로 사라진 사고의 원인.
+       2490행의 "끝나면 will-change를 놓아준다" 규칙도 이제야 실제로 작동한다. */
+    _pgInTimer=setTimeout(()=>{ el.classList.remove('pg-in'); }, 650);
   }));
 }
 
