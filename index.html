@@ -573,20 +573,34 @@ body.fx-lite .pwall::before, body.fx-flat .pwall::before{ filter:none; }  /* 저
 .pwall.pw-showing .pw-t{ opacity:0; }
 .pwall.pw-showing .pw-edit{ opacity:0; pointer-events:none; }
 .pw-intro{ position:absolute; inset:9px; z-index:3; border-radius:8px; overflow:hidden;
-  background:#0D0809; opacity:1; transition:opacity .5s ease; cursor:pointer; }
+  background:#0D0809; opacity:1; transition:opacity .6s ease; cursor:pointer; }
 .pw-intro.out{ opacity:0; pointer-events:none; }
-.pwi-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain;
-  opacity:0; transition:opacity .45s ease;
+/* ★cover — 검은 여백 없이 꽉 채운다. 느린 줌(켄번즈)이 '고급 히어로' 느낌을 만든다.
+   전환은 0.9s 크로스페이드(사용자 요청: 2배 느리게), 장당 표시 시간은 JS가 wall.json에서 읽는다 */
+.pwi-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+  opacity:0; transition:opacity .9s ease;
   filter:saturate(.84) contrast(1.06) brightness(.95) sepia(.12); }
-.pwi-img.on{ opacity:1; }
+.pwi-img.on{ opacity:1; animation:pwKen 6.4s ease-out forwards; }   /* 지속 시간은 JS가 간격에 맞춰 덮어쓴다 */
+@keyframes pwKen{ from{ transform:scale(1.001); } to{ transform:scale(1.075); } }
 .pw-intro::after{ content:''; position:absolute; inset:0; pointer-events:none;
-  background:radial-gradient(130% 130% at 50% 42%, transparent 55%, rgba(8,3,5,.5) 100%); }
-.pwi-shine{ position:absolute; top:-25%; bottom:-25%; width:36%; left:0; pointer-events:none;
+  background:
+    radial-gradient(130% 130% at 50% 42%, transparent 55%, rgba(8,3,5,.5) 100%),
+    linear-gradient(180deg, transparent 62%, rgba(8,3,5,.42)); }
+.pwi-shine{ position:absolute; top:-25%; bottom:-25%; width:36%; left:0; pointer-events:none; z-index:2;
   transform:translateX(-160%) rotate(6deg);
-  background:linear-gradient(105deg, transparent, rgba(255,236,214,.15), transparent);
-  animation:pwShine 1.15s linear infinite; }
-@keyframes pwShine{ from{ transform:translateX(-160%) rotate(6deg); } to{ transform:translateX(430%) rotate(6deg); } }
-@media (prefers-reduced-motion: reduce){ .pwi-shine{ animation:none; } }
+  background:linear-gradient(105deg, transparent, rgba(255,236,214,.13), transparent);
+  animation:pwShine 6s linear infinite; }                            /* 지속 시간은 JS가 덮어쓴다 */
+/* 빛줄기는 전환 직후 한 번 스치고, 남은 시간은 화면 밖에서 쉰다 */
+@keyframes pwShine{ 0%{ transform:translateX(-160%) rotate(6deg); }
+  24%{ transform:translateX(430%) rotate(6deg); } 100%{ transform:translateX(430%) rotate(6deg); } }
+.pwi-dots{ position:absolute; left:0; right:0; bottom:11px; display:flex; justify-content:center;
+  gap:7px; z-index:3; pointer-events:none; }
+.pwi-dot{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.32);
+  transition:background .4s ease, transform .4s ease; }
+.pwi-dot.on{ background:rgba(255,255,255,.92); transform:scale(1.25); }
+.pwi-hint{ position:absolute; right:13px; bottom:9px; z-index:3; pointer-events:none;
+  font-size:11px; letter-spacing:.02em; color:rgba(255,255,255,.5); }
+@media (prefers-reduced-motion: reduce){ .pwi-shine, .pwi-img.on{ animation:none; } }
 /* 6장 — 4×3칸: (2×2) (2×1) (1×1) (1×2) (1×1) (2×1) = 12칸 */
 .pw-n6 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
 .pw-n6 .pw-t:nth-child(2){ grid-column:span 2; }
@@ -8641,7 +8655,7 @@ const RELEASE_NOTES = [
   { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
   { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
   { date:'2026-08-05', text:'앱 설치 안내 배너의 글자가 세로로 깨져 보이던 문제를 고쳤어요.' },
-  { date:'2026-08-05', text:'대문 맨 위에 동아리 사진 벽이 생겼어요. 처음 들어오면 사진이 한 장씩 은은히 빛나며 지나간 뒤 모자이크로 모여요 — 화면을 만지면 바로 정리됩니다. 사진과 칸 크기는 운영자(owner)가 정할 수 있어요.' },
+  { date:'2026-08-05', text:'대문 맨 위에 동아리 사진 슬라이드가 생겼어요. 사진이 한 장씩 천천히 흐르고, 누르면 전체 모자이크가 펼쳐집니다. 사진·칸 크기·전환 간격은 운영자(owner)가 정할 수 있어요.' },
   { date:'2026-08-05', text:'브라우저 탭과 북마크에도 안다 아카이브 로고가 떠요.' },
   { date:'2026-08-03', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
   { date:'2026-08-03', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
@@ -9795,12 +9809,14 @@ async function loadWallCfg(){
     if(error) throw error;
     const cfg = JSON.parse(await data.text());
     _wallErr=null;
-    if(!cfg || !Array.isArray(cfg.photos)) return { photos: [] };
+    if(!cfg || !Array.isArray(cfg.photos)) return { photos: [], interval: 5 };
     /* ★예전 형식(경로 문자열)과 새 형식({path,size})을 모두 받는다 — 저장할 때 새 형식으로 통일 */
     const photos = cfg.photos
       .map(p => (typeof p==='string') ? { path:p, size:'auto' } : { path:String(p.path||''), size:p.size||'auto' })
       .filter(p => p.path);
-    return { photos };
+    /* 슬라이드 전환 간격(초) — owner가 관리 모달에서 조절, 기본 5초, 2~20으로 잘라낸다 */
+    const interval = Math.max(2, Math.min(20, Number(cfg.interval) || 5));
+    return { photos, interval };
   }catch(e){
     /* 90 미적용(버킷 없음)과 '아직 사진 없음'이 여기로 온다 — 우아한 실패.
        오류는 보관해서 owner에게만 이유를 말한다(세션 W 교훈). */
@@ -9838,58 +9854,67 @@ function wallHTML(cfg){
       <h2 class="pw-title">${escapeHtml(siteName)}에 오신 것을 환영해요</h2>
       <p class="pw-sub">함께 쌓아온 순간들이에요. 오늘 할 일과 문서는 사진 아래에서 이어집니다.</p>
     </div>
-    <div class="pwall${pat?' '+pat:''}" id="pWall">
+    <div class="pwall${pat?' '+pat:''}" id="pWall" data-interval="${escapeAttr(String(cfg.interval||5))}">
       ${ph.map(p=>`<div class="pw-t${(manual&&SZ_CLS[p.size])?' '+SZ_CLS[p.size]:''}"><img loading="lazy" alt="동아리 사진" src="${escapeAttr(wallUrl(p.path))}"></div>`).join('')}
       ${isOwner()?`<button class="pw-edit" id="pwEdit" title="사진 벽 관리">${ic('edit')}사진 관리</button>`:''}
     </div>`;
 }
 
-/* 인트로 슬라이드쇼 — 사진이 한 장씩 은은히 빛나며 지나간 뒤 모자이크로 정착한다.
-   (세션 AO 후반 3: 자동 스크롤 연출을 이것으로 교체 — 사용자 결정)
-   ★접속(탭)당 1회 · 화면을 만지면 즉시 모자이크로 정착 · fx '전부 끄기'/reduced-motion에서는 안 돈다. */
+/* 상시 슬라이드쇼 — 사진이 한 장씩 꽉 채워(cover) 느리게 줌되며 계속 순환한다.
+   (세션 AO 후반 4: '접속당 1회 인트로'를 상시 순환으로 교체 — 사용자 결정)
+   · 전환 크로스페이드 0.9초(2배 느리게) · 장당 표시 기본 5초, owner가 wall.json에서 2~20초 조절
+   · 슬라이드를 누르면 전체 모자이크로 정착 (페이지 스크롤·키 입력은 방해하지 않는다)
+   · fx '전부 끄기'/reduced-motion에서는 처음부터 모자이크만 보인다 */
 function playWallIntro(){
-  try{ if(sessionStorage.getItem('anda_wall_played')) return; }catch(e){}
   if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   if(document.body.classList.contains('fx-flat')) return;
   const wall=document.getElementById('pWall'); if(!wall) return;
   const srcs=[...wall.querySelectorAll('.pw-t img')].map(im=>im.src).filter(Boolean);
   if(srcs.length<2) return;                           // 한 장이면 연출할 게 없다
-  try{ sessionStorage.setItem('anda_wall_played','1'); }catch(e){}
-  const SLIDE=1150;                                   // 장당: 페이드인 .45s + 빛줄기 + 전환
+  const ITER = Math.max(2, Math.min(20, Number(wall.dataset.interval) || 5)) * 1000;
+  const FADE = 900;                                   // CSS의 .pwi-img transition과 같은 값
   wall.classList.add('pw-showing');
   const ov=document.createElement('div');
   ov.className='pw-intro';
-  ov.innerHTML='<img class="pwi-img pwi-a" alt=""><img class="pwi-img pwi-b" alt=""><div class="pwi-shine"></div>';
+  ov.innerHTML='<img class="pwi-img pwi-a" alt=""><img class="pwi-img pwi-b" alt=""><div class="pwi-shine"></div>'
+    +'<div class="pwi-dots">'+srcs.map(()=>'<span class="pwi-dot"></span>').join('')+'</div>'
+    +'<span class="pwi-hint">누르면 전체 사진이 보여요</span>';
   wall.appendChild(ov);
   const A=ov.querySelector('.pwi-a');
   const B=ov.querySelector('.pwi-b');
+  const dots=[...ov.querySelectorAll('.pwi-dot')];
+  /* 줌·빛줄기 길이를 간격에 맞춘다 — 간격을 바꿔도 리듬이 유지된다 */
+  const kenDur=((ITER+FADE)/1000+0.5)+'s';
+  A.style.animationDuration=kenDur;
+  B.style.animationDuration=kenDur;
+  ov.querySelector('.pwi-shine').style.animationDuration=((ITER+FADE)/1000)+'s';
   const timers=[];
-  const EVS=['wheel','touchstart','pointerdown','keydown'];
   let useA=true;
   let i=0;
   let done=false;
-  const finish=()=>{                                  // 끝나거나 손댔거나 — 모자이크로 정착
+  const finish=()=>{                                  // 눌렀거나 화면을 떠났거나 — 모자이크로 정착
     if(done) return;
     done=true;
     timers.forEach(clearTimeout);
-    EVS.forEach(ev=>window.removeEventListener(ev, finish));
     window.removeEventListener('hashchange', finish);
     ov.classList.add('out');
     wall.classList.remove('pw-showing');
-    setTimeout(()=>{ if(ov.isConnected) ov.remove(); }, 600);
+    setTimeout(()=>{ if(ov.isConnected) ov.remove(); }, 700);
   };
-  EVS.forEach(ev=>window.addEventListener(ev, finish, { passive:true }));
+  ov.addEventListener('click', finish);
   window.addEventListener('hashchange', finish);
   const step=()=>{
     if(done) return;
-    if(i>=srcs.length){ finish(); return; }
+    if(document.hidden){ timers.push(setTimeout(step, 1000)); return; }   // 숨은 탭에선 넘기지 않는다
     const el=useA?A:B;
     const other=useA?B:A;
-    el.src=srcs[i++];
+    el.src=srcs[i];
     el.classList.add('on');
     other.classList.remove('on');
+    dots.forEach((d,k)=>d.classList.toggle('on', k===i));
+    i=(i+1)%srcs.length;                              // ★끝나도 처음으로 — 계속 순환한다
     useA=!useA;
-    timers.push(setTimeout(step, SLIDE));
+    timers.push(setTimeout(step, ITER));
   };
   timers.push(setTimeout(step, 250));
 }
@@ -9900,6 +9925,7 @@ async function openWallManager(){
   const cfg = await loadWallCfg();
   const items = ((cfg && cfg.photos) || []).slice(0, WALL_MAX).map(p=>({ path:p.path, size:p.size||'auto' }));
   const orig = items.map(it=>it.path);
+  const interval0 = (cfg && cfg.interval) || 5;
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:520px">
     <div class="modal-msg">대문 사진 벽</div>
@@ -9913,6 +9939,8 @@ async function openWallManager(){
       <button class="ch-act" id="pwmAdd">＋ 사진 추가</button>
       <input type="file" id="pwmFile" accept="image/*" multiple style="display:none">
     </div>
+    <label class="nd-label">슬라이드 전환 간격 <span style="color:var(--text-dim);font-weight:400">(초 · 2~20)</span></label>
+    <input class="he-input" id="pwmIter" type="number" min="2" max="20" step="1" value="${escapeAttr(String(interval0))}" style="max-width:120px">
     <div class="he-msg" id="pwmMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="modal-ok">저장</button></div>
   </div>`;
@@ -9991,7 +10019,8 @@ async function openWallManager(){
       const del=orig.filter(p=>!keep.includes(p));
       if(del.length){ try{ await sb.storage.from(WALL_BUCKET).remove(del); }catch(e){} }
       msg.textContent='잠시만 기다리세요 — 목록을 저장하는 중이에요…';
-      const blob=new Blob([JSON.stringify({ photos: out })], { type:'application/json' });
+      const iter=Math.max(2, Math.min(20, Number(ov.querySelector('#pwmIter').value) || 5));
+      const blob=new Blob([JSON.stringify({ photos: out, interval: iter })], { type:'application/json' });
       const { error:e2 } = await sb.storage.from(WALL_BUCKET)
         .upload('wall.json', blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
       if(e2) throw e2;
