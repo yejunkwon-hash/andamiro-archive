@@ -530,6 +530,78 @@ body.has-botnav .mini-toast{bottom:calc(150px + env(safe-area-inset-bottom));}
 .wp-row input[type=range]{flex:1;accent-color:var(--accent);}
 .wp-row .wp-n{min-width:52px;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--text-dim);}
 .wk-plot-err{font-size:13px;color:var(--danger);}
+/* ── 대문 사진 벽 (90 · 세션 AO 후반) — 크기가 섞인 모자이크 콜라주 ──
+   시안의 리듬: 큰 타일 하나 + 세로로 긴 타일 + 작은 타일들이 얇은 간격으로 맞물린다.
+   배경은 앱 배경 그대로, 액자 없음. 6·9·12장은 전용 패턴으로 직사각형이 꽉 찬다.
+   ★grid-auto-flow:dense — 장수가 어중간해도(중간 저장 상태) 구멍을 메운다 (세션 M 교훈). */
+.pwall{ position:relative; display:grid; grid-template-columns:repeat(4,1fr); grid-auto-flow:dense;
+  grid-auto-rows:clamp(80px, 11vw, 150px); gap:10px; margin:0 0 22px;
+  padding:14px; border-radius:20px; overflow:hidden; isolation:isolate;
+  /* 시안의 무드 — 어둡고 따뜻한 판. 페이지 배경은 그대로, 판만 분위기를 만든다 */
+  background:linear-gradient(160deg, #241416, #1B1114 46%, #150E11);
+  box-shadow:0 24px 60px rgba(60,10,14,.25), inset 0 1px 0 rgba(255,255,255,.06); }
+/* 상징색을 따온 글로우를 크게 흐려 뒤에 깐다.
+   ★backdrop-filter가 아니라 정적 blur 한 번 — 스크롤마다 다시 계산되지 않는다(세션 AB 원칙) */
+.pwall::before{ content:''; position:absolute; inset:-18%; z-index:-1; pointer-events:none;
+  background:
+    radial-gradient(46% 38% at 12% 6%,  rgba(192,0,0,.55), transparent 70%),
+    radial-gradient(38% 34% at 88% 14%, rgba(255,138,84,.34), transparent 70%),
+    radial-gradient(46% 40% at 80% 92%, rgba(150,0,0,.50), transparent 70%),
+    radial-gradient(34% 30% at 28% 86%, rgba(255,205,150,.16), transparent 70%);
+  filter:blur(52px); }
+body.fx-lite .pwall::before, body.fx-flat .pwall::before{ filter:none; }  /* 저사양: blur만 끔 — 글로우는 남는다 */
+.pw-t{ position:relative; overflow:hidden; border-radius:12px; background:#221518;
+  box-shadow:0 12px 26px rgba(10,3,5,.45); }
+.pw-t img{ width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in;
+  /* 추억 필터 — 채도를 살짝 빼고 따뜻하게. 화면 필터일 뿐 원본 파일은 그대로다 */
+  filter:saturate(.82) contrast(1.07) brightness(.94) sepia(.14); }
+/* 비네트 + 위쪽 따뜻한 빛 — 필름 사진의 어두운 가장자리 */
+.pw-t::after{ content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
+  background:
+    radial-gradient(125% 125% at 50% 38%, transparent 52%, rgba(14,5,7,.45) 100%),
+    linear-gradient(180deg, rgba(255,214,170,.07), transparent 32%, rgba(18,7,9,.22));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.05); }
+/* 6장 — 4×3칸: (2×2) (2×1) (1×1) (1×2) (1×1) (2×1) = 12칸 */
+.pw-n6 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
+.pw-n6 .pw-t:nth-child(2){ grid-column:span 2; }
+.pw-n6 .pw-t:nth-child(4){ grid-row:span 2; }
+.pw-n6 .pw-t:nth-child(6){ grid-column:span 2; }
+/* 9장 — 4×4칸: (2×2) (1×2) (1×1) (2×1) (1×1) (1×2) (2×1) (1×1) (1×1)... = 16칸 */
+.pw-n9 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
+.pw-n9 .pw-t:nth-child(2){ grid-row:span 2; }
+.pw-n9 .pw-t:nth-child(4){ grid-column:span 2; }
+.pw-n9 .pw-t:nth-child(6){ grid-row:span 2; }
+.pw-n9 .pw-t:nth-child(8){ grid-column:span 2; }
+/* 12장 — 4×5칸 = 20칸 */
+.pw-n12 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
+.pw-n12 .pw-t:nth-child(3){ grid-row:span 2; }
+.pw-n12 .pw-t:nth-child(5){ grid-column:span 2; }
+.pw-n12 .pw-t:nth-child(7){ grid-row:span 2; }
+.pw-n12 .pw-t:nth-child(9){ grid-column:span 2; }
+.pw-n12 .pw-t:nth-child(11){ grid-column:span 2; }
+.pw-edit{ position:absolute; right:10px; bottom:10px; display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:8px;
+  padding:6px 12px; font-size:12.5px; cursor:pointer; color:var(--text); box-shadow:var(--shadow); }
+.pw-edit:hover{ border-color:var(--accent); color:var(--accent); }
+body.dark .pw-edit{ background:rgba(30,28,30,.9); }
+.pw-off{ font-size:12.5px; color:var(--text-dim); margin:0 0 14px; line-height:1.7; }
+.pw-off code{ font-family:var(--mono); font-size:11.5px; }
+.pw-edit-link{ background:none; border:0; color:var(--link); cursor:pointer; font-size:12.5px; padding:0; }
+/* 관리 모달 */
+.pwm-grid{ display:flex; flex-direction:column; gap:6px; max-height:300px; overflow-y:auto; margin-top:12px; }
+.pwm-row{ display:flex; align-items:center; gap:10px; }
+.pwm-row img{ width:72px; height:48px; object-fit:cover; border-radius:6px; background:var(--box-bg); flex:none; }
+.pwm-row .pwm-n{ flex:1; min-width:0; font-size:12px; color:var(--text-dim);
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.pwm-b{ flex:none; background:var(--card); border:1px solid var(--border); border-radius:6px;
+  padding:4px 9px; font-size:12px; cursor:pointer; color:var(--text); }
+.pwm-b:hover{ border-color:var(--accent); color:var(--accent); }
+.pwm-b.danger{ color:var(--danger); }
+.pwm-b.danger:hover{ border-color:var(--danger); }
+/* 폰: 2열로 — span 2 타일이 전체 폭이 되면서 큰/작은 리듬이 유지된다 */
+@media(max-width:640px){
+  .pwall{ grid-template-columns:repeat(2,1fr); grid-auto-rows:30vw; gap:7px; padding:10px; border-radius:16px; }
+}
 /* PWA 설치 안내 바 */
 /* ★중앙 정렬은 transform이 아니라 left/right+margin으로 — 이유 둘:
    ① fixed에 left:50%를 주면 가용 폭이 '오른쪽 절반'으로 계산돼 좁은 화면에서
@@ -4250,7 +4322,8 @@ const DEFAULT_FEATURES = {
   nudges:false,          // 참여 넛지(대문 배너·우하단 토스트)
   gamify:false,          // 잔디·월간 미션·리와인드
   landing_extras:false,  // 대문 곁가지(최근 활동·통계·오늘의 문서)
-  pwa_banner:false       // 앱 설치 배너
+  pwa_banner:false,      // 앱 설치 배너
+  photo_wall:true        // 대문 사진 벽(90) — ★사용자 결정으로 기본 켬 (규칙 14 '기본 끔'의 명시적 예외, 세션 AO)
 };
 let FEATURES = Object.assign({}, DEFAULT_FEATURES);
 function featOn(k){ return !!FEATURES[k]; }
@@ -7978,6 +8051,7 @@ async function renderSysFeatures(){
       ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
       ['landing_extras', '대문 곁가지',            '최근 활동 피드 · 누적 통계 · 오늘의 문서 타일.'],
       ['pwa_banner',     '앱 설치 배너',           '홈 화면 설치 안내. 꺼도 브라우저 메뉴로 직접 설치는 가능해요.'],
+      ['photo_wall',     '대문 사진 벽',           '대문 맨 위 사진 모자이크. 사진은 owner만 올릴 수 있어요 (90_landing_wall.sql 필요).'],
     ]},
   ];
   const row=(k,t,d)=>`
@@ -8018,7 +8092,7 @@ async function renderSysFeatures(){
 const MIG_NAMES = {
   '82':'기능 켜기/끄기', '83':'채널', '83b':'채널 점검', '84':'가입 정보 복구',
   '85':'채널 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
-  '89':'채널 공개 범위',
+  '89':'채널 공개 범위', '90':'대문 사진 벽',
 };
 async function renderMigStatus(){
   const box=$('#migBox'); if(!box) return;
@@ -8541,6 +8615,7 @@ const RELEASE_NOTES = [
   { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
   { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
   { date:'2026-08-05', text:'앱 설치 안내 배너의 글자가 세로로 깨져 보이던 문제를 고쳤어요.' },
+  { date:'2026-08-05', text:'대문 맨 위에 동아리 사진 벽이 생겼어요. 필름 사진 같은 톤과 어두운 판 위에서, 들어오면 화면이 천천히 내려가며 사진을 보여줘요 — 스크롤하면 바로 멈춥니다. 사진은 운영자(owner)가 올릴 수 있어요.' },
   { date:'2026-08-05', text:'브라우저 탭과 북마크에도 안다 아카이브 로고가 떠요.' },
   { date:'2026-08-03', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
   { date:'2026-08-03', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
@@ -9676,6 +9751,181 @@ function welcomeHTML(force){
   </div>`;
 }
 
+/* ================== 대문 사진 벽 (90 · 세션 AO 후반) ==================
+   시안: 크기가 섞인 모자이크 콜라주. 6·9·12장 권장, 최대 12장.
+   저장 구조는 Storage 버킷 'landing' 하나가 전부다:
+     wall/<이름>.webp — 사진 (owner가 업로드, 브라우저에서 300KB 이하로 압축)
+     wall.json        — 사진 목록+순서 (진실의 원천 — 표를 만들지 않았다)
+   쓰기는 스토리지 RLS가 owner로 강제. 화면 버튼은 UI 통제일 뿐이다(규칙 17). */
+const WALL_BUCKET='landing';
+const WALL_MAX=12;
+const WALL_TARGET_KB=300;   // ★사용자 결정(세션 AO): 사진당 300KB 이내로 자동 변환
+const WALL_DIM=2000;        // 긴 변 상한(px) — 화면용으로 충분히 선명하다
+let _wallErr=null;
+
+async function loadWallCfg(){
+  try{
+    const { data, error } = await sb.storage.from(WALL_BUCKET).download('wall.json');
+    if(error) throw error;
+    const cfg = JSON.parse(await data.text());
+    _wallErr=null;
+    return (cfg && Array.isArray(cfg.photos)) ? cfg : { photos: [] };
+  }catch(e){
+    /* 90 미적용(버킷 없음)과 '아직 사진 없음'이 여기로 온다 — 우아한 실패.
+       오류는 보관해서 owner에게만 이유를 말한다(세션 W 교훈). */
+    _wallErr = e || null;
+    return null;
+  }
+}
+function wallUrl(p){
+  try{ return sb.storage.from(WALL_BUCKET).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; }
+}
+function wallHTML(cfg){
+  if(!featOn('photo_wall')) return '';
+  if(cfg===null || cfg===undefined){
+    return isOwner()
+      ? `<p class="pw-off">대문 사진 벽이 아직 준비되지 않았어요 — 처음이면 <code>90_landing_wall.sql</code>을 실행한 뒤
+         <button class="pw-edit-link" id="pwEditEmpty">사진 올리기 →</button></p>`
+      : '';
+  }
+  const ph=(cfg.photos||[]).slice(0,WALL_MAX);
+  if(!ph.length){
+    return isOwner()
+      ? `<p class="pw-off">대문 사진 벽이 비어 있어요. <button class="pw-edit-link" id="pwEditEmpty">사진 올리기 →</button></p>`
+      : '';
+  }
+  /* 장수에 맞는 모자이크 패턴 — 6·9·12는 전용 패턴, 그 외엔 dense가 메운다.
+     ★클래스명을 조립하지 않는다 — 'pw-n'+n 은 죽은 CSS 감지(T52)가 못 따라간다 */
+  const pat = ph.length>=12 ? 'pw-n12' : ph.length>=9 ? 'pw-n9' : ph.length>=6 ? 'pw-n6' : '';
+  return `<div class="pwall${pat?' '+pat:''}" id="pWall">
+      ${ph.map(p=>`<div class="pw-t"><img loading="lazy" alt="동아리 사진" src="${escapeAttr(wallUrl(p))}"></div>`).join('')}
+      ${isOwner()?`<button class="pw-edit" id="pwEdit" title="사진 벽 관리">${ic('edit')}사진 관리</button>`:''}
+    </div>`;
+}
+
+/* 자동 스크롤 연출 — 사람처럼 내렸다, 멈췄다, 다시 내린다.
+   ★접속(탭)당 1회 · 손대면 즉시 중단 · 화면 효과 '전부 끄기'와 reduced-motion에서는 안 돈다. */
+function playWallScroll(){
+  try{ if(sessionStorage.getItem('anda_wall_played')) return; }catch(e){}
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(document.body.classList.contains('fx-flat')) return;
+  const wall=document.getElementById('pWall'); if(!wall) return;
+  if(window.scrollY>40) return;                       // 이미 내려가 있으면 연출하지 않는다
+  try{ sessionStorage.setItem('anda_wall_played','1'); }catch(e){}
+  const wallBottom = wall.getBoundingClientRect().bottom + window.scrollY;
+  const maxTop = Math.max(0, Math.min(wallBottom - window.innerHeight*0.35,
+                  document.documentElement.scrollHeight - window.innerHeight));
+  if(maxTop<=0) return;                               // 벽이 다 보이면 움직일 이유가 없다
+  const stops=[maxTop*0.45, maxTop*0.8, maxTop];
+  const timers=[];
+  let cancelled=false;
+  const EVS=['wheel','touchstart','pointerdown','keydown'];
+  const cancel=()=>{
+    cancelled=true;
+    timers.forEach(clearTimeout);
+    EVS.forEach(ev=>window.removeEventListener(ev, cancel));
+    window.removeEventListener('hashchange', cancel);
+  };
+  EVS.forEach(ev=>window.addEventListener(ev, cancel, { passive:true }));
+  window.addEventListener('hashchange', cancel);
+  let t=900;                                          // 잠깐 보여준 뒤 출발
+  stops.forEach((top, i)=>{
+    timers.push(setTimeout(()=>{ if(!cancelled) window.scrollTo({ top, behavior:'smooth' }); }, t));
+    t += 1100 + 650;                                  // 이동 후 잠시 멈춤 — 사람의 손 리듬
+    if(i===stops.length-1) timers.push(setTimeout(cancel, t));   // 끝나면 리스너 정리
+  });
+}
+
+/* 사진 벽 관리 (owner) — 추가·순서·삭제. 업로드는 [저장]을 눌렀을 때 한 번에. */
+async function openWallManager(){
+  if(!isOwner()) return;
+  const cfg = await loadWallCfg();
+  const items = ((cfg && cfg.photos) || []).slice(0, WALL_MAX).map(p=>({ path:p }));
+  const orig = items.map(it=>it.path);
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:520px">
+    <div class="modal-msg">대문 사진 벽</div>
+    <div class="modal-sub"><b>6 · 9 · 12장</b>이 가장 보기 좋아요 (최대 ${WALL_MAX}장).
+      올릴 때 자동으로 사진당 ${WALL_TARGET_KB}KB 이하로 줄입니다 — 용량 걱정 없이 올리세요.</div>
+    ${cfg===null?`<p class="ch-note">저장소를 읽지 못했어요 — 처음이면 <code>90_landing_wall.sql</code>을 먼저 실행하세요.
+      ${_wallErr&&_wallErr.message?`<br>원인: ${escapeHtml(String(_wallErr.message))}`:''}</p>`:''}
+    <div class="pwm-grid" id="pwmGrid"></div>
+    <div class="ch-actrow">
+      <button class="ch-act" id="pwmAdd">＋ 사진 추가</button>
+      <input type="file" id="pwmFile" accept="image/*" multiple style="display:none">
+    </div>
+    <div class="he-msg" id="pwmMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="modal-ok">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>{ items.forEach(it=>{ if(it.blobUrl) URL.revokeObjectURL(it.blobUrl); }); ov.remove(); };
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const grid=ov.querySelector('#pwmGrid');
+  const msg=ov.querySelector('#pwmMsg');
+  const draw=()=>{
+    grid.innerHTML = items.length ? items.map((it,i)=>`
+      <div class="pwm-row">
+        <img src="${escapeAttr(it.blobUrl || wallUrl(it.path))}" alt="">
+        <span class="pwm-n">${escapeHtml(it.file ? it.file.name : String(it.path||'').split('/').pop())}${it.file?' <b>(새 사진)</b>':''}</span>
+        <button class="pwm-b" data-up="${i}" title="위로">↑</button>
+        <button class="pwm-b" data-dn="${i}" title="아래로">↓</button>
+        <button class="pwm-b danger" data-rm="${i}" title="빼기">✕</button>
+      </div>`).join('') : '<p class="ch-note" style="margin:4px 0">아직 사진이 없어요 — [＋ 사진 추가]를 눌러보세요.</p>';
+    grid.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.up);
+      if(i>0){ const t=items[i-1]; items[i-1]=items[i]; items[i]=t; draw(); } });
+    grid.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.dn);
+      if(i<items.length-1){ const t=items[i+1]; items[i+1]=items[i]; items[i]=t; draw(); } });
+    grid.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.rm);
+      const it=items.splice(i,1)[0]; if(it && it.blobUrl) URL.revokeObjectURL(it.blobUrl); draw(); });
+  };
+  draw();
+  const fileIn=ov.querySelector('#pwmFile');
+  ov.querySelector('#pwmAdd').onclick=()=>fileIn.click();
+  fileIn.onchange=()=>{
+    const fs=[...(fileIn.files||[])];
+    fileIn.value='';
+    for(const f of fs){
+      if(items.length>=WALL_MAX){ msg.className='msg err'; msg.textContent=`최대 ${WALL_MAX}장까지예요.`; break; }
+      items.push({ file:f, blobUrl:URL.createObjectURL(f) });
+    }
+    draw();
+  };
+  ov.querySelector('.modal-ok').onclick=async()=>{
+    const okb=ov.querySelector('.modal-ok');
+    okb.disabled=true;
+    msg.className='msg';
+    try{
+      const out=[];
+      let n=0;
+      for(const it of items){
+        if(it.path){ out.push(it.path); continue; }
+        n++;
+        msg.textContent=`사진 줄이고 올리는 중… (${n}번째)`;
+        const c=await compressImage(it.file, { mode:'contain', dim:WALL_DIM, target:WALL_TARGET_KB*1024, minQuality:0.4 });
+        const path='wall/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
+        const { error } = await sb.storage.from(WALL_BUCKET).upload(path, c.blob, { contentType:c.type, cacheControl:'31536000' });
+        if(error) throw error;
+        out.push(path);
+      }
+      const del=orig.filter(p=>!out.includes(p));
+      if(del.length){ try{ await sb.storage.from(WALL_BUCKET).remove(del); }catch(e){} }
+      msg.textContent='목록 저장 중…';
+      const blob=new Blob([JSON.stringify({ photos: out })], { type:'application/json' });
+      const { error:e2 } = await sb.storage.from(WALL_BUCKET)
+        .upload('wall.json', blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
+      if(e2) throw e2;
+      close();
+      toast('사진 벽을 저장했어요.');
+      route();                                         // 대문 다시 그림
+    }catch(e){
+      okb.disabled=false;
+      msg.className='msg err';
+      msg.textContent='저장하지 못했습니다: '+((e&&e.message)||e)+' (90_landing_wall.sql 실행 여부를 확인하세요)';
+    }
+  };
+}
+
 async function renderLanding(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   /* ★최적화(81): 예전엔 여기서 네트워크 왕복 15번을 '한 줄씩 차례로' 기다렸다(대문 = 왕복 합).
@@ -9684,7 +9934,7 @@ async function renderLanding(){
   const safe=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
   const [
     stats, activity, evsQ, grassQ, rewindQ, missionQ,
-    myTasksQ, openQsQ, focusQ, fprogQ, liveQ, cfgQ
+    myTasksQ, openQsQ, focusQ, fprogQ, liveQ, cfgQ, wallQ
   ] = await Promise.all([                    /* ★기능 스위치(82): 꺼진 타일은 조회 자체를 생략 — 대문이 더 가벼워진다 */
     safe(fetchDocStats(), []),
     featOn('landing_extras') ? safe(fetchActivity(), []) : Promise.resolve([]),
@@ -9699,6 +9949,7 @@ async function renderLanding(){
     safe(sb.rpc('focus_progress'), null),    // focus가 꺼져 있으면 버린다 — 분기해서 왕복을 더 만드는 것보다 싸다
     featOn('landing_extras') ? safe(sb.rpc('public_stats'), null) : Promise.resolve(null),
     safe(loadLandingDocs(), []),
+    featOn('photo_wall') ? safe(loadWallCfg(), null) : Promise.resolve(undefined),   // ★사진 벽(90) — 꺼져 있으면 왕복 생략
   ]);
   const evs = (evsQ && evsQ.data) || [];
   const grass = grassQ || null;
@@ -9801,6 +10052,7 @@ async function renderLanding(){
   $('#doc').innerHTML=`
     ${featOn('nudges')?nudgeHTML(stats):''}
     <div class="landing">
+      ${wallHTML(wallQ)}
       ${focusHTML(focus, fprog)}
       ${welcomeHTML(false)}
       ${/* ★대문의 유일한 '채워진' 요소 — 시선이 앉을 자리는 하나여야 한다.
@@ -9898,6 +10150,14 @@ async function renderLanding(){
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
   $('#doc').querySelectorAll('.lh-row[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
+  // ── 사진 벽(90): 라이트박스 · 관리 · 자동 스크롤 연출
+  const pWall=$('#pWall');
+  if(pWall){
+    pWall.querySelectorAll('img').forEach(im=>im.onclick=()=>openLightbox(im.src));
+    playWallScroll();
+  }
+  const pwe=$('#pwEdit'); if(pwe) pwe.onclick=openWallManager;
+  const pwe2=$('#pwEditEmpty'); if(pwe2) pwe2.onclick=openWallManager;
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
     const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
