@@ -7,6 +7,8 @@
 <!-- PWA: 홈 화면에 설치하면 주소창 없는 앱처럼 뜬다. manifest·sw.js·아이콘은 index.html과 같은 폴더에 둘 것. -->
 <link rel="manifest" href="manifest.webmanifest">
 <meta name="theme-color" content="#C00000">
+<!-- 탭·북마크 아이콘 — 이게 없으면 브라우저가 지구본을 그린다 (apple-touch-icon은 홈 화면용일 뿐) -->
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -8539,6 +8541,7 @@ const RELEASE_NOTES = [
   { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
   { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
   { date:'2026-08-05', text:'앱 설치 안내 배너의 글자가 세로로 깨져 보이던 문제를 고쳤어요.' },
+  { date:'2026-08-05', text:'브라우저 탭과 북마크에도 안다 아카이브 로고가 떠요.' },
   { date:'2026-08-03', text:'[회원 조회]가 [회원]으로 바뀌고, 사진이 크게 보이는 목록으로 새로워졌어요. 사진 위 봉투 아이콘으로 바로 쪽지를 보낼 수 있어요.' },
   { date:'2026-08-03', text:'화면이 바뀔 때 눈이 편하도록 움직임을 부드럽게 다듬었어요. 부담스러우면 [내 메뉴 → 화면 효과]에서 줄일 수 있어요.' },
   { date:'2026-08-03', text:'[계정 정보]가 [프로필]로 이름이 바뀌었고, 맨 아래에서 회원 탈퇴를 신청할 수 있어요. 탈퇴해도 남긴 문서와 답변은 그대로 남습니다.' },
