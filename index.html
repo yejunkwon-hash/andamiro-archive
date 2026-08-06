@@ -2855,6 +2855,113 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
 .dir-card:hover{ transform:translateY(-3px); box-shadow:var(--sh-3), 0 0 0 2px var(--cv,var(--cover-default)); }
 .dir-card .dir-ava{ border-width:3px; box-shadow:var(--sh-1); }
 .dir-btn.primary:hover{ background:var(--accent); filter:brightness(1.06); }
+
+/* ===== 연혁(story) — 세션 AP ===== */
+.story-wrap{max-width:1080px;margin:0 auto;}
+.story-note{font-size:13px;color:var(--text-dim);margin:2px 0 0;}
+/* --- 상단 타임라인 --- */
+.stl{margin:34px 0 6px;}
+.stl-row{display:flex;align-items:flex-end;position:relative;}
+.stl-row+.stl-row{margin-top:96px;}
+.stl-n{width:calc(100%/6);min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.stl-lab{height:46px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;margin-bottom:9px;min-width:0;max-width:96%;}
+.stl-date{font-size:12px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;letter-spacing:.04em;}
+.stl-title{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.stl-dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto;position:relative;z-index:2;
+  background:color-mix(in srgb, var(--accent) 26%, transparent);
+  border:2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  transition:background .5s ease, box-shadow .5s ease, border-color .5s ease;}
+.stl-n+.stl-n::before{content:'';position:absolute;left:-50%;right:50%;bottom:9px;height:3px;border-radius:2px;z-index:1;
+  background:color-mix(in srgb, var(--accent) 20%, transparent);}
+.stl-n:hover .stl-dot,.stl-n.open .stl-dot{background:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent), 0 8px 22px color-mix(in srgb, var(--accent) 38%, transparent);}
+.stl-pop{position:absolute;left:50%;width:216px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;z-index:6;opacity:0;pointer-events:none;transition:opacity .45s ease, transform .45s ease;}
+.stl-n.up .stl-pop{bottom:calc(100% + 10px);transform:translate(-50%,8px);}
+.stl-n.down .stl-pop{top:calc(100% + 10px);transform:translate(-50%,-8px);}
+.stl-n:hover .stl-pop,.stl-n.open .stl-pop{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+.stl-pop .stl-pimg{width:100%;border-radius:8px;border:1px solid var(--line);display:block;margin-bottom:8px;}
+.stl-pop .stl-ptxt{font-size:12.5px;line-height:1.65;color:var(--text);}
+.stl-pop .stl-pmuted{font-size:12px;color:var(--text-dim);}
+body.fx-flat .stl-dot,body.fx-flat .stl-pop{transition:none;}
+@media (prefers-reduced-motion: reduce){ .stl-dot,.stl-pop{transition:none;} }
+@media (max-width:640px){
+  .stl{position:relative;padding-left:6px;}
+  .stl::before{content:'';position:absolute;left:16px;top:8px;bottom:8px;width:3px;border-radius:2px;
+    background:color-mix(in srgb, var(--accent) 20%, transparent);}
+  .stl-row{flex-direction:column;align-items:stretch;}
+  .stl-row+.stl-row{margin-top:0;}
+  .stl-n{width:100%;flex-direction:row;align-items:center;gap:14px;padding:11px 0;}
+  .stl-n+.stl-n::before{display:none;}
+  .stl-lab{height:auto;margin-bottom:0;align-items:flex-start;text-align:left;order:2;max-width:none;flex:1;min-width:0;}
+  .stl-dot{order:1;}
+  .stl-n.up .stl-pop,.stl-n.down .stl-pop,.stl-n:hover .stl-pop,.stl-n.open .stl-pop{
+    position:static;width:auto;opacity:1;transform:none;top:auto;bottom:auto;
+    pointer-events:auto;display:none;margin:2px 0 4px 40px;order:3;flex-basis:100%;}
+  .stl-n.open .stl-pop{display:block;}
+  .stl-n{flex-wrap:wrap;}
+}
+/* --- 대형 A + 구슬 --- */
+.story-a-sec{margin:64px auto 10px;text-align:center;}
+.story-a-hint{font-size:12.5px;color:var(--text-dim);margin-top:14px;}
+.abox{position:relative;width:min(680px,96%);margin:18px auto 0;aspect-ratio:600/520;}
+.abox svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:2;}
+.bead-layer{position:absolute;inset:0;z-index:1;overflow:hidden;}
+.beadw{position:absolute;left:0;top:0;will-change:transform;}
+.bead{width:100%;height:100%;border-radius:50%;cursor:pointer;position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;overflow:hidden;user-select:none;-webkit-user-select:none;
+  background:radial-gradient(circle at 31% 27%, rgba(255,255,255,.96), rgba(255,255,255,.42) 17%,
+    color-mix(in srgb, var(--accent) 30%, #fff) 47%, color-mix(in srgb, var(--accent) 68%, #5c0d0d) 100%);
+  box-shadow:inset -7px -10px 16px rgba(90,0,0,.30), inset 3px 5px 9px rgba(255,255,255,.35),
+    0 10px 20px color-mix(in srgb, var(--accent) 16%, transparent);
+  transition:transform .4s var(--spring-soft, ease), box-shadow .4s ease;}
+.bead::after{content:'';position:absolute;left:20%;top:12%;width:26%;height:15%;border-radius:50%;
+  background:rgba(255,255,255,.75);filter:blur(3px);transform:rotate(-24deg);}
+.beadw:hover .bead{transform:scale(1.07);
+  box-shadow:inset -7px -10px 16px rgba(90,0,0,.30), inset 3px 5px 9px rgba(255,255,255,.35),
+    0 14px 28px color-mix(in srgb, var(--accent) 30%, transparent);}
+.bead-y{font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;font-weight:700;color:#fff;
+  font-size:1.34em;line-height:1.12;letter-spacing:.03em;text-shadow:0 1px 3px rgba(80,0,0,.4);}
+.bead-t{font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;color:rgba(255,255,255,.94);
+  font-size:.72em;line-height:1.3;max-width:92%;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  word-break:keep-all;text-shadow:0 1px 2px rgba(80,0,0,.35);}
+.beadw.sm .bead-t{display:none;}          /* 작은 구슬: 연도만 — 사건명은 눌러서 패널로 */
+body.fx-flat .bead,body.fx-flat .beadw:hover .bead{transition:none;transform:none;}
+@media (max-width:480px){
+  .bead-t{display:none;}                  /* 좁은 화면: 구슬엔 연도만 — 사건명은 눌러서 패널로 */
+  .bead-y{font-size:1.6em;}
+}
+/* --- 오른쪽 라이트 패널 (그림자 없음) --- */
+.story-scrim{position:fixed;inset:0;z-index:119;background:transparent;}
+.story-pane{position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);z-index:120;background:var(--card);
+  border-left:1px solid var(--line);padding:26px 26px 34px;overflow-y:auto;
+  transform:translateX(103%);transition:transform .5s var(--spring-soft, ease);}
+.story-pane.on{transform:translateX(0);}
+body.fx-flat .story-pane{transition:none;}
+.story-pane .sp-close{position:absolute;top:14px;right:14px;border:1px solid var(--line);background:transparent;
+  color:var(--text-dim);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;}
+.story-pane .sp-close:hover{color:var(--text);}
+.story-pane .sp-date{font-size:13px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;
+  letter-spacing:.05em;margin:4px 0 6px;}
+.story-pane h2{font-size:21px;margin:0 0 16px;line-height:1.35;}
+.story-pane .sp-img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 16px;}
+.story-pane .sp-memo{font-size:14.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
+.story-pane .sp-memo-empty{font-size:13.5px;color:var(--text-dim);}
+/* --- 연혁 관리 모달 --- */
+.sm-list{margin:12px 0 4px;max-height:56vh;overflow-y:auto;}
+.smr{display:grid;grid-template-columns:24px 96px 1fr 28px;gap:6px 10px;padding:13px 2px;border-bottom:1px solid var(--line);
+  grid-template-areas:'drag date title del' 'drag blurb blurb blurb' 'drag memo memo memo' 'drag photo photo photo';}
+.smr.dragging{opacity:.55;background:color-mix(in srgb, var(--accent) 6%, transparent);border-radius:10px;}
+.smr-drag{grid-area:drag;align-self:stretch;display:flex;align-items:center;justify-content:center;cursor:grab;
+  color:var(--text-dim);font-size:15px;letter-spacing:-1px;touch-action:none;user-select:none;-webkit-user-select:none;}
+.smr-drag:active{cursor:grabbing;}
+.smr .sm-date{grid-area:date;}
+.smr .sm-title{grid-area:title;}
+.smr .sm-del{grid-area:del;}
+.smr .sm-blurb{grid-area:blurb;}
+.smr .sm-memo{grid-area:memo;resize:vertical;min-height:52px;font:inherit;}
+.smr .sm-photo{grid-area:photo;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.smr .sm-thumb{width:52px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
 </style>
 </head>
 <body>
@@ -3020,6 +3127,7 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
     <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">채널</span></button>
     <button class="navbtn" id="qBtn"><svg class="nbi"><use href="#i-help"/></svg><span class="nbt">질문 게시판</span></button>
     <button class="navbtn" id="calBtn"><svg class="nbi"><use href="#i-calendar"/></svg><span class="nbt">캘린더</span></button>
+    <button class="navbtn" id="storyBtn"><svg class="nbi"><use href="#i-history"/></svg><span class="nbt">연혁</span></button>
     <button class="navtoggle" id="searchToggle" aria-label="문서 검색" title="문서 검색">
       <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
         <circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l4.5 4.5"/></svg>
@@ -4363,7 +4471,8 @@ const DEFAULT_FEATURES = {
   gamify:false,          // 잔디·월간 미션·리와인드
   landing_extras:false,  // 대문 곁가지(최근 활동·통계·오늘의 문서)
   pwa_banner:false,      // 앱 설치 배너
-  photo_wall:false       // 대문 사진 슬라이드(90) — 세션 AO 후반 5에서 기본 끔으로 복귀 (페이지를 나중에 다시 다듬기로)
+  photo_wall:false,      // 대문 사진 슬라이드(90) — 세션 AO 후반 5에서 기본 끔으로 복귀 (페이지를 나중에 다시 다듬기로)
+  history:true           // 연혁 페이지(91) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AP 사용자 결정, 가이드에 기록)
 };
 let FEATURES = Object.assign({}, DEFAULT_FEATURES);
 function featOn(k){ return !!FEATURES[k]; }
@@ -4385,6 +4494,7 @@ function applyFeatureNav(){
   show($('#calBtn'),       featOn('calendar'));
   show($('#boardBtn'),     featOn('tasks'));
   show($('#directoryBtn'), featOn('directory'));
+  show($('#storyBtn'),     featOn('history'));
   document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
     const need = ({ community:'community', inbox:'inbox', questions:'questions' })[b.dataset.nav];
     if(need) b.style.display = featOn(need) ? '' : 'none';
@@ -8084,7 +8194,7 @@ async function renderSysFeatures(){
       ['inbox',     '쪽지 · 알림함',    '⚠ 답변·과제·일정 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요.'],
       ['directory', '회원',            '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
     ]},
-    { name:'부가 (기본 끔)', items:[
+    { name:'부가', items:[
       ['community',      '채널 (작업 공간·채팅)', '★<b>채널이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 채널도 함께 사라져요.'],
       ['qr',             'QR 라벨',                '기자재에 붙이는 문서 QR 스티커·라벨 시트 인쇄.'],
       ['nudges',         '참여 넛지',              '대문의 "짧은 문서" 배너와 우하단 안내 토스트. (세부 조정은 [넛지 설정])'],
@@ -8092,6 +8202,7 @@ async function renderSysFeatures(){
       ['landing_extras', '대문 곁가지',            '최근 활동 피드 · 누적 통계 · 오늘의 문서 타일.'],
       ['pwa_banner',     '앱 설치 배너',           '홈 화면 설치 안내. 꺼도 브라우저 메뉴로 직접 설치는 가능해요.'],
       ['photo_wall',     '대문 사진 벽',           '대문 맨 위 사진 모자이크. 사진은 owner만 올릴 수 있어요 (90_landing_wall.sql 필요).'],
+      ['history',        '연혁',                   '동아리의 발자취 — 타임라인과 A 속 구슬. ★기본 켬(운영진 결정). 내용 편집은 91_history.sql 필요, 화면은 없이도 보여요.'],
     ]},
   ];
   const row=(k,t,d)=>`
@@ -8652,6 +8763,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-08-06', text:'동아리의 발자취를 모은 [연혁] 페이지가 생겼어요 — 타임라인 위 순간에 마우스를 올려 보고, 커다란 A 속을 떠다니는 구슬을 눌러 이야기를 열어 보세요. 내용은 운영진이 [연혁 관리]에서 채웁니다.' },
   { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
   { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
   { date:'2026-08-05', text:'앱 설치 안내 배너의 글자가 세로로 깨져 보이던 문제를 고쳤어요.' },
@@ -10032,6 +10144,427 @@ async function openWallManager(){
       addb.disabled=false;
       msg.className='msg err';
       msg.textContent='저장하지 못했습니다: '+((e&&e.message)||e)+' (90_landing_wall.sql 실행 여부를 확인하세요)';
+    }
+  };
+}
+
+/* ============================================================
+   연혁(story) — 세션 AP. 타임라인 + 대형 A 구슬 + 라이트 패널.
+   저장소: 공개 버킷 'history'의 story.json + ev/… 사진 (91_history.sql).
+   ★91 미적용이어도 화면은 STORY_SEED로 온전히 보인다(우아한 실패) —
+   관리(저장)만 91을 요구하며, owner에게는 원인을 그대로 말한다(세션 W 교훈).
+   ★명명 주의: 'bead' 계열만 쓴다 — 세션 V에서 걷어낸 배경 구슬(o-r-b 명명)의
+   재유입을 T30이 문자열 검사로 감시하므로 그 이름을 다시 쓰면 안 된다. */
+const STORY_BUCKET='history';
+const STORY_JSON='story.json';
+const STORY_TARGET_KB=300;
+const STORY_DIM=2000;
+/* 아래 셋은 index.html 상단 네비의 실제 로고 PNG에서 추출했다(세션 AP-2 사용자 결정 — "진짜 로고의 A").
+   추출법: 512x512 업스케일 → 흰 글리프 문턱 → marching squares 윤곽 → Douglas-Peucker 단순화(33점),
+   스폰 지점은 챔퍼 거리 변환의 국소 최대 20곳(자리 여유의 0.82배가 그 구슬의 반지름). 가이드 세션 AP-2에 재생성 스크립트. */
+const STORY_A_PATH='M 576.8 495.7 L 429.7 493.5 L 422.2 488.1 L 400.5 438.4 L 386.5 422.2 L 196.2 422.2 L 189.7 415.7 L 175.7 418.9 L 162.7 462.2 L 146.5 493.5 L 27.6 495.7 L 20 490.3 L 74.1 369.2 L 82.7 360.5 L 77.3 344.3 L 25.4 337.8 L 25.4 331.4 L 347.6 333.5 L 353 325.9 L 342.2 297.8 L 324.9 274.1 L 308.6 260 L 276.2 247 L 213.5 244.9 L 123.8 263.2 L 230.8 28.6 L 241.6 24.3 L 395.1 24.3 L 407 29.7 L 547.6 412.4 L 571.4 464.3 L 571.4 477.3 L 580 488.1 Z';
+const STORY_A_POLY=[[576.8,495.7],[429.7,493.5],[422.2,488.1],[400.5,438.4],[386.5,422.2],[196.2,422.2],[189.7,415.7],[175.7,418.9],[162.7,462.2],[146.5,493.5],[27.6,495.7],[20,490.3],[74.1,369.2],[82.7,360.5],[77.3,344.3],[25.4,337.8],[25.4,331.4],[347.6,333.5],[353,325.9],[342.2,297.8],[324.9,274.1],[308.6,260],[276.2,247],[213.5,244.9],[123.8,263.2],[230.8,28.6],[241.6,24.3],[395.1,24.3],[407,29.7],[547.6,412.4],[571.4,464.3],[571.4,477.3],[580,488.1]];
+const STORY_A_SPOTS=[{x:323.8,y:144.3,r:40},{x:436.2,y:351.9,r:40},{x:423.2,y:239.5,r:40},{x:111.9,y:429.7,r:40},{x:501.1,y:438.4,r:40},{x:207,y:196.2,r:40},{x:336.8,y:377.8,r:37.2},{x:267.6,y:377.8,r:37.2},{x:168.1,y:377.8,r:34.9},{x:354.1,y:256.8,r:27.8},{x:436.2,y:447,r:24.8},{x:250.3,y:57.8,r:24.8},{x:116.2,y:360.5,r:23},{x:211.4,y:135.7,r:23},{x:431.9,y:174.6,r:22.5},{x:388.6,y:53.5,r:20.7},{x:64.3,y:473,r:19.5},{x:220,y:399.5,r:19.5},{x:220,y:356.2,r:19.5},{x:367,y:300,r:18.9}];
+/* 초기 데이터(세션 AP 사용자 제공) — story.json을 아직 읽을 수 없을 때만 보여주는 폴백.
+   owner가 [연혁 관리]에서 한 번 저장하면 그때부터는 저장소가 진실의 원천이다.
+   ※규칙 16(하드코딩 금지)의 명시적 예외: 콘텐츠 시드이며 저장 즉시 대체된다. */
+const STORY_SEED=[
+  { id:'seed1', date:'2026.03', title:'안다미로 21기 결성', blurb:'', memo:'', photo:null },
+  { id:'seed2', date:'2026.07', title:'2026 KAPE', blurb:'', memo:'', photo:null },
+];
+let _storyErr=null;
+function storyId(){ return 'ev'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+async function loadStoryCfg(){
+  try{
+    const { data, error } = await sb.storage.from(STORY_BUCKET).download(STORY_JSON);
+    if(error) throw error;
+    const cfg = JSON.parse(await data.text());
+    _storyErr=null;
+    if(!cfg || !Array.isArray(cfg.events)) return { events: [] };
+    const events = cfg.events.map(e=>({
+      id:String((e&&e.id)||storyId()),
+      date:String((e&&e.date)||''),
+      title:String((e&&e.title)||''),
+      blurb:String((e&&e.blurb)||''),
+      memo:String((e&&e.memo)||''),
+      photo:(e&&e.photo)?String(e.photo):null,
+    })).filter(e=>e.title||e.date);
+    return { events };
+  }catch(e){
+    _storyErr = e || null;      // 91 미적용(버킷 없음)과 '아직 저장 전'이 여기로 온다
+    return null;
+  }
+}
+function storyUrl(p){
+  try{ return sb.storage.from(STORY_BUCKET).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; }
+}
+/* --- 타임라인 (한 줄 6개, 넘치면 다음 줄 / 홀수 번째 위·짝수 번째 아래 팝오버) --- */
+function storyTimelineHtml(events){
+  const rows=[];
+  for(let i=0;i<events.length;i+=6) rows.push(events.slice(i,i+6));
+  return `<div class="stl">`+rows.map((row,ri)=>`<div class="stl-row">`+row.map((ev,ci)=>{
+    const gi=ri*6+ci;                       // 전체 인덱스: 0부터 → 1번째(홀수)는 위
+    const pop = (ev.photo?`<img class="stl-pimg" src="${escapeAttr(storyUrl(ev.photo))}" alt="" loading="lazy">`:'')
+      + (ev.blurb ? `<div class="stl-ptxt">${escapeHtml(ev.blurb)}</div>`
+                  : `<div class="stl-pmuted">자세한 이야기는 준비 중이에요.</div>`);
+    return `<div class="stl-n ${gi%2===0?'up':'down'}" data-bead="${escapeAttr(ev.id)}">
+      <div class="stl-lab"><span class="stl-date">${escapeHtml(ev.date)}</span><span class="stl-title">${escapeHtml(ev.title)}</span></div>
+      <div class="stl-dot"></div>
+      <div class="stl-pop">${pop}</div>
+    </div>`;
+  }).join('')+`</div>`).join('')+`</div>`;
+}
+/* --- 대형 A + 떠다니는 구슬 (rAF 물리 — transform만 갱신, 세션 T 규칙) --- */
+let _beadRaf=0;
+let _beadIo=null;
+function stopStoryBeads(){
+  if(_beadRaf){ cancelAnimationFrame(_beadRaf); _beadRaf=0; }
+  if(_beadIo){ try{ _beadIo.disconnect(); }catch(e){} _beadIo=null; }
+}
+function initStoryBeads(events){
+  stopStoryBeads();
+  const box=$('#beadLayer'); if(!box) return;
+  const n=events.length; if(!n){ box.innerHTML=''; return; }
+  /* 실제 로고 글리프 다각형 '안'에서만 움직인다. 물리는 600x520 단위 공간, 그리기 배율만 화면에 맞춘다. */
+  const P=STORY_A_POLY;
+  const SEG=[];
+  for(let i=0;i<P.length;i++){
+    const a=P[i];
+    const b=P[(i+1)%P.length];
+    SEG.push({ ax:a[0], ay:a[1], bx:b[0], by:b[1] });
+  }
+  const inPoly=(x,y)=>{                                    // ray casting — 오목 다각형 대응
+    let c=false;
+    for(let i=0,j=P.length-1;i<P.length;j=i++){
+      const xi=P[i][0], yi=P[i][1], xj=P[j][0], yj=P[j][1];
+      if(((yi>y)!==(yj>y)) && (x < (xj-xi)*(y-yi)/(yj-yi)+xi)) c=!c;
+    }
+    return c;
+  };
+  const segDist=(s,x,y)=>{                                 // 선분까지의 최단 벡터
+    const dx=s.bx-s.ax;
+    const dy=s.by-s.ay;
+    const t=Math.max(0, Math.min(1, ((x-s.ax)*dx+(y-s.ay)*dy)/(dx*dx+dy*dy||1)));
+    const cx=s.ax+dx*t;
+    const cy=s.ay+dy*t;
+    return { nx:x-cx, ny:y-cy, d:Math.hypot(x-cx,y-cy) };
+  };
+  const clearance=(x,y)=>{ let m=1e9; for(const s of SEG){ const q=segDist(s,x,y); if(q.d<m) m=q.d; } return m; };
+  const spots=STORY_A_SPOTS;
+  const beads=events.map((ev,i)=>{
+    let x=300;
+    let y=300;
+    let r=13;
+    if(i<spots.length){ x=spots[i].x; y=spots[i].y; r=spots[i].r; }
+    else{                                                  // 자리(20곳)보다 사건이 많으면: 작은 구슬을 빈틈에
+      for(let k=0;k<400;k++){
+        const tx=40+Math.random()*520;
+        const ty=40+Math.random()*440;
+        if(inPoly(tx,ty) && clearance(tx,ty)>r+4){ x=tx; y=ty; break; }
+      }
+    }
+    const a=Math.random()*Math.PI*2;
+    const sp=15+Math.random()*12;                          // 아주 느리게 — 고급스러움은 속도에서
+    return { ev, x, y, r, vx:Math.cos(a)*sp, vy:Math.sin(a)*sp };
+  });
+  const solve=()=>{
+    for(let pass=0;pass<2;pass++){                         // 좁은 목에서 두 벽이 동시에 밀 때를 위한 2회전
+      for(const b of beads){
+        for(const s of SEG){
+          const q=segDist(s, b.x, b.y);
+          const R=b.r+2;
+          if(q.d<R && q.d>0.0001){
+            const nx=q.nx/q.d;
+            const ny=q.ny/q.d;
+            b.x+=nx*(R-q.d); b.y+=ny*(R-q.d);
+            const vn=b.vx*nx+b.vy*ny;
+            if(vn<0){ b.vx-=2*vn*nx; b.vy-=2*vn*ny; }
+          }
+        }
+      }
+      for(let i=0;i<beads.length;i++) for(let j=i+1;j<beads.length;j++){
+        const a=beads[i], c=beads[j];
+        let dx=c.x-a.x, dy=c.y-a.y;
+        const dist=Math.hypot(dx,dy)||0.001;
+        const min=a.r+c.r+2;
+        if(dist<min){
+          dx/=dist; dy/=dist;
+          const push=(min-dist)/2;
+          a.x-=dx*push; a.y-=dy*push; c.x+=dx*push; c.y+=dy*push;
+          const van=a.vx*dx+a.vy*dy, vcn=c.vx*dx+c.vy*dy;  // 같은 질량 탄성 충돌: 법선 성분 교환
+          if(van-vcn>0){ a.vx+=(vcn-van)*dx; a.vy+=(vcn-van)*dy; c.vx+=(van-vcn)*dx; c.vy+=(van-vcn)*dy; }
+        }
+      }
+    }
+  };
+  for(let k=0;k<120;k++) solve();                          // 초기 배치 안정화
+  box.innerHTML=beads.map((b,i)=>`<div class="beadw" data-bi="${i}"><div class="bead">
+    <span class="bead-y">${escapeHtml((b.ev.date.match(/\d{4}/)||[''])[0])}</span>
+    <span class="bead-t">${escapeHtml(b.ev.title)}</span>
+  </div></div>`).join('');
+  const els=[...box.querySelectorAll('.beadw')];
+  els.forEach((el,i)=>{ el.onclick=()=>openStoryPane(beads[i].ev); });
+  let scale=1;
+  const fit=()=>{
+    scale=(box.clientWidth||600)/600;
+    els.forEach((el,i)=>{
+      const px=Math.max(18, Math.round(beads[i].r*2*scale));
+      el.style.width=px+'px';
+      el.style.height=px+'px';
+      el.style.fontSize=Math.round(px*0.17)+'px';
+      el.classList.toggle('sm', px<58);                    // 작은 구슬: 연도만
+    });
+  };
+  fit();
+  const draw=()=>{ els.forEach((el,i)=>{ const b=beads[i];
+    el.style.transform=`translate3d(${((b.x-b.r)*scale).toFixed(1)}px,${((b.y-b.r)*scale).toFixed(1)}px,0)`; }); };
+  draw();
+  if(document.body.classList.contains('fx-flat')
+     || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)) return;   // 정적 배치로 끝
+  let last=0, visible=true;
+  const step=(ts)=>{
+    _beadRaf=0;
+    if(!box.isConnected){ stopStoryBeads(); return; }      // 화면을 떠나면 스스로 멈춘다
+    const dt=Math.min(48, ts-(last||ts))/1000; last=ts;
+    if(!document.hidden && dt>0){
+      if(Math.abs((box.clientWidth||600)/600-scale)>0.001) fit();
+      for(const b of beads){ b.x+=b.vx*dt; b.y+=b.vy*dt; }
+      solve();
+      draw();
+    }
+    if(visible) _beadRaf=requestAnimationFrame(step);
+  };
+  _beadIo=new IntersectionObserver(en=>{                   // 화면 밖에서는 아예 돌지 않는다
+    visible=!!(en[0]&&en[0].isIntersecting);
+    if(visible && !_beadRaf){ last=0; _beadRaf=requestAnimationFrame(step); }
+  });
+  _beadIo.observe(box);
+  _beadRaf=requestAnimationFrame(step);
+}
+/* --- 오른쪽 라이트 패널 (그림자 없음 — 얇은 실선만) --- */
+function closeStoryPane(){
+  const sc=document.querySelector('.story-scrim'), pn=document.querySelector('.story-pane');
+  if(sc) sc.remove();
+  if(pn){
+    if(document.body.classList.contains('fx-flat')){ pn.remove(); return; }
+    pn.classList.remove('on');
+    setTimeout(()=>pn.remove(), 520);
+  }
+}
+function openStoryPane(ev){
+  closeStoryPane();
+  const sc=document.createElement('div'); sc.className='story-scrim';
+  const pn=document.createElement('aside'); pn.className='story-pane';
+  pn.innerHTML=`<button class="sp-close" aria-label="닫기">✕</button>
+    <div class="sp-date">${escapeHtml(ev.date)}</div>
+    <h2>${escapeHtml(ev.title)}</h2>
+    ${ev.photo?`<img class="sp-img" src="${escapeAttr(storyUrl(ev.photo))}" alt="">`:''}
+    ${ev.memo?`<div class="sp-memo">${escapeHtml(ev.memo)}</div>`
+             :`<div class="sp-memo-empty">회고록이 아직 없어요 — 운영진이 [연혁 관리]에서 채울 수 있어요.</div>`}`;
+  document.body.appendChild(sc);
+  document.body.appendChild(pn);
+  sc.onclick=closeStoryPane;
+  pn.querySelector('.sp-close').onclick=closeStoryPane;
+  window.addEventListener('hashchange', closeStoryPane, { once:true });
+  if(document.body.classList.contains('fx-flat')) pn.classList.add('on');
+  else requestAnimationFrame(()=>requestAnimationFrame(()=>pn.classList.add('on')));
+}
+/* --- 페이지 --- */
+async function renderStoryPage(){
+  const _nav=_navSeq;
+  const cfg=await loadStoryCfg();
+  if(_nav!==_navSeq) return;
+  const events=(cfg && Array.isArray(cfg.events)) ? cfg.events : STORY_SEED.slice();
+  const ownerNote=(cfg===null && isOwner())
+    ? `<p class="ch-note">저장소를 아직 읽지 못해 기본 연혁을 보여주고 있어요 — <code>91_history.sql</code>을 실행하면 [연혁 관리]로 내용을 채울 수 있습니다.${
+        _storyErr&&_storyErr.message?`<br>원인: ${escapeHtml(String(_storyErr.message))}`:''}</p>` : '';
+  $('#doc').innerHTML=`<div class="story-wrap">
+    <div class="doc-head"><h1>연혁</h1>
+      ${isOwner()?`<button class="ch-act" id="storyManageBtn" style="margin-left:auto">연혁 관리</button>`:''}
+    </div>
+    <p class="story-note">우리가 걸어온 길 — 순간 위에 마우스를 올리거나 눌러 보세요.</p>
+    ${ownerNote}
+    ${events.length ? storyTimelineHtml(events) : `<p class="ch-note" style="margin-top:20px">아직 기록된 연혁이 없어요.${isOwner()?' [연혁 관리]에서 첫 사건을 추가해 보세요.':''}</p>`}
+    ${events.length ? `<div class="story-a-sec">
+      <div class="abox">
+        <div class="bead-layer" id="beadLayer"></div>
+        <svg viewBox="0 0 600 520" aria-hidden="true">
+          <path d="${STORY_A_PATH}" fill="none" stroke="var(--accent)" stroke-width="24" stroke-linejoin="round" opacity="0.06"/>
+          <path d="${STORY_A_PATH}" fill="color-mix(in srgb, var(--accent) 4%, transparent)" stroke="var(--accent)" stroke-width="5.5" stroke-linejoin="round" opacity="0.85"/>
+        </svg>
+      </div>
+      <div class="story-a-hint">구슬을 누르면 그날의 이야기가 열려요.</div>
+    </div>` : ''}
+  </div>`;
+  document.querySelectorAll('.stl-n').forEach(nEl=>{
+    nEl.addEventListener('click',()=>{ nEl.classList.toggle('open'); });          // 모바일: 탭으로 토글
+  });
+  const mb=$('#storyManageBtn'); if(mb) mb.onclick=openStoryManager;
+  initStoryBeads(events);
+}
+/* --- 연혁 관리 (owner) — 전 항목 한눈에 · 그 자리에서 수정 · 드래그로 순서 변경 --- */
+async function openStoryManager(){
+  if(!isOwner()) return;
+  const cfg=await loadStoryCfg();
+  const base=(cfg && Array.isArray(cfg.events)) ? cfg.events : STORY_SEED;
+  const items=base.map(e=>({ id:e.id, date:e.date, title:e.title, blurb:e.blurb, memo:e.memo, photo:e.photo }));
+  const orig=items.map(it=>it.photo).filter(Boolean);
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:660px">
+    <div class="modal-msg">연혁 관리</div>
+    <div class="modal-sub">모든 항목을 한 화면에서 바로 고칠 수 있어요. 왼쪽 <b>⠿</b>를 잡아 끌면 순서가 바뀝니다.
+      사진은 올릴 때 자동으로 ${STORY_TARGET_KB}KB 이하로 줄어요.</div>
+    ${cfg===null?`<p class="ch-note">저장소를 읽지 못했어요 — 처음이면 <code>91_history.sql</code>을 먼저 실행하세요.${
+      _storyErr&&_storyErr.message?`<br>원인: ${escapeHtml(String(_storyErr.message))}`:''}</p>`:''}
+    <div class="sm-list" id="smList"></div>
+    <div class="ch-actrow">
+      <button class="ch-act" id="smAdd">＋ 사건 추가</button>
+      <input type="file" id="smFile" accept="image/*" style="display:none">
+    </div>
+    <div class="he-msg" id="smMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="modal-ok">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>{ items.forEach(it=>{ if(it.blobUrl) URL.revokeObjectURL(it.blobUrl); }); ov.remove(); };
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const list=ov.querySelector('#smList');
+  const msg=ov.querySelector('#smMsg');
+  const fileIn=ov.querySelector('#smFile');
+  /* 행은 항목 '객체'에 직접 배선한다 — 드래그로 배열 순서가 바뀌어도 참조가 안 깨진다 */
+  const makeRow=(it)=>{
+    const row=document.createElement('div'); row.className='smr';
+    const thumb=()=> it.blobUrl ? it.blobUrl : (it.photo ? storyUrl(it.photo) : '');
+    row.innerHTML=`
+      <span class="smr-drag" title="끌어서 순서 변경">⠿</span>
+      <input class="he-input sm-date" placeholder="2026.03" value="${escapeAttr(it.date)}">
+      <input class="he-input sm-title" placeholder="사건명" value="${escapeAttr(it.title)}">
+      <button class="pwm-b danger sm-del" title="이 사건 삭제">✕</button>
+      <input class="he-input sm-blurb" placeholder="타임라인에 뜨는 한 줄 (마우스를 올리면 보여요)" value="${escapeAttr(it.blurb)}">
+      <textarea class="he-input sm-memo" placeholder="회고록 — 구슬을 눌렀을 때 열리는 이야기">${escapeHtml(it.memo)}</textarea>
+      <div class="sm-photo">
+        <img class="sm-thumb" alt="" style="${thumb()?'':'display:none'}" src="${escapeAttr(thumb())}">
+        <button class="pwm-b sm-pset">${it.photo||it.blobUrl?'사진 바꾸기':'사진 올리기'}</button>
+        <button class="pwm-b sm-prm" style="${thumb()?'':'display:none'}">사진 빼기</button>
+      </div>`;
+    row.querySelector('.sm-date').oninput=e=>{ it.date=e.target.value; };
+    row.querySelector('.sm-title').oninput=e=>{ it.title=e.target.value; };
+    row.querySelector('.sm-blurb').oninput=e=>{ it.blurb=e.target.value; };
+    row.querySelector('.sm-memo').oninput=e=>{ it.memo=e.target.value; };
+    row.querySelector('.sm-del').onclick=()=>{
+      const i=items.indexOf(it);
+      if(i>=0) items.splice(i,1);
+      if(it.blobUrl) URL.revokeObjectURL(it.blobUrl);
+      row.remove();
+    };
+    const refreshPhoto=()=>{
+      const im=row.querySelector('.sm-thumb'), rm=row.querySelector('.sm-prm'), st=row.querySelector('.sm-pset');
+      const u=thumb();
+      im.style.display=u?'':'none'; if(u) im.src=u;
+      rm.style.display=u?'':'none';
+      st.textContent=u?'사진 바꾸기':'사진 올리기';
+    };
+    row.querySelector('.sm-pset').onclick=()=>{
+      fileIn.onchange=()=>{
+        const f=fileIn.files && fileIn.files[0];
+        fileIn.value='';
+        if(!f) return;
+        if(it.blobUrl) URL.revokeObjectURL(it.blobUrl);
+        it.file=f; it.blobUrl=URL.createObjectURL(f);
+        refreshPhoto();
+      };
+      fileIn.click();
+    };
+    row.querySelector('.sm-prm').onclick=()=>{
+      if(it.blobUrl) URL.revokeObjectURL(it.blobUrl);
+      it.file=null; it.blobUrl=null; it.photo=null;
+      refreshPhoto();
+    };
+    return row;
+  };
+  const drawAll=()=>{ list.innerHTML=''; items.forEach(it=>list.appendChild(makeRow(it))); };
+  drawAll();
+  ov.querySelector('#smAdd').onclick=()=>{
+    const it={ id:storyId(), date:'', title:'', blurb:'', memo:'', photo:null };
+    items.push(it);
+    const row=makeRow(it);
+    list.appendChild(row);
+    row.querySelector('.sm-date').focus();
+    list.scrollTop=list.scrollHeight;
+  };
+  /* 드래그 순서 변경 — 포인터 기반 (HTML5 DnD는 모바일에서 성립하지 않는다) */
+  let drag=null;
+  list.addEventListener('pointerdown',e=>{
+    const h=e.target.closest('.smr-drag'); if(!h) return;
+    const row=h.closest('.smr'); if(!row) return;
+    drag={ row };
+    row.classList.add('dragging');
+    try{ h.setPointerCapture(e.pointerId); }catch(err){}
+    e.preventDefault();
+  });
+  list.addEventListener('pointermove',e=>{
+    if(!drag) return;
+    const rows=[...list.querySelectorAll('.smr')];
+    const cur=rows.indexOf(drag.row);
+    let to=cur;
+    rows.forEach((r,i)=>{
+      if(r===drag.row) return;
+      const b=r.getBoundingClientRect();
+      if(i>cur && e.clientY>b.top+b.height/2) to=Math.max(to,i);
+      if(i<cur && e.clientY<b.top+b.height/2) to=Math.min(to,i);
+    });
+    if(to!==cur){
+      const moved=items.splice(cur,1)[0];
+      items.splice(to,0,moved);
+      if(to>cur) rows[to].after(drag.row); else rows[to].before(drag.row);
+    }
+  });
+  const dragEnd=()=>{ if(drag){ drag.row.classList.remove('dragging'); drag=null; } };
+  list.addEventListener('pointerup',dragEnd);
+  list.addEventListener('pointercancel',dragEnd);
+  ov.querySelector('.modal-ok').onclick=async()=>{
+    const okb=ov.querySelector('.modal-ok'), addb=ov.querySelector('#smAdd');
+    okb.disabled=true; addb.disabled=true;
+    msg.className='msg';
+    try{
+      const bad=items.find(it=>!(it.title||'').trim() && !(it.date||'').trim() && !it.file && !it.photo);
+      if(bad) throw new Error('빈 사건이 있어요 — 내용을 적거나 ✕로 지워주세요.');
+      const newCount=items.filter(it=>it.file).length;
+      const t0=Date.now(); let done=0;
+      const eta=()=>{
+        if(!newCount) return '';
+        const remain=done ? Math.ceil(((Date.now()-t0)/done)*(newCount-done)/1000) : newCount*3;
+        return remain>0 ? ` · 약 ${remain}초 남음` : '';
+      };
+      const out=[];
+      for(const it of items){
+        let photo=it.photo||null;
+        if(it.file){
+          msg.textContent=`잠시만 기다리세요 — 사진을 줄이고 올리는 중이에요 (${done+1}/${newCount}${eta()})`;
+          const c=await compressImage(it.file, { mode:'contain', dim:STORY_DIM, target:STORY_TARGET_KB*1024, minQuality:0.4 });
+          photo='ev/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
+          const { error } = await sb.storage.from(STORY_BUCKET).upload(photo, c.blob, { contentType:c.type, cacheControl:'31536000' });
+          if(error) throw error;
+          done++;
+        }
+        out.push({ id:it.id||storyId(), date:(it.date||'').trim(), title:(it.title||'').trim(),
+                   blurb:(it.blurb||'').trim(), memo:it.memo||'', photo });
+      }
+      const keep=out.map(o=>o.photo).filter(Boolean);
+      const del=orig.filter(p=>!keep.includes(p));
+      if(del.length){ try{ await sb.storage.from(STORY_BUCKET).remove(del); }catch(e){} }
+      msg.textContent='잠시만 기다리세요 — 목록을 저장하는 중이에요…';
+      const blob=new Blob([JSON.stringify({ events: out })], { type:'application/json' });
+      const { error:e2 } = await sb.storage.from(STORY_BUCKET)
+        .upload(STORY_JSON, blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
+      if(e2) throw e2;
+      close();
+      toast('연혁을 저장했어요.');
+      route();                                               // 연혁 페이지 다시 그림
+    }catch(e){
+      okb.disabled=false; addb.disabled=false;
+      msg.className='msg err';
+      msg.textContent='저장하지 못했습니다: '+((e&&e.message)||e)+' (91_history.sql 실행 여부를 확인하세요)';
     }
   };
 }
@@ -13060,7 +13593,7 @@ function openEventDetail(e){
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
                    'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
-                   'password','me','trash','notfound','board','qr'];
+                   'password','me','trash','notfound','board','qr','story'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
@@ -13280,14 +13813,14 @@ function route(){
   /* ★기능 스위치(82) — 꺼진 모듈은 직접 주소로도 못 들어간다 (owner는 점검을 위해 통과) */
   if(sys && !isOwner()){
     const FEAT_PAGE={ community:'community', questions:'questions', inbox:'inbox', calendar:'calendar',
-                      board:'tasks', qr:'qr', directory:'directory' };
+                      board:'tasks', qr:'qr', directory:'directory', story:'history' };
     const fk = FEAT_PAGE[key]
             || ((isQuestion||isUserQ) ? 'questions' : null)
             || (isDm ? 'inbox' : null)
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story'];
   railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -13319,6 +13852,7 @@ function route(){
     if(!canEdit() && !isMyMemberDoc(ek)){ location.hash=docHash(ek); return; }      // 본인 회원 문서는 등급 무관 편집
     openEditRoute(ek); return;
   }
+  if(sys && key==='story'){ renderStoryPage(); return; }
   if(sys && key==='docs'){ renderDocsPage(); return; }
   if(sys && key==='questions'){ renderQuestions(); return; }
   if(sys && key==='calendar'){ renderCalendarPage(); return; }
@@ -13524,6 +14058,7 @@ $('#dropLogout').onclick=async()=>{
 };
 $('#homeLink').onclick=()=>{ goHash('#//main'); };
 $('#communityBtn').onclick=()=>{ goHash('#//community'); };
+$('#storyBtn').onclick=()=>{ goHash('#//story'); };
   $('#docsBtn').onclick=()=>{ goHash('#//docs'); };
 $('#boardBtn').onclick=()=>{ goHash('#//board'); };
   $('#qBtn').onclick=()=>{ goHash('#//questions'); };
