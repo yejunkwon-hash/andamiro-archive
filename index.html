@@ -2963,6 +2963,143 @@ body.fx-flat .story-pane{transition:none;}
 .smr .sm-photo{grid-area:photo;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
 .smr .sm-thumb{width:52px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
 </style>
+<style>
+/* ===== KYPT 연구 탭 (92) — 세션 AQ =====
+   ★규칙 15-1: 토큰 이름을 만들지 않고 기존 토큰만 쓴다. 새 색을 도입하지 않는다.
+   ★규칙 15-2 박스 4원칙: 채워진 박스는 '진행 스트립' 하나뿐. 목록은 실선 행, 나머지는 라벨+여백.
+   ★§6-3 원근 구역제: 이 화면은 읽고 입력하는 본문 구역이므로 전부 0° — .tilt-* 금지.
+   ★강조는 '색을 더 쓰는 것'이 아니라 '무게를 다르게 주는 것'으로 한다.
+     다른 네비가 아이콘+글자일 때 KYPT만 채워진 상징색 블록 + 구분선. */
+/* ★!important를 쓴다 — 취향이 아니라 필수다. 세션 AG가 상단바 대비 사고를 끝내려고
+   `.topbar .navbtn{background:var(--box-bg)!important}`로 한 번에 못박아 뒀다.
+   특이성으로는 절대 못 이긴다(0,3,0도 진다). 선례인 `.topbar .navbtn.on`과 같은 방식으로 맞춘다. */
+.topbar .navbtn.navkypt{ background:var(--accent) !important; color:#fff !important; border-radius:var(--r-1);
+  padding:6px 12px; margin-right:6px; position:relative; font-weight:700; }
+.topbar .navbtn.navkypt:hover, .topbar .navbtn.navkypt:focus-visible{
+  background:var(--accent-soft) !important; color:#fff !important; }
+.topbar .navbtn.navkypt .nbi{ color:#fff; }
+.topbar .navbtn.navkypt::after{ content:''; position:absolute; right:-4px; top:18%; bottom:18%;
+  width:1px; background:var(--border-strong); }
+.bn-item.navkypt{ color:var(--accent); font-weight:700; }
+
+.kypt-wrap{ max-width:900px; }
+.kp-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:2px 0 6px; }
+.kp-year{ font:inherit; padding:6px 10px; border:1px solid var(--border-strong);
+  border-radius:var(--r-1); background:var(--card); color:var(--text); }
+.kp-dday{ font-family:var(--mono); font-weight:700; color:var(--accent); letter-spacing:.02em; }
+.kp-lock{ display:inline-flex; align-items:center; gap:4px; color:var(--text-dim); font-size:13px; }
+.kp-src{ color:var(--link); font-size:13px; }
+.kp-note{ color:var(--text-dim); font-size:14px; line-height:1.7; margin:0 0 14px; }
+.kp-hint{ color:var(--text-dim); font-size:13px; margin:0 0 10px; }
+
+/* 진행 스트립 — 문제 하나가 칸 하나. 배정되면 채워지고, 내가 맡은 것엔 테두리가 선다 */
+.kp-strip{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 20px; }
+.kp-strip .kp-cell{ width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+  border-radius:var(--r-1); background:var(--box-bg); color:var(--text-dim);
+  font-family:var(--mono); font-size:12px; text-decoration:none; border:1px solid var(--border); }
+.kp-strip .kp-cell.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.kp-strip .kp-cell.mine{ outline:2px solid var(--accent); outline-offset:1px; }
+.kp-strip .kp-cell.out{ opacity:.38; }
+
+/* 목록 — 실선 행(§6-1 .dl2와 같은 결). 카드 그리드를 만들지 않는다 */
+.kp-list{ border-top:1px solid var(--border); }
+.kp-row{ display:flex; align-items:flex-start; gap:14px; padding:14px 4px;
+  border-bottom:1px solid var(--border); text-decoration:none; color:inherit; }
+.kp-row:hover{ background:var(--box-bg); }
+.kp-row.out{ opacity:.5; }
+.kp-row.mine{ box-shadow:inset 3px 0 0 var(--accent); }
+.kp-no{ font-family:var(--mono); font-size:20px; font-weight:700; color:var(--accent);
+  min-width:30px; text-align:right; line-height:1.3; }
+.kp-no.big{ font-size:inherit; min-width:0; margin-right:6px; }
+.kp-body{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.kp-title{ font-weight:700; font-size:16px; }
+.kp-tag{ font-size:11px; color:var(--text-dim); border:1px solid var(--border-strong);
+  border-radius:var(--r-round); padding:1px 7px; margin-left:7px; font-weight:400; }
+.kp-sum{ color:var(--text-dim); font-size:13.5px; line-height:1.6; }
+.kp-who{ color:var(--text-dim); font-size:12px; }
+.kp-st{ font-size:12px; color:var(--text-dim); white-space:nowrap; padding-top:3px; }
+.kp-st-doing{ color:var(--warn); } .kp-st-done{ color:var(--ok); } .kp-st-review{ color:var(--info); }
+
+/* 상세 */
+.kp-back{ display:inline-block; margin-bottom:6px; color:var(--text-dim); font-size:13px; text-decoration:none; }
+.kp-back:hover{ color:var(--accent); }
+.kp-en{ color:var(--text-dim); font-size:13px; margin:-6px 0 14px; }
+.kp-people{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin:0 0 16px; }
+.kp-plab{ font-size:12px; color:var(--text-dim); }
+.kp-chip{ font-size:13px; padding:4px 11px; border-radius:var(--r-round);
+  background:var(--box-bg); border:1px solid var(--border); }
+.kp-chip.lead{ border-color:var(--accent); color:var(--accent); }
+.kp-chip.none{ color:var(--text-dim); }
+.kp-stsel{ font:inherit; font-size:13px; padding:4px 8px; border:1px solid var(--border-strong);
+  border-radius:var(--r-1); background:var(--card); color:var(--text); margin-left:auto; }
+.kp-tabs{ display:flex; gap:2px; border-bottom:1px solid var(--border); margin-bottom:18px; }
+.kp-tab{ font:inherit; font-size:14px; padding:9px 16px; background:none; border:none; cursor:pointer;
+  color:var(--text-dim); border-bottom:2px solid transparent; margin-bottom:-1px; }
+.kp-tab.on{ color:var(--accent); border-bottom-color:var(--accent); font-weight:700; }
+.kp-sumbox{ border-left:3px solid var(--accent); padding:2px 0 2px 14px;
+  color:var(--text-dim); line-height:1.8; margin-bottom:22px; }
+.kp-h3{ font-size:15px; margin:0 0 10px; }
+.kp-ta{ width:100%; font:inherit; line-height:1.7; padding:12px; border:1px solid var(--border-strong);
+  border-radius:var(--r-1); background:var(--card); color:var(--text); resize:vertical; }
+.kp-ro{ white-space:pre-wrap; line-height:1.8; color:var(--text-dim); }
+
+/* 자료 */
+.kp-refgrp{ margin-bottom:20px; }
+.kp-refgrp h4{ font-size:12px; color:var(--text-dim); font-weight:700; letter-spacing:.04em;
+  margin:0 0 8px; text-transform:none; }
+.kp-ref{ display:flex; align-items:baseline; gap:10px; padding:8px 2px; border-bottom:1px solid var(--border); }
+.kp-ref a{ color:var(--link); }
+.kp-refnote{ color:var(--text-dim); font-size:13px; flex:1; }
+.kp-x{ margin-left:auto; background:none; border:none; cursor:pointer; color:var(--text-dim);
+  font-size:16px; line-height:1; padding:2px 6px; }
+.kp-x:hover{ color:var(--danger); }
+.kp-form{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+.kp-form input, .kp-form select{ font:inherit; font-size:14px; padding:8px 10px; flex:1; min-width:130px;
+  border:1px solid var(--border-strong); border-radius:var(--r-1); background:var(--card); color:var(--text); }
+
+/* 끄적임 — 작은 네모, 누르면 크게 열린다 (좌표가 아니라 섹션에 붙는다 → 모바일 안전) */
+.kp-notes{ display:flex; flex-wrap:wrap; gap:10px; }
+.kp-note-box{ width:132px; height:132px; padding:12px; border:none; cursor:pointer; text-align:left;
+  border-radius:var(--r-2); font:inherit; font-size:13px; line-height:1.55; overflow:hidden;
+  color:var(--text); box-shadow:var(--sh-1); transition:transform var(--dur-1) var(--ease); }
+.kp-note-box:hover{ transform:translateY(-2px); box-shadow:var(--sh-2); }
+.kp-note-box span{ display:-webkit-box; -webkit-line-clamp:6; -webkit-box-orient:vertical; overflow:hidden; }
+.kp-note-box.c0{ background:#FDF3D7; } .kp-note-box.c1{ background:#DDF1E4; }
+.kp-note-box.c2{ background:#DCE8FA; } .kp-note-box.c3{ background:#EBE1FA; }
+.kp-note-box.c4{ background:#ECEAEA; }
+.kp-note-box.add{ background:var(--box-bg); border:1px dashed var(--border-strong);
+  color:var(--text-dim); font-size:24px; display:flex; align-items:center; justify-content:center; }
+.kp-colors{ display:flex; gap:8px; margin-top:12px; }
+.kp-col{ width:26px; height:26px; border-radius:var(--r-round); border:2px solid transparent; cursor:pointer; }
+.kp-col.on{ border-color:var(--text); }
+.kp-col.c0{ background:#FDF3D7; } .kp-col.c1{ background:#DDF1E4; }
+.kp-col.c2{ background:#DCE8FA; } .kp-col.c3{ background:#EBE1FA; }
+.kp-col.c4{ background:#ECEAEA; }
+
+/* 일지 */
+.kp-log{ border-top:1px solid var(--border); }
+.kp-logrow{ display:flex; gap:14px; align-items:baseline; padding:10px 2px; border-bottom:1px solid var(--border); }
+.kp-date{ font-family:var(--mono); font-size:12.5px; color:var(--text-dim); white-space:nowrap; }
+.kp-logtxt{ flex:1; line-height:1.6; }
+
+/* 모달 안 목록 */
+.kp-mlist{ max-height:320px; overflow:auto; margin:10px 0; }
+.kp-mrow{ display:flex; align-items:center; gap:9px; padding:7px 2px; cursor:pointer; }
+.kp-mrow input{ width:16px; height:16px; }
+
+body.dark .kp-note-box.c0{ background:#4A4029; } body.dark .kp-note-box.c1{ background:#26402F; }
+body.dark .kp-note-box.c2{ background:#25344C; } body.dark .kp-note-box.c3{ background:#332B4A; }
+body.dark .kp-note-box.c4{ background:#333133; }
+body.dark .kp-note-box{ color:#EDEAEA; }
+
+@media (max-width:640px){
+  .topbar .navbtn.navkypt{ padding:6px 9px; }
+  .kp-note-box{ width:calc(50% - 5px); height:120px; }
+  .kp-row{ gap:10px; }
+  .kp-no{ font-size:17px; min-width:24px; }
+  .kp-stsel{ margin-left:0; }
+}
+</style>
 </head>
 <body>
 
@@ -3121,6 +3258,7 @@ body.fx-flat .story-pane{transition:none;}
     </div>
     <div class="search"><input id="search" type="text" placeholder="문서 검색…" autocomplete="off"></div>
     <div class="spacer"></div>
+    <button class="navbtn navkypt" id="kyptBtn"><svg class="nbi"><use href="#i-book"/></svg><span class="nbt">KYPT</span></button>
     <button class="navbtn" id="docsBtn"><svg class="nbi"><use href="#i-docs"/></svg><span class="nbt">문서</span></button>
     <button class="navbtn" id="boardBtn"><svg class="nbi"><use href="#i-check"/></svg><span class="nbt">진행 보드</span></button>
     <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원</span></button>
@@ -4472,6 +4610,7 @@ const DEFAULT_FEATURES = {
   landing_extras:false,  // 대문 곁가지(최근 활동·통계·오늘의 문서)
   pwa_banner:false,      // 앱 설치 배너
   photo_wall:false,      // 대문 사진 슬라이드(90) — 세션 AO 후반 5에서 기본 끔으로 복귀 (페이지를 나중에 다시 다듬기로)
+  kypt:true,             // KYPT 연구 탭(92) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AQ 사용자 결정, 가이드에 기록)
   history:true           // 연혁 페이지(91) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AP 사용자 결정, 가이드에 기록)
 };
 let FEATURES = Object.assign({}, DEFAULT_FEATURES);
@@ -4495,6 +4634,7 @@ function applyFeatureNav(){
   show($('#boardBtn'),     featOn('tasks'));
   show($('#directoryBtn'), featOn('directory'));
   show($('#storyBtn'),     featOn('history'));
+  show($('#kyptBtn'),      featOn('kypt'));
   document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
     const need = ({ community:'community', inbox:'inbox', questions:'questions' })[b.dataset.nav];
     if(need) b.style.display = featOn(need) ? '' : 'none';
@@ -8193,6 +8333,7 @@ async function renderSysFeatures(){
       ['questions', '질문 게시판',      '질문이 답변이 되고, 답변이 문서가 되는 루프.'],
       ['inbox',     '쪽지 · 알림함',    '⚠ 답변·과제·일정 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요.'],
       ['directory', '회원',            '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
+      ['kypt',      'KYPT 연구',       '연도별 문제 목록과 문제별 참여자·자료·끄적임·일지. ★기본 켬(운영진 결정). 편집은 92_kypt.sql 필요, 문제 목록은 없이도 보여요.'],
     ]},
     { name:'부가', items:[
       ['community',      '채널 (작업 공간·채팅)', '★<b>채널이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 채널도 함께 사라져요.'],
@@ -8763,6 +8904,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-09-04', text:'[KYPT] 탭이 생겼어요 — 올해 문제 17개를 한눈에 보고, 문제마다 참여자·참고 자료·끄적임·활동 일지를 남길 수 있어요. 맡은 문제는 목록에서 표시됩니다.' },
   { date:'2026-08-06', text:'동아리의 발자취를 모은 [연혁] 페이지가 생겼어요 — 타임라인 위 순간에 마우스를 올려 보고, 커다란 A 속을 떠다니는 구슬을 눌러 이야기를 열어 보세요. 내용은 운영진이 [연혁 관리]에서 채웁니다.' },
   { date:'2026-08-05', text:'채널마다 공개 범위를 정할 수 있어요 — 멤버만 보는 채널은 이름 옆에 자물쇠가 붙습니다. 운영진은 채널 옆 톱니(⚙)에서 이름·순서·보관·삭제를 정리할 수 있어요.' },
   { date:'2026-08-05', text:'휴대폰에서 쪽지 대화창이 열리지 않던 문제를 고쳤어요.' },
@@ -10370,6 +10512,466 @@ function openStoryPane(ev){
   else requestAnimationFrame(()=>requestAnimationFrame(()=>pn.classList.add('on')));
 }
 /* --- 페이지 --- */
+/* ================== KYPT 연구 탭 (92) — 세션 AQ ==================
+   왜 있나: 동아리 활동의 중심이 KYPT다. 문제 하나하나가 곧 '과제'이고, 그 아래로
+   참여자·자료·끄적임·활동 일지가 붙는다. 문서·과제 루프의 KYPT 판이다.
+   ★기능 스위치 kypt는 기본 '켬' — 규칙 14의 명시적 예외(사용자 결정, 가이드 §0-A에 기록).
+   ★경계선(사용자와 합의): 동아리 전체 일정은 캘린더, 문제별 연구 진행 기록은 이 탭.
+   ★저작권: 공식 문제 원문은 옮기지 않는다. 제목 + 우리가 쓴 요약 + 원문 링크뿐. */
+const KYPT_SEED_YEAR = {
+  year: 2027,
+  title: 'KYPT 2027 · IYPT 2027 (제40회)',
+  event_at: '2027-02-01',
+  source_url: 'https://iypt.org/iypt-2027-problems/',
+  locked: false
+};
+/* IYPT 2027 공식 17문제 (2026-07-14 IOC 승인). KYPT 조직위는 이 중 14개를 골라 8~9월경 공지한다
+   (2026년엔 6·9·17번 제외). 공지가 나오면 owner가 [KYPT 관리]에서 3개만 끄면 된다 — is_kypt. */
+const KYPT_SEED = [
+  { no:1,  title:'바늘구멍 선글라스',  title_en:'Invent yourself: Pinhole sunglasses',
+    summary:'불투명 막에 뚫은 구멍의 배치를 바꿔가며, 빛의 세기를 줄이면서 근시까지 보정하는 최적 조건을 찾는다.' },
+  { no:2,  title:'디스크 분광기',      title_en:'Disc spectrometer',
+    summary:'CD·블루레이의 데이터 트랙을 반사형 회절격자로 삼아 분광기를 만들고 분해능을 최대화한다.' },
+  { no:3,  title:'달팽이 공',          title_en:'Snail ball',
+    summary:'점성 유체와 무거운 공이 든 속 빈 구가 비탈을 유난히 느리고 고르지 않게 구르는 이유를 밝힌다.' },
+  { no:4,  title:'노래하는 커패시터',  title_en:'Singing capacitor',
+    summary:'세라믹 커패시터에 교류를 걸면 소리가 난다. 전압·주파수·소자 특성에 따른 변화를 조사한다.' },
+  { no:5,  title:'Y자 진자',           title_en:'Y-shaped pendulum',
+    summary:'줄이 Y자를 이루는 보디치 진자를 만들어, 추가 그리는 리사주 도형이 무엇에 좌우되는지 살핀다.' },
+  { no:6,  title:'소리를 보다',        title_en:'Seeing sound',
+    summary:'스피커로 떨리는 고무막에 거울을 붙이고 레이저를 반사시키면 스크린에 도형이 생긴다. 그 조건을 조사한다.' },
+  { no:7,  title:'가라앉는 깔때기',    title_en:'Sinking funnel',
+    summary:'대롱이 긴 무거운 깔때기를 물에 세워 놓으면 아래위로 진동하며 가라앉는다. 운동과 뒤집히는 조건을 찾는다.' },
+  { no:8,  title:'위로 구동되는 원판', title_en:'Upward-driven disc',
+    summary:'두 바퀴 사이에 물린 원판을 모터가 위로 밀 때, 진자처럼 매달린 원판이 어떻게 움직이는지 조사한다.' },
+  { no:9,  title:'보케',               title_en:'Photographic bokeh',
+    summary:'렌즈 앞에 슬릿을 두면 초점 맞은 곳은 그대로인데 흐린 영역만 한 방향으로 일그러진다. 그 의존성을 조사한다.' },
+  { no:10, title:'공기 소용돌이',      title_en:'Air vortex',
+    summary:'자석 교반기의 회전 속도가 어느 값을 넘으면 액면에서 자석까지 가느다란 공기 통로가 생긴다. 이유를 밝힌다.' },
+  { no:11, title:'방음',               title_en:'Sound isolation',
+    summary:'문이 조금만 덜 닫혀도 방음이 무너진다. 틈의 모양과 크기가 소리 전달을 어떻게 바꾸는지 조사한다.' },
+  { no:12, title:'점선 자국',          title_en:'Dotted line trick',
+    summary:'분필을 끊김 없이 그었는데도 자국이 일정한 간격의 점선이 된다. 이 현상을 지배하는 변수를 찾는다.' },
+  { no:13, title:'소용돌이 진자',      title_en:'Vortex pendulum',
+    summary:'흐르는 물에 원통 추를 반쯤 담근 진자가 흐름과 수직으로 흔들린다. 원인과 의존성을 규명한다.' },
+  { no:14, title:'비뉴턴 유체 벌레',   title_en:'Non-Newtonian worms',
+    summary:'전분물을 수직으로 진동시키면 표면에서 벌레 모양 구조가 솟아오른다. 생기는 조건을 조사한다.' },
+  { no:15, title:'찬 음료',            title_en:'Cold drink',
+    summary:'얼음에 소금과 알코올을 넣으면 음료가 더 빨리, 더 차갑게 식는다. 최저 온도와 최대 냉각률의 조건을 찾는다.' },
+  { no:16, title:'자석 회전목마',      title_en:'Magnetic carousel',
+    summary:'교대로 뒤집은 자석을 붙인 원판이 돌 때, 그 위 강철구가 같은 방향으로도 반대로도 움직인다. 이유를 밝힌다.' },
+  { no:17, title:'넘어가는 책 표지',   title_en:'Falling book cover',
+    summary:'눕힌 책의 반쯤 열린 표지가 넘어질 때의 운동을 조사한다.' }
+];
+const KYPT_STATUS = { idle:'대기', doing:'연구 중', review:'검토', done:'마무리' };
+const KYPT_KINDS  = { prior:'선행 연구', paper:'논문·자료', video:'실험 영상', tool:'도구·장비', etc:'그 밖' };
+const KYPT_NOTE_COLORS = 5;
+
+let _kyptCache = null;      // { years, problems, members, byYear }
+let _kyptErr = null;        // 92 미적용 등 실패 원인 (owner에게만 보여준다)
+let _kyptNo92 = false;      // 저장소를 못 읽어 시드로 그리고 있는 상태
+let _kyptYear = null;       // 지금 보고 있는 연도
+let _kyptTab = 'body';      // 상세 화면의 서브탭
+
+function kyptSeedRows(){
+  return KYPT_SEED.map(p=>Object.assign({}, p, {
+    id: null, year: KYPT_SEED_YEAR.year, is_kypt: true, status: 'idle', body: null,
+    source_url: KYPT_SEED_YEAR.source_url
+  }));
+}
+/* 저장소에서 연도·문제·참여자를 읽는다. 실패하면 시드로 화면을 세운다(규칙 13 — 우아한 실패). */
+async function loadKypt(force){
+  if(_kyptCache && !force) return _kyptCache;
+  let years=null, problems=null, members=[];
+  try{
+    const ry = await sb.from('kypt_years').select('year,title,event_at,source_url,locked').order('year',{ascending:false});
+    if(ry.error) throw ry.error;
+    years = ry.data || [];
+    const rp = await sb.from('kypt_problems')
+      .select('id,year,no,title,title_en,summary,body,source_url,is_kypt,status,updated_at').order('no',{ascending:true});
+    if(rp.error) throw rp.error;
+    problems = rp.data || [];
+    const rm = await sb.from('kypt_members').select('problem_id,uid,lead');
+    if(!rm.error) members = rm.data || [];
+    _kyptNo92 = false; _kyptErr = null;
+  }catch(e){
+    _kyptErr = e; _kyptNo92 = true;
+    years = [Object.assign({}, KYPT_SEED_YEAR)];
+    problems = kyptSeedRows();
+    members = [];
+  }
+  if(!years.length){ years = [Object.assign({}, KYPT_SEED_YEAR)]; }
+  if(!problems.length){ problems = kyptSeedRows(); }
+  _kyptCache = { years, problems, members };
+  return _kyptCache;
+}
+function kyptYearRow(y){ const c=_kyptCache; return (c&&c.years.find(r=>Number(r.year)===Number(y))) || null; }
+function kyptProblemsOf(y){ const c=_kyptCache; return (c?c.problems:[]).filter(p=>Number(p.year)===Number(y)).sort((a,b)=>a.no-b.no); }
+function kyptMembersOf(pid){ const c=_kyptCache; return (c?c.members:[]).filter(m=>m.problem_id===pid); }
+function kyptIsMine(pid){ return kyptMembersOf(pid).some(m=>m.uid===(state.user&&state.user.id)); }
+/* 화면용 판단 — 최종 방어선은 언제나 RLS다(규칙 17) */
+function kyptAdminish(){ return state.role==='owner' || state.role==='admin'; }
+function kyptCanEditProblem(p){
+  if(!p) return false;
+  const y = kyptYearRow(p.year);
+  if(y && y.locked) return false;
+  return kyptAdminish() || kyptIsMine(p.id);
+}
+function kyptDday(y){
+  const row = kyptYearRow(y);
+  if(!row || !row.event_at) return '';
+  const d = new Date(row.event_at+'T00:00:00');
+  if(isNaN(d)) return '';
+  const days = Math.ceil((d - new Date(new Date().toDateString()))/86400000);
+  if(days > 0) return 'D-'+days;
+  if(days === 0) return 'D-day';
+  return '지난 대회';
+}
+function kyptSaveHint(){
+  return _kyptNo92
+    ? (kyptAdminish() ? `<p class="ch-note">저장소를 아직 읽지 못해 기본 문제 목록을 보여주고 있어요 — <code>92_kypt.sql</code>을 실행하면 저장할 수 있습니다.${
+        _kyptErr&&_kyptErr.message?`<br>원인: ${escapeHtml(String(_kyptErr.message))}`:''}</p>` : '')
+    : '';
+}
+function kyptNoteOk(){
+  if(_kyptNo92){ toast('아직 저장소가 준비되지 않았어요 (92_kypt.sql).'); return false; }
+  return true;
+}
+
+/* ---------------- 목록 화면 ---------------- */
+async function renderKyptPage(){
+  const _nav=_navSeq;
+  const c = await loadKypt();
+  await kyptLoadPeople();                 // ★목록에도 참여자 이름이 나온다 (없으면 전부 '회원'으로 떨어진다)
+  if(_nav!==_navSeq) return;
+  if(_kyptYear==null || !c.years.some(r=>Number(r.year)===Number(_kyptYear))) _kyptYear = Number(c.years[0].year);
+  const yrow = kyptYearRow(_kyptYear) || {};
+  const list = kyptProblemsOf(_kyptYear);
+  const picked = list.filter(p=>p.is_kypt);
+  const mine = list.filter(p=>kyptIsMine(p.id));
+  const dd = kyptDday(_kyptYear);
+  const strip = list.map(p=>{
+    const m = kyptMembersOf(p.id).length;
+    const cls = ['kp-cell', m?'on':'', kyptIsMine(p.id)?'mine':'', p.is_kypt?'':'out'].filter(Boolean).join(' ');
+    return `<a class="${cls}" href="#//kypt/${_kyptYear}/${p.no}" title="${escapeAttr(p.no+'. '+p.title)}">${p.no}</a>`;
+  }).join('');
+  $('#doc').innerHTML=`<div class="kypt-wrap">
+    <div class="doc-head"><h1>KYPT</h1>
+      ${kyptAdminish()?`<button class="ch-act" id="kyptManageBtn" style="margin-left:auto">KYPT 관리</button>`:''}
+    </div>
+    <div class="kp-top">
+      <select class="kp-year" id="kyptYearSel" aria-label="연도 선택">
+        ${c.years.map(r=>`<option value="${r.year}"${Number(r.year)===Number(_kyptYear)?' selected':''}>${escapeHtml(r.title||(r.year+''))}</option>`).join('')}
+      </select>
+      ${dd?`<span class="kp-dday">${escapeHtml(dd)}</span>`:''}
+      ${yrow.locked?`<span class="kp-lock">${ic('lock')} 읽기 전용</span>`:''}
+      ${yrow.source_url?`<a class="kp-src" href="${escapeAttr(yrow.source_url)}" target="_blank" rel="noopener">공식 문제 원문</a>`:''}
+    </div>
+    <p class="kp-note">문제 <b>${list.length}</b>개 · KYPT 채택 <b>${picked.length}</b>개 · 내가 맡은 문제 <b>${mine.length}</b>개.
+      동아리 전체 일정은 <a href="#//calendar">캘린더</a>에, 문제별 연구 기록은 여기에 남깁니다.</p>
+    ${kyptSaveHint()}
+    <div class="kp-strip">${strip}</div>
+    <div class="kp-list">${list.map(kyptRowHtml).join('')}</div>
+  </div>`;
+  const sel=$('#kyptYearSel');
+  if(sel) sel.onchange=()=>{ _kyptYear=Number(sel.value); renderKyptPage(); };
+  const mb=$('#kyptManageBtn'); if(mb) mb.onclick=openKyptManager;
+}
+function kyptRowHtml(p){
+  const mem = kyptMembersOf(p.id);
+  const who = mem.length ? mem.map(m=>escapeHtml(kyptName(m.uid))).join(' · ') : '아직 배정 안 됨';
+  return `<a class="kp-row${kyptIsMine(p.id)?' mine':''}${p.is_kypt?'':' out'}" href="#//kypt/${p.year}/${p.no}">
+    <span class="kp-no">${p.no}</span>
+    <span class="kp-body">
+      <span class="kp-title">${escapeHtml(p.title)}${p.is_kypt?'':'<span class="kp-tag">KYPT 미채택</span>'}</span>
+      <span class="kp-sum">${escapeHtml(p.summary||'')}</span>
+      <span class="kp-who">${who}</span>
+    </span>
+    <span class="kp-st kp-st-${p.status||'idle'}">${KYPT_STATUS[p.status]||KYPT_STATUS.idle}</span>
+  </a>`;
+}
+function kyptName(uid){
+  const m = (window.__kyptPeople||[]).find(x=>x.id===uid);
+  return m ? (m.name || m.handle || '회원') : '회원';
+}
+async function kyptLoadPeople(){
+  if(window.__kyptPeople) return window.__kyptPeople;
+  try{
+    const { data } = await sb.from('members_public').select('id,name,handle,avatar_url');
+    window.__kyptPeople = data || [];
+  }catch(e){ window.__kyptPeople = []; }
+  return window.__kyptPeople;
+}
+
+/* ---------------- 상세 화면 ---------------- */
+async function renderKyptProblem(year, no){
+  const _nav=_navSeq;
+  await loadKypt();
+  await kyptLoadPeople();
+  if(_nav!==_navSeq) return;
+  const p = kyptProblemsOf(year).find(x=>Number(x.no)===Number(no));
+  if(!p){ $('#doc').innerHTML=`<div class="doc-head"><h1>없는 문제예요</h1></div>
+    <button class="btn primary" id="kbBack" style="width:auto;padding:9px 22px">KYPT로</button>`;
+    const b=$('#kbBack'); if(b) b.onclick=()=>goHash('#//kypt'); return; }
+  const canEd = kyptCanEditProblem(p);
+  const mem = kyptMembersOf(p.id);
+  const yrow = kyptYearRow(p.year) || {};
+  $('#doc').innerHTML=`<div class="kypt-wrap kp-detail">
+    <a class="kp-back" href="#//kypt">← ${escapeHtml(yrow.title||('KYPT '+p.year))}</a>
+    <div class="doc-head"><h1><span class="kp-no big">${p.no}</span> ${escapeHtml(p.title)}</h1></div>
+    <p class="kp-en">${escapeHtml(p.title_en||'')}${p.source_url?` · <a href="${escapeAttr(p.source_url)}" target="_blank" rel="noopener">공식 원문</a>`:''}</p>
+    ${yrow.locked?`<p class="ch-note">${ic('lock')} 지난 연도라 읽기 전용입니다.</p>`:''}
+    ${kyptSaveHint()}
+    <div class="kp-people">
+      <span class="kp-plab">참여</span>
+      ${mem.length?mem.map(m=>`<span class="kp-chip${m.lead?' lead':''}">${escapeHtml(kyptName(m.uid))}${m.lead?' · 대표':''}</span>`).join(''):'<span class="kp-chip none">아직 배정 안 됨</span>'}
+      ${kyptAdminish()&&!yrow.locked?`<button class="ch-act" id="kpMemBtn">참여자 지정</button>`:''}
+      ${canEd?`<select class="kp-stsel" id="kpStatus" aria-label="진행 상태">${
+        Object.keys(KYPT_STATUS).map(k=>`<option value="${k}"${(p.status||'idle')===k?' selected':''}>${KYPT_STATUS[k]}</option>`).join('')}</select>`:''}
+    </div>
+    <div class="kp-tabs" id="kpTabs">
+      ${[['body','개요'],['refs','자료'],['notes','끄적임'],['log','일지']].map(([k,l])=>
+        `<button class="kp-tab${_kyptTab===k?' on':''}" data-kt="${k}">${l}</button>`).join('')}
+    </div>
+    <div class="kp-pane" id="kpPane"></div>
+  </div>`;
+  document.querySelectorAll('#kpTabs .kp-tab').forEach(b=>{
+    b.onclick=()=>{ _kyptTab=b.dataset.kt;
+      document.querySelectorAll('#kpTabs .kp-tab').forEach(x=>x.classList.toggle('on', x===b));
+      kyptRenderPane(p, canEd); };
+  });
+  const mbtn=$('#kpMemBtn'); if(mbtn) mbtn.onclick=()=>openKyptMembers(p);
+  const ss=$('#kpStatus');
+  if(ss) ss.onchange=async()=>{
+    if(!kyptNoteOk()){ ss.value=p.status||'idle'; return; }
+    const { error } = await sb.from('kypt_problems').update({ status: ss.value }).eq('id', p.id);
+    if(error){ toast('상태를 바꾸지 못했어요.'); ss.value=p.status||'idle'; return; }
+    p.status=ss.value; toast('상태를 바꿨어요.');
+  };
+  kyptRenderPane(p, canEd);
+}
+async function kyptRenderPane(p, canEd){
+  const pane=$('#kpPane'); if(!pane) return;
+  if(_kyptTab==='body'){
+    pane.innerHTML=`<div class="kp-sumbox">${escapeHtml(p.summary||'')}</div>
+      <h3 class="kp-h3">우리 연구 노트</h3>
+      ${canEd
+        ? `<textarea class="kp-ta" id="kpBody" rows="10" placeholder="가설, 실험 설계, 막힌 지점 — 짧아도 좋으니 남겨 주세요.">${escapeHtml(p.body||'')}</textarea>
+           <div class="ch-actrow"><button class="ch-act primary" id="kpBodySave">저장</button></div>`
+        : `<div class="kp-ro">${p.body?escapeHtml(p.body):'아직 비어 있어요. 참여자만 쓸 수 있습니다.'}</div>`}`;
+    const bs=$('#kpBodySave');
+    if(bs) bs.onclick=async()=>{
+      if(!kyptNoteOk()) return;
+      const v=$('#kpBody').value;
+      const { error } = await sb.from('kypt_problems').update({ body: v }).eq('id', p.id);
+      if(error){ toast('저장하지 못했어요 — 참여자만 쓸 수 있어요.'); return; }
+      p.body=v; toast('저장했어요.');
+    };
+    return;
+  }
+  if(_kyptTab==='refs'){
+    const rows = await kyptFetch('kypt_refs', p.id, 'id,problem_id,kind,title,url,note,sort');
+    const byKind = Object.keys(KYPT_KINDS).map(k=>{
+      const items = rows.filter(r=>r.kind===k);
+      if(!items.length) return '';
+      return `<div class="kp-refgrp"><h4>${KYPT_KINDS[k]}</h4>${items.map(r=>`
+        <div class="kp-ref">
+          ${r.url?`<a href="${escapeAttr(r.url)}" target="_blank" rel="noopener">${escapeHtml(r.title)}</a>`:`<b>${escapeHtml(r.title)}</b>`}
+          ${r.note?`<span class="kp-refnote">${escapeHtml(r.note)}</span>`:''}
+          ${canEd?`<button class="kp-x" data-del="${r.id}" title="지우기">×</button>`:''}
+        </div>`).join('')}</div>`;
+    }).join('');
+    pane.innerHTML=`${rows.length?byKind:'<p class="ch-note">아직 모은 자료가 없어요.</p>'}
+      ${canEd?`<div class="kp-form">
+        <select id="kpRefKind">${Object.keys(KYPT_KINDS).map(k=>`<option value="${k}">${KYPT_KINDS[k]}</option>`).join('')}</select>
+        <input id="kpRefTitle" placeholder="자료 이름">
+        <input id="kpRefUrl" placeholder="링크 (https://…)">
+        <input id="kpRefNote" placeholder="왜 쓸모 있는지 한 줄">
+        <button class="ch-act primary" id="kpRefAdd">추가</button>
+      </div>`:''}`;
+    kyptBindDelete(pane, 'kypt_refs', p, canEd);
+    const add=$('#kpRefAdd');
+    if(add) add.onclick=async()=>{
+      const t=$('#kpRefTitle').value.trim(); if(!t){ toast('자료 이름을 적어 주세요.'); return; }
+      if(!kyptNoteOk()) return;
+      const { error } = await sb.from('kypt_refs').insert({ problem_id:p.id, kind:$('#kpRefKind').value,
+        title:t, url:$('#kpRefUrl').value.trim()||null, note:$('#kpRefNote').value.trim()||null,
+        created_by:(state.user&&state.user.id)||null });
+      if(error){ toast('추가하지 못했어요 — 참여자만 쓸 수 있어요.'); return; }
+      toast('자료를 추가했어요.'); kyptRenderPane(p, canEd);
+    };
+    return;
+  }
+  if(_kyptTab==='notes'){
+    const rows = await kyptFetch('kypt_notes', p.id, 'id,problem_id,section,body,color,created_by');
+    pane.innerHTML=`<p class="kp-hint">짧게 남기는 메모예요. 눌러서 크게 볼 수 있어요.</p>
+      <div class="kp-notes">${rows.map(n=>`
+        <button class="kp-note-box c${(n.color||0)%KYPT_NOTE_COLORS}" data-note="${n.id}">
+          <span>${escapeHtml(n.body)}</span></button>`).join('')}
+        ${canEd?`<button class="kp-note-box add" id="kpNoteAdd">＋</button>`:''}
+      </div>`;
+    pane.querySelectorAll('[data-note]').forEach(b=>{
+      const n = rows.find(r=>String(r.id)===b.dataset.note);
+      b.onclick=()=>openKyptNote(p, n, canEd);
+    });
+    const na=$('#kpNoteAdd'); if(na) na.onclick=()=>openKyptNote(p, null, canEd);
+    return;
+  }
+  const rows = await kyptFetch('kypt_log', p.id, 'id,problem_id,on_date,body,created_by');
+  rows.sort((a,b)=>String(b.on_date).localeCompare(String(a.on_date)));
+  pane.innerHTML=`${rows.length?`<div class="kp-log">${rows.map(r=>`
+      <div class="kp-logrow"><span class="kp-date">${escapeHtml(String(r.on_date))}</span>
+        <span class="kp-logtxt">${escapeHtml(r.body)}</span>
+        ${canEd?`<button class="kp-x" data-del="${r.id}" title="지우기">×</button>`:''}</div>`).join('')}</div>`
+    :'<p class="ch-note">아직 기록이 없어요. 무엇을 했는지 한 줄이면 충분해요.</p>'}
+    ${canEd?`<div class="kp-form">
+      <input id="kpLogDate" type="date" value="${new Date().toISOString().slice(0,10)}">
+      <input id="kpLogBody" placeholder="오늘 무엇을 했는지 한 줄">
+      <button class="ch-act primary" id="kpLogAdd">추가</button>
+    </div>`:''}`;
+  kyptBindDelete(pane, 'kypt_log', p, canEd);
+  const la=$('#kpLogAdd');
+  if(la) la.onclick=async()=>{
+    const b=$('#kpLogBody').value.trim(); if(!b){ toast('내용을 적어 주세요.'); return; }
+    if(!kyptNoteOk()) return;
+    const { error } = await sb.from('kypt_log').insert({ problem_id:p.id, on_date:$('#kpLogDate').value,
+      body:b, created_by:(state.user&&state.user.id)||null });
+    if(error){ toast('추가하지 못했어요.'); return; }
+    toast('기록했어요.'); kyptRenderPane(p, canEd);
+  };
+}
+async function kyptFetch(table, pid, cols){
+  if(pid==null) return [];
+  try{
+    const { data, error } = await sb.from(table).select(cols).eq('problem_id', pid);
+    if(error) throw error;
+    return data || [];
+  }catch(e){ return []; }
+}
+function kyptBindDelete(pane, table, p, canEd){
+  if(!canEd) return;
+  pane.querySelectorAll('[data-del]').forEach(b=>{
+    b.onclick=async()=>{
+      if(!kyptNoteOk()) return;
+      const { error } = await sb.from(table).delete().eq('id', b.dataset.del);
+      if(error){ toast('지우지 못했어요.'); return; }
+      kyptRenderPane(p, canEd);
+    };
+  });
+}
+/* 끄적임 확대 — 작은 네모를 누르면 크게 열린다 */
+function openKyptNote(p, n, canEd){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  const mine = !n || (n.created_by === (state.user&&state.user.id)) || kyptAdminish();
+  ov.innerHTML=`<div class="modal-box" style="max-width:460px">
+    <div class="modal-msg">${n?'끄적임':'끄적임 남기기'}</div>
+    ${canEd&&mine
+      ? `<textarea class="kp-ta" id="kpNoteBody" rows="6" placeholder="떠오른 생각을 짧게">${escapeHtml(n?n.body:'')}</textarea>
+         <div class="kp-colors" id="kpNoteColors">${[...Array(KYPT_NOTE_COLORS)].map((_,i)=>
+           `<button class="kp-col c${i}${(n?(n.color||0):0)===i?' on':''}" data-c="${i}" aria-label="색 ${i+1}"></button>`).join('')}</div>`
+      : `<div class="kp-ro">${escapeHtml(n?n.body:'')}</div>`}
+    <div class="modal-btns">
+      ${canEd&&mine&&n?`<button class="modal-cancel" id="kpNoteDel">지우기</button>`:''}
+      <button class="modal-cancel" id="kpNoteClose">닫기</button>
+      ${canEd&&mine?`<button class="modal-ok" id="kpNoteSave">저장</button>`:''}
+    </div>
+  </div>`;
+  document.body.appendChild(ov);
+  let color = n?(n.color||0):0;
+  const cw=ov.querySelector('#kpNoteColors');
+  if(cw) cw.querySelectorAll('.kp-col').forEach(b=>{
+    b.onclick=()=>{ color=Number(b.dataset.c);
+      cw.querySelectorAll('.kp-col').forEach(x=>x.classList.toggle('on', x===b)); };
+  });
+  const close=()=>ov.remove();
+  ov.onclick=(e)=>{ if(e.target===ov) close(); };
+  const cb=ov.querySelector('#kpNoteClose'); if(cb) cb.onclick=close;
+  const db=ov.querySelector('#kpNoteDel');
+  if(db) db.onclick=async()=>{
+    if(!kyptNoteOk()) return;
+    await sb.from('kypt_notes').delete().eq('id', n.id);
+    close(); kyptRenderPane(p, canEd);
+  };
+  const sv=ov.querySelector('#kpNoteSave');
+  if(sv) sv.onclick=async()=>{
+    const body=ov.querySelector('#kpNoteBody').value.trim();
+    if(!body){ toast('내용을 적어 주세요.'); return; }
+    if(!kyptNoteOk()) return;
+    const r = n
+      ? await sb.from('kypt_notes').update({ body, color }).eq('id', n.id)
+      : await sb.from('kypt_notes').insert({ problem_id:p.id, section:'body', body, color,
+          created_by:(state.user&&state.user.id)||null });
+    if(r.error){ toast('저장하지 못했어요.'); return; }
+    close(); kyptRenderPane(p, canEd);
+  };
+}
+/* 참여자 지정 (admin/owner) */
+async function openKyptMembers(p){
+  if(!kyptAdminish()) return;
+  const people = await kyptLoadPeople();
+  const cur = new Set(kyptMembersOf(p.id).map(m=>m.uid));
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:520px">
+    <div class="modal-msg">참여자 지정 — ${p.no}. ${escapeHtml(p.title)}</div>
+    <div class="modal-sub">고른 사람만 이 문제의 노트·자료·끄적임·일지를 고칠 수 있어요.</div>
+    <div class="kp-mlist">${people.map(m=>`<label class="kp-mrow">
+      <input type="checkbox" value="${escapeAttr(m.id)}"${cur.has(m.id)?' checked':''}>
+      <span>${escapeHtml(m.name||m.handle||'회원')}</span></label>`).join('')||'<p class="ch-note">회원 목록을 읽지 못했어요.</p>'}</div>
+    <div class="modal-btns"><button class="modal-cancel" id="kpMemCancel">취소</button>
+      <button class="modal-ok" id="kpMemSave">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.onclick=(e)=>{ if(e.target===ov) close(); };
+  ov.querySelector('#kpMemCancel').onclick=close;
+  ov.querySelector('#kpMemSave').onclick=async()=>{
+    if(!kyptNoteOk()) return;
+    const uids=[...ov.querySelectorAll('input:checked')].map(x=>x.value);
+    const { error } = await sb.rpc('kypt_set_members', { p_problem: p.id, p_uids: uids });
+    if(error){ toast('저장하지 못했어요.'); return; }
+    close(); toast('참여자를 저장했어요.');
+    await loadKypt(true); renderKyptProblem(p.year, p.no);
+  };
+}
+/* KYPT 관리 (admin/owner) — 채택 여부·연도 잠금 */
+async function openKyptManager(){
+  if(!kyptAdminish()) return;
+  const list = kyptProblemsOf(_kyptYear);
+  const yrow = kyptYearRow(_kyptYear) || {};
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:560px">
+    <div class="modal-msg">KYPT 관리 — ${escapeHtml(yrow.title||String(_kyptYear))}</div>
+    <div class="modal-sub">KYPT 조직위가 고른 문제만 남기세요. 체크를 풀면 목록에서 흐리게 표시됩니다.<br>
+      연도를 잠그면 <b>운영진을 포함해 아무도</b> 그 연도를 고칠 수 없어요.</div>
+    <label class="kp-mrow"><input type="checkbox" id="kpLock"${yrow.locked?' checked':''}>
+      <span>이 연도를 읽기 전용으로 잠그기</span></label>
+    <div class="kp-mlist">${list.map(p=>`<label class="kp-mrow">
+      <input type="checkbox" data-pno="${p.no}"${p.is_kypt?' checked':''}>
+      <span>${p.no}. ${escapeHtml(p.title)}</span></label>`).join('')}</div>
+    <div class="modal-btns"><button class="modal-cancel" id="kpMgCancel">취소</button>
+      <button class="modal-ok" id="kpMgSave">저장</button></div>
+  </div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.onclick=(e)=>{ if(e.target===ov) close(); };
+  ov.querySelector('#kpMgCancel').onclick=close;
+  ov.querySelector('#kpMgSave').onclick=async()=>{
+    if(!kyptNoteOk()) return;
+    const lock=ov.querySelector('#kpLock').checked;
+    for(const b of ov.querySelectorAll('[data-pno]')){
+      const p=list.find(x=>String(x.no)===b.dataset.pno);
+      if(p && !!p.is_kypt !== b.checked){
+        const { error } = await sb.from('kypt_problems').update({ is_kypt: b.checked }).eq('id', p.id);
+        if(error){ toast('일부를 저장하지 못했어요.'); break; }
+      }
+    }
+    if(!!yrow.locked !== lock) await sb.from('kypt_years').update({ locked: lock }).eq('year', _kyptYear);
+    close(); toast('저장했어요.');
+    await loadKypt(true); renderKyptPage();
+  };
+}
+
+
 async function renderStoryPage(){
   const _nav=_navSeq;
   const cfg=await loadStoryCfg();
@@ -13813,15 +14415,16 @@ function route(){
   /* ★기능 스위치(82) — 꺼진 모듈은 직접 주소로도 못 들어간다 (owner는 점검을 위해 통과) */
   if(sys && !isOwner()){
     const FEAT_PAGE={ community:'community', questions:'questions', inbox:'inbox', calendar:'calendar',
-                      board:'tasks', qr:'qr', directory:'directory', story:'history' };
+                      board:'tasks', qr:'qr', directory:'directory', story:'history', kypt:'kypt' };
     const fk = FEAT_PAGE[key]
+            || (key.startsWith('kypt/') ? 'kypt' : null)
             || ((isQuestion||isUserQ) ? 'questions' : null)
             || (isDm ? 'inbox' : null)
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story'];
-  railReserve(!fullWidthPages.includes(key) && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story','kypt'];
+  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
                      admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
@@ -13853,6 +14456,12 @@ function route(){
     openEditRoute(ek); return;
   }
   if(sys && key==='story'){ renderStoryPage(); return; }
+  if(sys && key==='kypt'){ renderKyptPage(); return; }                              // KYPT 목록(92)
+  if(sys && key.startsWith('kypt/')){                                               // #//kypt/<연도>/<번호>
+    const kp=key.slice(5).split('/');
+    if(kp.length>=2){ renderKyptProblem(Number(kp[0]), Number(kp[1])); return; }
+    renderKyptPage(); return;
+  }
   if(sys && key==='docs'){ renderDocsPage(); return; }
   if(sys && key==='questions'){ renderQuestions(); return; }
   if(sys && key==='calendar'){ renderCalendarPage(); return; }
@@ -14059,6 +14668,7 @@ $('#dropLogout').onclick=async()=>{
 $('#homeLink').onclick=()=>{ goHash('#//main'); };
 $('#communityBtn').onclick=()=>{ goHash('#//community'); };
 $('#storyBtn').onclick=()=>{ goHash('#//story'); };
+$('#kyptBtn').onclick=()=>{ goHash('#//kypt'); };
   $('#docsBtn').onclick=()=>{ goHash('#//docs'); };
 $('#boardBtn').onclick=()=>{ goHash('#//board'); };
   $('#qBtn').onclick=()=>{ goHash('#//questions'); };
