@@ -15620,21 +15620,38 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
    ★렌더는 대부분 비동기라 route() 직후엔 #doc이 아직 비어 있다.
      그래서 클래스를 '지금' 붙이지 않고 다음 프레임 두 번 뒤에 붙인다 —
      그때쯤 첫 그리기가 끝나 있고, 늦게 오는 데이터는 어차피 자기 자리에서 나타난다. */
-let _pgInTimer=null;
+let _pgInTimer=null, _pgObs=null, _pgSeq=0, _pgCap=null;
 function playPageIn(){
   const el=document.getElementById('doc'); if(!el) return;
-  clearTimeout(_pgInTimer);
-  if(!document.body.classList.contains('fx-full')){ el.classList.remove('pg-in'); return; }
+  clearTimeout(_pgInTimer); clearTimeout(_pgCap);
+  if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
   el.classList.remove('pg-in');
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  if(!document.body.classList.contains('fx-full')) return;
+  /* ★세션 BC 수정 — 예전엔 route() 첫 줄에서 곧바로 pg-in을 붙였다. 그런데 렌더는 대부분 비동기라
+     그 순간 #doc 안에는 **아직 이전 화면**이 들어 있다. 그래서 떠나려는 화면이 한 번 더 내려앉는
+     '유령 새로고침'이 보였다(사용자 신고). 이제는 **#doc의 내용이 실제로 바뀐 뒤**에 재생한다.
+     · 자리 표시자('불러오는 중…') → 진짜 내용처럼 연달아 바뀌는 경우가 많으므로 80ms 잠잠해질 때까지 기다린다.
+     · 그래도 안 바뀌면(같은 화면 재라우트) 애니메이션을 아예 재생하지 않는다 — 헛돌이보다 낫다. */
+  const seq=++_pgSeq;
+  let quiet=null;
+  const fire=()=>{
+    if(seq!==_pgSeq) return;
+    if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
+    clearTimeout(_pgCap);
     void el.offsetWidth;                 // 리플로우 강제 → 같은 클래스라도 애니메이션이 다시 시작된다
     el.classList.add('pg-in');
     /* ★등장이 끝나면 클래스를 뗀다 (최대 지연 .21s + 재생 .34s ≈ .55s).
        붙여두면 자식들의 will-change:transform이 남는데, 그 요소는 position:fixed 자손의
-       기준점을 가로챈다 — 모바일 쪽지 팝업이 배경막 뒤로 사라진 사고의 원인.
-       2490행의 "끝나면 will-change를 놓아준다" 규칙도 이제야 실제로 작동한다. */
+       기준점을 가로챈다 — 모바일 쪽지 팝업이 배경막 뒤로 사라진 사고의 원인. */
     _pgInTimer=setTimeout(()=>{ el.classList.remove('pg-in'); }, 650);
-  }));
+  };
+  _pgObs=new MutationObserver(()=>{ clearTimeout(quiet); quiet=setTimeout(fire, 80); });
+  _pgObs.observe(el, { childList:true });
+  _pgCap=setTimeout(()=>{                // 700ms 안에 아무것도 안 바뀌면 조용히 포기
+    if(seq!==_pgSeq) return;
+    clearTimeout(quiet);
+    if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
+  }, 700);
 }
 
 function route(){
