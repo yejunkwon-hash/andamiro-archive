@@ -8657,6 +8657,7 @@ async function renderSystem(){
     { owner:true,          hash:'#//system/features', ic:'check', t:'기능 켜기/끄기',        d:'커뮤니티·질문·쪽지·캘린더·과제 등 모듈을 개별로 켜고 끕니다. 끄면 화면에서만 사라지고 데이터는 남아요.' },
     { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
+    { owner:true,          hash:'#//system/wall',   ic:'image', t:'대문 사진 벽',            d:'사진을 올리고 순서를 정합니다. ★지금은 대문에 표시하지 않습니다(세션 AW) — 자료는 그대로 남아 있어요.' },
     { owner:true,          hash:'#//system/landing', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
     { owner:true,          hash:'#//system/site',   ic:'home',  t:'사이트 정보',            d:'사이트 이름·소속·미션 문구. 소개 랜딩과 상단 로고 옆 이름에 쓰입니다.' },
     { owner:true,          hash:'#//system/nudges', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
@@ -15455,7 +15456,7 @@ function openEventDetail(e){
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
                    'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
+                   'system/landing','system/wall','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
                    'password','me','trash','notfound','board','qr','story'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
@@ -15684,7 +15685,7 @@ function route(){
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story','kypt'];
+  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/wall','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story','kypt'];
   railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -15744,6 +15745,10 @@ function route(){
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
   if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
   if(sys && key==='system/landing'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysLanding(); return; }
+  if(sys && key==='system/wall'){                                   // ★세션 AZ: 대문에서 내린 뒤 잃어버린 진입점을 되살린다
+    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; }
+    goHash('#//system'); openWallManager(); return;
+  }
   if(sys && key==='system/site'){    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSite(); return; }
   if(sys && key==='system/nudges'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysNudges(); return; }
   if(sys && key==='system/signup'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSignup(); return; }
@@ -15905,13 +15910,22 @@ async function doSignupRequest(){
   resetSignupCaptcha();
   if(error){
     msg.className='msg err';
-    const em=String((error&&error.message)||'');
+    let em=String((error&&error.message)||'');
+    /* ★Supabase는 가입 트리거의 예외를 전부 "Database error saving new user"로 뭉갠다.
+       98이 진짜 이유를 signup_log에 남기므로, 방금 내 시도의 이유를 서버에 물어본다(세션 AY). */
+    if(/database error saving new user/i.test(em)){
+      try{
+        const { data:why } = await sb.rpc('signup_last_error', { p_email: email });
+        if(why) em = String(why);
+      }catch(e){ /* 98 미적용 — 아래의 일반 안내로 */ }
+    }
     msg.textContent =
       /초대 코드/.test(em)                      ? '초대 코드가 올바르지 않아요. 동아리에서 받은 코드를 확인해 주세요.' :
       /받지 않습니다/.test(em)                  ? '지금은 회원 가입을 받지 않습니다.' :
       /already|registered|exists/i.test(em)     ? '이미 가입된 이메일이에요. 로그인해 주세요.' :
+      /지금은 회원 가입을 받지 않습니다/.test(em) ? em :
       /database error saving new user/i.test(em)
-        ? '계정을 만들다 서버에서 막혔어요. 활동명이나 이메일이 이미 쓰이고 있을 수 있어요 — 활동명을 바꿔 다시 해보세요. 그래도 안 되면 운영진에게 알려 주세요 (97_signup_repair.sql · signup_health()).' :
+        ? '계정을 만들다 서버에서 막혔어요. 운영진에게 알려 주세요 — SQL Editor에서 98_signup_rebuild.sql을 실행한 뒤 select * from public.signup_log order by at desc limit 20; 을 보면 진짜 이유가 나옵니다.' :
       ('가입 실패: '+em);
     return;
   }
