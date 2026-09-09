@@ -3273,6 +3273,8 @@ body.dark .kp-note-box{ color:#EDEAEA; }
 .kv2-fbl b{ display:block; font-size:13px; margin-bottom:4px; }
 .kv2-fbi{ display:block; font-size:13.5px; padding:4px 0; color:inherit; text-decoration:none; border-top:1px solid var(--border); }
 .kv2-fbi:hover{ color:var(--accent); }
+.kv2-fbi.done{ opacity:.6; }
+.kv2-fbi[href]{ cursor:pointer; }
 .kv2-modal-thread{ max-height:60vh; overflow:auto; margin:8px 0; }
 
 /* 충돌 */
@@ -11412,7 +11414,7 @@ async function renderKyptProblemV2(year, no){
   const yrow = kyptYearRow(p.year) || {};
   let tab = 'status';
   try{ tab = localStorage.getItem(kv2TabKey(p.id)) || 'status'; }catch(e){ /* 저장소 불가 — 기본 탭 */ }
-  if(!['status','entries','assets'].includes(tab)) tab='status';
+  if(!['status','entries','assets','feedback'].includes(tab)) tab='status';
   try{ sb.rpc('kypt_mark_read', { p_problem: p.id }); }catch(e){ /* 94 미적용 — 안 읽음 없음 */ }   // 열었으니 읽었다
   if(_kv2Feed[p.year] && _kv2Feed[p.year].unread) _kv2Feed[p.year].unread[String(p.id)] = 0;
   $('#doc').innerHTML=`<div class="kypt-wrap kp-detail kv2">
@@ -11427,8 +11429,10 @@ async function renderKyptProblemV2(year, no){
     </div>
     <div class="kp-tabs" id="kv2Tabs">
       <button class="kp-tab${tab==='status'?' on':''}" data-kt="status">현황${(ws.todos||[]).filter(t=>!t.done_at).length?` <span class="kv2-cnt">${(ws.todos||[]).filter(t=>!t.done_at).length}</span>`:''}</button>
-      <button class="kp-tab${tab==='entries'?' on':''}" data-kt="entries">실험 기록 <span class="kv2-cnt">${ws.entries.length}</span></button>
+      <button class="kp-tab${tab==='entries'?' on':''}" data-kt="entries">연구일지 <span class="kv2-cnt">${ws.entries.length}</span></button>
       <button class="kp-tab${tab==='assets'?' on':''}" data-kt="assets">자료함 <span class="kv2-cnt">${ws.assets.length}</span></button>
+      <button class="kp-tab${tab==='feedback'?' on':''}" data-kt="feedback">피드백${
+        (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length?` <span class="kv2-cnt">${(ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length}</span>`:''}</button>
       <span class="kv2-soon" title="다음 단계에서">가설 · 아이디어 · 토론</span>
     </div>
     <div class="kp-pane" id="kv2Pane"></div>
@@ -11445,6 +11449,7 @@ function kv2RenderPane(p, tab, canEd){
   const pane=$('#kv2Pane'); if(!pane) return;
   if(tab==='status'){ kv2RenderStatus(p, pane, canEd); return; }
   if(tab==='assets'){ kv2RenderAssets(p, pane, canEd); return; }
+  if(tab==='feedback'){ kv2RenderFeedbackTab(p, pane, canEd); return; }
   kv2RenderEntries(p, pane, canEd);
 }
 
@@ -11454,18 +11459,37 @@ function kv2RenderEntries(p, pane, canEd){
   const rows = ws.entries;
   const filled = e => KYPT_FIELDS.filter(([k])=>(e.fields||{})[k] && String(e.fields[k]).trim()).length;
   pane.innerHTML=`
-    ${canEd?`<div class="kv2-toolbar"><button class="ch-act primary" id="kv2NewEntry">＋ 새 실험 기록</button>
-      <span class="kp-hint">실험 한 번이 기록 한 건이에요. 8칸 중 3칸만 채워도 됩니다.</span></div>`:''}
+    ${canEd?`<div class="kv2-toolbar"><button class="ch-act primary" id="kv2NewEntry">＋ 새 일지 쓰기</button>
+      <span class="kp-hint">한 번의 실험·조사가 한 건이에요. 8칸 중 3칸만 채워도 됩니다.</span></div>`:''}
+    ${canEd?`<div class="kv2-aadd top">
+      <input class="kv2-url" id="kv2JLink" placeholder="링크 붙여넣기 → Enter (논문 · 영상 · 데이터 · 문서 — 종류는 알아서 판별해요)">
+      <select class="kp-stsel" id="kv2JLinkTo" aria-label="어디에 붙일지">
+        <option value="">자료함에만</option>
+        ${rows.slice(0,10).map(e=>`<option value="${e.id}">${escapeHtml((e.title||'(제목 없음)').slice(0,24))} 에 붙이기</option>`).join('')}
+      </select>
+    </div>`:''}
     ${rows.length?`<div class="kv2-list">${rows.map(e=>`
       <a class="kv2-row" href="${kv2ProblemHash(p)}/e/${e.id}">
         <span class="kp-date">${kv2Fmt(e.created_at)}</span>
         <span class="kv2-stage ${KYPT_STAGE_CLS[e.stage]||''}">${KYPT_STAGES[e.stage]||''}</span>
         <span class="kv2-title">${escapeHtml(e.title||'(제목 없음)')}</span>
-        <span class="kv2-meta">${escapeHtml(kyptName(e.created_by))} · ${filled(e)}/8칸${kv2AttachCount(p.id,e.id)?` · 첨부 ${kv2AttachCount(p.id,e.id)}`:''}${
+        <span class="kv2-meta">${escapeHtml(kyptName(e.created_by))} · ${filled(e)}/8칸${kv2AttachCount(p.id,e.id)?` · 🔗 ${kv2AttachCount(p.id,e.id)}`:''}${
           kv2OpenCount(p.id,'entry',e.id)?` · <span class="kv2-fbn">💬 ${kv2OpenCount(p.id,'entry',e.id)}</span>`:''}${
           (ws.reviews||[]).some(r=>Number(r.entry_id)===Number(e.id)&&r.status==='open')?' · <span class="kv2-rvn">검토 요청 중</span>':''}</span>
       </a>`).join('')}</div>`
-    :`<p class="ch-note">아직 실험 기록이 없어요.${canEd?' 첫 실험을 기록해 보세요 — 실패한 실험도 기록입니다.':''}</p>`}`;
+    :`<p class="ch-note">아직 일지가 없어요.${canEd?' 첫 일지를 남겨 보세요 — 실패한 실험도 기록입니다.':''}</p>`}`;
+  const jl=$('#kv2JLink');
+  if(jl) jl.addEventListener('keydown', async(ev)=>{
+    if(ev.key!=='Enter') return; ev.preventDefault();
+    const url=jl.value.trim(); if(!url) return;
+    jl.disabled=true;
+    const a=await kv2AddLink(p, url);
+    const to=$('#kv2JLinkTo');
+    if(a && to && to.value) await kv2Link(a.id, Number(to.value), 'data');
+    jl.disabled=false; jl.value='';
+    if(a) toast(to && to.value ? '일지에 링크를 붙였어요.' : '자료함에 링크를 넣었어요.');
+    kv2RenderEntries(p, pane, canEd);
+  });
   const nb=$('#kv2NewEntry');
   if(nb) nb.onclick=async()=>{
     nb.disabled=true;
@@ -11523,7 +11547,7 @@ async function renderKyptEntry(year, no, eid){
       <button class="ch-act" id="kv2DraftRestore">되살리기</button><button class="ch-act" id="kv2DraftDrop">버리기</button></div>`:''}
     <div class="kv2-fields">
       ${KYPT_FIELDS.map(([k,label,ph],i)=>`
-      <section class="kv2-f${(e.fields||{})[k]||k==='goal'?' open':''}" data-fk="${k}">
+      <section class="kv2-f${((e.fields||{})[k]||k==='goal'||k==='data')?' open':''}" data-fk="${k}">
         <button class="kv2-fh" type="button"><span class="kv2-fn">${i+1}</span><span>${label}</span>
           <span class="kv2-fdot${(e.fields||{})[k]?' on':''}"></span></button>
         <div class="kv2-fb">
@@ -11888,7 +11912,7 @@ async function kv2RenderStatus(p, pane, canEd){
   const open = (todos||[]).filter(t=>!t.done_at);
   const done = (todos||[]).filter(t=>t.done_at);
   const mem = kyptMembersOf(p.id);
-  const openC = (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at);
+  const openC = (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at && c.target_kind!=='problem');
   const openR = (ws.reviews||[]).filter(r=>r.status==='open');
   const entryOf = id => ws.entries.find(x=>Number(x.id)===Number(id));
   const fbHtml = (openC.length||openR.length) ? `<div class="kv2-st kv2-fbsum">
@@ -12126,7 +12150,7 @@ function kv2ThreadHtml(p, kind, id, fk){
     ${open.map(item).join('')}
     ${done.length?`<details class="kv2-cdone"><summary>해결됨 ${done.length}</summary>${done.map(item).join('')}</details>`:''}
     ${canWrite?`<div class="kv2-newc">
-      <textarea class="kv2-cta" rows="2" placeholder="${kind==='asset'?'이 자료에 대해…':'이 칸에 대해…'} (@이름 으로 부르기 · Enter로 보내기)"></textarea>
+      <textarea class="kv2-cta" rows="2" placeholder="${kind==='asset'?'이 자료에 대해…':(kind==='problem'?'이 문제에 대해 하고 싶은 말…':'이 칸에 대해…')} (@이름 으로 부르기 · Enter로 보내기)"></textarea>
       <button class="ch-act primary" data-send-root="1">남기기</button></div>`
       : (_kv2No95 && kyptAdminish() ? `<p class="ch-note">피드백을 쓰려면 <code>95_kypt_feedback.sql</code>을 실행하세요.</p>` : '')}
   </div>`;
@@ -12240,6 +12264,54 @@ function kv2RenderEntryHead(p, e){
     if(error || !data || !data.ok){ toast(data&&data.reason==='self'?'자기 기록은 스스로 검토할 수 없어요.':'완료 처리를 못 했어요.'); return; }
     await loadKyptV2(p.id, true); kv2RenderEntryHead(p, e);
   };
+}
+
+/* ---------------- 피드백 탭 (99 · 세션 BD) ----------------
+   ★두 층으로 나눈다.
+     · 위: **이 문제에 대한 의견** — 참여자가 아니어도, 모든 부원이 남길 수 있다.
+       "왜 이렇게 했어요?" 같은 물음이 곧 피드백이다.
+     · 아래: 일지의 칸·자료에 달린 **검토 피드백 모아보기** — 눌러서 그 자리로 간다.
+   해결 처리는 그 문제의 참여자·운영진만 한다(95 정책 그대로). */
+function kv2RenderFeedbackTab(p, pane, canEd){
+  if(!pane) return;
+  const ws=_kv2[p.id];
+  if(ws.comments===null){
+    pane.innerHTML = kyptAdminish()
+      ? `<p class="ch-note">피드백을 쓰려면 <code>95_kypt_feedback.sql</code>과 <code>99_kypt_feedback_tab.sql</code>을 실행하세요.</p>`
+      : '<p class="ch-note">아직 준비 중이에요.</p>';
+    return;
+  }
+  const anchored = (ws.comments||[]).filter(c=>!c.parent_id && c.target_kind!=='problem');
+  const open = anchored.filter(c=>!c.resolved_at);
+  const done = anchored.filter(c=>c.resolved_at);
+  const entryOf = id => ws.entries.find(x=>Number(x.id)===Number(id));
+  const assetOf = id => ws.assets.find(x=>Number(x.id)===Number(id));
+  const where = c => {
+    if(c.target_kind==='entry'){
+      const e=entryOf(c.target_id);
+      const f=(KYPT_FIELDS.find(x=>x[0]===c.field_key)||[])[1];
+      return { label: `${e?(e.title||'(제목 없음)'):'일지'}${f?` · ${f}`:''}`, href: e?`${kv2ProblemHash(p)}/e/${e.id}`:null };
+    }
+    const a=assetOf(c.target_id);
+    return { label: `자료 · ${a?(a.title||'자료'):'자료'}`, href:null };
+  };
+  const row = c => { const w=where(c);
+    return `<a class="kv2-fbi${c.resolved_at?' done':''}"${w.href?` href="${w.href}"`:''}>
+      <span class="kv2-ct">${escapeHtml(kyptName(c.author))}</span> ${escapeHtml(c.body.slice(0,80))}
+      <span class="kv2-ct"> — ${escapeHtml(w.label)}${c.resolved_at?' · ✓ 해결':''}</span></a>`; };
+  pane.innerHTML=`
+    <div class="kv2-st">
+      <h3 class="kp-h3">이 문제에 대한 의견 <span class="kp-hint">— 참여자가 아니어도 누구나 남길 수 있어요.</span></h3>
+      <div id="kv2ProbThread"></div>
+    </div>
+    <div class="kv2-st">
+      <h3 class="kp-h3">일지·자료에 달린 피드백 <span class="kv2-cnt">${open.length}</span></h3>
+      ${open.length?open.map(row).join(''):'<p class="muted">미해결 피드백이 없어요.</p>'}
+      ${done.length?`<details class="kv2-cdone"><summary>해결됨 ${done.length}</summary>${done.map(row).join('')}</details>`:''}
+    </div>`;
+  const box=$('#kv2ProbThread');
+  const draw=()=>{ box.innerHTML=kv2ThreadHtml(p, 'problem', p.id); kv2BindThread(box, p, draw); };
+  draw();
 }
 
 /* ---------------- 자료 스레드 (모달) ---------------- */
