@@ -1359,17 +1359,10 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 .doclist-head{display:flex;align-items:center;gap:8px;background:var(--accent);color:#fff;font-weight:800;font-size:15px;text-align:center;padding:11px;}
 .cat-head{display:flex;justify-content:space-between;align-items:center;gap:8px;background:var(--accent);color:#fff;border-top:1px solid rgba(255,255,255,.22);padding:9px 14px;cursor:pointer;user-select:none;}
 .cat-head:hover{filter:brightness(1.06);}
-.cat-name{font-weight:800;font-size:14px;color:#fff;}
-.cat-toggle{font-size:12px;color:#fff;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;}
-.cat-chev{display:inline-block;font-size:11px;line-height:1;transition:transform .25s ease;opacity:.9;}
-.cat.cat-collapsed .cat-chev{transform:rotate(-90deg);}
-.cat-body{background:var(--card);max-height:1200px;overflow:hidden;transition:max-height .3s ease,opacity .25s ease;opacity:1;}
-.cat.cat-collapsed .cat-body{max-height:0;opacity:0;}
 .doc-link{display:flex;align-items:baseline;gap:10px;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;color:var(--text);}
 .doc-link:last-child{border-bottom:none;}
 .doc-link:hover{background:var(--box-bg);text-decoration:none;}
 .dl-title{font-weight:700;color:var(--accent);white-space:nowrap;}
-.dl-desc{font-size:12.5px;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;}
 .ad-count{font-weight:700;opacity:.85;font-size:13px;}
 
 
@@ -1914,8 +1907,6 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .bt-reco .cat{border:none;}
 .bt-reco .cat-head{background:transparent;color:var(--accent);border:none;border-bottom:1px solid var(--border);padding:8px 4px;font-size:12.5px;font-weight:800;}
 .bt-reco .cat-head:hover{filter:none;background:var(--box-bg);}
-.bt-reco .cat-toggle{color:var(--text-dim);}
-.bt-reco .cat-body{padding:2px 0;}
 .bt-alldocs.open .alldocs-grid{display:grid;}
 @media(max-width:900px){
   .bento{grid-template-columns:1fr;}
@@ -2236,8 +2227,6 @@ body.fx-full::before{
 .lr-t{ font-size:13.5px; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .lr-t.done{ text-decoration:line-through; color:var(--text-dim); }
 .lr-m{ flex:none; font-family:var(--mono); font-size:11px; color:var(--text-dim); }
-.ls-reco .cat{ border:none; background:none; padding:0; margin:0; }
-
 /* 문서 분류 요약 — 숫자가 '어디를 채워야 하는지' 알려준다 */
 .lg-wrap{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
 .lg-chip{ font-size:12.5px; color:var(--text-dim); background:var(--box-bg);
@@ -2269,9 +2258,9 @@ body.fx-full::before{
 
 /* ═══════════ 커뮤니케이션 허브 (세션 N) ═══════════
    중앙 = 실시간 채팅, 우측 = 지금 접속 중인 사람 + 게시글.
-   ★좌측 '채널 목록'은 만들지 않았다 — 이 앱엔 채널이 하나뿐이라 목록이 성립하지 않는다.
-   채널을 만들려면 스키마 변경이 필요하고, 그건 별개의 작업이다. */
-/* ★기본은 2단(채널 레일 없음). 83이 적용돼 채널이 있을 때만 .has-ch로 3단이 된다.
+   ★좌측 '대화방 목록'은 만들지 않았다 — 이 앱엔 대화방이 하나뿐이라 목록이 성립하지 않는다.
+   대화방을 만들려면 스키마 변경이 필요하고, 그건 별개의 작업이다. */
+/* ★기본은 2단(대화방 목록 없음). 83이 적용돼 대화방이 있을 때만 .has-ch로 3단이 된다.
    ─ 세션 P 사고: 레일을 display:none으로 숨겼는데 그리드 칸 정의는 3개 그대로라
      채팅이 첫 칸(170px)으로 밀려 들어가 화면이 찌그러졌다. 숨기는 것과 칸을 없애는 것은 다르다. */
 .hub{ display:grid; grid-template-columns:minmax(0,1fr) 250px; gap:20px; align-items:start; }
@@ -2286,7 +2275,7 @@ body.fx-full::before{
   .hub-nav{ display:flex !important; overflow-x:auto; gap:4px; }
 }
 
-/* 좌측 채널 레일 (83) */
+/* 좌측 대화방 목록 (83) */
 .hub-nav{ min-width:0; position:sticky; top:70px; }
 .ch-item{ display:flex; align-items:center; gap:6px; width:100%; text-align:left; background:none;
   border:0; border-radius:var(--r-1); padding:7px 10px; font:inherit; font-size:13.5px;
@@ -2307,7 +2296,7 @@ body.fx-full::before{
   border-radius:var(--r-1); padding:5px 11px; font:inherit; font-size:12px;
   color:var(--text); cursor:pointer; }
 .ch-retry:hover{ border-color:var(--accent); color:var(--accent); }
-/* ── 채널 관리 (세션 AO) — 행 = 채널 버튼 + 톱니. 톱니는 평소 흐리고 행 호버 시 또렷 ── */
+/* ── 대화방 관리 (세션 AO) — 행 = 대화방 버튼 + 톱니. 톱니는 평소 흐리고 행 호버 시 또렷 ── */
 .ch-row{ display:flex; align-items:center; gap:2px; }
 .ch-row .ch-item{ flex:1; min-width:0; }
 .ch-gear{ flex:none; background:none; border:0; padding:4px; border-radius:6px; color:var(--text-dim);
@@ -2345,7 +2334,7 @@ body.fx-full::before{
 .topbar .navtoggle:focus-visible{ background:var(--border); color:var(--accent); }
 .topbar .navtoggle svg{ stroke:currentColor; }
 
-/* ★3. 모바일에서 채널 대화를 더 길게 — 한 번에 더 많은 메시지가 보이게.
+/* ★3. 모바일에서 대화방 대화를 더 길게 — 한 번에 더 많은 메시지가 보이게.
    dvh를 쓴다: 모바일 브라우저 주소창이 접혔다 펴져도 높이가 튀지 않는다. */
 @media(max-width:768px){
   .hub .chat, .chat{
@@ -2354,7 +2343,7 @@ body.fx-full::before{
     max-height:none;
   }
   .hub .chat .chat-log{ min-height:0; }   /* 로그가 남는 공간을 전부 먹는다 */
-  /* 채널 레일을 가로 한 줄로 접어 세로 공간을 대화에 넘긴다 */
+  /* 대화방 목록을 가로 한 줄로 접어 세로 공간을 대화에 넘긴다 */
   .hub-nav{ position:static; margin-bottom:6px; }
   .hub-nav .ls-h{ display:none; }
   /* 작업 공간은 대화 아래로 — 모바일에서는 대화가 먼저다 */
@@ -2815,7 +2804,7 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
   margin:16px 0; padding:11px 15px; color:var(--text-dim);
 }
 
-/* ═══ 채널 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
+/* ═══ 대화방 작업 공간 (85) ═══ 레일 폭에 맞춘 조용한 목록 */
 .ws-desc{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:0 0 9px; }
 .ws-meet{ display:flex; align-items:center; justify-content:center; gap:6px; width:100%;
   background:var(--accent); color:#fff; border:0; border-radius:var(--r-2);
@@ -2990,6 +2979,35 @@ body.fx-flat .story-pane{transition:none;}
 .kp-lock{ display:inline-flex; align-items:center; gap:4px; color:var(--text-dim); font-size:13px; }
 .kp-src{ color:var(--link); font-size:13px; }
 .kp-note{ color:var(--text-dim); font-size:14px; line-height:1.7; margin:0 0 14px; }
+/* ── 대문 이동 버튼 (세션 AW) — 선명하고 끝이 둥근 직사각형 ── */
+.lgo{ display:grid; grid-template-columns:repeat(auto-fit, minmax(232px, 1fr)); gap:10px; margin:0 0 26px; }
+.lgo-b{ display:flex; align-items:center; gap:12px; padding:15px 16px; cursor:pointer;
+  background:var(--card); border:1px solid var(--border-strong); border-radius:var(--r-round);
+  color:var(--text); text-decoration:none; box-shadow:var(--sh-1);
+  transition:transform var(--dur-1) var(--ease), box-shadow var(--dur-1) var(--ease),
+             border-color var(--dur-1), background var(--dur-1); }
+.lgo-b:hover{ transform:translateY(-2px); box-shadow:var(--sh-2); border-color:var(--accent); }
+.lgo-i{ width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:1.7;
+  stroke-linecap:round; stroke-linejoin:round; color:var(--text-dim); flex:none; }
+.lgo-b:hover .lgo-i{ color:var(--accent); }
+.lgo-t{ font-size:15.5px; font-weight:700; min-width:0; }
+.lgo-s{ font-size:12.5px; font-weight:400; color:var(--text-dim); margin-left:6px; white-space:nowrap; }
+/* 오른쪽 끝의 탭 — 눌러서 가는 곳이라는 걸 손잡이처럼 보여준다 */
+.lgo-x{ margin-left:auto; flex:none; width:30px; height:30px; display:flex; align-items:center; justify-content:center;
+  border-radius:var(--r-round); background:var(--box-bg); color:var(--text-dim); font-size:14px;
+  transition:background var(--dur-1), color var(--dur-1), transform var(--dur-1) var(--ease); }
+.lgo-b:hover .lgo-x{ background:var(--accent); color:#fff; transform:translateX(2px); }
+/* KYPT 하나만 채워서 — 시선이 앉을 자리는 하나 */
+.lgo-b.hot{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.lgo-b.hot .lgo-i, .lgo-b.hot .lgo-s{ color:rgba(255,255,255,.82); }
+.lgo-b.hot .lgo-x{ background:rgba(255,255,255,.18); color:#fff; }
+.lgo-b.hot:hover{ background:var(--accent-soft); border-color:var(--accent-soft); }
+.lgo-b.hot:hover .lgo-i{ color:#fff; }
+@media (max-width:640px){
+  .lgo{ grid-template-columns:1fr; gap:8px; }
+  .lgo-b{ padding:13px 14px; }
+  .lgo-s{ display:none; }
+}
 .kp-ko{ font-size:12.5px; font-weight:400; color:var(--text-dim); margin-left:8px; }
 /* 내가 맡은 문제 바로가기 — 아주 작게, 맨 위 */
 .kp-mine{ font-size:12px; color:var(--text-dim); margin:0 0 12px; display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
@@ -3463,7 +3481,7 @@ body.dark .kp-note-box{ color:#EDEAEA; }
     <button class="navbtn navkypt" id="kyptBtn"><svg class="nbi"><use href="#i-book"/></svg><span class="nbt">KYPT</span></button>
     <button class="navbtn" id="docsBtn"><svg class="nbi"><use href="#i-docs"/></svg><span class="nbt">문서</span></button>
     <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원</span></button>
-    <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">채널</span></button>
+    <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">대화방</span></button>
     <button class="navbtn" id="qBtn"><svg class="nbi"><use href="#i-help"/></svg><span class="nbt">질문 게시판</span></button>
     <button class="navbtn" id="calBtn"><svg class="nbi"><use href="#i-calendar"/></svg><span class="nbt">캘린더</span></button>
     <button class="navbtn" id="storyBtn"><svg class="nbi"><use href="#i-history"/></svg><span class="nbt">연혁</span></button>
@@ -3506,7 +3524,7 @@ body.dark .kp-note-box{ color:#EDEAEA; }
   <nav class="botnav" id="botnav" aria-label="주요 메뉴">
     <button class="bn-item" data-nav="home"><svg class="bn-ic"><use href="#i-home"/></svg>홈</button>
     <button class="bn-item" data-nav="docs"><svg class="bn-ic"><use href="#i-docs"/></svg>문서</button>
-    <button class="bn-item" data-nav="community"><svg class="bn-ic"><use href="#i-chat"/></svg>채널</button>
+    <button class="bn-item" data-nav="community"><svg class="bn-ic"><use href="#i-chat"/></svg>대화방</button>
     <button class="bn-item" data-nav="inbox"><svg class="bn-ic"><use href="#i-mail"/></svg>쪽지함<span class="bn-badge" id="botBadge" style="display:none">0</span></button>
     <button class="bn-item" data-nav="questions"><svg class="bn-ic"><use href="#i-help"/></svg>질문</button>
   </nav>
@@ -3804,7 +3822,18 @@ function openContactModal(){
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
   state.user = user;
-  const { data: prof } = await sb.from('profiles').select('role,email,name,handle,avatar_url,track,member_no').eq('id', user.id).single();
+  let { data: prof } = await sb.from('profiles').select('role,email,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
+  if(!prof){
+    /* ★계정은 만들어졌는데 프로필이 없는 반쪽 상태 — 가입 트리거가 도중에 넘어졌을 때 생긴다(세션 AX).
+       예전엔 여기서 등급 viewer에 이름 없는 유령 계정으로 들어갔다. 이제는 스스로 되살린다. */
+    try{
+      const { data:fix } = await sb.rpc('ensure_my_profile');
+      if(fix && fix.ok){
+        const r2 = await sb.from('profiles').select('role,email,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
+        prof = r2.data || null;
+      }
+    }catch(e){ /* 97 미적용 — 예전처럼 빈 프로필로 진행 */ }
+  }
   state.role = prof?.role || 'viewer';
   state.email = prof?.email || user.email;
   state.name = prof?.name || '';
@@ -4799,7 +4828,7 @@ function fxWatch(){
    ※화면 차원의 통제다 — 서버 RLS/RPC는 그대로이므로 '닫는' 방향으로만 작동해 안전하다.
    ※끄면 화면에서 사라질 뿐 데이터는 남는다. 다시 켜면 그대로 돌아온다. */
 const DEFAULT_FEATURES = {
-  community:false,       // 채널 (작업 공간·채팅·게시글) — ★채널이 이 스위치 안에 산다
+  community:false,       // 대화방 (작업 공간·채팅·게시글) — ★대화방이 이 스위치 안에 산다
   questions:true,        // 질문 게시판 — 질문이 문서가 되는 루프라 기본 켬
   inbox:true,            // 쪽지·알림함 — 답변·과제 알림 통로라 기본 켬
   calendar:true,         // 캘린더
@@ -8549,7 +8578,7 @@ async function renderSysFeatures(){
       ['kypt_v2',   'KYPT 실험 기록 (v2)', '문제 안에서 실험 1회 = 기록 1건(8칸 템플릿, 자동 저장), 자료함(링크·파일). 끄면 예전 상세 화면. 93_kypt_v2.sql 필요.'],
     ]},
     { name:'부가', items:[
-      ['community',      '채널 (작업 공간·채팅)', '★<b>채널이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 채널도 함께 사라져요.'],
+      ['community',      '대화방 (작업 공간·채팅)', '★<b>대화방이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 대화방도 함께 사라져요.'],
       ['qr',             'QR 라벨',                '기자재에 붙이는 문서 QR 스티커·라벨 시트 인쇄.'],
       ['nudges',         '참여 넛지',              '대문의 "짧은 문서" 배너와 우하단 안내 토스트. (세부 조정은 [넛지 설정])'],
       ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
@@ -8595,9 +8624,9 @@ async function renderSysFeatures(){
    ★"83번 돌렸나?"를 한 곳에서 답한다. 예전엔 알 방법이 없어 한 세션을 썼다.
    ★진단이지 관문이 아니다 — 88이 없어도, 빠진 게 있어도 앱은 그대로 돈다. */
 const MIG_NAMES = {
-  '82':'기능 켜기/끄기', '83':'채널', '83b':'채널 점검', '84':'가입 정보 복구',
-  '85':'채널 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
-  '89':'채널 공개 범위', '90':'대문 사진 벽',
+  '82':'기능 켜기/끄기', '83':'대화방', '83b':'대화방 점검', '84':'가입 정보 복구',
+  '85':'대화방 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
+  '89':'대화방 공개 범위', '90':'대문 사진 벽',
 };
 async function renderMigStatus(){
   const box=$('#migBox'); if(!box) return;
@@ -9117,6 +9146,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-09-08', text:'[채널]이 [대화방]으로 이름이 바뀌었어요. 하는 일은 그대로예요 — 주제별로 대화하고 문서·자료·과제를 모아둡니다. 그리고 대문이 단순해졌어요: 큼직한 이동 버튼으로 바로 갈 수 있습니다.' },
   { date:'2026-09-08', text:'[KYPT] 피드백이 정확한 자리에 붙어요 — 실험 기록의 칸마다 💬, 자료마다 💬. 답글·해결·이모지 반응·@이름 부르기. 기록에 [검토 요청]을 누르면 같은 문제의 참여자가 [검토 완료]로 답합니다. 쪽지함엔 하루 한 번 묶어서 옵니다.' },
   { date:'2026-09-05', text:'[KYPT] 문제를 열면 현황이 먼저 보여요 — 연구 단계 체크, 다음 할 일, 최근 활동. 목록엔 이번 주 움직임과 "새 N" 표시가 붙었고, 진행 보드에도 KYPT 할 일이 나옵니다.' },
   { date:'2026-09-04', text:'[KYPT] 문제 안에 실험 기록이 생겼어요 — 실험 한 번이 기록 한 건이고, 8칸을 채우면 자동으로 저장됩니다. 자료함엔 링크만 붙여넣으면 종류를 알아서 나누고, 파일도 올릴 수 있어요.' },
@@ -10243,6 +10273,45 @@ async function fetchActivity(){
   return out.slice(0,7);
 }
 
+/* ================== 대문 이동 버튼 (세션 AW) ==================
+   추천 문서·사진 벽·환영 카드를 걷어낸 자리. 대문에서 할 일은 하나 — **어디로 갈지 고르는 것**이다.
+   그래서 큼직한 알약 버튼을 늘어놓고, 오른쪽 끝에 갈 곳을 가리키는 탭을 붙인다.
+   ★꺼진 기능은 나오지 않는다(기능 스위치 82). 순서는 쓰는 빈도 순. */
+const LANDING_GO = [
+  { hash:'#//kypt',      icon:'book',     label:'KYPT',      feat:'kypt',      hot:true },
+  { hash:'#//docs',      icon:'docs',     label:'문서',       feat:null },
+  { hash:'#//community', icon:'chat',     label:'대화방',      feat:'community' },
+  { hash:'#//questions', icon:'help',     label:'질문 게시판',  feat:'questions' },
+  { hash:'#//calendar',  icon:'calendar', label:'캘린더',      feat:'calendar' },
+  { hash:'#//directory', icon:'users',    label:'회원',        feat:'directory' },
+  { hash:'#//inbox',     icon:'mail',     label:'쪽지함',      feat:'inbox' },
+  { hash:'#//story',     icon:'history',  label:'연혁',        feat:'history' },
+];
+/* '…으로/로' — 받침이 없거나 ㄹ이면 '로'. 영문 약어는 읽는 소리의 끝으로 판단한다(KYPT→티→로). */
+const LGO_ALPHA_JONG = { L:1, M:1, N:1, R:1 };      // 엘·엠·엔·아르만 받침이 있다
+function goParticle(label){
+  const ch = String(label||'').trim().slice(-1);
+  const up = ch.toUpperCase();
+  if(/[A-Z]/.test(up)) return LGO_ALPHA_JONG[up] ? '으로' : '로';
+  const code = ch.charCodeAt(0);
+  if(code < 0xAC00 || code > 0xD7A3) return '로';
+  const jong = (code - 0xAC00) % 28;
+  return (jong === 0 || jong === 8) ? '로' : '으로';   // 8 = ㄹ
+}
+function landingGoHTML(){
+  const items = LANDING_GO.filter(g=>!g.feat || featOn(g.feat));
+  if(!items.length) return '';
+  return `<nav class="lgo" aria-label="바로 가기">${items.map(g=>`
+    <a class="lgo-b${g.hot?' hot':''}" data-go="${g.hash}">
+      <svg class="lgo-i" aria-hidden="true"><use href="#i-${g.icon}"/></svg>
+      <span class="lgo-t">${escapeHtml(g.label)}<span class="lgo-s">${goParticle(g.label)} 이동하기</span></span>
+      <span class="lgo-x" aria-hidden="true">→</span>
+    </a>`).join('')}</nav>`;
+}
+function bindLandingGo(){
+  document.querySelectorAll('.lgo-b[data-go]').forEach(b=>{ b.onclick=()=>goHash(b.dataset.go); });
+}
+
 const WELCOME_KEY = ()=>'anda_welcome_v1_'+(state.user&&state.user.id||'');
 function welcomeHTML(force){
   try{ if(!force && localStorage.getItem(WELCOME_KEY())) return ''; }catch(e){ if(!force) return ''; }
@@ -10820,8 +10889,13 @@ async function loadKypt(force){
     const ry = await sb.from('kypt_years').select('year,title,event_at,source_url,locked').order('year',{ascending:false});
     if(ry.error) throw ry.error;
     years = ry.data || [];
-    const rp = await sb.from('kypt_problems')
+    let rp = await sb.from('kypt_problems')
       .select('id,year,no,title,title_ko,title_en,summary,body,source_url,is_kypt,status,stage_done,updated_at').order('no',{ascending:true});
+    if(rp.error && /title_ko|stage_done|column/i.test(String(rp.error.message||''))){
+      // ★96(또는 94)이 아직이면 그 컬럼이 없다. 컬럼 하나 때문에 화면 전체가 시드로 떨어지면 안 된다(세션 AV).
+      rp = await sb.from('kypt_problems')
+        .select('id,year,no,title,title_en,summary,body,source_url,is_kypt,status,updated_at').order('no',{ascending:true});
+    }
     if(rp.error) throw rp.error;
     problems = rp.data || [];
     const rm = await sb.from('kypt_members').select('problem_id,uid,lead');
@@ -10838,6 +10912,11 @@ async function loadKypt(force){
   if(!problems.length){ problems = kyptSeedRows(); }
   _kyptCache = { years, problems, members };
   return _kyptCache;
+}
+/* 공식 문제 원문 주소 — 문제 → 연도 → 기본값 순으로 찾는다. 링크가 사라지는 일이 없어야 한다. */
+function kyptSourceUrl(p){
+  const y = p && kyptYearRow(p.year);
+  return (p && p.source_url) || (y && y.source_url) || KYPT_SEED_YEAR.source_url || '';
 }
 function kyptYearRow(y){ const c=_kyptCache; return (c&&c.years.find(r=>Number(r.year)===Number(y))) || null; }
 function kyptProblemsOf(y){ const c=_kyptCache; return (c?c.problems:[]).filter(p=>Number(p.year)===Number(y)).sort((a,b)=>a.no-b.no); }
@@ -10894,7 +10973,7 @@ async function renderKyptPage(){
         ${c.years.map(r=>`<option value="${r.year}"${Number(r.year)===Number(_kyptYear)?' selected':''}>${escapeHtml(r.title||(r.year+''))}</option>`).join('')}
       </select>
       ${yrow.locked?`<span class="kp-lock">${ic('lock')} 읽기 전용</span>`:''}
-      ${yrow.source_url?`<a class="kp-src" href="${escapeAttr(yrow.source_url)}" target="_blank" rel="noopener">공식 문제 원문</a>`:''}
+      <a class="kp-src" href="${escapeAttr(yrow.source_url || KYPT_SEED_YEAR.source_url)}" target="_blank" rel="noopener">공식 문제 원문</a>
       <span class="kp-months" id="kyptMonths">${KYPT_MONTHS.map(m=>{
         const cls=[m===_kyptMonth?'on':'', m===(new Date().getMonth()+1)?'now':'', m===KYPT_GOAL_MONTH?'goal':''].filter(Boolean).join(' ');
         return `<button class="kp-m ${cls}" data-m="${m}" title="${m}월의 수정 내역만">${m}</button>`;
@@ -10984,7 +11063,7 @@ async function renderKyptProblem(year, no){
   $('#doc').innerHTML=`<div class="kypt-wrap kp-detail">
     <a class="kp-back" href="#//kypt">← ${escapeHtml(yrow.title||('KYPT '+p.year))}</a>
     <div class="doc-head"><h1><span class="kp-no big">${p.no}</span> ${escapeHtml(p.title)}</h1></div>
-    <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.source_url?` · <a href="${escapeAttr(p.source_url)}" target="_blank" rel="noopener">공식 원문</a>`:''}</p>
+    <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.title_ko?' · ':''}<a class="kp-src" href="${escapeAttr(kyptSourceUrl(p))}" target="_blank" rel="noopener">공식 문제 원문 ↗</a></p>
     ${yrow.locked?`<p class="ch-note">${ic('lock')} 지난 연도라 읽기 전용입니다.</p>`:''}
     ${kyptSaveHint()}
     <div class="kp-people">
@@ -11256,7 +11335,7 @@ const KYPT_FIELDS = [
 ];
 const KYPT_STAGES = { qual:'정성 이해', theory:'이론', predict:'예측', exp:'실험', compare:'비교' };
 const KYPT_STAGE_CLS = { qual:'s-qual', theory:'s-theory', predict:'s-predict', exp:'s-exp', compare:'s-compare' };
-const KYPT_ASSET_KINDS = { paper:'문헌', video:'영상', data:'데이터', code:'코드', doc:'내부 문서', channel:'채널', web:'웹', file:'파일' };
+const KYPT_ASSET_KINDS = { paper:'문헌', video:'영상', data:'데이터', code:'코드', doc:'내부 문서', channel:'대화방', web:'웹', file:'파일' };
 const KYPT_KIND_CLS = { paper:'k-paper', video:'k-video', data:'k-data', code:'k-code', doc:'k-doc', channel:'k-channel', web:'k-web', file:'k-file' };
 const KYPT_UPLOAD_MAX = 20 * 1024 * 1024;   // 20MB — 무료 1GB 안에서 17문제가 살려면 이 정도
 
@@ -11338,7 +11417,7 @@ async function renderKyptProblemV2(year, no){
   $('#doc').innerHTML=`<div class="kypt-wrap kp-detail kv2">
     <a class="kp-back" href="#//kypt">← ${escapeHtml(yrow.title||('KYPT '+p.year))}</a>
     <div class="doc-head"><h1><span class="kp-no big">${p.no}</span> ${escapeHtml(p.title)}</h1></div>
-    <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.source_url?` · <a href="${escapeAttr(p.source_url)}" target="_blank" rel="noopener">공식 원문</a>`:''}</p>
+    <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.title_ko?' · ':''}<a class="kp-src" href="${escapeAttr(kyptSourceUrl(p))}" target="_blank" rel="noopener">공식 문제 원문 ↗</a></p>
     ${yrow.locked?`<p class="ch-note">${ic('lock')} 지난 연도라 읽기 전용입니다.</p>`:''}
     <div class="kp-people">
       <span class="kp-plab">참여</span>
@@ -12397,7 +12476,7 @@ async function renderLanding(){
   const safe=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
   const [
     stats, activity, evsQ, grassQ, rewindQ, missionQ,
-    myTasksQ, openQsQ, focusQ, fprogQ, liveQ, cfgQ, wallQ
+    myTasksQ, openQsQ, focusQ, fprogQ, liveQ
   ] = await Promise.all([                    /* ★기능 스위치(82): 꺼진 타일은 조회 자체를 생략 — 대문이 더 가벼워진다 */
     safe(fetchDocStats(), []),
     featOn('landing_extras') ? safe(fetchActivity(), []) : Promise.resolve([]),
@@ -12411,8 +12490,6 @@ async function renderLanding(){
     safe(sb.from('app_settings').select('value').eq('key','focus').maybeSingle(), null),
     safe(sb.rpc('focus_progress'), null),    // focus가 꺼져 있으면 버린다 — 분기해서 왕복을 더 만드는 것보다 싸다
     featOn('landing_extras') ? safe(sb.rpc('public_stats'), null) : Promise.resolve(null),
-    safe(loadLandingDocs(), []),
-    featOn('photo_wall') ? safe(loadWallCfg(), null) : Promise.resolve(undefined),   // ★사진 벽(90) — 꺼져 있으면 왕복 생략
   ]);
   const evs = (evsQ && evsQ.data) || [];
   const grass = grassQ || null;
@@ -12435,7 +12512,6 @@ async function renderLanding(){
     const f = d && d.value ? (typeof d.value==='string' ? JSON.parse(d.value) : d.value) : null;
     if(f && f.on){ focus=f; fprog=(fprogQ && fprogQ.data && fprogQ.data[0]) || null; } }
   const live = (liveQ && liveQ.data && typeof liveQ.data==='object') ? liveQ.data : null;
-  let cfg = cfgQ || [];
   /* recent·alldocs: 예전엔 documents를 두 번 더 조회했다.
      recent은 이미 받은 doc_stats에서 파생(같은 표), alldocs는 로그인 때 받아둔 state.docs 그대로 — 왕복 2회 제거 */
   let recent = (stats||[]).slice()
@@ -12459,26 +12535,8 @@ async function renderLanding(){
       ensureCovers(wkUids);
     }
   }
-  // ★추천 문서는 이제 DB(app_settings.landing_docs)에서 온다.
-  //   · owner만 편집 가능(set_landing_docs) → 편집자가 임의로 못 바꾼다
-  //   · 문서 주소가 바뀌면 서버 트리거가 목록의 주소도 같이 고친다 → 링크가 깨지지 않는다
-  //   · 그래도 남아 있는 '없는 문서'는 화면에서 걸러낸다
-  if(!cfg.length) cfg = LANDING_CATS;                                  // 아직 설정 전 → 기본값 (병렬 배치에서 이미 받음)
-  const titleOf = {}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title||d.key; });
-  const cats = cfg.map(c=>({ name:c.name||c.title||'', items:(c.items||[]).filter(it=>titleOf[it.key]!==undefined) }))
-                  .filter(c=>c.items.length)
-                  .map((c,ci)=>`
-    <div class="cat">
-      <div class="cat-head">
-        <span class="cat-name">${escapeHtml(c.name)}</span>
-        <span class="cat-toggle"><span class="ct-label">접기</span><span class="cat-chev">▾</span></span>
-      </div>
-      <div class="cat-body">
-        ${c.items.map(it=>`<a class="doc-link" data-key="${escapeAttr(it.key)}">
-            <span class="dl-title">${escapeHtml(titleOf[it.key] || it.title || it.key)}</span>
-            <span class="dl-desc">${escapeHtml(it.desc||'')}</span></a>`).join('')}
-      </div>
-    </div>`).join('');
+  /* ★세션 AW: 추천 문서 구역을 걷어냈다(사용자 결정). landing_docs 설정과 owner 편집 화면
+     (#//system/landing)은 그대로 살려 둔다 — 되돌리고 싶을 때 데이터가 남아 있어야 한다(규칙 17). */
   const actHTML = `
     <div class="act-card" id="actCard">
       <div class="act-head">${ic('chat')}지금 안다미로는 <span class="act-live" title="최근 활동"></span></div>
@@ -12515,9 +12573,10 @@ async function renderLanding(){
   $('#doc').innerHTML=`
     ${featOn('nudges')?nudgeHTML(stats):''}
     <div class="landing">
-      ${wallHTML(wallQ)}
+      ${/* ★세션 AW(사용자 결정): 대문 사진 벽·환영(튜토리얼) 카드·추천 문서를 걷어내고
+             '어디로 갈지'를 큼직한 버튼 한 묶음으로 대신한다. 대문은 안내판이지 전시장이 아니다. */''}
+      ${landingGoHTML()}
       ${focusHTML(focus, fprog)}
-      ${welcomeHTML(false)}
       ${/* ★대문의 유일한 '채워진' 요소 — 시선이 앉을 자리는 하나여야 한다.
              과제가 있으면 과제, 없으면 이어 쓸 짧은 문서. 빈 강조 박스는 자리 낭비다. */''}
       ${(()=>{
@@ -12562,11 +12621,6 @@ async function renderLanding(){
         <p class="ls-foot">아는 게 있다면 한 줄이라도 남겨주세요 — 답이 곧 문서가 됩니다.</p>
       </section>`:''}
 
-      ${cats?`<section class="ls ls-reco">
-        <div class="ls-h">추천 문서${isOwner()?`<a data-go="#//system/landing">편집 →</a>`:''}</div>
-        ${cats}
-      </section>`:''}
-
       ${alldocs.length?`<section class="ls">
         <div class="ls-h">문서 <span class="ls-n">${alldocs.length}</span><a data-go="#//docs">전체 보기 →</a></div>
         <div class="lg-wrap">${(()=>{
@@ -12577,8 +12631,7 @@ async function renderLanding(){
       </section>`:''}
 
       <p class="lnote"><b>안다미로</b>의 공동 기록 공간입니다. 기자재 사용법, 실험 절차, 자주 하는 실수 —
-        한 번 겪은 사람이 짧게 남기면 다음 사람은 헤매지 않아요. 길게 쓸 필요 없습니다.
-        <a id="hnWelcome">빠른 시작 안내 다시 보기 →</a></p>
+        한 번 겪은 사람이 짧게 남기면 다음 사람은 헤매지 않아요. 길게 쓸 필요 없습니다.</p>
 
       ${/* 곁가지 타일(기본 꺼짐)은 예전 벤토 그리드를 그대로 쓴다 — 켰을 때만 나타난다 */''}
       ${(featOn('landing_extras')||featOn('gamify'))?`<div class="bento">
@@ -12640,17 +12693,7 @@ async function renderLanding(){
     try{ localStorage.setItem(WELCOME_KEY(),'1'); }catch(e){}
     const c=$('#welcomeCard'); if(c) c.remove();
   }; };
-  wireWelcome();
-  const hw=$('#hnWelcome'); if(hw) hw.onclick=()=>{
-    if($('#welcomeCard')){ $('#welcomeCard').scrollIntoView({behavior:'smooth',block:'center'}); return; }
-    /* ★기준점을 .landing 맨 앞으로 — 예전엔 #actCard 기준이었는데 그 타일은 기본으로 꺼져 있어
-       (기능 스위치 82) 눌러도 아무 일이 없었다. */
-    const host=$('#doc').querySelector('.landing');
-    if(!host) return;
-    host.insertAdjacentHTML('afterbegin', welcomeHTML(true));
-    wireWelcome();
-    const wc=$('#welcomeCard'); if(wc) wc.scrollIntoView({behavior:'smooth',block:'center'});
-  };
+  bindLandingGo();
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   window.scrollTo(0,0);
@@ -13692,12 +13735,12 @@ function openQuestionEdit(q, isPost){
 /* ================== 커뮤니티 (실시간 채팅 + 캘린더) ================== */
 let chatChannel=null;
 const community={ baseYear:2026, viewY:2026, viewM:(new Date()).getMonth(), previewOn:false, chatSize:4,
-  /* ★다중 채널(83). ch=null 은 '일반' — 83 이전에 쌓인 메시지가 전부 여기 속한다.
-     chOk=false 면 83 미적용이므로 채널 레일을 아예 그리지 않고 예전처럼 단일 채팅으로 돈다. */
+  /* ★다중 대화방(83). ch=null 은 '일반' — 83 이전에 쌓인 메시지가 전부 여기 속한다.
+     chOk=false 면 83 미적용이므로 대화방 목록을 아예 그리지 않고 예전처럼 단일 채팅으로 돈다. */
   ch:null, chOk:false, permOk:false, channels:[], chErr:null };
 
-/* 채널 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패)
-   ★보관된 채널도 함께 받는다 — 레일에서 갈라 그린다(운영진에게만 '보관됨' 목록). */
+/* 대화방 목록 — 실패하면 조용히 단일 채팅 모드로 (우아한 실패)
+   ★보관된 대화방도 함께 받는다 — 레일에서 갈라 그린다(운영진에게만 '보관됨' 목록). */
 async function loadChannels(){
   /* ★89(공개 범위)의 visibility 컬럼은 미적용 DB에서 select 전체를 죽인다(규칙 9).
      먼저 새 컬럼으로 시도하고, 실패하면 예전 컬럼으로 재시도 (loadDocs 표본 패턴).
@@ -13727,7 +13770,7 @@ async function loadChannels(){
 function chName(id){
   if(id==null) return '일반';
   const c=community.channels.find(x=>String(x.id)===String(id));
-  return c ? c.name : '채널';
+  return c ? c.name : '대화방';
 }
 
 function unsubscribeChat(){ resetTyping(); if(chatChannel){ try{ sb.removeChannel(chatChannel); }catch(e){} chatChannel=null; } }
@@ -13739,7 +13782,7 @@ async function renderCommunity(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
   $('#doc').innerHTML=`
-    <div class="qb-head"><h1>채널</h1></div>
+    <div class="qb-head"><h1>대화방</h1></div>
     <div class="hub">
       <nav class="hub-nav" id="chRail" style="display:none"></nav>
       <section class="chat">
@@ -13775,7 +13818,7 @@ async function renderCommunity(){
         </section>
       </aside>
     </div>`;
-  /* ★세션 X: 채널에서 게시글을 걷어냈다. 채널은 '대화 + 작업 공간'이고,
+  /* ★세션 X: 대화방에서 게시글을 걷어냈다. 대화방은 '대화 + 작업 공간'이고,
      남겨둘 글은 질문 게시판과 문서가 맡는다. 자리를 나눠 갖던 것이 채팅에 돌아갔다. */
   $('#chatSend').onclick=sendMessage;
   bindChatKeys($('#chatText'), sendMessage);      // Enter=전송 · Ctrl+Enter=줄바꿈
@@ -13788,7 +13831,7 @@ async function renderCommunity(){
   await loadChannels();                           // ★83 — 실패하면 chOk=false로 단일 채팅 모드
   if(_nav!==_navSeq) return;
   renderChannelRail();
-  renderWorkspace(_nav);                          // ★채널 작업 공간(85)
+  renderWorkspace(_nav);                          // ★대화방 작업 공간(85)
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
@@ -13797,13 +13840,13 @@ async function renderCommunity(){
   typeToFocus('#chatText');    // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
 }
 
-/* 좌측 채널 레일 (83). ★83 미적용이면 레일 자체를 숨긴다 — 예전 단일 채팅 그대로 동작. */
+/* 좌측 대화방 목록 (83). ★83 미적용이면 레일 자체를 숨긴다 — 예전 단일 채팅 그대로 동작. */
 function renderChannelRail(){
   const rail=$('#chRail'); if(!rail) return;
   const hub=document.querySelector('.hub');
   /* ★레일을 숨길 땐 그리드 칸도 함께 없애야 한다 (세션 P 사고) */
   if(!community.chOk){
-    /* ★세션 V: 예전엔 조용히 숨겼다. 그러면 "채널이 안 보여요"에서 멈춘다.
+    /* ★세션 V: 예전엔 조용히 숨겼다. 그러면 "대화방이 안 보여요"에서 멈춘다.
        운영진에게는 이유를 말해준다 — 조용한 실패는 실패가 아니라 미스터리다. */
     if(hub) hub.classList.remove('has-ch');
     if(canManageChannels()){
@@ -13821,10 +13864,10 @@ function renderChannelRail(){
       }else if(/permission denied|row-level|RLS/i.test(msg) || code==='42501'){
         hint='표는 있는데 <b>읽을 권한이 없어요.</b> 83의 RLS 정책이 제대로 만들어졌는지 확인해 주세요.';
       }else{
-        hint='채널을 불러오지 못했어요.';
+        hint='대화방을 불러오지 못했어요.';
       }
       rail.style.display='';
-      rail.innerHTML=`<div class="ls-h" style="margin-bottom:6px">채널</div>
+      rail.innerHTML=`<div class="ls-h" style="margin-bottom:6px">대화방</div>
         <p class="ch-off">${hint}
         ${msg?`<br><br><span class="ch-err">원인: ${escapeHtml(msg)}${code?` (${escapeHtml(code)})`:''}</span>`:''}
         <br><button class="ch-retry" id="chRetry">다시 시도</button></p>`;
@@ -13840,18 +13883,18 @@ function renderChannelRail(){
   const mgr=canManageChannels();
   const live=community.channels.filter(c=>!c.archived);
   const dead=community.channels.filter(c=>c.archived);
-  /* 잠금 표시 = '멤버만' 채널. 멤버가 아니면 RLS(89)가 목록에서 이미 걸렀으므로,
+  /* 잠금 표시 = '멤버만' 대화방. 멤버가 아니면 RLS(89)가 목록에서 이미 걸렀으므로,
      여기 보인다는 것 자체가 '나는 볼 수 있다'는 뜻이다. */
   const item=(id,name,c)=>`<div class="ch-row${String(community.ch)===String(id)?' on':''}">
       <button class="ch-item${String(community.ch)===String(id)?' on':''}"
-        data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}${(c&&c.visibility==='members')?`<span class="ch-lock" title="지정한 멤버와 운영진만 보는 채널">${ic('lock')}</span>`:''}</button>
-      ${(mgr&&id!=null)?`<button class="ch-gear" data-chset="${escapeAttr(String(id))}" title="채널 설정" aria-label="채널 설정">${ic('gear')}</button>`:''}
+        data-ch="${id==null?'':escapeAttr(String(id))}"><span class="ch-h">#</span>${escapeHtml(name)}${(c&&c.visibility==='members')?`<span class="ch-lock" title="지정한 멤버와 운영진만 보는 대화방">${ic('lock')}</span>`:''}</button>
+      ${(mgr&&id!=null)?`<button class="ch-gear" data-chset="${escapeAttr(String(id))}" title="대화방 설정" aria-label="대화방 설정">${ic('gear')}</button>`:''}
     </div>`;
   rail.innerHTML=`
-    <div class="ls-h" style="margin-bottom:6px">채널</div>
+    <div class="ls-h" style="margin-bottom:6px">대화방</div>
     ${item(null,'일반')}
     ${live.map(c=>item(c.id,c.name,c)).join('')}
-    ${mgr?`<button class="ch-add" id="chAdd">+ 채널 만들기</button>`:''}
+    ${mgr?`<button class="ch-add" id="chAdd">+ 대화방 만들기</button>`:''}
     ${(mgr&&dead.length)?`<div class="ls-h ch-arch-h">보관됨</div>${dead.map(c=>`
       <button class="ch-item ch-arch" data-chset="${escapeAttr(String(c.id))}"
         title="눌러서 설정 열기 (보관 해제 · 삭제)"><span class="ch-h">#</span>${escapeHtml(c.name)}</button>`).join('')}`:''}`;
@@ -13868,15 +13911,15 @@ async function switchChannel(id){
   if(String(community.ch)===String(id)) return;
   community.ch = id;
   renderChannelRail();
-  renderWorkspace();                              // ★채널이 바뀌면 작업 공간도 (85)
+  renderWorkspace();                              // ★대화방이 바뀌면 작업 공간도 (85)
   const head=document.querySelector('.chat-head span'); if(head) head.textContent='# '+chName(id);
   const log=$('#chatLog'); if(log) log.innerHTML='<div class="chat-empty">불러오는 중…</div>';
   await loadMessages();
-  subscribeChat();                                  // 채널이 바뀌면 구독도 갈아탄다
+  subscribeChat();                                  // 대화방이 바뀌면 구독도 갈아탄다
 }
-/* ── 채널 만들기·설정 모달 (세션 AO — §0-A의 'prompt() 정식화' 해소) ──
+/* ── 대화방 만들기·설정 모달 (세션 AO — §0-A의 'prompt() 정식화' 해소) ──
    공개 범위·멤버·삭제는 89 적용 시에만 나타난다(community.permOk).
-   ★'일반'(ch=null)은 설정이 없다 — 채널 행이 아니라 'channel_id 없는 메시지 묶음'이므로. */
+   ★'일반'(ch=null)은 설정이 없다 — 대화방 행이 아니라 'channel_id 없는 메시지 묶음'이므로. */
 
 /* 멤버 고르기 조각 — 만들기·설정 모달이 같이 쓴다 */
 async function chMemberPicker(box, checked){
@@ -13903,9 +13946,9 @@ function addChannel(){
   const permOk=community.permOk;
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:420px">
-    <div class="modal-msg">새 채널 만들기</div>
-    <div class="modal-sub">채널은 주제 하나를 둘러싼 작업 공간이에요 — 대화·문서·자료를 한곳에 모읍니다.</div>
-    <label class="nd-label">채널 이름</label>
+    <div class="modal-msg">새 대화방 만들기</div>
+    <div class="modal-sub">대화방은 주제 하나를 둘러싼 작업 공간이에요 — 대화·문서·자료를 한곳에 모읍니다.</div>
+    <label class="nd-label">대화방 이름</label>
     <input class="he-input" id="chNewName" type="text" maxlength="30" placeholder="예: 실험실, 대회준비" autocomplete="off">
     ${permOk?`
     <label class="nd-label">공개 범위</label>
@@ -13914,7 +13957,7 @@ function addChannel(){
       <label><input type="radio" name="chVis" value="members"> 멤버만</label>
     </div>
     <div class="chm-box" id="chMembers" style="display:none"></div>
-    <p class="ch-note" id="chVisNote" style="display:none">선택한 멤버와 운영진(owner/admin)만 이 채널을 볼 수 있어요.</p>`:''}
+    <p class="ch-note" id="chVisNote" style="display:none">선택한 멤버와 운영진(owner/admin)만 이 대화방을 볼 수 있어요.</p>`:''}
     <div class="he-msg" id="chMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
   </div>`;
@@ -13939,7 +13982,7 @@ function addChannel(){
   ov.querySelector('.modal-ok').onclick=async()=>{
     const name=(nameIn.value||'').trim();
     const msg=ov.querySelector('#chMsg');
-    if(!name){ msg.className='msg err'; msg.textContent='채널 이름을 입력해 주세요.'; return; }
+    if(!name){ msg.className='msg err'; msg.textContent='대화방 이름을 입력해 주세요.'; return; }
     const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
     const key=base || ('ch'+Date.now().toString(36));
     const row={ key, name, sort:(community.channels.length+1) };
@@ -13961,7 +14004,7 @@ function addChannel(){
       close();
       await loadChannels();
       renderChannelRail();
-      toast('채널을 만들었어요: # '+name);
+      toast('대화방을 만들었어요: # '+name);
     }catch(e){
       okb.disabled=false;
       msg.className='msg err';
@@ -13970,7 +14013,7 @@ function addChannel(){
   };
 }
 
-/* 채널 설정 — 이름 · 공개 범위(89) · 순서 · 보관 · 삭제(89) */
+/* 대화방 설정 — 이름 · 공개 범위(89) · 순서 · 보관 · 삭제(89) */
 async function openChannelSettings(id){
   const c=community.channels.find(x=>String(x.id)===String(id));
   if(!c) return;
@@ -13978,7 +14021,7 @@ async function openChannelSettings(id){
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:440px">
     <div class="modal-msg"># ${escapeHtml(c.name)} 설정</div>
-    <label class="nd-label">채널 이름</label>
+    <label class="nd-label">대화방 이름</label>
     <input class="he-input" id="csName" type="text" maxlength="30" value="${escapeAttr(c.name)}">
     ${permOk?`
     <label class="nd-label">공개 범위</label>
@@ -13987,7 +14030,7 @@ async function openChannelSettings(id){
       <label><input type="radio" name="csVis" value="members" ${c.visibility==='members'?'checked':''}> 멤버만</label>
     </div>
     <div class="chm-box" id="csMembers" style="display:${c.visibility==='members'?'':'none'}"></div>
-    <p class="ch-note" id="csVisNote" style="display:${c.visibility==='members'?'':'none'}">선택한 멤버와 운영진(owner/admin)만 이 채널을 볼 수 있어요.</p>`
+    <p class="ch-note" id="csVisNote" style="display:${c.visibility==='members'?'':'none'}">선택한 멤버와 운영진(owner/admin)만 이 대화방을 볼 수 있어요.</p>`
     :`<p class="ch-note">공개 범위 지정과 삭제는 <code>89_channel_perms.sql</code>을 실행하면 쓸 수 있어요.</p>`}
     <label class="nd-label">정리</label>
     <div class="ch-actrow">
@@ -14048,9 +14091,9 @@ async function openChannelSettings(id){
       close();
       const viewing = String(community.ch)===String(id);
       await loadChannels();
-      if(!c.archived && viewing){ await switchChannel(null); }   // 보고 있던 채널을 보관하면 '일반'으로
+      if(!c.archived && viewing){ await switchChannel(null); }   // 보고 있던 대화방을 보관하면 '일반'으로
       else { renderChannelRail(); renderWorkspace(); }
-      toast(c.archived ? '보관을 해제했어요.' : '채널을 보관했어요. 대화는 그대로 남아 있어요.');
+      toast(c.archived ? '보관을 해제했어요.' : '대화방을 보관했어요. 대화는 그대로 남아 있어요.');
     }catch(e){ showErr('바꾸지 못했습니다: '+((e&&e.message)||e)); }
   };
   const del=ov.querySelector('#csDel');
@@ -14063,9 +14106,9 @@ async function openChannelSettings(id){
     }catch(e){}
     const ov2=document.createElement('div'); ov2.className='modal-ov';
     ov2.innerHTML=`<div class="modal-box" style="max-width:400px">
-      <div class="modal-msg">채널 삭제</div>
-      <div class="modal-sub"><b># ${escapeHtml(c.name)}</b> 채널과 그 안의 대화${cnt==null?'':` <b>${cnt}건</b>`}·자료 목록이 <b>완전히 삭제</b>됩니다. 되돌릴 수 없어요.<br>가볍게 치우는 게 목적이면 '보관'을 쓰세요 — 대화가 남습니다.</div>
-      <label class="nd-label">확인을 위해 채널 이름을 그대로 입력하세요</label>
+      <div class="modal-msg">대화방 삭제</div>
+      <div class="modal-sub"><b># ${escapeHtml(c.name)}</b> 대화방과 그 안의 대화${cnt==null?'':` <b>${cnt}건</b>`}·자료 목록이 <b>완전히 삭제</b>됩니다. 되돌릴 수 없어요.<br>가볍게 치우는 게 목적이면 '보관'을 쓰세요 — 대화가 남습니다.</div>
+      <label class="nd-label">확인을 위해 대화방 이름을 그대로 입력하세요</label>
       <input class="he-input" id="cdName" type="text" placeholder="${escapeAttr(c.name)}" autocomplete="off">
       <div class="he-msg" id="cdMsg"></div>
       <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok danger">삭제</button></div>
@@ -14077,7 +14120,7 @@ async function openChannelSettings(id){
     ov2.querySelector('.modal-ok').onclick=async()=>{
       const m2=ov2.querySelector('#cdMsg');
       if((ov2.querySelector('#cdName').value||'').trim()!==c.name){
-        m2.className='msg err'; m2.textContent='채널 이름이 일치하지 않아요.'; return;
+        m2.className='msg err'; m2.textContent='대화방 이름이 일치하지 않아요.'; return;
       }
       try{
         const { error } = await sb.rpc('delete_channel', { p_channel: id });
@@ -14088,7 +14131,7 @@ async function openChannelSettings(id){
         await loadChannels();
         if(viewing){ await switchChannel(null); }
         else { renderChannelRail(); renderWorkspace(); }
-        toast('채널을 삭제했어요: # '+c.name);
+        toast('대화방을 삭제했어요: # '+c.name);
       }catch(e){
         m2.className='msg err';
         m2.textContent='삭제하지 못했습니다: '+((e&&e.message)||e)+' (89_channel_perms.sql 실행 여부를 확인하세요)';
@@ -14097,7 +14140,7 @@ async function openChannelSettings(id){
   };
   ov.querySelector('.modal-ok').onclick=async()=>{
     const name=(ov.querySelector('#csName').value||'').trim();
-    if(!name){ showErr('채널 이름을 입력해 주세요.'); return; }
+    if(!name){ showErr('대화방 이름을 입력해 주세요.'); return; }
     const okb=ov.querySelector('.modal-ok');
     okb.disabled=true;
     try{
@@ -14128,10 +14171,10 @@ async function openChannelSettings(id){
       await loadChannels();
       renderChannelRail();
       renderWorkspace();
-      /* 지금 보고 있는 채널의 이름이 바뀌었으면 채팅 제목도 맞춘다 */
+      /* 지금 보고 있는 대화방의 이름이 바뀌었으면 채팅 제목도 맞춘다 */
       const head=document.querySelector('.chat-head span');
       if(head && String(community.ch)===String(id)) head.textContent='# '+chName(id);
-      toast('채널 설정을 저장했어요.');
+      toast('대화방 설정을 저장했어요.');
     }catch(e){
       okb.disabled=false;
       showErr('저장하지 못했습니다: '+((e&&e.message)||e));
@@ -14139,8 +14182,8 @@ async function openChannelSettings(id){
   };
 }
 
-/* ── 채널 작업 공간 (85) ──
-   채널은 채팅방이 아니라 '주제 하나를 둘러싼 작업 공간'이다.
+/* ── 대화방 작업 공간 (85) ──
+   대화방은 단순한 채팅방이 아니라 '주제 하나를 둘러싼 작업 공간'이다.
      · 회의 링크 (외부 Zoom/Meet — 직접 만들지 않는다)
      · 연결된 문서
      · 자료 링크 (구글드라이브 등 — 파일 업로드는 만들지 않는다)
@@ -14186,14 +14229,14 @@ async function renderWorkspace(_nav){
   const mt=$('#wsMeet'); if(mt) mt.onclick=wsSetMeet;
   box.querySelectorAll('[data-del]').forEach(b=>b.onclick=async e=>{
     e.preventDefault(); e.stopPropagation();
-    if(!confirm('이 항목을 채널에서 뗄까요? (문서 자체는 지워지지 않아요)')) return;
+    if(!confirm('이 항목을 대화방에서 뗄까요? (문서 자체는 지워지지 않아요)')) return;
     try{ const { error } = await sb.from('channel_items').delete().eq('id', Number(b.dataset.del));
          if(error) throw error; renderWorkspace(); }
     catch(err){ alert('떼지 못했습니다: '+((err&&err.message)||err)); }
   });
   renderWsTasks(docs.map(d=>d.doc_key));
 }
-/* 이 채널의 과제 = 붙여둔 문서를 대상으로 하는 과제. tasks 스키마를 건드리지 않는다. */
+/* 이 대화방의 과제 = 붙여둔 문서를 대상으로 하는 과제. tasks 스키마를 건드리지 않는다. */
 async function renderWsTasks(keys){
   const box=$('#wsTasks'); if(!box || !keys.length || !featOn('tasks')) return;
   let rows=[];
@@ -14228,7 +14271,7 @@ async function wsAddItem(){
     renderWorkspace();
   }catch(e){
     const m=String((e&&e.message)||e);
-    alert(/duplicate|unique/i.test(m) ? '이미 이 채널에 붙어 있어요.'
+    alert(/duplicate|unique/i.test(m) ? '이미 이 대화방에 붙어 있어요.'
       : '붙이지 못했습니다: '+m+'\n(85_channel_workspace.sql 실행 여부를 확인하세요)');
   }
 }
@@ -14244,7 +14287,7 @@ async function wsSetMeet(){
 }
 
 /* 커뮤니티 우측 레일 — 지금 접속 중인 회원.
-   ★채널 개념이 없는 앱이라(커뮤니티 채팅은 하나뿐) 좌측 채널 목록 대신
+   ★대화방 개념이 없는 앱이라(커뮤니티 채팅은 하나뿐) 좌측 대화방 목록 대신
    '누가 지금 있는가'를 보여주는 편이 실제로 쓸모 있다. */
 async function renderHubOnline(_nav){
   const box=$('#hubOnline'); if(!box) return;
@@ -14396,7 +14439,7 @@ async function loadMessages(){
     let sel = sb.from('messages')
       .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id,images');
     sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
-    /* ★채널 필터는 커뮤니티 채팅에서만. 질문 스레드는 채널 개념이 없다.
+    /* ★대화방 필터는 커뮤니티 채팅에서만. 질문 스레드는 대화방 개념이 없다.
        83 미적용(chOk=false)이면 필터를 아예 걸지 않는다 — 없는 컬럼을 참조하면 조회가 통째로 죽는다. */
     if(!q && community.chOk){
       sel = (community.ch==null) ? sel.is('channel_id', null) : sel.eq('channel_id', community.ch);
@@ -14837,7 +14880,7 @@ async function refreshReactionsFor(mid){
 
 function subscribeChat(){
   unsubscribeChat();
-  // 채널명을 스레드별로 분리 → 커뮤니티에서 친 '입력 중'이 질문방에 새지 않는다
+  // 대화방명을 스레드별로 분리 → 커뮤니티에서 친 '입력 중'이 질문방에 새지 않는다
   chatChannel = sb.channel('chat:'+(community.qid || ('main#'+(community.ch==null?'gen':community.ch))))
     .on('broadcast', { event:'typing' }, ({ payload })=>{
       if(!payload || !payload.id) return;
@@ -14855,7 +14898,7 @@ function subscribeChat(){
       const cur = community.qid || null;
       const got = (payload.new && payload.new.question_id) || null;
       if(String(cur) !== String(got)) return;
-      if(!cur && community.chOk){                       // ★83: 지금 보고 있는 채널만
+      if(!cur && community.chOk){                       // ★83: 지금 보고 있는 대화방만
         const mc = (payload.new && payload.new.channel_id!=null) ? String(payload.new.channel_id) : null;
         const vc = community.ch!=null ? String(community.ch) : null;
         if(mc !== vc) return;
@@ -15840,6 +15883,17 @@ async function doSignupRequest(){
   if(pw.length<8){ msg.className='msg err'; msg.textContent='비밀번호는 8자 이상으로 정해주세요.'; return; }
   if(pw!==pw2){ msg.className='msg err'; msg.textContent='비밀번호가 서로 달라요.'; return; }
   if(!suToken){ msg.className='msg err'; msg.textContent='보안 확인(CAPTCHA)을 완료해 주세요.'; return; }
+  /* ★가입 실패의 대부분은 '활동명 중복'이다. 그런데 Supabase는 그 사실을 숨기고
+     "Database error saving new user"만 돌려준다(세션 AX). 그래서 눌리기 전에 여기서 먼저 본다.
+     97 미적용이면 이 검사는 조용히 건너뛴다 — 예전과 똑같이 동작한다. */
+  try{
+    const { data:free, error:hErr } = await sb.rpc('handle_available', { p_handle: handle });
+    if(!hErr && free === false){
+      msg.className='msg err';
+      msg.textContent='이미 쓰이고 있는 활동명이에요. 다른 이름으로 바꿔 주세요.';
+      return;
+    }
+  }catch(e){ /* 97 미적용 — 서버 검사에 맡긴다 */ }
   $('#su-btn').disabled=true; $('#su-btn').textContent='가입 중…';
   let data=null, error=null;
   try{
@@ -15856,6 +15910,8 @@ async function doSignupRequest(){
       /초대 코드/.test(em)                      ? '초대 코드가 올바르지 않아요. 동아리에서 받은 코드를 확인해 주세요.' :
       /받지 않습니다/.test(em)                  ? '지금은 회원 가입을 받지 않습니다.' :
       /already|registered|exists/i.test(em)     ? '이미 가입된 이메일이에요. 로그인해 주세요.' :
+      /database error saving new user/i.test(em)
+        ? '계정을 만들다 서버에서 막혔어요. 활동명이나 이메일이 이미 쓰이고 있을 수 있어요 — 활동명을 바꿔 다시 해보세요. 그래도 안 되면 운영진에게 알려 주세요 (97_signup_repair.sql · signup_health()).' :
       ('가입 실패: '+em);
     return;
   }
