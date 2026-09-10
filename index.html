@@ -416,7 +416,7 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 
 /* 페이지 전환 애니메이션 */
 @keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-#doc.pageIn{animation:pageIn .22s ease;}
+/* (세션 BI) #doc.pageIn 전환 애니메이션 제거 — 두 번 깜빡임의 반쪽 */
 
 /* 대문(랜딩) */
 .landing .hero-notice{text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--box-bg);padding:22px 18px;margin-bottom:22px;}
@@ -3029,18 +3029,6 @@ body.fx-flat .story-pane{transition:none;}
 .kp-side .kv2-feed{ grid-template-columns:auto 1fr; }
 .kp-side .kv2-ftxt{ white-space:normal; }
 .kp-side .kv2-fprob{ grid-column:2 / -1; white-space:normal; }
-/* ★세션 BH: 수정 내역을 오른쪽 여백으로 — .rail-out일 때만(자리를 JS가 잰다 · kpFitFeedRail). 글자는 작게, 줄바꿈은 낱말 단위. */
-.kp-feedrail{ margin-top:14px; }
-.kp-feedin{ min-width:0; }
-.kypt-wrap.rail-out .kp-feedrail{ position:absolute; top:0; left:calc(100% + 18px); margin:0; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-week{ padding:9px 11px 6px; margin:0; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-wh{ font-size:11px; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-feed{ grid-template-columns:auto 1fr; gap:4px 7px; padding:4px 0; align-items:start; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-fwhen{ font-size:10.5px; padding-top:1px; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-ftxt{ font-size:12px; line-height:1.4; white-space:normal; word-break:keep-all; overflow-wrap:anywhere; }
-.kypt-wrap.rail-out .kp-feedrail .kv2-fprob{ font-size:11px; line-height:1.35; white-space:normal; word-break:keep-all; overflow-wrap:anywhere; }
-.kypt-wrap.rail-out .kp-feedrail .muted{ font-size:12px; }
-
 .kp-hint{ color:var(--text-dim); font-size:13px; margin:0 0 10px; }
 /* ★세션 BH: 레퍼런스 키트 탭 — 왼쪽 목록(키트 그대로) + 오른쪽 요약 칸(sticky). 사람별 읽음은 커버색 점. */
 .kr-head{ margin-bottom:10px; }
@@ -3055,8 +3043,17 @@ body.fx-flat .story-pane{transition:none;}
 .kr-f.on .kv2-cnt{ color:rgba(255,255,255,.8); }
 .kr-main{ display:grid; grid-template-columns:1fr 292px; gap:20px; align-items:start; }
 .kr-list{ border-top:1px solid var(--border); }
-.kr-row{ display:grid; grid-template-columns:auto auto 1fr auto auto auto; align-items:center; gap:8px; padding:7px 4px; border-bottom:1px solid var(--border); font-size:13.5px; }
+.kr-row{ display:grid; grid-template-columns:auto auto auto 1fr auto auto auto auto; align-items:center; gap:8px; padding:7px 4px; border-bottom:1px solid var(--border); font-size:13.5px; }
 .kr-row.sel{ background:var(--box-bg); }
+.kr-row.pinned{ background:color-mix(in srgb, var(--accent) 5%, transparent); }
+.kr-row.pinned .kr-ord{ color:var(--accent); font-weight:700; }
+.kr-pin{ display:inline-flex; vertical-align:-2px; margin-right:2px; color:var(--accent); }
+.kr-pin svg{ width:12px; height:12px; }
+.kr-mystar{ font:inherit; font-size:15px; line-height:1; padding:0 2px; background:none; border:none; cursor:pointer; color:var(--border-strong); transition:transform .15s, color .15s; }
+.kr-mystar:hover{ color:var(--accent); transform:scale(1.18); }
+.kr-mystar.on{ color:var(--accent); }
+.kr-star{ font-size:11px; line-height:1; color:var(--cv, #9aa3ad); }
+.kr-pinb.on{ border-color:var(--accent); color:var(--accent); }
 .kr-row.read .kr-title{ color:var(--text-dim); }
 .kr-ord{ font-family:var(--mono); font-size:11px; color:var(--text-dim); min-width:2ch; text-align:right; }
 .kr-title{ min-width:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; }
@@ -3081,9 +3078,22 @@ body.fx-flat .story-pane{transition:none;}
 .kr-empty p{ margin:6px 0 0; font-size:12.5px; }
 @media (max-width:900px){ .kr-main{ grid-template-columns:1fr; } .kr-side{ order:-1; position:static; } }
 @media (max-width:640px){ .kr-row{ display:flex; flex-wrap:wrap; } .kr-title{ flex:1 1 100%; order:-1; } .kr-dots{ margin-left:auto; } }
+/* ★세션 BI: 탭 표시선이 미끄러지고, 내용은 방향에 맞춰 살짝 들어온다(←→ 키로 옮길 때의 피드백) */
+.kp-tabs{ position:relative; }
+#kv2Tabs .kp-tab.on{ border-bottom-color:transparent; }
+.kp-tabind{ position:absolute; left:0; bottom:-1px; height:2px; width:0; background:var(--accent); border-radius:1px;
+  transition:left .22s cubic-bezier(.22,.61,.36,1), width .22s cubic-bezier(.22,.61,.36,1); pointer-events:none; }
+.kp-tabind.noanim{ transition:none; }
+@keyframes kpPaneL{ from{ opacity:.001; transform:translateX(-10px); } to{ opacity:1; transform:none; } }
+@keyframes kpPaneR{ from{ opacity:.001; transform:translateX(10px); } to{ opacity:1; transform:none; } }
+.kp-pane.slide-l{ animation:kpPaneL .18s cubic-bezier(.22,.61,.36,1) both; }
+.kp-pane.slide-r{ animation:kpPaneR .18s cubic-bezier(.22,.61,.36,1) both; }
+body.fx-flat .kp-pane.slide-l, body.fx-flat .kp-pane.slide-r, body.fx-flat .kp-tabind{ animation:none; transition:none; }
+@media (prefers-reduced-motion: reduce){ .kp-pane.slide-l, .kp-pane.slide-r, .kp-tabind{ animation:none; transition:none; } }
 /* ★세션 BH: 공식 문항 원문(영문) — 상세 제목 아래, 인용 블록 하나 */
-.kp-stmt{ margin:4px 0 16px; padding:10px 14px; border-left:3px solid var(--border-strong); background:var(--box-bg);
-  border-radius:0 var(--r-2) var(--r-2) 0; font-size:14px; line-height:1.62; color:var(--text); }
+.kp-stmt{ margin:8px 0 18px; padding:14px 18px; border:1px solid var(--border-strong); border-radius:var(--r-2);
+  background:var(--card); box-shadow:var(--sh-2); font-size:14.5px; line-height:1.66; color:#111; font-weight:500; letter-spacing:.005em; }
+body.dark .kp-stmt{ color:#F4F1F1; background:var(--box-bg); }
 
 /* 진행 스트립 — 문제 하나가 칸 하나. 배정되면 채워지고, 내가 맡은 것엔 테두리가 선다 */
 .kp-strip{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 20px; }
@@ -3648,6 +3658,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
 <symbol id="k-comment" viewBox="0 0 24 24"><path d="M20.5 12.5a7.5 7.5 0 0 1-7.5 7.5H8l-4.5 3v-4.6A7.5 7.5 0 0 1 3.5 12a7.5 7.5 0 0 1 7.5-7.5h2a7.5 7.5 0 0 1 7.5 7.5z"/></symbol>
 <symbol id="k-link" viewBox="0 0 24 24"><path d="M10 13.5a4 4 0 0 0 5.7 0l3-3a4 4 0 1 0-5.7-5.7l-1.5 1.5"/><path d="M14 10.5a4 4 0 0 0-5.7 0l-3 3a4 4 0 1 0 5.7 5.7l1.5-1.5"/></symbol>
 <symbol id="k-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+<symbol id="k-pin" viewBox="0 0 24 24"><path d="M9 3.5h6l-1 5.5 3.5 3v1.5H6.5V12L10 9z"/><path d="M12 13.5V21"/></symbol>
 <symbol id="i-broom" viewBox="0 0 24 24"><path d="M15.5 4.5 19.5 8.5"/><path d="M13 7 17 11l-6 6H5v-4z"/><path d="M8 14l2 2"/></symbol>
 <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3.5" y="5.5" width="17" height="15" rx="2"/><path d="M3.5 10h17M8 3.5v4M16 3.5v4"/></symbol>
 <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5z"/></symbol>
@@ -9354,7 +9365,9 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
-  { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 목록의 수정 내역은 오른쪽 여백으로 옮겨 작게 보입니다.' },
+  { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-10', text:'회원 가입이 다시 됩니다. 초대 코드가 틀리거나 비어 있으면 가입 버튼을 누르는 순간 그 이유가 바로 보여요.' },
+  { date:'2026-09-10', text:'화면을 옮길 때 이전 화면이 두 번 깜빡이던 전환 효과를 없앴어요. 이제 새 화면이 준비되면 그대로 바뀝니다.' },
   { date:'2026-09-10', text:'대문의 이동 버튼을 누를 때 버튼 격자가 순간 흔들리던 것을 고쳤어요. 가입 화면은 초대 코드 칸을 늘 보여 주고, 막혔을 때 이유를 더 정확히 알려 줍니다.' },
   { date:'2026-09-08', text:'[채널]이 [대화방]으로 이름이 바뀌었어요. 하는 일은 그대로예요 — 주제별로 대화하고 문서·자료·과제를 모아둡니다. 그리고 대문이 단순해졌어요: 큼직한 이동 버튼으로 바로 갈 수 있습니다.' },
   { date:'2026-09-08', text:'[KYPT] 피드백이 정확한 자리에 붙어요 — 실험 기록의 칸마다 💬, 자료마다 💬. 답글·해결·이모지 반응·@이름 부르기. 기록에 [검토 요청]을 누르면 같은 문제의 참여자가 [검토 완료]로 답합니다. 쪽지함엔 하루 한 번 묶어서 옵니다.' },
@@ -11237,10 +11250,9 @@ async function renderKyptPage(){
     <div class="kp-strip">${strip}</div>
     <div class="kp-main">
       <div class="kp-list">${list.map(kyptRowHtml).join('')}</div>
-      ${featOn('kypt_v2') ? `<aside class="kp-side">${kv2MsPanelHtml(list)}<div class="kp-feedrail"><div class="kp-feedin">${kv2FeedBlockHtml(_kyptYear)}</div></div></aside>` : ''}
+      ${featOn('kypt_v2') ? `<aside class="kp-side">${kv2MsPanelHtml(list)}${kv2FeedBlockHtml(_kyptYear)}</aside>` : ''}
     </div>
   </div>`;
-  kpFitFeedRail();                                   // ★세션 BH: 오른쪽에 자리가 있으면 수정 내역을 여백으로 내보낸다
   const ms=$('#kv2MsPick');
   if(ms) ms.onchange=()=>{ _kyptMsPid=Number(ms.value)||null; renderKyptPage(); };
   const mw=$('#kyptMonths');
@@ -11251,22 +11263,6 @@ async function renderKyptPage(){
   if(sel) sel.onchange=()=>{ _kyptYear=Number(sel.value); renderKyptPage(); };
   const mb=$('#kyptManageBtn'); if(mb) mb.onclick=openKyptManager;
   kyptBindSeedBtn();
-}
-/* ★세션 BH: 수정 내역 레일 — 목록(900px) 오른쪽에 남는 자리가 있으면 그리로 내보낸다.
-   자리가 180px도 안 되면(좁은 창) 예전처럼 오른쪽 칸 아래에 둔다. 창 크기가 바뀌면 다시 잰다. */
-const KP_RAIL_MIN = 180;
-const KP_RAIL_MAX = 236;
-let _kpRailBound = false;
-function kpFitFeedRail(){
-  const w=document.querySelector('.kypt-wrap'); const r=w && w.querySelector('.kp-feedrail'); if(!w || !r) return;
-  w.classList.remove('rail-out'); r.style.width='';
-  const room = document.documentElement.clientWidth - w.getBoundingClientRect().right - 18 - 16;   // 왼쪽 틈 18 + 창 가장자리 여유 16
-  if(room >= KP_RAIL_MIN){ r.style.width = Math.min(KP_RAIL_MAX, room) + 'px'; w.classList.add('rail-out'); }
-  if(!_kpRailBound){
-    _kpRailBound = true;
-    let t=null;
-    window.addEventListener('resize', ()=>{ clearTimeout(t); t=setTimeout(kpFitFeedRail, 120); });
-  }
 }
 /* ★빈 저장소에 시드를 넣는다 (owner/admin). SQL 재실행과 같은 결과 — RLS는 운영진만 통과시킨다. */
 function kyptBindSeedBtn(){
@@ -11728,16 +11724,47 @@ async function renderKyptProblemV2(year, no){
       <button class="kp-tab${tab==='feedback'?' on':''}" data-kt="feedback">피드백${
         (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length?` <span class="kv2-cnt">${(ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length}</span>`:''}</button>
       <span class="kv2-soon" title="다음 단계에서">가설 · 아이디어 · 토론</span>
+      <span class="kp-tabind noanim" aria-hidden="true"></span>
     </div>
     <div class="kp-pane" id="kv2Pane"></div>
   </div>`;
-  document.querySelectorAll('#kv2Tabs .kp-tab').forEach(b=>{
-    b.onclick=()=>{ try{ localStorage.setItem(kv2TabKey(p.id), b.dataset.kt); }catch(e){ /* 저장소 불가 — 탭 기억만 포기 */ }
-      document.querySelectorAll('#kv2Tabs .kp-tab').forEach(x=>x.classList.toggle('on', x===b));
-      kv2RenderPane(p, b.dataset.kt, canEd); };
+  /* ★세션 BI: 탭 하나가 선택돼(포커스) 있으면 ←→(Home/End)로 옮겨 다닌다. 표시선이 미끄러지고 내용이 그 방향에서 들어온다. */
+  const tabs=[...document.querySelectorAll('#kv2Tabs .kp-tab')];
+  const activate=(b, dir)=>{
+    const cur=tabs.findIndex(x=>x.classList.contains('on')); const nxt=tabs.indexOf(b);
+    if(dir===undefined) dir = nxt>cur ? 1 : nxt<cur ? -1 : 0;
+    try{ localStorage.setItem(kv2TabKey(p.id), b.dataset.kt); }catch(e){ /* 저장소 불가 — 탭 기억만 포기 */ }
+    tabs.forEach(x=>{ x.classList.toggle('on', x===b); x.setAttribute('aria-selected', x===b?'true':'false'); x.tabIndex = x===b ? 0 : -1; });
+    kv2MoveTabInd();
+    const pane=$('#kv2Pane');
+    if(pane && dir){ pane.classList.remove('slide-l','slide-r'); void pane.offsetWidth; pane.classList.add(dir>0?'slide-r':'slide-l'); }
+    kv2RenderPane(p, b.dataset.kt, canEd);
+  };
+  tabs.forEach(b=>{
+    b.setAttribute('role','tab'); b.tabIndex = b.classList.contains('on') ? 0 : -1;
+    b.onclick=()=>activate(b);
+    b.onkeydown=(ev)=>{
+      const i=tabs.indexOf(b); let j=null;
+      if(ev.key==='ArrowRight') j=(i+1)%tabs.length;
+      else if(ev.key==='ArrowLeft') j=(i-1+tabs.length)%tabs.length;
+      else if(ev.key==='Home') j=0;
+      else if(ev.key==='End') j=tabs.length-1;
+      if(j===null) return;
+      ev.preventDefault();
+      activate(tabs[j], (ev.key==='ArrowLeft'||ev.key==='Home')?-1:1);
+      tabs[j].focus();
+    };
   });
+  const tabsEl=$('#kv2Tabs'); if(tabsEl) tabsEl.setAttribute('role','tablist');
+  kv2MoveTabInd(); requestAnimationFrame(()=>{ const ind=$('#kv2Tabs .kp-tabind'); if(ind) ind.classList.remove('noanim'); });
   const mbtn=$('#kpMemBtn'); if(mbtn) mbtn.onclick=()=>openKyptMembers(p);
   kv2RenderPane(p, tab, canEd);
+}
+/* 탭 표시선을 현재 탭 아래로 (폭·위치는 실제 버튼에서 잰다) */
+function kv2MoveTabInd(){
+  const wrap=$('#kv2Tabs'); const ind=wrap && wrap.querySelector('.kp-tabind'); const on=wrap && wrap.querySelector('.kp-tab.on');
+  if(!ind || !on) return;
+  ind.style.left = on.offsetLeft+'px'; ind.style.width = on.offsetWidth+'px';
 }
 function kv2RenderPane(p, tab, canEd){
   const pane=$('#kv2Pane'); if(!pane) return;
@@ -11755,27 +11782,52 @@ function kv2RenderPane(p, tab, canEd){
    목록이 길어지면 안 된다(사용자 요구). 102 미적용이면 탭 안에 안내만 나온다(규칙 13). */
 const KR_KIND = { paper:'논문', video:'영상', wiki:'위키', web:'웹' };
 const KR_KIND_CLS = { paper:'k-paper', video:'k-video', wiki:'k-doc', web:'k-web' };
-const KR_FILTERS = [['all','전체'],['paper','논문'],['video','영상'],['wiki','위키'],['web','웹'],['unread','안 읽은 것만']];
+const KR_FILTERS = [['all','전체'],['star','내 별표'],['paper','논문'],['video','영상'],['wiki','위키'],['web','웹'],['unread','안 읽은 것만']];
+const KR_SELECTS = [
+  'id,problem_id,ord,title,url,url2,kind,summary,summary_by,summary_at,pinned_at,pinned_by',
+  'id,problem_id,ord,title,url,url2,kind,summary,summary_by,summary_at'          // 고정 컬럼이 없는 102 초판
+];
 let _kr = {};              // problem_id → { refs, reads, err }
 let _krUi = {};            // problem_id → { f, sel }
 async function kv2LoadRefkit(pid, force){
   if(_kr[pid] && !force && !_kr[pid].err) return _kr[pid];
   try{
-    const r = await sb.from('kypt_refkit')
-      .select('id,problem_id,ord,title,url,url2,kind,summary,summary_by,summary_at')
-      .eq('problem_id', pid).order('ord',{ascending:true});
+    let r=null, noPin=false;
+    for(const cols of KR_SELECTS){                                     // 컬럼이 없으면 한 단계 물러난다(세션 AV 패턴)
+      r = await sb.from('kypt_refkit').select(cols).eq('problem_id', pid).order('ord',{ascending:true});
+      if(!r.error) break;
+      if(!/pinned|column/i.test(String(r.error.message||''))) break;
+      noPin = true;
+    }
     if(r.error) throw r.error;
-    let reads=[];
+    let reads=[], stars=[];
     try{
       const ids=(r.data||[]).map(x=>x.id);
-      if(ids.length){ const rr=await sb.from('kypt_refkit_reads').select('ref_id,uid,read_at').in('ref_id', ids); if(!rr.error) reads=rr.data||[]; }
-    }catch(e){ /* 읽음 표만 못 읽어도 목록은 뜬다 */ }
-    _kr[pid] = { refs:(r.data||[]).slice(), reads:reads.slice(), err:null };
+      if(ids.length){
+        const rr=await sb.from('kypt_refkit_reads').select('ref_id,uid,read_at').in('ref_id', ids); if(!rr.error) reads=rr.data||[];
+        const rs=await sb.from('kypt_refkit_stars').select('ref_id,uid,starred_at').in('ref_id', ids); if(!rs.error) stars=rs.data||[];
+      }
+    }catch(e){ /* 읽음·별표만 못 읽어도 목록은 뜬다 */ }
+    _kr[pid] = { refs:(r.data||[]).slice(), reads:reads.slice(), stars:stars.slice(), noPin, err:null };
   }catch(e){ _kr[pid] = { refs:[], reads:[], err:e }; }
   return _kr[pid];
 }
 function krReadersOf(pid, rid){ const d=_kr[pid]; return d ? d.reads.filter(x=>Number(x.ref_id)===Number(rid)).map(x=>x.uid) : []; }
 function krMineRead(pid, rid){ return krReadersOf(pid, rid).includes(state.user&&state.user.id); }
+function krStarsOf(pid, rid){ const d=_kr[pid]; return d ? (d.stars||[]).filter(x=>Number(x.ref_id)===Number(rid)).map(x=>x.uid) : []; }
+function krMineStar(pid, rid){ return krStarsOf(pid, rid).includes(state.user&&state.user.id); }
+function krStar(uid, title){
+  return `<span class="kr-star" style="--cv:${escapeAttr(coverOf(uid)||DEFAULT_COVER)}" title="${escapeAttr(title||kyptName(uid))}">★</span>`;
+}
+/* 고정된 문헌이 맨 위(고정 순), 그다음 키트 순번 */
+function krSorted(refs){
+  return refs.slice().sort((a,b)=>{
+    const pa=a.pinned_at?1:0, pb=b.pinned_at?1:0;
+    if(pa!==pb) return pb-pa;
+    if(pa && pb) return String(a.pinned_at).localeCompare(String(b.pinned_at));
+    return (a.ord||0)-(b.ord||0);
+  });
+}
 function krDot(uid, title){
   return `<span class="kr-dot" style="--cv:${escapeAttr(coverOf(uid)||DEFAULT_COVER)}" title="${escapeAttr(title||kyptName(uid))}"></span>`;
 }
@@ -11790,24 +11842,30 @@ async function kv2RenderRefkit(p, pane, canEd){
       : '<p class="muted">레퍼런스 키트는 준비 중이에요. 운영진에게 물어봐 주세요.</p>';
     return;
   }
-  const uids = [...new Set([...kyptMembersOf(p.id).map(m=>m.uid), ...d.reads.map(x=>x.uid)])];
+  const uids = [...new Set([...kyptMembersOf(p.id).map(m=>m.uid), ...d.reads.map(x=>x.uid), ...(d.stars||[]).map(x=>x.uid), ...d.refs.map(x=>x.pinned_by).filter(Boolean)])];
   await ensureCovers(uids);                                          // 사람별 점 색(커버색)
   if(_nav!==_navSeq) return;
   const tb=document.querySelector('#kv2Tabs .kp-tab[data-kt="refkit"]');
   if(tb && !tb.querySelector('.kv2-cnt')) tb.insertAdjacentHTML('beforeend', ` <span class="kv2-cnt">${d.refs.length}</span>`);
   krDraw(p, pane, canEd);
 }
-function krRowHtml(p, r, sel){
+function krRowHtml(p, r, sel, canEd){
+  const me = state.user&&state.user.id;
   const readers = krReadersOf(p.id, r.id);
-  const mine = readers.includes(state.user&&state.user.id);
+  const stars = krStarsOf(p.id, r.id);
+  const mine = readers.includes(me);
+  const myStar = stars.includes(me);
+  const pinned = !!r.pinned_at;
   const link = r.url
     ? `<a class="kr-title" href="${escapeAttr(r.url)}" target="_blank" rel="noopener" title="${escapeAttr(r.title)}">${escapeHtml(r.title)}</a>`
     : `<span class="kr-title nolink" title="${escapeAttr(r.title)}">${escapeHtml(r.title)}</span>`;
-  return `<div class="kr-row${mine?' read':''}${sel?' sel':''}" data-krid="${r.id}">
-    <span class="kr-ord">${r.ord}</span>
+  return `<div class="kr-row${mine?' read':''}${sel?' sel':''}${pinned?' pinned':''}" data-krid="${r.id}">
+    <button class="kr-mystar${myStar?' on':''}" data-krstar="${r.id}" title="${myStar?'내 별표를 지웁니다':'나만의 별표를 답니다'}" aria-label="별표">★</button>
+    <span class="kr-ord">${pinned?`<span class="kr-pin" title="${escapeAttr((r.pinned_by?kyptName(r.pinned_by)+'이(가) ':'')+'참여자 모두를 위해 고정')}">${kIc('k-pin')}</span>`:''}${r.ord}</span>
     <span class="kv2-akind ${KR_KIND_CLS[r.kind]||'k-web'}">${KR_KIND[r.kind]||escapeHtml(r.kind||'')}</span>
     ${link}
-    <span class="kr-dots">${readers.map(u=>krDot(u, kyptName(u)+' 읽음')).join('')}</span>
+    <span class="kr-dots">${stars.filter(u=>u!==me).map(u=>krStar(u, kyptName(u)+' 별표')).join('')}${readers.map(u=>krDot(u, kyptName(u)+' 읽음')).join('')}</span>
+    ${(canEd && !_kr[p.id].noPin)?`<button class="kr-chip kr-pinb${pinned?' on':''}" data-krpin="${r.id}" title="${pinned?'고정을 풉니다':'참여자 모두의 맨 위에 꽂아 둡니다'}">${pinned?'고정됨':'고정'}</button>`:''}
     <button class="kr-chip kr-read${mine?' on':''}" data-krread="${r.id}" title="${mine?'읽음 표시를 지웁니다':'읽었다고 표시합니다'}">${mine?'읽음':'안 읽음'}</button>
     <button class="kr-chip kr-sum${r.summary?' has':''}${sel?' on':''}" data-krsum="${r.id}" title="${r.summary?'요약 보기':'요약 쓰기'}">요약</button>
   </div>`;
@@ -11832,20 +11890,21 @@ function krDraw(p, pane, canEd){
   const d=_kr[p.id]; if(!d) return;
   const ui=_krUi[p.id] || (_krUi[p.id]={ f:'all', sel:null });
   const refs=d.refs;
-  const shown = refs.filter(r => ui.f==='all' ? true : ui.f==='unread' ? !krMineRead(p.id, r.id) : r.kind===ui.f);
+  const shown = krSorted(refs).filter(r => ui.f==='all' ? true : ui.f==='unread' ? !krMineRead(p.id, r.id) : ui.f==='star' ? krMineStar(p.id, r.id) : r.kind===ui.f);
+  const starN = refs.filter(r=>krMineStar(p.id, r.id)).length;
   const readN = refs.filter(r=>krMineRead(p.id, r.id)).length;
   const mem = kyptMembersOf(p.id);
   const cnt = k => refs.filter(r=>r.kind===k).length;
   pane.innerHTML=`
     <div class="kr-head">
       <p class="kp-hint">IYPT 2027 Reference kit(I. Martchenko 외, 2026-07-16 초안)의 참고 문헌 <b>${refs.length}</b>건. 링크는 새 창으로 열려요.
-        읽었으면 [읽음]을 눌러 두세요 — 사람마다 자기 <b>커버색 점</b>으로 표시됩니다. 요약은 옆 칸에서 쓰고 읽어요(목록은 길어지지 않아요).</p>
+        읽었으면 [읽음]을 눌러 두세요 — 사람마다 자기 <b>커버색 점</b>으로 표시됩니다. ★은 나만의 표시(남의 별표는 그 사람 색으로 작게), [고정]은 참여자 모두의 맨 위에 꽂습니다. 요약은 옆 칸에서 쓰고 읽어요(목록은 길어지지 않아요).</p>
       <div class="kr-legend">${mem.length ? mem.map(m=>`<span class="kr-who">${krDot(m.uid)}${escapeHtml(kyptName(m.uid))}</span>`).join('') : '<span class="muted">아직 참여자가 없어요.</span>'}
-        <span class="kr-mine">내가 읽음 <b>${readN}</b> / ${refs.length}</span></div>
-      <div class="kr-filters">${KR_FILTERS.map(([k,l])=>`<button class="kr-f${ui.f===k?' on':''}" data-krf="${k}">${l}${(k==='all'||k==='unread')?'':` <span class="kv2-cnt">${cnt(k)}</span>`}</button>`).join('')}</div>
+        <span class="kr-mine">내 별표 <b>${starN}</b> · 내가 읽음 <b>${readN}</b> / ${refs.length}</span></div>
+      <div class="kr-filters">${KR_FILTERS.map(([k,l])=>`<button class="kr-f${ui.f===k?' on':''}" data-krf="${k}">${l}${(k==='all'||k==='unread')?'':` <span class="kv2-cnt">${k==='star'?starN:cnt(k)}</span>`}</button>`).join('')}</div>
     </div>
     <div class="kr-main">
-      <div class="kr-list">${shown.length ? shown.map(r=>krRowHtml(p, r, ui.sel===r.id)).join('') : '<p class="muted" style="padding:14px 4px">여기에 해당하는 문헌이 없어요.</p>'}</div>
+      <div class="kr-list">${shown.length ? shown.map(r=>krRowHtml(p, r, ui.sel===r.id, canEd)).join('') : '<p class="muted" style="padding:14px 4px">여기에 해당하는 문헌이 없어요.</p>'}</div>
       <aside class="kr-side" id="krSide">${krPanelHtml(p, refs.find(r=>r.id===ui.sel)||null, canEd)}</aside>
     </div>`;
   pane.querySelectorAll('[data-krf]').forEach(b=>{ b.onclick=()=>{ ui.f=b.dataset.krf; krDraw(p, pane, canEd); }; });
@@ -11856,6 +11915,31 @@ function krDraw(p, pane, canEd){
       krDraw(p, pane, canEd);
       const side=pane.querySelector('#krSide');
       if(side && ui.sel!=null && window.innerWidth<=900) side.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    };
+  });
+  pane.querySelectorAll('[data-krstar]').forEach(b=>{
+    b.onclick=async()=>{
+      const id=Number(b.dataset.krstar); const uid=state.user&&state.user.id; if(!uid) return;
+      const mine = krMineStar(p.id, id);
+      b.disabled=true;
+      const r = mine
+        ? await sb.from('kypt_refkit_stars').delete().eq('ref_id', id).eq('uid', uid)
+        : await sb.from('kypt_refkit_stars').insert({ ref_id:id, uid });
+      if(r.error){ b.disabled=false; toast('별표를 바꾸지 못했어요: '+(r.error.message||'')); return; }
+      d.stars = mine ? (d.stars||[]).filter(x=>!(Number(x.ref_id)===id && x.uid===uid)) : (d.stars||[]).concat([{ ref_id:id, uid, starred_at:new Date().toISOString() }]);
+      krDraw(p, pane, canEd);
+    };
+  });
+  pane.querySelectorAll('[data-krpin]').forEach(b=>{
+    b.onclick=async()=>{
+      const id=Number(b.dataset.krpin); const uid=state.user&&state.user.id; const r=refs.find(x=>x.id===id); if(!r || !uid) return;
+      const on = !r.pinned_at;
+      b.disabled=true;
+      const u = await sb.from('kypt_refkit').update({ pinned_at: on?new Date().toISOString():null, pinned_by: on?uid:null }).eq('id', id);
+      if(u.error){ b.disabled=false; toast('고정을 바꾸지 못했어요: '+(u.error.message||'')); return; }
+      Object.assign(r, { pinned_at: on?new Date().toISOString():null, pinned_by: on?uid:null });
+      toast(on?'맨 위에 고정했어요. 참여자 모두에게 보여요.':'고정을 풀었어요.');
+      krDraw(p, pane, canEd);
     };
   });
   pane.querySelectorAll('[data-krread]').forEach(b=>{
@@ -16481,36 +16565,13 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
      그때쯤 첫 그리기가 끝나 있고, 늦게 오는 데이터는 어차피 자기 자리에서 나타난다. */
 let _pgInTimer=null, _pgObs=null, _pgSeq=0, _pgCap=null;
 function playPageIn(){
+  /* ★세션 BI: 등장 애니메이션(.pg-in) 재생을 없앴다 — 사용자 결정. 세션 AI→AJ→BC를 거치며 "언제 붙일지"를 고쳤지만,
+     아래 #doc 관찰자의 .pageIn과 겹쳐 결국 두 번 깜빡였다. 이제는 새 화면이 준비되면 그대로 바뀐다.
+     남은 일은 정리뿐: 이전 대기와 클래스를 걷어 fixed 팝업 기준점 사고(세션 AO)가 재발하지 않게 한다. */
   const el=document.getElementById('doc'); if(!el) return;
   clearTimeout(_pgInTimer); clearTimeout(_pgCap);
   if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
   el.classList.remove('pg-in');
-  if(!document.body.classList.contains('fx-full')) return;
-  /* ★세션 BC 수정 — 예전엔 route() 첫 줄에서 곧바로 pg-in을 붙였다. 그런데 렌더는 대부분 비동기라
-     그 순간 #doc 안에는 **아직 이전 화면**이 들어 있다. 그래서 떠나려는 화면이 한 번 더 내려앉는
-     '유령 새로고침'이 보였다(사용자 신고). 이제는 **#doc의 내용이 실제로 바뀐 뒤**에 재생한다.
-     · 자리 표시자('불러오는 중…') → 진짜 내용처럼 연달아 바뀌는 경우가 많으므로 80ms 잠잠해질 때까지 기다린다.
-     · 그래도 안 바뀌면(같은 화면 재라우트) 애니메이션을 아예 재생하지 않는다 — 헛돌이보다 낫다. */
-  const seq=++_pgSeq;
-  let quiet=null;
-  const fire=()=>{
-    if(seq!==_pgSeq) return;
-    if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
-    clearTimeout(_pgCap);
-    void el.offsetWidth;                 // 리플로우 강제 → 같은 클래스라도 애니메이션이 다시 시작된다
-    el.classList.add('pg-in');
-    /* ★등장이 끝나면 클래스를 뗀다 (최대 지연 .21s + 재생 .34s ≈ .55s).
-       붙여두면 자식들의 will-change:transform이 남는데, 그 요소는 position:fixed 자손의
-       기준점을 가로챈다 — 모바일 쪽지 팝업이 배경막 뒤로 사라진 사고의 원인. */
-    _pgInTimer=setTimeout(()=>{ el.classList.remove('pg-in'); }, 650);
-  };
-  _pgObs=new MutationObserver(()=>{ clearTimeout(quiet); quiet=setTimeout(fire, 80); });
-  _pgObs.observe(el, { childList:true });
-  _pgCap=setTimeout(()=>{                // 700ms 안에 아무것도 안 바뀌면 조용히 포기
-    if(seq!==_pgSeq) return;
-    clearTimeout(quiet);
-    if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
-  }, 700);
 }
 
 function route(){
@@ -16779,6 +16840,13 @@ async function doSignupRequest(){
       return;
     }
   }catch(e){ /* 97 미적용 — 서버 검사에 맡긴다 */ }
+  /* ★세션 BJ: 가입 모드·초대 코드를 signUp **전에** 서버에 묻는다(103 signup_precheck).
+     트리거 예외는 트랜잭션과 함께 이유까지 지우므로, 사람 말로 된 이유는 여기서만 받을 수 있다.
+     최종 방어선은 여전히 트리거(규칙 17). 103 미적용이면 조용히 건너뛴다. */
+  try{
+    const { data:why, error:gErr } = await sb.rpc('signup_precheck', { p_invite: invite });
+    if(!gErr && why){ msg.className='msg err'; msg.textContent=String(why); return; }
+  }catch(e){ /* 103 미적용 — 트리거가 검사한다 */ }
   $('#su-btn').disabled=true; $('#su-btn').textContent='가입 중…';
   let data=null, error=null;
   try{
@@ -16811,7 +16879,7 @@ async function doSignupRequest(){
            + ((SIGNUP_MODE==='code'||SIGNIN_GATE_UNKNOWN)
                ? '초대 코드가 틀렸거나 비어 있을 때 이렇게 나옵니다 — 동아리에서 받은 코드를 다시 확인해 주세요. '
                : '')
-           + '계속 막히면 운영진에게 알려 주세요 — SQL Editor에서 98_signup_rebuild.sql 적용 여부와 diag_signup.sql(가입 시험 삽입)을 실행하면 진짜 이유가 나옵니다. (signup_log는 성공한 가입의 프로필 실패만 남습니다)') :
+           + '계속 막히면 운영진에게 알려 주세요 — SQL Editor에서 103_signup_gate_fix.sql을 실행하면 이유가 화면에 바로 나옵니다. (signup_log는 성공한 가입의 프로필 실패만 남습니다)') :
       ('가입 실패: '+em);
     return;
   }
@@ -16915,10 +16983,12 @@ sb.auth.onAuthStateChange(async (event) => {
   }
 });
 
-/* 문서 전환 애니메이션: #doc 내용이 바뀔 때마다 재생 */
+/* ★세션 BI: 전환 애니메이션을 없앴다(사용자 결정 — "화면 변화 없이 그냥 넘어가라").
+   예전엔 여기서 #doc가 바뀔 때마다 .pageIn을, playPageIn()이 .pg-in을 따로 붙여 **두 계통이 겹쳐 두 번 깜빡였다.**
+   특히 자리 표시자('불러오는 중…') → 진짜 내용으로 두 번 바뀌는 화면은 그때마다 재생됐다. 이제 관찰자는 스피너만 멈춘다. */
 (function(){
   const d=$('#doc');
-  if(d) new MutationObserver(()=>{ stopLoading(); d.classList.remove('pageIn'); void d.offsetWidth; d.classList.add('pageIn'); }).observe(d,{childList:true});
+  if(d) new MutationObserver(()=>{ stopLoading(); }).observe(d,{childList:true});
 })();
 if($('#refreshMark')) $('#refreshMark').onclick=()=>route();   // 수동 새로고침
 
