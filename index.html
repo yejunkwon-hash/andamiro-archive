@@ -3294,6 +3294,28 @@ body.dark .kp-note-box{ color:#EDEAEA; }
 .kv2-alink{ color:var(--link); background:none; border:none; font:inherit; padding:0; cursor:pointer; text-align:left; }
 .kv2-ahost, .kv2-aref{ font-size:12px; color:var(--text-dim); }
 .kv2-aadd{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:6px; }
+.kv2-aadd.col{ flex-direction:column; align-items:stretch; }
+.kv2-aadd.col .kv2-url{ width:100%; }
+.kv2-edate{ font-family:var(--mono); }
+.kv2-att .kv2-fh{ font-size:14px; color:var(--text-dim); padding-bottom:6px; }
+.kv2-old{ margin-top:18px; font-size:13px; color:var(--text-dim); }
+.kv2-old summary{ cursor:pointer; padding:6px 0; }
+.kv2-oldrow{ padding:8px 0; border-top:1px solid var(--border); }
+.kv2-oldrow b{ font-size:12px; color:var(--text-dim); display:block; margin-bottom:3px; }
+/* 끄적 */
+.kv2-scadd{ display:flex; gap:8px; align-items:flex-start; flex-wrap:wrap; margin:0 0 20px; }
+.kv2-scadd .kv2-cta{ flex:1; min-width:220px; }
+.kv2-scday{ margin-bottom:18px; }
+.kv2-scd{ font-family:var(--mono); font-size:12px; color:var(--text-dim); margin-bottom:6px; }
+.kv2-sc{ border-radius:var(--r-2); padding:10px 12px; margin-bottom:6px; box-shadow:var(--sh-1); color:var(--text); }
+.kv2-sc.c0{ background:#FDF3D7; } .kv2-sc.c1{ background:#DDF1E4; } .kv2-sc.c2{ background:#DCE8FA; }
+.kv2-sc.c3{ background:#EBE1FA; } .kv2-sc.c4{ background:#ECEAEA; }
+body.dark .kv2-sc.c0{ background:#4A4029; } body.dark .kv2-sc.c1{ background:#26402F; }
+body.dark .kv2-sc.c2{ background:#25344C; } body.dark .kv2-sc.c3{ background:#332B4A; }
+body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
+.kv2-scb{ white-space:pre-wrap; line-height:1.6; font-size:14px; }
+.kv2-scm{ display:flex; align-items:center; gap:6px; margin-top:5px; font-size:11.5px; opacity:.75; }
+.kv2-scm .kp-x{ margin-left:auto; }
 .kv2-aadd.top{ margin:0 0 18px; }
 .kv2-url{ flex:1; min-width:220px; font:inherit; font-size:14px; padding:9px 12px; border:1px solid var(--border-strong);
   border-radius:var(--r-1); background:var(--card); color:var(--text); }
@@ -11327,14 +11349,15 @@ async function openKyptManager(){
    ★설계 원칙(가이드 §KYPT v3): 저장 버튼 없음 · 빈 textarea 없음(항상 템플릿) · 4칸 폼 없음 · 폰 우선.
    ★스위치: FEATURES.kypt_v2. 끄면 v1 상세로 돌아간다. 93 미적용이면 v1로 폴백 + 운영진 안내. */
 const KYPT_FIELDS = [
-  ['goal',      '목적 · 가설',   '이번 실험으로 확인하려는 것 한 줄'],
-  ['setup',     '설정',         '장비 · 변수 · 조건'],
-  ['procedure', '절차',         '한 일을 순서대로'],
-  ['data',      '데이터 · 첨부', '사진 · 표 · 파일 · 30초 영상 링크'],
-  ['observe',   '관찰',         '예상 밖의 것도'],
-  ['result',    '결과 · 해석',   '숫자와 그래프, 이론과의 비교'],
-  ['deviation', '일탈',         '계획과 달라진 것과 그 이유 — 빼먹지 말 것'],
-  ['next',      '결론 · 다음',   '다음 실험에서 바꿀 것']
+  ['content', '연구 내용',      '오늘 무엇을 했는지 — 실험·계산·조사. 잘 안 된 것도 적어 주세요.'],
+  ['plan',    '앞으로의 방향',   '다음에 무엇을 해볼지, 무엇을 바꿔볼지'],
+  ['idea',    '얻은 아이디어',   '떠오른 생각 · 의심 · 다른 접근']
+];
+/* ★예전 8칸(ELN)으로 쓴 일지는 100이 content/plan 으로 합쳐 옮겼다. 원래 칸도 fields에 그대로 남아 있어
+   상세 화면 맨 아래 '예전 형식으로 쓴 내용'에서 읽을 수 있다(규칙 17). */
+const KYPT_OLD_FIELDS = [
+  ['goal','목적·가설'], ['setup','설정'], ['procedure','절차'], ['data','데이터·첨부'],
+  ['observe','관찰'], ['result','결과·해석'], ['deviation','일탈'], ['next','결론·다음']
 ];
 const KYPT_STAGES = { qual:'정성 이해', theory:'이론', predict:'예측', exp:'실험', compare:'비교' };
 const KYPT_STAGE_CLS = { qual:'s-qual', theory:'s-theory', predict:'s-predict', exp:'s-exp', compare:'s-compare' };
@@ -11414,7 +11437,7 @@ async function renderKyptProblemV2(year, no){
   const yrow = kyptYearRow(p.year) || {};
   let tab = 'status';
   try{ tab = localStorage.getItem(kv2TabKey(p.id)) || 'status'; }catch(e){ /* 저장소 불가 — 기본 탭 */ }
-  if(!['status','entries','assets','feedback'].includes(tab)) tab='status';
+  if(!['status','entries','assets','notes','feedback'].includes(tab)) tab='status';
   try{ sb.rpc('kypt_mark_read', { p_problem: p.id }); }catch(e){ /* 94 미적용 — 안 읽음 없음 */ }   // 열었으니 읽었다
   if(_kv2Feed[p.year] && _kv2Feed[p.year].unread) _kv2Feed[p.year].unread[String(p.id)] = 0;
   $('#doc').innerHTML=`<div class="kypt-wrap kp-detail kv2">
@@ -11431,6 +11454,7 @@ async function renderKyptProblemV2(year, no){
       <button class="kp-tab${tab==='status'?' on':''}" data-kt="status">현황${(ws.todos||[]).filter(t=>!t.done_at).length?` <span class="kv2-cnt">${(ws.todos||[]).filter(t=>!t.done_at).length}</span>`:''}</button>
       <button class="kp-tab${tab==='entries'?' on':''}" data-kt="entries">연구일지 <span class="kv2-cnt">${ws.entries.length}</span></button>
       <button class="kp-tab${tab==='assets'?' on':''}" data-kt="assets">자료함 <span class="kv2-cnt">${ws.assets.length}</span></button>
+      <button class="kp-tab${tab==='notes'?' on':''}" data-kt="notes">끄적</button>
       <button class="kp-tab${tab==='feedback'?' on':''}" data-kt="feedback">피드백${
         (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length?` <span class="kv2-cnt">${(ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length}</span>`:''}</button>
       <span class="kv2-soon" title="다음 단계에서">가설 · 아이디어 · 토론</span>
@@ -11449,6 +11473,7 @@ function kv2RenderPane(p, tab, canEd){
   const pane=$('#kv2Pane'); if(!pane) return;
   if(tab==='status'){ kv2RenderStatus(p, pane, canEd); return; }
   if(tab==='assets'){ kv2RenderAssets(p, pane, canEd); return; }
+  if(tab==='notes'){ kv2RenderScribbles(p, pane, canEd); return; }
   if(tab==='feedback'){ kv2RenderFeedbackTab(p, pane, canEd); return; }
   kv2RenderEntries(p, pane, canEd);
 }
@@ -11495,7 +11520,8 @@ function kv2RenderEntries(p, pane, canEd){
     nb.disabled=true;
     const prev = rows[0] ? rows[0].id : null;
     const { data, error } = await sb.from('kypt_entries')
-      .insert({ problem_id:p.id, title:'', stage: rows[0]?rows[0].stage:'qual', fields:{}, prev_entry_id:prev,
+      .insert({ problem_id:p.id, title:'', stage: rows[0]?rows[0].stage:'qual', fields:{},
+                on_date:new Date().toISOString().slice(0,10), prev_entry_id:prev,
                 created_by:(state.user&&state.user.id)||null, updated_by:(state.user&&state.user.id)||null })
       .select('id').single();
     if(error || !data){ toast('기록을 만들지 못했어요.'); nb.disabled=false; return; }
@@ -11535,7 +11561,8 @@ async function renderKyptEntry(year, no, eid){
       ${canEd?`<input class="kv2-etitle" id="kv2Title" placeholder="실험 제목 — 예: 구멍 간격 1mm 간격으로 변화" value="${escapeAttr(e.title||'')}">`
              :`<h1 class="kv2-etitle ro">${escapeHtml(e.title||'(제목 없음)')}</h1>`}
       <div class="kv2-emeta">
-        <span class="kp-date">${kv2Fmt(e.created_at)}</span>
+        ${canEd?`<input class="kp-stsel kv2-edate" id="kv2Date" type="date" value="${escapeAttr(e.on_date || kv2Fmt(e.created_at))}" aria-label="날짜">`
+               :`<span class="kp-date">${escapeHtml(e.on_date || kv2Fmt(e.created_at))}</span>`}
         <span>${escapeHtml(kyptName(e.created_by))}</span>
         ${canEd?`<select class="kp-stsel" id="kv2Stage" aria-label="연구 단계">${Object.keys(KYPT_STAGES).map(k=>`<option value="${k}"${e.stage===k?' selected':''}>${KYPT_STAGES[k]}</option>`).join('')}</select>`
                :`<span class="kv2-stage ${KYPT_STAGE_CLS[e.stage]||''}">${KYPT_STAGES[e.stage]||''}</span>`}
@@ -11547,17 +11574,22 @@ async function renderKyptEntry(year, no, eid){
       <button class="ch-act" id="kv2DraftRestore">되살리기</button><button class="ch-act" id="kv2DraftDrop">버리기</button></div>`:''}
     <div class="kv2-fields">
       ${KYPT_FIELDS.map(([k,label,ph],i)=>`
-      <section class="kv2-f${((e.fields||{})[k]||k==='goal'||k==='data')?' open':''}" data-fk="${k}">
+      <section class="kv2-f${((e.fields||{})[k]||i===0)?' open':''}" data-fk="${k}">
         <button class="kv2-fh" type="button"><span class="kv2-fn">${i+1}</span><span>${label}</span>
           <span class="kv2-fdot${(e.fields||{})[k]?' on':''}"></span></button>
         <div class="kv2-fb">
           ${canEd?`<textarea class="kv2-ta" data-fk="${k}" rows="${k==='goal'?2:4}" placeholder="${escapeAttr(ph)}">${escapeHtml((e.fields||{})[k]||'')}</textarea>`
                  :`<div class="kp-ro">${(e.fields||{})[k]?escapeHtml(e.fields[k]):'<span class="muted">비어 있음</span>'}</div>`}
-          ${k==='data'?`<div class="kv2-attach" id="kv2Attach"></div>`:''}
         </div>
       </section>`).join('')}
     </div>
-    ${canEd?`<div class="kv2-foot"><button class="kp-x kv2-del" id="kv2Del">이 기록 지우기</button></div>`:''}
+    <section class="kv2-f open kv2-att"><div class="kv2-fh"><span class="kv2-fn">🔗</span><span>링크 · 파일</span></div>
+      <div class="kv2-fb"><div class="kv2-attach" id="kv2Attach"></div></div></section>
+    ${(()=>{ const old=KYPT_OLD_FIELDS.filter(([k])=>(e.fields||{})[k] && String(e.fields[k]).trim());
+      return old.length?`<details class="kv2-old"><summary>예전 형식으로 쓴 내용 ${old.length}칸</summary>
+        ${old.map(([k,l])=>`<div class="kv2-oldrow"><b>${escapeHtml(l)}</b><div class="kp-ro">${escapeHtml(e.fields[k])}</div></div>`).join('')}
+      </details>`:''; })()}
+    ${canEd?`<div class="kv2-foot"><button class="kp-x kv2-del" id="kv2Del">이 일지 지우기</button></div>`:''}
   </div>`;
   // 아코디언
   document.querySelectorAll('.kv2-fh').forEach(b=>{ b.onclick=()=>b.closest('.kv2-f').classList.toggle('open'); });
@@ -11586,8 +11618,14 @@ async function renderKyptEntry(year, no, eid){
   const dd=$('#kv2DraftDrop');
   if(dd) dd.onclick=()=>{ drafts.forEach(k=>{ try{ localStorage.removeItem(kv2DraftKey(e.id,k)); }catch(x){ /* 저장소 불가 — 무시 */ } }); const b=$('#kv2Draft'); if(b) b.remove(); };
   const del=$('#kv2Del');
+  const dt=$('#kv2Date');
+  if(dt) dt.onchange=async()=>{
+    const { error } = await sb.from('kypt_entries').update({ on_date: dt.value || null }).eq('id', e.id);
+    if(error){ toast('날짜를 바꾸지 못했어요.'); dt.value=e.on_date||''; return; }
+    e.on_date=dt.value; kv2SaveSt('저장됨');
+  };
   if(del) del.onclick=async()=>{
-    if(!confirm('이 실험 기록을 지울까요? 되돌릴 수 없어요.')) return;
+    if(!confirm('이 일지를 지울까요? 되돌릴 수 없어요.')) return;
     const { error } = await sb.from('kypt_entries').delete().eq('id', e.id);
     if(error){ toast('지우지 못했어요 — 작성자와 운영진만 지울 수 있어요.'); return; }
     await loadKyptV2(p.id, true); goHash(kv2ProblemHash(p));
@@ -11678,6 +11716,7 @@ function kv2RenderAttach(p, e, canEd){
       ${others.length?`<select id="kv2APick" class="kp-stsel"><option value="">자료함에서 고르기…</option>${others.map(a=>`<option value="${a.id}">${escapeHtml(a.title||a.url||'자료')}</option>`).join('')}</select>`:''}
     </div>`:''}`;
   kv2BindAssetRows(box, p, e, canEd);
+  kv2BindAssetNote(box, p, ()=>kv2RenderAttach(p, e, canEd));   // 일지의 첨부 목록에서도 설명을 고친다
   if(!canEd) return;
   const u=$('#kv2AUrl');
   if(u) u.addEventListener('keydown', async(ev)=>{
@@ -11706,7 +11745,7 @@ function kv2AssetRowHtml(a, canEd, mode, extra){
     ${a.storage_path
       ? `<button class="kv2-alink" data-open="${escapeAttr(a.storage_path)}">${escapeHtml(a.title||a.storage_path.split('/').pop())}</button>`
       : `<a class="kv2-alink" href="${escapeAttr(a.url||'#')}" target="_blank" rel="noopener">${escapeHtml(a.title||a.url||'자료')}</a>`}
-    ${ref}${a.note?`<span class="kp-refnote">${escapeHtml(a.note)}</span>`:''}
+    ${ref}${a.note?`<span class="kp-refnote">${escapeHtml(a.note)}</span>`:''}${canEd?`<button class="kv2-ca" data-anote="${a.id}">${a.note?'설명 고치기':'설명 넣기'}</button>`:''}
     ${a.size_bytes?`<span class="muted">${(a.size_bytes/1048576).toFixed(1)}MB</span>`:''}
     ${extra||''}
     ${_kv2No95?'':`<button class="kv2-fc small${kv2OpenCount(a.problem_id,'asset',a.id)?' on':''}" data-athread="${a.id}" title="이 자료에 대한 피드백">💬${kv2OpenCount(a.problem_id,'asset',a.id)?` ${kv2OpenCount(a.problem_id,'asset',a.id)}`:''}</button>`}
@@ -11772,17 +11811,17 @@ async function kv2FetchTitle(url){
   }catch(e){ /* oEmbed 실패(차단·CORS) → 호스트명으로 대신 */ }
   return '';
 }
-async function kv2AddLink(p, url){
+async function kv2AddLink(p, url, note){
   if(!/^https?:\/\//i.test(url)){ toast('https:// 로 시작하는 링크를 붙여넣어 주세요.'); return null; }
   const kind = kv2DetectKind(url);
   const title = (await kv2FetchTitle(url)) || kv2Host(url) || url;
   const { data, error } = await sb.from('kypt_assets')
-    .insert({ problem_id:p.id, kind, url, title, created_by:(state.user&&state.user.id)||null }).select('id').single();
+    .insert({ problem_id:p.id, kind, url, title, note:(note||null), created_by:(state.user&&state.user.id)||null }).select('id').single();
   if(error || !data){ toast('자료를 추가하지 못했어요.'); return null; }
   await loadKyptV2(p.id, true);
   return (_kv2[p.id].assets.find(a=>a.id===data.id)) || { id:data.id };
 }
-async function kv2Upload(p, e, file){
+async function kv2Upload(p, e, file, note){
   if(file.size > KYPT_UPLOAD_MAX){ toast('파일은 20MB까지예요. 긴 영상은 YouTube 미등록 링크로 올려 주세요.'); return null; }
   const safe = String(file.name||'file').replace(/[^\w.\-가-힣]+/g,'_').slice(0,80);
   const path = `p${p.id}/e${e?e.id:0}/${Date.now()}_${safe}`;
@@ -11793,7 +11832,7 @@ async function kv2Upload(p, e, file){
   }catch(x){ toast('올리지 못했어요: '+((x&&x.message)||'권한을 확인해 주세요')); return null; }
   const kind = /^image\//.test(file.type) ? 'file' : (/^video\//.test(file.type) ? 'video' : (/csv|excel|spreadsheet/.test(file.type) ? 'data' : 'file'));
   const { data, error } = await sb.from('kypt_assets')
-    .insert({ problem_id:p.id, kind, storage_path:path, title:file.name, size_bytes:file.size, created_by:(state.user&&state.user.id)||null })
+    .insert({ problem_id:p.id, kind, storage_path:path, title:file.name, note:(note||null), size_bytes:file.size, created_by:(state.user&&state.user.id)||null })
     .select('id').single();
   if(error || !data){ toast('자료 기록을 남기지 못했어요.'); return null; }
   await loadKyptV2(p.id, true);
@@ -11811,22 +11850,48 @@ function kv2RenderAssets(p, pane, canEd){
       ${items.map(a=>kv2AssetRowHtml(a, canEd, 'delete', refCount(a)?`<span class="kv2-aref">기록 ${refCount(a)}건에서 참조</span>`:'')).join('')}</div>`;
   }).join('');
   pane.innerHTML=`
-    ${canEd?`<div class="kv2-aadd top">
-      <input class="kv2-url" id="kv2LUrl" placeholder="링크 붙여넣기 → Enter (종류는 알아서 판별해요)">
-      <label class="ch-act kv2-upl">파일 올리기<input type="file" id="kv2LFile" hidden></label>
+    ${canEd?`<div class="kv2-aadd top col">
+      <input class="kv2-url" id="kv2LUrl" placeholder="링크 붙여넣기 (종류는 알아서 판별해요)">
+      <input class="kv2-url" id="kv2LNote" placeholder="내용 설명 — 무엇에 대한 자료인지, 어디를 보면 되는지">
+      <div class="kv2-aadd">
+        <button class="ch-act primary" id="kv2LAdd">링크 넣기</button>
+        <label class="ch-act kv2-upl">파일 올리기<input type="file" id="kv2LFile" hidden></label>
+        <span class="kp-hint">설명은 나중에 [설명 고치기]로도 바꿀 수 있어요.</span>
+      </div>
     </div>`:''}
     ${ws.assets.length?groups:'<p class="ch-note">아직 모은 자료가 없어요. 링크 하나 붙여넣는 걸로 시작해요.</p>'}`;
   kv2BindAssetRows(pane, p, null, canEd);
   if(!canEd) return;
-  const u=$('#kv2LUrl');
-  if(u) u.addEventListener('keydown', async(ev)=>{
-    if(ev.key!=='Enter') return; ev.preventDefault();
-    const url=u.value.trim(); if(!url) return;
-    u.disabled=true; await kv2AddLink(p, url); u.disabled=false; u.value='';
-    kv2RenderAssets(p, pane, canEd);
-  });
+  const u=$('#kv2LUrl'), nt=$('#kv2LNote');
+  const addLink=async()=>{
+    const url=(u.value||'').trim(); if(!url) return;
+    u.disabled=true;
+    const a=await kv2AddLink(p, url, (nt&&nt.value||'').trim());
+    u.disabled=false; u.value=''; if(nt) nt.value='';
+    if(a) kv2RenderAssets(p, pane, canEd);
+  };
+  if(u)  u.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); addLink(); } });
+  if(nt) nt.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); addLink(); } });
+  const ab=$('#kv2LAdd'); if(ab) ab.onclick=addLink;
   const f=$('#kv2LFile');
-  if(f) f.onchange=async()=>{ const file=f.files&&f.files[0]; if(!file) return; await kv2Upload(p, null, file); kv2RenderAssets(p, pane, canEd); };
+  if(f) f.onchange=async()=>{ const file=f.files&&f.files[0]; if(!file) return;
+    await kv2Upload(p, null, file, (nt&&nt.value||'').trim()); if(nt) nt.value='';
+    kv2RenderAssets(p, pane, canEd); };
+  kv2BindAssetNote(pane, p, ()=>kv2RenderAssets(p, pane, canEd));
+}
+/* 설명 인라인 수정 — 자료함에서도, 일지의 첨부 목록에서도 같은 배선을 쓴다 */
+function kv2BindAssetNote(root, p, redraw){
+  root.querySelectorAll('[data-anote]').forEach(b=>{
+    b.onclick=async(ev)=>{
+      ev.preventDefault(); ev.stopPropagation();
+      const a=(_kv2[p.id]||{assets:[]}).assets.find(x=>String(x.id)===b.dataset.anote); if(!a) return;
+      const v=prompt('내용 설명 — 무엇에 대한 자료인지, 어디를 보면 되는지', a.note||'');
+      if(v===null) return;
+      const { error } = await sb.from('kypt_assets').update({ note:(v.trim()||null) }).eq('id', a.id);
+      if(error){ toast('저장하지 못했어요.'); return; }
+      await loadKyptV2(p.id, true); redraw();
+    };
+  });
 }
 
 
@@ -12264,6 +12329,55 @@ function kv2RenderEntryHead(p, e){
     if(error || !data || !data.ok){ toast(data&&data.reason==='self'?'자기 기록은 스스로 검토할 수 없어요.':'완료 처리를 못 했어요.'); return; }
     await loadKyptV2(p.id, true); kv2RenderEntryHead(p, e);
   };
+}
+
+/* ---------------- 끄적 (100 · 세션 BE) ----------------
+   짧게 남기는 메모. 일지처럼 갖춰 쓸 것도 아닌 생각을 **날짜별로** 던져 놓는 자리.
+   92의 kypt_notes 를 그대로 쓴다(새 표를 만들지 않는다). 지우기는 그 문제의 참여자면 누구나(96). */
+async function kv2RenderScribbles(p, pane, canEd){
+  if(!pane) return;
+  pane.innerHTML='<p class="muted">불러오는 중…</p>';
+  const rows = await kyptFetch('kypt_notes', p.id, 'id,problem_id,section,body,color,on_date,created_by,created_at');
+  const byDate={};
+  rows.forEach(n=>{ const d=n.on_date || kv2Fmt(n.created_at) || ''; (byDate[d]=byDate[d]||[]).push(n); });
+  const days=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
+  pane.innerHTML=`
+    ${canEd?`<div class="kv2-scadd">
+      <textarea class="kv2-cta" id="kv2ScText" rows="2" placeholder="떠오른 생각을 짧게 — Enter로 남기기, Shift+Enter 줄바꿈"></textarea>
+      <input class="kp-stsel" id="kv2ScDate" type="date" value="${new Date().toISOString().slice(0,10)}" aria-label="날짜">
+      <button class="ch-act primary" id="kv2ScAdd">남기기</button>
+    </div>`:''}
+    ${days.length?days.map(d=>`<div class="kv2-scday">
+      <div class="kv2-scd">${escapeHtml(d||'날짜 없음')}</div>
+      ${byDate[d].map(n=>`<div class="kv2-sc c${(n.color||0)%KYPT_NOTE_COLORS}" data-sc="${n.id}">
+        <div class="kv2-scb">${escapeHtml(n.body)}</div>
+        <div class="kv2-scm">${escapeHtml(kyptName(n.created_by))}
+          ${canEd?`<button class="kp-x" data-scdel="${n.id}" title="지우기">×</button>`:''}</div>
+      </div>`).join('')}
+    </div>`).join('')
+    :'<p class="ch-note">아직 끄적인 게 없어요. 한 줄이면 충분해요.</p>'}`;
+  if(!canEd) return;
+  const add=async()=>{
+    const ta=$('#kv2ScText'); const body=(ta.value||'').trim(); if(!body) return;
+    if(!kyptNoteOk()) return;
+    ta.disabled=true;
+    const { error } = await sb.from('kypt_notes').insert({ problem_id:p.id, section:'scribble', body,
+      color:Math.floor(Math.random()*KYPT_NOTE_COLORS), on_date:$('#kv2ScDate').value || null,
+      created_by:(state.user&&state.user.id)||null });
+    ta.disabled=false;
+    if(error){ toast('남기지 못했어요.'); return; }
+    ta.value=''; kv2RenderScribbles(p, pane, canEd);
+  };
+  const t=$('#kv2ScText');
+  if(t) t.addEventListener('keydown', ev=>{ if(ev.key==='Enter' && !ev.shiftKey){ ev.preventDefault(); add(); } });
+  const b=$('#kv2ScAdd'); if(b) b.onclick=add;
+  pane.querySelectorAll('[data-scdel]').forEach(x=>{
+    x.onclick=async()=>{
+      const { error } = await sb.from('kypt_notes').delete().eq('id', x.dataset.scdel);
+      if(error){ toast('지우지 못했어요.'); return; }
+      kv2RenderScribbles(p, pane, canEd);
+    };
+  });
 }
 
 /* ---------------- 피드백 탭 (99 · 세션 BD) ----------------
