@@ -3202,6 +3202,23 @@ body.dark .kp-note-box{ color:#EDEAEA; }
 /* ── v2 · 실험 기록 · 자료함 (93, 세션 AR) — 본문 구역 0°, 새 토큰 없음 ── */
 .kv2-cnt{ font-family:var(--mono); font-size:11px; color:var(--text-dim); margin-left:4px; }
 .kv2-soon{ margin-left:auto; align-self:center; font-size:12px; color:var(--text-dim); opacity:.7; padding-right:4px; }
+/* ★세션 BM: [?] — 폰에서 숨긴 안내문을 켜고 끈다. 데스크톱은 숨김(안내문이 늘 보인다) */
+.kv2-hintbtn{ display:none; margin-left:auto; width:26px; height:26px; align-items:center; justify-content:center; font:inherit; font-size:13px; font-weight:700;
+  border-radius:50%; border:1px solid var(--border-strong); background:var(--card); color:var(--text-dim); cursor:pointer; flex:none; }
+.kv2.show-hints .kv2-hintbtn{ background:var(--accent); border-color:var(--accent); color:#fff; }
+/* ★세션 BM: 빠른 메모 — 폰에서 문제 화면 어느 탭에 있든 아래 내비 위에 떠 있는 한 줄. body에 붙는다(#doc의 transform과 무관). */
+.kv2-quick{ display:none; }
+@media (max-width:640px){
+  .kv2-quick{ display:flex; gap:6px; position:fixed; left:0; right:0; bottom:0; z-index:60; padding:8px 10px calc(8px + env(safe-area-inset-bottom));
+    background:var(--card); border-top:1px solid var(--border); box-shadow:0 -4px 14px rgba(0,0,0,.06); }
+  body.has-botnav .kv2-quick{ bottom:calc(62px + env(safe-area-inset-bottom)); padding-bottom:8px; }
+  .kv2-quick-in{ flex:1; min-width:0; font:inherit; font-size:15px; padding:9px 13px; border:1px solid var(--border-strong); border-radius:var(--r-round); background:var(--box-bg); color:var(--text); }
+  .kv2-quick-in:focus{ outline:none; border-color:var(--accent); background:var(--card); }
+  .kv2-quick-go{ font:inherit; font-size:13px; font-weight:700; padding:0 14px; border-radius:var(--r-round); border:none; background:var(--accent); color:#fff; cursor:pointer; flex:none; }
+  .kv2-quick-go:disabled{ opacity:.5; }
+  body.has-quick.has-botnav .layout{ padding-bottom:calc(66px + 56px + env(safe-area-inset-bottom)); }
+  body.has-quick:not(.has-botnav) .layout{ padding-bottom:calc(56px + env(safe-area-inset-bottom)); }
+}
 .kv2-toolbar{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 14px; }
 .kv2-list{ border-top:1px solid var(--border); }
 .kv2-row{ display:grid; grid-template-columns:auto auto 1fr auto; align-items:baseline; gap:12px; padding:12px 4px;
@@ -3509,6 +3526,16 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
   .kv2-cf{ grid-template-columns:1fr; }
   .kv2-fb{ padding-left:4px; }
   .kv2-soon{ display:none; }
+  /* ★세션 BM: 폰에서 탭은 가로 스크롤 띠 — 글자를 쪼개지 않는다. 선택한 탭은 JS가 가운데로 스크롤(kv2ScrollTab). */
+  #kv2Tabs{ flex-wrap:nowrap; overflow-x:auto; overflow-y:hidden; gap:0; scrollbar-width:none; -webkit-overflow-scrolling:touch;
+    -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent); mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent); }
+  #kv2Tabs::-webkit-scrollbar{ display:none; }
+  #kv2Tabs .kp-tab{ flex:none; white-space:nowrap; padding:10px 13px; font-size:14px; }
+  /* 머리 슬림: 참여자 칩 작게, 탭 안 긴 안내문은 [?]를 눌러야 보인다 */
+  .kv2 .kp-people{ gap:5px; margin-bottom:12px; }
+  .kv2 .kp-chip{ font-size:12px; padding:3px 9px; }
+  .kv2:not(.show-hints) .kp-pane .kp-hint{ display:none; }
+  .kv2-hintbtn{ display:inline-flex; }
   .kp-main{ grid-template-columns:1fr; }
   .kp-main .kp-side{ position:static; }
   .kp-months{ margin-left:0; }
@@ -8842,7 +8869,7 @@ async function renderSysFeatures(){
       FEATURES = Object.assign({}, DEFAULT_FEATURES, cfg);
       applyFeatureNav();
       msg.className='msg ok'; msg.textContent='저장했습니다. 내 화면에는 지금, 다른 회원에게는 다음 접속부터 적용돼요.';
-    }catch(e){ msg.className='msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e)+' (82_feature_flags.sql 실행 확인)'; }
+    }catch(e){ msg.className='msg err'; msg.textContent='저장 실패: '+((e&&e.message)||e)+(/permission denied/i.test(String((e&&e.message)||e))?' — 104_set_features_grant.sql을 실행하세요(권한 재부여)':' (82_feature_flags.sql 실행 확인)'); }
     $('#ftSave').disabled=false;
   };
 }
@@ -9376,6 +9403,7 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-10', text:'[KYPT·폰] 문제 화면이 폰에서 훨씬 단정해졌어요 — 탭은 옆으로 미는 띠(글자가 더는 쪼개지지 않아요), 긴 설명은 [?]를 눌러야 보이고, 어느 탭에 있든 화면 아래 한 줄에 쓰고 Enter 하면 끄적에 남습니다.' },
   { date:'2026-09-10', text:'[KYPT] 문제 안에서 아무 글자나 치면 바로 그 탭의 입력칸에 써져요(현황 제외). 연구일지·자료함에선 링크를 Ctrl+V만 해도 들어갑니다. ←→ 키로 탭을 옮기고, 현황의 단계별 마감은 접혀 있다가 목록의 [날짜 정하기]로 들어오면 열립니다.' },
   { date:'2026-09-10', text:'회원 가입이 다시 됩니다. 초대 코드가 틀리거나 비어 있으면 가입 버튼을 누르는 순간 그 이유가 바로 보여요.' },
   { date:'2026-09-10', text:'화면을 옮길 때 이전 화면이 두 번 깜빡이던 것을 고쳤어요. 이제 떠나는 화면은 가만히 있고, 새 화면만 한 번 부드럽게 나타납니다.' },
@@ -11730,6 +11758,7 @@ async function renderKyptProblemV2(year, no){
       <span class="kp-plab">참여</span>
       ${mem.length?mem.map(m=>`<span class="kp-chip${m.lead?' lead':''}">${escapeHtml(kyptName(m.uid))}${m.lead?' · 대표':''}</span>`).join(''):'<span class="kp-chip none">아직 배정 안 됨</span>'}
       ${kyptAdminish()&&!yrow.locked?`<button class="ch-act" id="kpMemBtn">참여자 지정</button>`:''}
+      <button class="kv2-hintbtn" id="kv2HintBtn" title="설명 보기/숨기기" aria-label="설명 보기">?</button>
     </div>
     <div class="kp-tabs" id="kv2Tabs">
       <button class="kp-tab${tab==='status'?' on':''}" data-kt="status">현황${(ws.todos||[]).filter(t=>!t.done_at).length?` <span class="kv2-cnt">${(ws.todos||[]).filter(t=>!t.done_at).length}</span>`:''}</button>
@@ -11751,7 +11780,7 @@ async function renderKyptProblemV2(year, no){
     if(dir===undefined) dir = nxt>cur ? 1 : nxt<cur ? -1 : 0;
     try{ localStorage.setItem(kv2TabKey(p.id), b.dataset.kt); }catch(e){ /* 저장소 불가 — 탭 기억만 포기 */ }
     tabs.forEach(x=>{ x.classList.toggle('on', x===b); x.setAttribute('aria-selected', x===b?'true':'false'); x.tabIndex = x===b ? 0 : -1; });
-    kv2MoveTabInd();
+    kv2MoveTabInd(); kv2ScrollTab(b);
     const pane=$('#kv2Pane');
     if(pane && dir){ pane.classList.remove('slide-l','slide-r'); void pane.offsetWidth; pane.classList.add(dir>0?'slide-r':'slide-l'); }
     kv2RenderPane(p, b.dataset.kt, canEd);
@@ -11772,7 +11801,10 @@ async function renderKyptProblemV2(year, no){
     };
   });
   const tabsEl=$('#kv2Tabs'); if(tabsEl) tabsEl.setAttribute('role','tablist');
-  kv2MoveTabInd(); requestAnimationFrame(()=>{ const ind=$('#kv2Tabs .kp-tabind'); if(ind) ind.classList.remove('noanim'); });
+  kv2MoveTabInd(); requestAnimationFrame(()=>{ const ind=$('#kv2Tabs .kp-tabind'); if(ind) ind.classList.remove('noanim'); kv2ScrollTab(tabs.find(x=>x.classList.contains('on'))); });
+  const hb=$('#kv2HintBtn'); const shell=document.querySelector('.kypt-wrap.kv2');
+  if(hb && shell) hb.onclick=()=>{ shell.classList.toggle('show-hints'); };
+  kv2QuickMount(p, canEd);                                    // ★세션 BM: 폰의 빠른 메모 줄
   const mbtn=$('#kpMemBtn'); if(mbtn) mbtn.onclick=()=>openKyptMembers(p);
   kv2RenderPane(p, tab, canEd);
 }
@@ -11811,6 +11843,38 @@ document.addEventListener('keydown', (ev)=>{
   ev.preventDefault();
   tabs[j].click(); tabs[j].focus();
 });
+/* ★세션 BM: 탭 띠가 가로로 넘칠 때(폰) 선택한 탭을 가운데로 */
+function kv2ScrollTab(b){
+  const w=$('#kv2Tabs'); if(!w || !b || w.scrollWidth <= w.clientWidth + 1) return;
+  const left = b.offsetLeft - (w.clientWidth - b.offsetWidth)/2;
+  try{ w.scrollTo({ left:Math.max(0, left), behavior:'smooth' }); }catch(e){ w.scrollLeft=Math.max(0, left); }
+}
+/* ★세션 BM: 빠른 메모 — 폰에서 문제 화면 어느 탭에 있든 한 줄 쓰고 Enter → 끄적(kypt_notes, scribble)에 오늘 날짜로.
+   body에 붙인다(#doc 안에 fixed를 두면 전환 애니메이션의 transform이 기준점을 가로챈다 — 세션 AO). route()가 뗀다. */
+function kv2QuickUnmount(){ const q=document.getElementById('kv2Quick'); if(q) q.remove(); document.body.classList.remove('has-quick'); }
+function kv2QuickMount(p, canEd){
+  kv2QuickUnmount();
+  if(!canEd || !p) return;
+  const q=document.createElement('div'); q.id='kv2Quick'; q.className='kv2-quick';
+  q.innerHTML=`<input class="kv2-quick-in" id="kv2QuickIn" placeholder="빠른 메모 → 끄적에 남아요" aria-label="빠른 메모" autocomplete="off">
+    <button class="kv2-quick-go" id="kv2QuickGo">남기기</button>`;
+  document.body.appendChild(q); document.body.classList.add('has-quick');
+  const inp=q.querySelector('#kv2QuickIn'), go=q.querySelector('#kv2QuickGo');
+  const send=async()=>{
+    const body=(inp.value||'').trim(); if(!body) return;
+    if(!kyptNoteOk()) return;
+    inp.disabled=true; go.disabled=true;
+    const { error } = await sb.from('kypt_notes').insert({ problem_id:p.id, section:'scribble', body,
+      color:Math.floor(Math.random()*KYPT_NOTE_COLORS), on_date:kToday(), created_by:(state.user&&state.user.id)||null });
+    inp.disabled=false; go.disabled=false;
+    if(error){ toast('남기지 못했어요.'); return; }
+    inp.value=''; toast('끄적에 남겼어요.');
+    const pane=$('#kv2Pane');
+    if(pane && kv2CurrentTab()==='notes') kv2RenderScribbles(p, pane, canEd);   // 보고 있는 중이면 바로 갱신
+  };
+  inp.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); send(); } });
+  go.onclick=send;
+}
 /* 탭 표시선을 현재 탭 아래로 (폭·위치는 실제 버튼에서 잰다) */
 function kv2MoveTabInd(){
   const wrap=$('#kv2Tabs'); const ind=wrap && wrap.querySelector('.kp-tabind'); const on=wrap && wrap.querySelector('.kp-tab.on');
@@ -16654,6 +16718,7 @@ function route(){
   startLoading();          // 페이지 로딩 시작 → 새로고침 아이콘 회전
   refreshInboxBadge();     // 안 읽은 쪽지 개수 갱신 (네비 배지)
   unsubscribeChat();       // 커뮤니티를 떠나면 채팅 실시간 구독 해제
+  kv2QuickUnmount();       // ★세션 BM: KYPT 문제 화면을 떠나면 폰의 빠른 메모 줄을 뗀다
   stopInboxPolling();      // 쪽지함을 떠나면 실시간 구독·안전망 해제
   closeTipWin();           // 편집기를 떠나면 떠다니는 팁 창도 닫기
   clearTypeToFocus();      // 이전 화면의 '타이핑→포커스' 해제
