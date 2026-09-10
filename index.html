@@ -416,7 +416,11 @@ body.dark .seg-opt.seg-owner:not(.on):not(:disabled):hover{background:#3a2626;}
 
 /* 페이지 전환 애니메이션 */
 @keyframes pageIn{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
-/* (세션 BI) #doc.pageIn 전환 애니메이션 제거 — 두 번 깜빡임의 반쪽 */
+/* (세션 BI) #doc.pageIn 전환 애니메이션 제거 — 두 번 깜빡임의 반쪽.
+   (세션 BJ) 대신 새 화면이 한 번만 내려앉는다: route()가 장전하고 첫 내용 변화에서 재생(pgOnceFire). 재시작 없음. */
+@keyframes pgOnce{ from{ opacity:.001; transform:translateY(6px); } to{ opacity:1; transform:none; } }
+body:not(.fx-flat) #doc.pg-once{ animation:pgOnce .3s cubic-bezier(.22,.61,.36,1) both; }
+@media (prefers-reduced-motion: reduce){ #doc.pg-once{ animation:none; } }
 
 /* 대문(랜딩) */
 .landing .hero-notice{text-align:center;border:1px solid var(--border);border-radius:10px;background:var(--box-bg);padding:22px 18px;margin-bottom:22px;}
@@ -3355,6 +3359,12 @@ body.dark .kp-note-box{ color:#EDEAEA; }
   padding:1px 7px; margin-left:8px; vertical-align:middle; }
 
 .kv2-st{ margin:0 0 26px; }
+/* ★세션 BK: 단계별 마감 — 접힘이 기본. summary가 제목 역할 */
+.kv2-msdet > summary{ cursor:pointer; list-style:none; display:flex; align-items:baseline; gap:6px; }
+.kv2-msdet > summary::-webkit-details-marker{ display:none; }
+.kv2-msdet > summary::before{ content:'▸'; font-size:12px; color:var(--text-dim); transition:transform .18s; }
+.kv2-msdet[open] > summary::before{ transform:rotate(90deg); }
+.kv2-msdet > summary .kp-hint{ margin:0; }
 .kv2-stages{ display:flex; flex-direction:column; gap:2px; }
 .kv2-stage-row{ display:flex; align-items:center; gap:10px; padding:8px 4px; border-bottom:1px solid var(--border); cursor:pointer; }
 .kv2-stage-row input{ width:16px; height:16px; }
@@ -9366,8 +9376,9 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-10', text:'[KYPT] 문제 안에서 아무 글자나 치면 바로 그 탭의 입력칸에 써져요(현황 제외). 연구일지·자료함에선 링크를 Ctrl+V만 해도 들어갑니다. ←→ 키로 탭을 옮기고, 현황의 단계별 마감은 접혀 있다가 목록의 [날짜 정하기]로 들어오면 열립니다.' },
   { date:'2026-09-10', text:'회원 가입이 다시 됩니다. 초대 코드가 틀리거나 비어 있으면 가입 버튼을 누르는 순간 그 이유가 바로 보여요.' },
-  { date:'2026-09-10', text:'화면을 옮길 때 이전 화면이 두 번 깜빡이던 전환 효과를 없앴어요. 이제 새 화면이 준비되면 그대로 바뀝니다.' },
+  { date:'2026-09-10', text:'화면을 옮길 때 이전 화면이 두 번 깜빡이던 것을 고쳤어요. 이제 떠나는 화면은 가만히 있고, 새 화면만 한 번 부드럽게 나타납니다.' },
   { date:'2026-09-10', text:'대문의 이동 버튼을 누를 때 버튼 격자가 순간 흔들리던 것을 고쳤어요. 가입 화면은 초대 코드 칸을 늘 보여 주고, 막혔을 때 이유를 더 정확히 알려 줍니다.' },
   { date:'2026-09-08', text:'[채널]이 [대화방]으로 이름이 바뀌었어요. 하는 일은 그대로예요 — 주제별로 대화하고 문서·자료·과제를 모아둡니다. 그리고 대문이 단순해졌어요: 큼직한 이동 버튼으로 바로 갈 수 있습니다.' },
   { date:'2026-09-08', text:'[KYPT] 피드백이 정확한 자리에 붙어요 — 실험 기록의 칸마다 💬, 자료마다 💬. 답글·해결·이모지 반응·@이름 부르기. 기록에 [검토 요청]을 누르면 같은 문제의 참여자가 [검토 완료]로 답합니다. 쪽지함엔 하루 한 번 묶어서 옵니다.' },
@@ -11255,6 +11266,9 @@ async function renderKyptPage(){
   </div>`;
   const ms=$('#kv2MsPick');
   if(ms) ms.onchange=()=>{ _kyptMsPid=Number(ms.value)||null; renderKyptPage(); };
+  document.querySelectorAll('.kv2-msmore[data-msgo]').forEach(a=>{        // ★세션 BK: 현황 탭으로 가서 마감 구역을 연다
+    a.onclick=()=>{ const pid=Number(a.dataset.msgo); _kv2OpenMs=pid; try{ localStorage.setItem(kv2TabKey(pid), 'status'); }catch(e){ /* 저장소 불가 */ } };
+  });
   const mw=$('#kyptMonths');
   if(mw) mw.querySelectorAll('.kp-m').forEach(b=>{
     b.onclick=()=>{ const m=Number(b.dataset.m); _kyptMonth = (_kyptMonth===m ? null : m); renderKyptPage(); };
@@ -11630,6 +11644,8 @@ const KYPT_KIND_CLS = { paper:'k-paper', video:'k-video', data:'k-data', code:'k
 const KYPT_UPLOAD_MAX = 20 * 1024 * 1024;   // 20MB — 무료 1GB 안에서 17문제가 살려면 이 정도
 
 let _kv2 = {};            // problem_id → { entries, assets, links }
+let _kv2MsOpen = {};      // problem_id → 단계별 마감 구역을 열어 두었나 (세션 BK)
+let _kv2OpenMs = null;    // 목록의 [현황에서 날짜 정하기]로 들어온 문제 id — 현황을 그릴 때 한 번 쓰고 비운다
 let _kv2No93 = false;     // 93 미적용
 let _kv2Err = null;
 let _kv2SaveTimers = {};  // "entry:key" → timeout
@@ -11760,6 +11776,41 @@ async function renderKyptProblemV2(year, no){
   const mbtn=$('#kpMemBtn'); if(mbtn) mbtn.onclick=()=>openKyptMembers(p);
   kv2RenderPane(p, tab, canEd);
 }
+/* ★세션 BK: 탭마다 '아무 키나 치면 글이 들어갈' 입력칸. 현황은 없다(다음 할 일은 제외 — 사용자 결정). */
+const KV2_TYPE_TARGET = {
+  entries:  '#kv2JLink',
+  assets:   '#kv2LUrl',
+  notes:    '#kv2ScText',
+  feedback: '#kv2ProbThread textarea',
+  refkit:   '#krTa'
+};
+/* Ctrl+V: 연구일지·자료함에서 입력칸에 포커스가 없어도 링크 칸에 붙고, 주소면 그대로 Enter까지 */
+const KV2_PASTE_TARGET = { entries:'#kv2JLink', assets:'#kv2LUrl' };
+function kv2CurrentTab(){ const b=document.querySelector('#kv2Tabs .kp-tab.on'); return b ? b.dataset.kt : null; }
+function kv2InField(t){ return !!(t && (t.tagName==='INPUT' || t.tagName==='TEXTAREA' || t.tagName==='SELECT' || t.isContentEditable)); }
+document.addEventListener('paste', (ev)=>{
+  const tab=kv2CurrentTab(); const sel=tab && KV2_PASTE_TARGET[tab]; if(!sel) return;
+  if(kv2InField(ev.target)) return;                                            // 이미 어딘가에 붙이는 중
+  if(document.querySelector('.modal-ov, .qc-ov, .lightbox, .block-ov')) return;
+  const el=document.querySelector(sel); if(!el || el.disabled) return;
+  const text=String((ev.clipboardData && ev.clipboardData.getData('text')) || '').trim(); if(!text) return;
+  ev.preventDefault();
+  el.value=text; el.focus();
+  const isUrl = /^https?:/i.test(text) && text.indexOf(' ')<0 && text.indexOf(String.fromCharCode(10))<0;
+  if(isUrl) el.dispatchEvent(new KeyboardEvent('keydown', { key:'Enter', bubbles:true }));   // 주소면 바로 넣는다
+});
+/* ←→(Home/End): 탭에 포커스가 없어도 문제 화면 어디서든 탭을 옮긴다 (입력 중·모달은 제외). 탭 버튼 자체의 핸들러가 먼저 처리한 경우는 건너뛴다. */
+document.addEventListener('keydown', (ev)=>{
+  if(ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key)) return;
+  const wrap=document.querySelector('#kv2Tabs'); if(!wrap) return;
+  if(kv2InField(ev.target) || (ev.target && ev.target.closest && ev.target.closest('.kp-tab'))) return;
+  if(document.querySelector('.modal-ov, .qc-ov, .lightbox, .block-ov, .kdate-pop')) return;
+  const tabs=[...wrap.querySelectorAll('.kp-tab')]; const i=tabs.findIndex(x=>x.classList.contains('on')); if(i<0) return;
+  const j = ev.key==='ArrowRight' ? (i+1)%tabs.length : ev.key==='ArrowLeft' ? (i-1+tabs.length)%tabs.length : ev.key==='Home' ? 0 : tabs.length-1;
+  ev.preventDefault();
+  tabs[j].click(); tabs[j].focus();
+});
 /* 탭 표시선을 현재 탭 아래로 (폭·위치는 실제 버튼에서 잰다) */
 function kv2MoveTabInd(){
   const wrap=$('#kv2Tabs'); const ind=wrap && wrap.querySelector('.kp-tabind'); const on=wrap && wrap.querySelector('.kp-tab.on');
@@ -11768,6 +11819,7 @@ function kv2MoveTabInd(){
 }
 function kv2RenderPane(p, tab, canEd){
   const pane=$('#kv2Pane'); if(!pane) return;
+  if(KV2_TYPE_TARGET[tab]) typeToFocus(KV2_TYPE_TARGET[tab]); else clearTypeToFocus();   // ★세션 BK: 아무 키나 치면 그 탭의 입력칸으로
   if(tab==='status'){ kv2RenderStatus(p, pane, canEd); return; }
   if(tab==='assets'){ kv2RenderAssets(p, pane, canEd); return; }
   if(tab==='refkit'){ kv2RenderRefkit(p, pane, canEd); return; }
@@ -12669,7 +12721,7 @@ function kv2MsPanelHtml(list){
           <span class="kv2-msdue">${r.due?escapeHtml(String(r.due).slice(5)):'날짜 미정'}</span></span>
         <span class="kv2-msd">${r.done?'끝':escapeHtml(kv2DdayText(r.due))}</span>
       </li>`; }).join('')}</ol>
-    <a class="kv2-msmore" href="#//kypt/${p.year}/${p.no}">현황에서 날짜 정하기 →</a>
+    <a class="kv2-msmore" href="#//kypt/${p.year}/${p.no}" data-msgo="${p.id}">현황에서 날짜 정하기 →</a>
   </div>`;
 }
 
@@ -12707,8 +12759,8 @@ async function kv2RenderStatus(p, pane, canEd){
         return `<a class="kv2-fbi" href="${en?`${kv2ProblemHash(p)}/e/${en.id}`:'#'}">${escapeHtml(en?(en.title||'(제목 없음)'):'기록')}<span class="kv2-ct"> — ${escapeHtml(kyptName(r.requested_by))} · ${escapeHtml(timeAgo(r.requested_at))}</span></a>`; }).join('')}</div>`:''}
     </div>` : '';
   pane.innerHTML=`${fbHtml}
-    <div class="kv2-st">
-      <h3 class="kp-h3">단계별 마감 <span class="kp-hint">— 언제까지 끝낼지 정해 두면 목록 오른쪽에 D-day로 보여요.</span></h3>
+    <details class="kv2-st kv2-msdet" id="kv2MsDet"${(_kv2MsOpen[p.id] || _kv2OpenMs===p.id)?' open':''}>
+      <summary class="kp-h3">단계별 마감 <span class="kp-hint">— 언제까지 끝낼지 정해 두면 목록 오른쪽에 D-day로 보여요.</span></summary>
       ${_kyptMsAll===null
         ? (kyptAdminish()?`<p class="ch-note"><code>101_kypt_milestones.sql</code>을 실행하면 쓸 수 있어요.</p>`:'<p class="muted">준비 중이에요.</p>')
         : `<div class="kv2-msedit">${kv2MsOf(p.id).map(r=>`
@@ -12720,7 +12772,7 @@ async function kv2RenderStatus(p, pane, canEd){
               ${kDateField('msdue_'+r.kind, r.due||'', { label:r.label+' 마감일', small:true, disabled:!canEd })}
               <span class="kv2-msd${(!r.done && kv2Dday(r.due)!==null && kv2Dday(r.due)<0)?' late':''}">${r.done?'끝':escapeHtml(kv2DdayText(r.due))}</span>
             </div>`).join('')}</div>`}
-    </div>
+    </details>
     <div class="kv2-st">
       <h3 class="kp-h3">연구 단계 <span class="kp-hint">— 어디까지 왔나. 날짜가 아니라 연구의 위치예요.</span></h3>
       <div class="kv2-stages">${Object.keys(KYPT_STAGES).map((k,i)=>`
@@ -12748,6 +12800,13 @@ async function kv2RenderStatus(p, pane, canEd){
       <h3 class="kp-h3">최근 활동</h3>
       ${mine.length?mine.map(it=>kv2FeedRowHtml(it, false)).join(''):'<p class="muted">아직 없어요.</p>'}
     </div>`;
+  /* ★세션 BK: 단계별 마감은 접힌 게 기본. 연 상태는 문제별로 기억(_kv2MsOpen) — 날짜를 고쳐 다시 그려도 안 닫힌다.
+     목록의 [현황에서 날짜 정하기 →]로 들어오면(_kv2OpenMs) 열고 그 자리로 스크롤한다. */
+  const det=pane.querySelector('#kv2MsDet');
+  if(det){
+    det.addEventListener('toggle', ()=>{ _kv2MsOpen[p.id]=det.open; });
+    if(_kv2OpenMs===p.id){ _kv2MsOpen[p.id]=true; _kv2OpenMs=null; setTimeout(()=>det.scrollIntoView({ block:'start', behavior:'smooth' }), 60); }
+  }
   // 단계별 마감일 — 날짜·완료 모두 upsert 한 번으로
   const msSave=async(kind, patch, undo)=>{
     if(_kyptMsAll===null) return;
@@ -16564,14 +16623,28 @@ function stopLoading(){ const m=$('#refreshMark'); if(m) setTimeout(()=>m.classL
      그래서 클래스를 '지금' 붙이지 않고 다음 프레임 두 번 뒤에 붙인다 —
      그때쯤 첫 그리기가 끝나 있고, 늦게 오는 데이터는 어차피 자기 자리에서 나타난다. */
 let _pgInTimer=null, _pgObs=null, _pgSeq=0, _pgCap=null;
+let _pgArmed=false;
 function playPageIn(){
-  /* ★세션 BI: 등장 애니메이션(.pg-in) 재생을 없앴다 — 사용자 결정. 세션 AI→AJ→BC를 거치며 "언제 붙일지"를 고쳤지만,
-     아래 #doc 관찰자의 .pageIn과 겹쳐 결국 두 번 깜빡였다. 이제는 새 화면이 준비되면 그대로 바뀐다.
-     남은 일은 정리뿐: 이전 대기와 클래스를 걷어 fixed 팝업 기준점 사고(세션 AO)가 재발하지 않게 한다. */
+  /* ★세션 BI/BJ: 새 화면이 **한 번만** 내려앉는다(사용자 결정).
+     · 예전엔 두 계통(.pageIn: #doc가 바뀔 때마다 / .pg-in: 자식마다)이 겹쳐 두 번 깜빡였다. 둘 다 걷어냈다.
+     · 이제 route()가 '장전'만 하고(_pgArmed), 실제 재생은 아래 #doc 관찰자가 **첫 내용 변화**에서 한 번 한다.
+       재생 중 내용이 또 바뀌어도(자리 표시자 → 진짜 내용) 다시 시작하지 않는다. 떠나는 화면은 움직이지 않는다.
+     · 애니메이션은 #doc 하나에만 건다. transform이 남으면 fixed 팝업의 기준점을 가로채므로(세션 AO 사고)
+       끝나면 클래스를 뗀다. */
   const el=document.getElementById('doc'); if(!el) return;
   clearTimeout(_pgInTimer); clearTimeout(_pgCap);
   if(_pgObs){ _pgObs.disconnect(); _pgObs=null; }
-  el.classList.remove('pg-in');
+  el.classList.remove('pg-in'); el.classList.remove('pg-once');
+  _pgArmed = !document.body.classList.contains('fx-flat');
+}
+function pgOnceFire(){
+  if(!_pgArmed) return;
+  _pgArmed=false;
+  const el=document.getElementById('doc'); if(!el) return;
+  el.classList.remove('pg-once'); void el.offsetWidth;
+  el.classList.add('pg-once');
+  clearTimeout(_pgInTimer);
+  _pgInTimer=setTimeout(()=>{ el.classList.remove('pg-once'); }, 420);
 }
 
 function route(){
@@ -16988,7 +17061,7 @@ sb.auth.onAuthStateChange(async (event) => {
    특히 자리 표시자('불러오는 중…') → 진짜 내용으로 두 번 바뀌는 화면은 그때마다 재생됐다. 이제 관찰자는 스피너만 멈춘다. */
 (function(){
   const d=$('#doc');
-  if(d) new MutationObserver(()=>{ stopLoading(); }).observe(d,{childList:true});
+  if(d) new MutationObserver(()=>{ stopLoading(); pgOnceFire(); }).observe(d,{childList:true});
 })();
 if($('#refreshMark')) $('#refreshMark').onclick=()=>route();   // 수동 새로고침
 
