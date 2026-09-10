@@ -534,118 +534,6 @@ body.has-botnav .mini-toast{bottom:calc(150px + env(safe-area-inset-bottom));}
 .wp-row input[type=range]{flex:1;accent-color:var(--accent);}
 .wp-row .wp-n{min-width:52px;text-align:right;font-family:ui-monospace,Menlo,Consolas,monospace;color:var(--text-dim);}
 .wk-plot-err{font-size:13px;color:var(--danger);}
-/* ── 대문 사진 벽 (90 · 세션 AO 후반) — 크기가 섞인 모자이크 콜라주 ──
-   시안의 리듬: 큰 타일 하나 + 세로로 긴 타일 + 작은 타일들이 얇은 간격으로 맞물린다.
-   배경은 앱 배경 그대로, 액자 없음. 6·9·12장은 전용 패턴으로 직사각형이 꽉 찬다.
-   ★grid-auto-flow:dense — 장수가 어중간해도(중간 저장 상태) 구멍을 메운다 (세션 M 교훈). */
-.pwall{ position:relative; display:grid; grid-template-columns:repeat(4,1fr); grid-auto-flow:dense;
-  grid-auto-rows:clamp(80px, 11vw, 150px); gap:3px; margin:0 0 22px;
-  padding:9px; border-radius:14px; overflow:hidden; isolation:isolate;
-  /* 시안 그대로 — 사진들이 얇은 틈으로 딱 붙고, 바깥의 검은 액자만 둥글다 */
-  background:linear-gradient(165deg, #1B1210, #120C0C 55%, #0E090B);
-  box-shadow:0 26px 60px rgba(35,8,12,.35), 0 2px 8px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.07); }
-/* 상징색 글로우 — 액자 가장자리에서만 은은하게 배어 나온다.
-   ★backdrop-filter가 아니라 정적 blur 한 번 — 스크롤마다 다시 계산되지 않는다(세션 AB 원칙) */
-.pwall::before{ content:''; position:absolute; inset:-12%; z-index:-1; pointer-events:none;
-  background:
-    radial-gradient(50% 34% at 8% 0%,    rgba(192,0,0,.38), transparent 70%),
-    radial-gradient(44% 30% at 96% 100%, rgba(150,0,0,.34), transparent 70%),
-    radial-gradient(30% 22% at 88% 4%,   rgba(255,150,90,.14), transparent 70%);
-  filter:blur(46px); }
-body.fx-lite .pwall::before, body.fx-flat .pwall::before{ filter:none; }  /* 저사양: blur만 끔 — 글로우는 남는다 */
-.pw-t{ position:relative; overflow:hidden; border-radius:3px; background:#191113; }
-.pw-t img{ width:100%; height:100%; object-fit:cover; display:block; cursor:zoom-in;
-  /* 추억 필터 — 채도를 살짝 빼고 따뜻하게. 화면 필터일 뿐 원본 파일은 그대로다 */
-  filter:saturate(.84) contrast(1.06) brightness(.95) sepia(.12); }
-/* 비네트 — 필름 사진처럼 가장자리가 조용히 어두워진다 (경계가 아니라 공기처럼) */
-.pw-t::after{ content:''; position:absolute; inset:0; pointer-events:none; border-radius:inherit;
-  background:
-    radial-gradient(130% 130% at 50% 40%, transparent 58%, rgba(10,4,6,.38) 100%),
-    linear-gradient(180deg, rgba(255,214,170,.05), transparent 30%, rgba(12,5,7,.18)); }
-/* 사진별 수동 크기 (owner가 관리 모달에서 지정 — 비율이 제각각인 사진을 위해) */
-.pw-t.pw-big{ grid-column:span 2; grid-row:span 2; }
-.pw-t.pw-wide{ grid-column:span 2; }
-.pw-t.pw-tall{ grid-row:span 2; }
-/* 환영 문구 — 박스 없이 라벨+여백 (박스 4원칙) */
-.pw-head{ margin:2px 2px 12px; }
-.pw-eyebrow{ font-size:11.5px; letter-spacing:.14em; color:var(--accent); font-weight:800; margin:0 0 4px; }
-.pw-title{ font-size:21px; font-weight:800; margin:0 0 4px; color:var(--text); }
-.pw-sub{ font-size:13px; color:var(--text-dim); margin:0; line-height:1.6; }
-/* ── 인트로 슬라이드쇼 — 한 장씩 은은히 빛나며 지나간 뒤 모자이크로 정착 ──
-   ★transform·opacity만 애니메이트한다(세션 T 성능 규칙). 접속당 1회, 손대면 즉시 정착. */
-.pw-t{ transition:opacity .55s ease; }
-.pwall.pw-showing .pw-t{ opacity:0; }
-.pwall.pw-showing .pw-edit{ opacity:0; pointer-events:none; }
-.pw-intro{ position:absolute; inset:9px; z-index:3; border-radius:8px; overflow:hidden;
-  background:#0D0809; opacity:1; transition:opacity .6s ease; cursor:pointer; }
-.pw-intro.out{ opacity:0; pointer-events:none; }
-/* ★cover — 검은 여백 없이 꽉 채운다. 느린 줌(켄번즈)이 '고급 히어로' 느낌을 만든다.
-   전환은 0.9s 크로스페이드(사용자 요청: 2배 느리게), 장당 표시 시간은 JS가 wall.json에서 읽는다 */
-.pwi-img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
-  opacity:0; transition:opacity .9s ease;
-  filter:saturate(.84) contrast(1.06) brightness(.95) sepia(.12); }
-.pwi-img.on{ opacity:1; animation:pwKen 6.4s ease-out forwards; }   /* 지속 시간은 JS가 간격에 맞춰 덮어쓴다 */
-@keyframes pwKen{ from{ transform:scale(1.001); } to{ transform:scale(1.075); } }
-.pw-intro::after{ content:''; position:absolute; inset:0; pointer-events:none;
-  background:
-    radial-gradient(130% 130% at 50% 42%, transparent 55%, rgba(8,3,5,.5) 100%),
-    linear-gradient(180deg, transparent 62%, rgba(8,3,5,.42)); }
-.pwi-shine{ position:absolute; top:-25%; bottom:-25%; width:36%; left:0; pointer-events:none; z-index:2;
-  transform:translateX(-160%) rotate(6deg);
-  background:linear-gradient(105deg, transparent, rgba(255,236,214,.13), transparent);
-  animation:pwShine 6s linear infinite; }                            /* 지속 시간은 JS가 덮어쓴다 */
-/* 빛줄기는 전환 직후 한 번 스치고, 남은 시간은 화면 밖에서 쉰다 */
-@keyframes pwShine{ 0%{ transform:translateX(-160%) rotate(6deg); }
-  24%{ transform:translateX(430%) rotate(6deg); } 100%{ transform:translateX(430%) rotate(6deg); } }
-.pwi-dots{ position:absolute; left:0; right:0; bottom:11px; display:flex; justify-content:center;
-  gap:7px; z-index:3; pointer-events:none; }
-.pwi-dot{ width:6px; height:6px; border-radius:50%; background:rgba(255,255,255,.32);
-  transition:background .4s ease, transform .4s ease; }
-.pwi-dot.on{ background:rgba(255,255,255,.92); transform:scale(1.25); }
-.pwi-hint{ position:absolute; right:13px; bottom:9px; z-index:3; pointer-events:none;
-  font-size:11px; letter-spacing:.02em; color:rgba(255,255,255,.5); }
-@media (prefers-reduced-motion: reduce){ .pwi-shine, .pwi-img.on{ animation:none; } }
-/* 6장 — 4×3칸: (2×2) (2×1) (1×1) (1×2) (1×1) (2×1) = 12칸 */
-.pw-n6 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
-.pw-n6 .pw-t:nth-child(2){ grid-column:span 2; }
-.pw-n6 .pw-t:nth-child(4){ grid-row:span 2; }
-.pw-n6 .pw-t:nth-child(6){ grid-column:span 2; }
-/* 9장 — 4×4칸: (2×2) (1×2) (1×1) (2×1) (1×1) (1×2) (2×1) (1×1) (1×1)... = 16칸 */
-.pw-n9 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
-.pw-n9 .pw-t:nth-child(2){ grid-row:span 2; }
-.pw-n9 .pw-t:nth-child(4){ grid-column:span 2; }
-.pw-n9 .pw-t:nth-child(6){ grid-row:span 2; }
-.pw-n9 .pw-t:nth-child(8){ grid-column:span 2; }
-/* 12장 — 4×5칸 = 20칸 */
-.pw-n12 .pw-t:nth-child(1){ grid-column:span 2; grid-row:span 2; }
-.pw-n12 .pw-t:nth-child(3){ grid-row:span 2; }
-.pw-n12 .pw-t:nth-child(5){ grid-column:span 2; }
-.pw-n12 .pw-t:nth-child(7){ grid-row:span 2; }
-.pw-n12 .pw-t:nth-child(9){ grid-column:span 2; }
-.pw-n12 .pw-t:nth-child(11){ grid-column:span 2; }
-.pw-edit{ position:absolute; right:10px; bottom:10px; display:flex; align-items:center; gap:6px;
-  background:rgba(255,255,255,.92); border:1px solid var(--border); border-radius:8px;
-  padding:6px 12px; font-size:12.5px; cursor:pointer; color:var(--text); box-shadow:var(--shadow); }
-.pw-edit:hover{ border-color:var(--accent); color:var(--accent); }
-body.dark .pw-edit{ background:rgba(30,28,30,.9); }
-.pw-off{ font-size:12.5px; color:var(--text-dim); margin:0 0 14px; line-height:1.7; }
-.pw-off code{ font-family:var(--mono); font-size:11.5px; }
-.pw-edit-link{ background:none; border:0; color:var(--link); cursor:pointer; font-size:12.5px; padding:0; }
-/* 관리 모달 */
-.pwm-grid{ display:flex; flex-direction:column; gap:6px; max-height:300px; overflow-y:auto; margin-top:12px; }
-.pwm-row{ display:flex; align-items:center; gap:10px; }
-.pwm-row img{ width:72px; height:48px; object-fit:cover; border-radius:6px; background:var(--box-bg); flex:none; }
-.pwm-row .pwm-n{ flex:1; min-width:0; font-size:12px; color:var(--text-dim);
-  overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.pwm-b{ flex:none; background:var(--card); border:1px solid var(--border); border-radius:6px;
-  padding:4px 9px; font-size:12px; cursor:pointer; color:var(--text); }
-.pwm-b:hover{ border-color:var(--accent); color:var(--accent); }
-.pwm-b.danger{ color:var(--danger); }
-.pwm-b.danger:hover{ border-color:var(--danger); }
-/* 폰: 2열로 — span 2 타일이 전체 폭이 되면서 큰/작은 리듬이 유지된다 */
-@media(max-width:640px){
-  .pwall{ grid-template-columns:repeat(2,1fr); grid-auto-rows:30vw; gap:2px; padding:6px; border-radius:12px; }
-}
 /* PWA 설치 안내 바 */
 /* ★중앙 정렬은 transform이 아니라 left/right+margin으로 — 이유 둘:
    ① fixed에 left:50%를 주면 가용 폭이 '오른쪽 절반'으로 계산돼 좁은 화면에서
@@ -749,19 +637,15 @@ body.has-botnav .nudge-toast{bottom:calc(78px + env(safe-area-inset-bottom));}
 .msg-avatar{flex:none;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;overflow:hidden;background-size:cover;background-position:center;}
 .msg-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px;}
 .msg-who{font-weight:700;font-size:12.5px;color:var(--text);}
-/* 이름·프로필 사진: 어느 쪽에 올려도 둘 다 '떠오르는' 효과. 밑줄은 치지 않는다. */
-.msg-main .msg-who.go-profile{cursor:pointer;transition:transform .12s, color .12s;}
-.msg .msg-avatar.go-profile{cursor:pointer;transition:transform .12s, box-shadow .12s;}
-.msg.hov-profile .msg-who.go-profile{color:var(--cv,var(--cover-default));transform:translateY(-1px);text-decoration:none;}
-.msg.hov-profile .msg-avatar.go-profile{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,0,0,.18), 0 0 0 2px var(--cv,var(--cover-default));}
 .msg-bubble-row{display:flex;align-items:flex-end;gap:6px;}
-.msg-bubble{background:var(--card);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:70%;max-width:70cqw;box-shadow:0 1px 2px rgba(0,0,0,.05);}
+.msg-bubble{background:var(--box-bg);border:1px solid transparent;border-radius:4px 14px 14px 14px;padding:8px 12px;font-size:14px;color:var(--text);line-height:1.5;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;max-width:70%;max-width:70cqw;box-shadow:0 1px 2px rgba(0,0,0,.05);}
 /* ★말풍선은 내용을 따라 '가로로' 먼저 자란다 — 채팅방 폭의 70%에 닿으면 그때부터 줄바꿈.
    (예전의 min(78%,560px)은 넓은 화면에서 560px 상한에 먼저 걸려 일찍 꺾였다) */
 /* 긴 글: 말풍선이 세로로 늘어나고 시각·삭제 버튼은 아래쪽에 붙는다 */
 .msg-bubble-row{align-items:flex-end;flex-wrap:wrap;}
 .msg-imgs{align-items:flex-start;}
-.msg.mine .msg-bubble{background:#fdeaea;border-color:#f0c8c8;border-radius:14px 4px 14px 14px;}
+/* ★세션 BN: 내 말풍선은 상징색 톤, 테두리 없이 */
+.msg.mine .msg-bubble{background:color-mix(in srgb, var(--accent) 13%, var(--card));border-color:transparent;color:var(--text);border-radius:14px 4px 14px 14px;box-shadow:0 1px 2px rgba(0,0,0,.05);}
 /* ★내가 쓴 메시지는 오른쪽에. 내 프로필 사진은 표시하지 않는다(누가 썼는지 자명하므로). */
 .chat-log .msg.mine{flex-direction:row-reverse;padding-left:12%;}
 .msg.mine .msg-main{flex:1;}
@@ -775,14 +659,14 @@ body.has-botnav .nudge-toast{bottom:calc(78px + env(safe-area-inset-bottom));}
 .msg.mine .msg-bubble-row{flex-direction:row-reverse;}
 .msg.mine .msg-reactions{justify-content:flex-end;}
 .msg.mine .msg-imgs{justify-content:flex-end;align-self:flex-end;}
-body.dark .msg.mine .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
+body.dark .msg.mine .msg-bubble{background:color-mix(in srgb, var(--accent) 26%, var(--card));border-color:transparent;}
 .msg-time{font-size:10.5px;color:var(--text-dim);white-space:nowrap;}
 .msg-del{flex:none;border:none;background:transparent;color:var(--text-dim);cursor:pointer;padding:2px 4px;border-radius:5px;display:inline-flex;align-items:center;opacity:.5;transition:all .12s;}
 /* 시각 + 삭제 버튼 줄 (쪽지함의 .dm-t 와 같은 배치) */
 .msg-foot{display:flex;align-items:center;gap:4px;margin-top:1px;}
 /* 날짜 구분선 — 채팅·질문·쪽지 공용 */
 .day-sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;}
-.day-sep::before,.day-sep::after{content:'';flex:1;height:1px;background:var(--border);}
+.day-sep::before,.day-sep::after{content:'';flex:1;height:1px;background:linear-gradient(to right, transparent, var(--border) 40%, var(--border) 60%, transparent);opacity:.7;}
 .day-sep span{font-size:11px;font-weight:700;color:var(--text-dim);background:var(--box-bg);
   border:1px solid var(--border);border-radius:99px;padding:2px 12px;white-space:nowrap;}
 .msg.mine .msg-foot{justify-content:flex-end;}
@@ -805,13 +689,21 @@ body.dark .rpill .rtip{background:#3a3d45;} body.dark .rpill .rtip::after{border
 .rpill:hover{border-color:var(--accent);}
 .rpill.ro{cursor:default;opacity:1;}          /* 내 메시지의 반응 — 보기 전용 */
 .react-wrap{position:relative;display:inline-flex;}
-.react-btn{width:20px;height:20px;border-radius:50%;border:1px solid var(--border);background:var(--card);color:var(--text-dim);cursor:pointer;font-size:12px;line-height:1;display:inline-flex;align-items:center;justify-content:center;}
-.react-btn:hover{border-color:var(--accent);color:var(--accent);}
-.react-pop{position:absolute;bottom:26px;left:0;display:none;gap:2px;background:var(--card);border:1px solid var(--border);border-radius:20px;padding:4px 6px;box-shadow:var(--shadow);z-index:30;}
-.react-pop.open{display:flex;}
-.react-opt{border:none;background:transparent;font-size:17px;cursor:pointer;padding:2px 5px;border-radius:6px;line-height:1;}
-.react-opt:hover{background:var(--box-bg);}
-.react-opt.on{background:var(--box-bg);outline:2px solid var(--accent);}
+/* ★세션 BN: 반응 [+] — 웃는 얼굴 + 작은 플러스, 누르면 4묶음 64종 그리드 */
+.react-btn{position:relative;width:26px;height:22px;border-radius:11px;border:1px solid var(--border-strong);background:var(--card);color:var(--text-dim);cursor:pointer;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:border-color .12s, color .12s, background .12s, transform .12s;}
+.react-btn-face{font-size:13px;}
+.react-btn-plus{position:absolute;right:-4px;top:-5px;width:12px;height:12px;border-radius:50%;background:var(--accent);color:#fff;font-size:10px;font-weight:800;line-height:12px;text-align:center;}
+.react-btn:hover{border-color:var(--accent);color:var(--accent);background:color-mix(in srgb, var(--accent) 8%, var(--card));transform:translateY(-1px);}
+.react-pop{position:absolute;bottom:28px;left:0;display:none;flex-direction:column;gap:6px;width:min(300px, 84vw);max-height:260px;overflow-y:auto;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:8px 10px;box-shadow:var(--sh-2);z-index:30;}
+.msg.mine .react-pop{left:auto;right:0;}
+.react-pop.down{bottom:auto;top:28px;}
+.react-pop.open{display:flex;animation:reactPopIn .14s cubic-bezier(.22,.61,.36,1) both;}
+@keyframes reactPopIn{from{opacity:0;transform:translateY(4px) scale(.98);}to{opacity:1;transform:none;}}
+.react-gl{font-size:10.5px;font-weight:700;color:var(--text-dim);margin:2px 0 3px;letter-spacing:.02em;}
+.react-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:2px;}
+.react-opt{border:none;background:transparent;font-size:19px;cursor:pointer;padding:3px 0;border-radius:8px;line-height:1.2;transition:transform .1s, background .1s;}
+.react-opt:hover{background:var(--box-bg);transform:scale(1.25);}
+.react-opt.on{background:color-mix(in srgb, var(--accent) 14%, var(--card));box-shadow:inset 0 0 0 2px var(--accent);}
 .chat-input{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);background:var(--card);align-items:center;}
 .chat-input input,.chat-input textarea{flex:1 1 auto;min-width:0;min-height:44px;max-height:280px;border:1px solid var(--border);border-radius:6px;padding:11px 12px;font:inherit;font-size:14px;line-height:1.45;background:var(--card);color:var(--text);resize:none;overflow-y:auto;}
 .chat-input textarea{align-self:flex-end;}
@@ -4156,8 +4048,11 @@ const PERM_CAPS = [
     ['club_edit',    '동아리 목록 수정'],
     ['track_read',   '계열 조회'],
     ['track_edit',   '계열 수정'],
-    ['signup_review','회원 가입 알림 · 예전 신청 검토'],
+    ['signup_review','회원 가입 알림 수신'],
     ['feedback_read','피드백 검토 열람'],
+  ]},
+  { sec:'연구', items:[
+    ['kypt_manage',  'KYPT 관리 — 연도·문제 넣기·참여자 지정·마감·자료 정리 (★서버 정책은 admin·owner만 통과시켜요 — 여기서는 admin에게서 거둘 수만 있습니다)'],
   ]},
   { sec:'시스템', items:[
     ['system_access', '시스템 접근'],
@@ -4178,7 +4073,7 @@ const DEFAULT_PERMS = {
             admin_access:1, admin_role:1, admin_club:1,
             club_read:1, club_edit:1, track_read:1, track_edit:1,
             signup_review:1, feedback_read:1,
-            system_access:1 },     // ★시스템 탭 진입은 admin도 (안의 항목은 각자 권한대로 필터)
+            system_access:1, kypt_manage:1 },     // ★시스템 탭 진입은 admin도 (안의 항목은 각자 권한대로 필터)
 };
 let PERMS = null;                       // 서버에서 불러온 매트릭스(없으면 기본값)
 function permsFor(role){
@@ -4734,7 +4629,7 @@ function setBotnavActive(key){
   else if(k.startsWith('q/'))                             act='questions';
   else if(k==='inbox' || k.startsWith('dm/'))             act='inbox';
   else if(k==='questions')                                act='questions';
-  else if(!['me','admin','requests','health','password','trash','directory'].includes(k)
+  else if(!['me','admin','health','password','trash','directory'].includes(k)
           && !k.startsWith('trash/') && !k.startsWith('member/'))
     act='docs';                                           // 개별 문서 페이지 → '문서'
   document.querySelectorAll('.bn-item[data-nav]').forEach(b=>{
@@ -5076,7 +4971,6 @@ const DEFAULT_FEATURES = {
   gamify:false,          // 잔디·월간 미션·리와인드
   landing_extras:false,  // 대문 곁가지(최근 활동·통계·오늘의 문서)
   pwa_banner:false,      // 앱 설치 배너
-  photo_wall:false,      // 대문 사진 슬라이드(90) — 세션 AO 후반 5에서 기본 끔으로 복귀 (페이지를 나중에 다시 다듬기로)
   kypt_v2:true,          // KYPT 워크스페이스 v2(93) — 실험 기록·자료함. 끄면 v1 상세. ★기본 켬(세션 AR 사용자 결정)
   kypt:true,             // KYPT 연구 탭(92) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AQ 사용자 결정, 가이드에 기록)
   history:true           // 연혁 페이지(91) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AP 사용자 결정, 가이드에 기록)
@@ -7748,8 +7642,6 @@ async function renderAdmin(){
   const { data, error } = await sb.rpc('admin_list_members');
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>회원 관리</h1></div><p>목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
-  let pend=0;
-  try{ const c=await sb.from('signup_requests').select('*',{count:'exact',head:true}).eq('status','pending'); pend=c.count||0; }catch(e){}
   let extra={};
   try{ const { data:pr } = await sb.from('profiles').select('id,member_no,club,avatar_url,track'); (pr||[]).forEach(p=>{ extra[p.id]={no:p.member_no, club:p.club, avatar_url:p.avatar_url, track:p.track}; }); }catch(e){}
   let suspMap=null;                          // ★74: 정지 상태 — 컬럼이 없으면(미적용) null로 두고 버튼을 숨긴다
@@ -7795,7 +7687,7 @@ async function renderAdmin(){
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>회원 관리</h1>
-      <div class="tabs">${(can('signup_review') && pend>0)?`<button id="reqBtn">${ic('inbox')}예전 가입 신청 ${pend}</button>`:''}${sysBtnHTML()}</div></div>
+      <div class="tabs">${sysBtnHTML()}</div></div>
     <div class="doc-meta">회원 등급 관리 · 총 ${data?data.length:0}명</div>
     <div id="wdReqs"></div>
     <div class="notice">여기서는 <b>등급</b>을 변경할 수 있어요. admin은 <b>viewer·editor</b> 회원의 등급을 <b>viewer·editor로만</b> 바꿀 수 있고(admin 승격 불가), owner는 모든 회원을 변경/양도할 수 있어요. 본인 등급은 바꿀 수 없어요.</div>
@@ -7810,7 +7702,6 @@ async function renderAdmin(){
   startAdminPresence();                 // 접속 상태 실시간 갱신(20초)
   renderWithdrawReqs(_nav);             // ★탈퇴 신청 대기(87)
   bindSysBtn();
-  if($('#reqBtn')) $('#reqBtn').onclick=()=>{ location.hash='#//requests'; };
   $('#doc').querySelectorAll('.seg:not(.seg-locked) .seg-opt').forEach(b=>b.onclick=()=>{
     const seg=b.closest('.seg'); if(seg) setRole(seg.dataset.id, b.dataset.role);
   });
@@ -8121,68 +8012,6 @@ async function setRole(id, role){
   if(note){ note.textContent='등급 변경됨'; note.style.color='#1b7a2f'; setTimeout(()=>{note.textContent='';},2000); }
 }
 
-/* ================== 예전 가입 신청 검토 (admin · 레거시) ==================
-   ★즉시 가입(74) 전환 이후로는 새 신청이 쌓이지 않는다. 남아 있는 대기 건 처리용으로만 유지. */
-async function renderRequests(){
-  const { data, error } = await sb.from('signup_requests').select('*').eq('status','pending').order('created_at');
-  if(error){ $('#doc').innerHTML='<div class="doc-head"><h1>예전 가입 신청</h1></div><p>불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
-  const rows=(data||[]).map(r=>`
-    <div class="rev">
-      <div class="meta"><b>${escapeHtml(r.email||'')}</b> · ${r.cohort??'-'} · ${escapeHtml(r.name||'')} (${escapeHtml(r.handle||'')})<br>
-        <span style="font-size:11.5px">신청일 ${fmtKST(r.created_at)}</span></div>
-      <div style="display:flex;gap:6px">
-        <button class="btn ghost" data-approve="${r.id}" data-email="${escapeAttr(r.email||'')}">승인</button>
-        <button class="btn ghost" data-reject="${r.id}" style="color:var(--link-red)">거절</button>
-      </div>
-    </div>`).join('') || '<p>대기 중인 신청이 없습니다. (이제는 <b>회원 가입</b> 즉시 계정이 만들어집니다.)</p>';
-  $('#doc').innerHTML=`
-    <div class="doc-head"><h1>예전 가입 신청</h1>
-      <div class="tabs"><button id="backAdmin">${ic('users')}회원 관리</button>${sysBtnHTML()}</div></div>
-    <div class="doc-meta">대기 중 ${data?data.length:0}건</div>
-    <div class="notice">승인은 <b>2단계</b>예요: ① 여기서 [승인] → ② Supabase 대시보드 <b>Authentication → Invite user</b>로 그 이메일 초대. 초대받은 사람이 비밀번호를 설정해 로그인하면 기수·이름·활동명이 자동으로 채워집니다.</div>
-    <div class="history">${rows}</div>`;
-  $('#backAdmin').onclick=()=>{ location.hash='#//admin'; };
-  bindSysBtn();
-  $('#doc').querySelectorAll('button[data-approve]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.approve,'approved',b.dataset.email));
-  $('#doc').querySelectorAll('button[data-reject]').forEach(b=>b.onclick=()=>decideRequest(b.dataset.reject,'rejected'));
-  window.scrollTo(0,0);
-}
-async function decideRequest(id, status, email){
-  if(status==='rejected'){
-    const ok=await confirmModal('이 신청을 거절할까요?', (email||'')+' 님의 예전 신청이 거절 처리됩니다.', '거절');
-    if(!ok) return;
-    const { error } = await sb.from('signup_requests')
-      .update({ status, decided_by: state.user.id, decided_at: new Date().toISOString() }).eq('id', id);
-    if(error){ alert('처리 실패: '+error.message); return; }
-    renderRequests();
-    return;
-  }
-
-  // 승인: Edge Function이 (1) 계정 생성 + 초대 메일 발송 (2) 신청 상태 갱신까지 한 번에 처리한다.
-  //       계정 생성에는 service_role 키가 필요해 브라우저에서 직접 할 수 없다.
-  const ok=await confirmModal('가입을 승인할까요?',
-    `${email||''} 로 초대 메일이 발송되고 계정이 만들어집니다.\n초대 링크에서 비밀번호를 정하면 바로 로그인할 수 있어요.`, '승인');
-  if(!ok) return;
-  showBlockingLoader('계정을 만드는 중…');
-  try{
-    const { data, error } = await sb.functions.invoke('approve-signup', { body:{ id } });
-    hideBlockingLoader();
-    if(error || !data || !data.ok){
-      const m=(data && data.error) || (error && error.message) || '알 수 없는 오류';
-      alert('승인 실패: '+m+'\n\n(Edge Function `approve-signup` 배포와 SERVICE_KEY 설정을 확인하세요)');
-      return;
-    }
-    alert(data.invited
-      ? `승인 완료!\n${data.email} 로 초대 메일을 보냈어요. 링크에서 비밀번호를 설정하면 가입이 끝납니다.`
-      : `승인 완료!\n${data.note||'이미 계정이 있어 초대 메일은 보내지 않았습니다.'}`);
-  }catch(e){
-    hideBlockingLoader();
-    alert('승인 실패: '+((e&&e.message)||e));
-    return;
-  }
-  renderRequests();
-}
-
 /* ================== 시스템 검사 (admin) ==================
    · 검사 항목을 '한 번에 하나씩' 순차 실행하며 진행률 게이지를 갱신한다.
    · 결과는 섹션별 표(도표)로 정리. 상태 아이콘은 자체 SVG(이모지 폰트 의존 X).
@@ -8225,11 +8054,29 @@ function hsRow(label, st, detail){
   </tr>`;
 }
 
+/* ★세션 BN: 오류의 종류를 먼저 말한다 — 문구만 보고도 "어느 SQL을 안 돌렸는지 / 권한인지 / 정책인지"가 갈리도록. */
+function hsKind(err){
+  const msg=String((err&&err.message)||err||''), code=String((err&&err.code)||'');
+  if(code==='42P01' || /relation .+ does not exist|Could not find the table/i.test(msg)) return { k:'테이블 없음', st:'bad', hint:'마이그레이션 미적용' };
+  if(code==='42703' || /column .+ does not exist|Could not find the '.+' column/i.test(msg)) return { k:'컬럼 없음', st:'bad', hint:'뒤 번호 마이그레이션 미적용' };
+  if(code==='PGRST202' || code==='PGRST203' || code==='42883' || /could not find the function|function .+ does not exist/i.test(msg)) return { k:'함수 없음', st:'bad', hint:'SQL 미적용' };
+  if(code==='42501' || /permission denied/i.test(msg)) return { k:'권한(GRANT)', st:'bad', hint:'grant execute/select 필요 — 104 같은 재부여' };
+  if(/row-level security|violates row-level/i.test(msg)) return { k:'RLS 정책', st:'bad', hint:'정책이 이 역할을 막음' };
+  if(code==='PGRST301' || /JWT|jwt expired|invalid token/i.test(msg)) return { k:'인증(JWT)', st:'warn', hint:'다시 로그인' };
+  if(/Failed to fetch|NetworkError|Load failed/i.test(msg)) return { k:'네트워크', st:'warn', hint:'연결 확인' };
+  if(/Bucket not found/i.test(msg)) return { k:'버킷 없음', st:'bad', hint:'스토리지 버킷 미생성' };
+  if(/timeout|statement timeout/i.test(msg)) return { k:'시간 초과', st:'warn', hint:'느린 질의' };
+  return { k:'기타', st:'bad', hint:'' };
+}
+function hsErr(label, err){
+  const kind=hsKind(err); const msg=String((err&&err.message)||err||'');
+  return hsRow(label, kind.st, `[${kind.k}] ${msg}${kind.hint?' · '+kind.hint:''}`);
+}
 /* ── 개별 검사기 ── */
 async function chkTable(label, fn){
   try{ const { error } = await fn();
-    return error ? hsRow(label,'bad',error.message) : hsRow(label,'ok','읽기 정상'); }
-  catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+    return error ? hsErr(label, error) : hsRow(label,'ok','읽기 정상'); }
+  catch(e){ return hsErr(label, e); }
 }
 /* ★부작용 없는 함수 존재 확인 — 함수를 '호출'하지 않고 카탈로그에서 이름만 본다.
    (예전엔 set_my_bio('')를 실제로 불러서 검사할 때마다 한 줄 소개가 지워졌다.) */
@@ -8259,28 +8106,21 @@ async function chkRpc(label, name, args){
     const missing = code==='PGRST202' || code==='PGRST203' || code==='42883'
       || /could not find the function|schema cache/i.test(msg)
       || /function .+ does not exist/i.test(msg);
-    return missing ? hsRow(label,'bad','미배포 · '+msg)
-                   : hsRow(label,'ok','배포됨 (정상 거부: '+msg.slice(0,60)+')');
-  }catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+    if(missing) return hsErr(label, error);
+    if(/permission denied/i.test(msg) || code==='42501') return hsErr(label, error);
+    return hsRow(label,'ok','배포됨 (정상 거부: '+msg.slice(0,60)+')');
+  }catch(e){ return hsErr(label, e); }
 }
 async function chkBucket(label, bucket){
   try{ const { error } = await sb.storage.from(bucket).list('', { limit:1 });
-    return error ? hsRow(label,'bad',error.message) : hsRow(label,'ok','접근 가능'); }
-  catch(e){ return hsRow(label,'bad',String((e&&e.message)||e)); }
+    return error ? hsErr(label, error) : hsRow(label,'ok','접근 가능'); }
+  catch(e){ return hsErr(label, e); }
 }
-async function chkEdge(label, name, keys){
-  let res=null;
-  try{
-    const r = await fetch(`${SUPABASE_URL}/functions/v1/${name}?debug=1`,
-      { headers:{ apikey: SUPABASE_KEY, Authorization: 'Bearer '+SUPABASE_KEY } });
-    res = await r.json();
-  }catch(e){ return hsRow(label,'bad','응답 없음 · '+String(e)); }
-  if(!res || !res.diag) return hsRow(label,'bad',(res&&res.error)?res.error:'함수 응답 없음 (배포·이름·Verify JWT 확인)');
-  const parts = keys.map(k=>`${k}: ${res.diag[k]||'-'}`);
-  const ok = keys.every(k=>{ const v=String(res.diag[k]||''); return !/❌|없음|실패|예외/.test(v); });
-  return hsRow(label, ok?'ok':'bad', parts.join(' · '));
+/* 값까지 보는 검사 — fn이 {ok, detail} 을 돌려준다 */
+async function chkValue(label, fn){
+  try{ const r=await fn(); return hsRow(label, r.ok?'ok':(r.warn?'warn':'bad'), r.detail||''); }
+  catch(e){ return hsErr(label, e); }
 }
-
 /* ── Storage 전체 목록(폴더 재귀) ── */
 async function listBucketAll(bucket, prefix){
   prefix = prefix || '';
@@ -8416,7 +8256,6 @@ function healthTasks(){
       ['events (일정 49)',            ()=>chkTable('events (일정 49)', ()=>sb.from('events').select('id,title,at,color').limit(1))],
       ['feedback (피드백 59)',        ()=>chkTable('feedback (피드백 59)', ()=>sb.from('feedback').select('id,rating').limit(1))],
       ['events.is_todo / done (50)',  ()=>chkTable('events.is_todo / done (50)', ()=>sb.from('events').select('is_todo,done').limit(1))],
-      ['signup_requests (가입 신청)', ()=>chkTable('signup_requests (가입 신청)', ()=>sb.from('signup_requests').select('id').limit(1))],
       ['app_settings (설정)',         ()=>chkTable('app_settings (설정)', ()=>sb.from('app_settings').select('key').limit(1))],
     ]},
     { sec:'스키마 컬럼 (마이그레이션 적용 여부)', items:[
@@ -8486,9 +8325,72 @@ function healthTasks(){
       ['chat-images (채팅 사진 38)',   ()=>chkBucket('chat-images (채팅 사진 38)','chat-images')],
       ['question-images (질문 사진 31)', ()=>chkBucket('question-images (질문 사진 31)','question-images')],
     ]},
-    { sec:'엣지 함수', items:[
-      ['signup-request (가입 신청)', ()=>chkEdge('signup-request (가입 신청)','signup-request',['SERVICE_KEY','TURNSTILE_SECRET','db_test'])],
-      ['approve-signup (가입 승인·계정 생성)', ()=>chkEdge('approve-signup (가입 승인·계정 생성)','approve-signup',['SERVICE_KEY','SUPABASE_URL'])],
+    { sec:'가입 · 계정 (74 → 103)', items:[
+      ['signup_gate_mode — 가입 모드 (76)',       ()=>chkValue('signup_gate_mode — 가입 모드 (76)', async()=>{ const r=await sb.rpc('signup_gate_mode'); if(r.error) throw r.error; return { ok:true, detail:'현재 모드: '+String(r.data) }; })],
+      ['set_signup_gate — 가입 설정 저장 (76)',   ()=>chkFn('set_signup_gate — 가입 설정 저장 (76)','set_signup_gate')],
+      ['set_member_suspended — viewer 정지 (74)', ()=>chkFn('set_member_suspended — viewer 정지 (74)','set_member_suspended')],
+      ['handle_available — 활동명 중복 확인 (97)', ()=>chkFn('handle_available — 활동명 중복 확인 (97)','handle_available')],
+      ['ensure_my_profile / repair_missing_profiles (97)', ()=>chkFn('ensure_my_profile / repair_missing_profiles (97)','ensure_my_profile','repair_missing_profiles')],
+      ['signup_health — 가입 진단 (97)',          ()=>chkValue('signup_health — 가입 진단 (97)', async()=>{ const r=await sb.rpc('signup_health'); if(r.error) throw r.error; const d=r.data||{}; const o=Number(d.accounts_without_profile||0), dup=(d.duplicate_handles||[]).length; return { ok:!o && !dup, warn:true, detail:`프로필 없는 계정 ${o} · 중복 활동명 ${dup} · 트리거 ${(d.triggers_on_auth_users||[]).map(t=>t.trigger).join(', ')||'없음'}` }; })],
+      ['signup_log · signup_trigger_backup (98)', ()=>chkTable('signup_log · signup_trigger_backup (98)', ()=>sb.from('signup_log').select('id').limit(1))],
+      ['signup_gate_check / signup_last_error (98)', ()=>chkFn('signup_gate_check / signup_last_error (98)','signup_last_error')],
+      ['signup_precheck — 가입 전 검사 (103)',    ()=>chkValue('signup_precheck — 가입 전 검사 (103)', async()=>{ const r=await sb.rpc('signup_precheck', { p_invite:'anda-health-wrong-code' }); if(r.error) throw r.error; const m=await sb.rpc('signup_gate_mode'); const mode=m.data||'open'; if(mode==='code') return { ok:!!r.data, detail: r.data ? '틀린 코드 거부 정상: '+String(r.data) : '★틀린 코드를 통과시킴 — 103을 다시 실행' }; return { ok:true, detail:'모드 '+mode+' — 코드 검사 없음' }; })],
+      ['signup_gate_get — 현재 코드 읽기 (105)',   ()=>chkFn('signup_gate_get — 현재 코드 읽기 (105)','signup_gate_get')],
+    ]},
+    { sec:'시스템 · 설정 (82 → 105)', items:[
+      ['set_features — 기능 스위치 (82)',        ()=>chkValue('set_features — 기능 스위치 (82)', async()=>{ const r=await sb.rpc('rpc_exists', { p_name:'set_features' }); if(r.error) throw r.error; if(!r.data) return { ok:false, detail:'[함수 없음] 82_feature_flags.sql' }; return { ok:true, detail:'배포됨 (실행 권한은 저장 버튼으로 확인 — 막히면 104)' }; })],
+      ['migration_status — 적용 현황 (88)',      ()=>chkValue('migration_status — 적용 현황 (88)', async()=>{ const r=await sb.rpc('migration_status'); if(r.error) throw r.error; const rows=Array.isArray(r.data)?r.data:[]; const miss=rows.filter(x=>x && x.applied===false).map(x=>x.name||x.id); return { ok:!miss.length, warn:true, detail: rows.length? (miss.length?'미적용: '+miss.join(', '):'모두 적용') : '목록 비어 있음' }; })],
+      ['capacity_usage — 용량 (87)',            ()=>chkFn('capacity_usage — 용량 (87)','capacity_usage')],
+      ['set_site_config / public_site_config (사이트 정보)', ()=>chkFn('set_site_config / public_site_config (사이트 정보)','set_site_config','public_site_config')],
+      ['set_nudge_config (넛지)',                 ()=>chkFn('set_nudge_config (넛지)','set_nudge_config')],
+      ['set_focus_mode / focus_progress (집중 기간)', ()=>chkFn('set_focus_mode / focus_progress (집중 기간)','set_focus_mode','focus_progress')],
+      ['set_landing_docs (대문 추천 63)',        ()=>chkFn('set_landing_docs (대문 추천 63)','set_landing_docs')],
+      ['dev_log · upsert_dev_log (운영 일지)',   ()=>chkTable('dev_log · upsert_dev_log (운영 일지)', ()=>sb.from('dev_log').select('id').limit(1))],
+      ['prune_signup_log — 가입 기록 정리 (105)', ()=>chkFn('prune_signup_log — 가입 기록 정리 (105)','prune_signup_log')],
+    ]},
+    { sec:'대화방 · 작업 공간 (83)', items:[
+      ['channels (대화방)',            ()=>chkTable('channels (대화방)', ()=>sb.from('channels').select('id').limit(1))],
+      ['channel_members (구성원)',     ()=>chkTable('channel_members (구성원)', ()=>sb.from('channel_members').select('channel_id').limit(1))],
+      ['channel_items (작업 공간)',    ()=>chkTable('channel_items (작업 공간)', ()=>sb.from('channel_items').select('id').limit(1))],
+      ['messages.channel_id (83)',     ()=>chkTable('messages.channel_id (83)', ()=>sb.from('messages').select('channel_id').limit(1))],
+      ['channel_workspace / delete_channel', ()=>chkFn('channel_workspace / delete_channel','channel_workspace','delete_channel')],
+      ['list_posts / mark_post / post_stats (게시글)', ()=>chkFn('list_posts / mark_post / post_stats (게시글)','list_posts','mark_post')],
+      ['message_reactions.emoji — 자유 이모지 (105)', ()=>chkValue('message_reactions.emoji — 자유 이모지 (105)', async()=>{ const r=await sb.rpc('rpc_exists', { p_name:'reactions_free_emoji' }); if(r.error) throw r.error; return { ok:!!r.data, detail: r.data?'64종 이모지 저장 가능':'105 미적용 — 예전 4종만 저장됨(체크 제약이 남아 있을 수 있음)' }; })],
+    ]},
+    { sec:'회원 부가 (64 → 89)', items:[
+      ['member_extras — 커버색 (64)',   ()=>chkTable('member_extras — 커버색 (64)', ()=>sb.from('member_extras').select('id').limit(1))],
+      ['user_badges / sync_my_badges (배지)', ()=>chkFn('user_badges / sync_my_badges (배지)','sync_my_badges')],
+      ['contrib_log (잔디)',            ()=>chkTable('contrib_log (잔디)', ()=>sb.from('contrib_log').select('id').limit(1))],
+      ['get_monthly_mission / set_monthly_mission', ()=>chkFn('get_monthly_mission / set_monthly_mission','get_monthly_mission')],
+      ['get_rewind / set_rewind (리와인드)', ()=>chkFn('get_rewind / set_rewind (리와인드)','get_rewind')],
+      ['request_withdraw / list_withdraw_requests / approve_withdraw (탈퇴)', ()=>chkFn('request_withdraw / list_withdraw_requests / approve_withdraw (탈퇴)','request_withdraw','approve_withdraw')],
+      ['doc_task / task_board / my_tasks (과제)', ()=>chkFn('doc_task / task_board / my_tasks (과제)','task_board','my_tasks')],
+      ['doc_strata / set_doc_hidden',    ()=>chkFn('doc_strata / set_doc_hidden','doc_strata','set_doc_hidden')],
+      ['public_stats / public_tracks (소개 랜딩)', ()=>chkFn('public_stats / public_tracks (소개 랜딩)','public_stats','public_tracks')],
+      ['toggle_question_like / bump_question_view', ()=>chkFn('toggle_question_like / bump_question_view','toggle_question_like')],
+    ]},
+    { sec:'KYPT 연구 (92 → 102)', items:[
+      ['kypt_years · kypt_problems (92)',  ()=>chkTable('kypt_years · kypt_problems (92)', ()=>sb.from('kypt_problems').select('id,year,no').limit(1))],
+      ['kypt_members (92)',                ()=>chkTable('kypt_members (92)', ()=>sb.from('kypt_members').select('problem_id').limit(1))],
+      ['kypt_notes (92 · 끄적)',           ()=>chkTable('kypt_notes (92 · 끄적)', ()=>sb.from('kypt_notes').select('id').limit(1))],
+      ['kypt_refs · kypt_log (92)',         ()=>chkTable('kypt_refs · kypt_log (92)', ()=>sb.from('kypt_log').select('id').limit(1))],
+      ['kypt_entries (93 · 일지)',          ()=>chkTable('kypt_entries (93 · 일지)', ()=>sb.from('kypt_entries').select('id').limit(1))],
+      ['kypt_assets · kypt_asset_links (93 · 자료함)', ()=>chkTable('kypt_assets · kypt_asset_links (93 · 자료함)', ()=>sb.from('kypt_asset_links').select('asset_id').limit(1))],
+      ['kypt_problems.stage_done (94)',     ()=>chkTable('kypt_problems.stage_done (94)', ()=>sb.from('kypt_problems').select('stage_done').limit(1))],
+      ['kypt_todos (94 · 다음 할 일)',      ()=>chkTable('kypt_todos (94 · 다음 할 일)', ()=>sb.from('kypt_todos').select('id').limit(1))],
+      ['kypt_comments · kypt_reactions (95)', ()=>chkTable('kypt_comments · kypt_reactions (95)', ()=>sb.from('kypt_comments').select('id').limit(1))],
+      ['kypt_problems.title_ko (96)',       ()=>chkTable('kypt_problems.title_ko (96)', ()=>sb.from('kypt_problems').select('title_ko').limit(1))],
+      ['kypt_reviews (99 · 검토)',          ()=>chkTable('kypt_reviews (99 · 검토)', ()=>sb.from('kypt_reviews').select('id').limit(1))],
+      ['kypt_milestones (101 · 단계별 마감)', ()=>chkTable('kypt_milestones (101 · 단계별 마감)', ()=>sb.from('kypt_milestones').select('problem_id').limit(1))],
+      ['kypt_problems.statement_en (102 · 원문)', ()=>chkTable('kypt_problems.statement_en (102 · 원문)', ()=>sb.from('kypt_problems').select('statement_en').limit(1))],
+      ['kypt_refkit (102 · 레퍼런스 키트)', ()=>chkValue('kypt_refkit (102 · 레퍼런스 키트)', async()=>{ const r=await sb.from('kypt_refkit').select('id',{count:'exact',head:true}); if(r.error) throw r.error; return { ok:(r.count||0)>0, warn:true, detail:(r.count||0)+'건 (키트 기준 553)' }; })],
+      ['kypt_refkit.pinned_at · kypt_refkit_stars (102 재실행)', ()=>chkTable('kypt_refkit.pinned_at · kypt_refkit_stars (102 재실행)', ()=>sb.from('kypt_refkit_stars').select('ref_id').limit(1))],
+      ['kypt_refkit_reads (102 · 읽음)',    ()=>chkTable('kypt_refkit_reads (102 · 읽음)', ()=>sb.from('kypt_refkit_reads').select('ref_id').limit(1))],
+      ['kypt_set_members / kypt_can_edit (92·96)', ()=>chkFn('kypt_set_members / kypt_can_edit (92·96)','kypt_set_members','kypt_can_edit')],
+      ['kypt_feed / kypt_mark_read / kypt_digest (97·100)', ()=>chkFn('kypt_feed / kypt_mark_read / kypt_digest (97·100)','kypt_feed','kypt_mark_read','kypt_digest')],
+      ['kypt_save_field (93 · 칸 저장)',    ()=>chkFn('kypt_save_field (93 · 칸 저장)','kypt_save_field')],
+      ['kypt_review_done (99)',             ()=>chkFn('kypt_review_done (99)','kypt_review_done')],
+      ['kypt 버킷 (자료함 파일)',           ()=>chkBucket('kypt 버킷 (자료함 파일)','kypt')],
     ]},
   ];
 }
@@ -8499,7 +8401,7 @@ async function renderHealth(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템 검사</h1>
       <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">모든 자원(테이블·컬럼·RPC·스토리지·엣지 함수)을 하나씩 검사합니다. 문제 줄이 곧 원인입니다.</div>
+    <div class="doc-meta">테이블·컬럼·RPC·스토리지를 마이그레이션 번호별로 하나씩 검사합니다. 실패 줄의 [종류]가 곧 처방입니다 — 테이블·컬럼·함수 없음은 그 번호의 SQL 미적용, 권한(GRANT)은 재부여, RLS 정책은 정책 수정.</div>
     <div class="hs-prog" id="hsProg">
       <div class="hs-prog-top"><b id="hsProgLabel">검사 준비 중…</b><span id="hsProgNum">0 / ${total}</span></div>
       <div class="hs-track"><div class="hs-fill" id="hsFill" style="width:0%"></div></div>
@@ -8573,9 +8475,63 @@ async function renderMaintenance(target){
           <td id="gcChatMsg" class="hs-dt">${gcAt?('마지막 자동 정리: '+escapeHtml(fmtKST(new Date(gcAt).toISOString()))):'아직 자동 정리 기록이 없어요.'}</td>
           <td><button class="abtn" id="gcChatBtn">${ic('refresh')}지금 실행</button></td>
         </tr>
+        <tr>
+          <td><b>프로필 없는 계정 복구</b><div class="hs-note">가입은 됐는데 프로필이 안 만들어진 계정(97·98)</div></td>
+          <td id="mtProfMsg" class="hs-dt">아직 검사하지 않았어요.</td>
+          <td><button class="abtn" id="mtProfBtn">${ic('refresh')}복구</button></td>
+        </tr>
+        <tr>
+          <td><b>가입 기록 정리</b><div class="hs-note">signup_log 30일 지난 줄 (98 · 105)</div></td>
+          <td id="mtLogMsg" class="hs-dt">—</td>
+          <td><button class="abtn" id="mtLogBtn">${ic('broom')}정리</button></td>
+        </tr>
+        <tr>
+          <td><b>KYPT 자료함 안 쓰는 파일</b><div class="hs-note">kypt 버킷에 있지만 어느 자료(kypt_assets)에도 안 잡힌 파일</div></td>
+          <td id="mtKyptMsg" class="hs-dt">아직 검사하지 않았어요.</td>
+          <td><button class="abtn" id="mtKyptBtn">${ic('broom')}찾기</button></td>
+        </tr>
       </table>
       <div id="gcDocList"></div>
+      <div id="mtKyptList"></div>
     </section>`);
+
+  /* ★세션 BN: 그동안 더해진 시스템의 정리 항목 */
+  $('#mtProfBtn').onclick=async()=>{
+    const msg=$('#mtProfMsg'); msg.textContent='복구 중…';
+    try{
+      const r=await sb.rpc('repair_missing_profiles'); if(r.error) throw r.error;
+      const d=r.data||{}; msg.innerHTML = d.ok ? `${icOk()} 복구 ${Number(d.repaired||0)}명` : `${icWarn()} ${escapeHtml(String(d.reason||'실패'))}`;
+    }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))} (97_signup_repair.sql)`; }
+  };
+  $('#mtLogBtn').onclick=async()=>{
+    const msg=$('#mtLogMsg'); msg.textContent='정리 중…';
+    try{
+      const r=await sb.rpc('prune_signup_log', { p_days:30 }); if(r.error) throw r.error;
+      msg.innerHTML=`${icOk()} ${Number(r.data||0)}줄 지웠어요.`;
+    }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))} (105_admin_tools.sql)`; }
+  };
+  $('#mtKyptBtn').onclick=async()=>{
+    const msg=$('#mtKyptMsg'), list=$('#mtKyptList'); msg.textContent='kypt 버킷과 kypt_assets를 대조하는 중…'; list.innerHTML='';
+    try{
+      const files=await listBucketAll('kypt','');
+      const { data, error } = await sb.from('kypt_assets').select('storage_path,url'); if(error) throw error;
+      const used=new Set(); (data||[]).forEach(a=>{ if(a.storage_path) used.add(String(a.storage_path)); if(a.url) used.add(String(a.url)); });
+      const orphans=files.filter(f=>![...used].some(u=>u===f.path || u.endsWith('/'+f.path) || u.includes(f.path)));
+      if(!orphans.length){ msg.innerHTML=`${icOk()} 파일 ${files.length}개 모두 사용 중 — 정리할 게 없어요.`; return; }
+      const total=orphans.reduce((a,f)=>a+(f.size||0),0);
+      msg.innerHTML=`${icWarn()} 안 쓰는 파일 <b>${orphans.length}개</b> · ${escapeHtml(fmtBytes(total))} (전체 ${files.length}개 중)`;
+      list.innerHTML=`<table class="hs-table"><tr><th>경로</th><th style="width:90px">크기</th></tr>`
+        + orphans.slice(0,20).map(f=>`<tr><td class="hs-path">${escapeHtml(f.path)}</td><td class="y">${escapeHtml(fmtBytes(f.size||0))}</td></tr>`).join('')
+        + (orphans.length>20?`<tr><td colspan="2" class="hs-dt">… 외 ${orphans.length-20}개</td></tr>`:'')
+        + `</table><button class="abtn danger" id="mtKyptDel" style="margin-top:8px">${ic('trash')}${orphans.length}개 삭제</button>`;
+      $('#mtKyptDel').onclick=async()=>{
+        const ok=await confirmModal('안 쓰는 KYPT 파일을 삭제할까요?', `${orphans.length}개 · ${fmtBytes(total)}. 어느 자료에도 연결되지 않은 파일입니다.`, '삭제'); if(!ok) return;
+        msg.textContent='삭제 중…';
+        try{ const { error:de } = await sb.storage.from('kypt').remove(orphans.map(f=>f.path)); if(de) throw de; msg.innerHTML=`${icOk()} ${orphans.length}개 삭제했어요.`; list.innerHTML=''; }
+        catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}`; }
+      };
+    }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}`; }
+  };
 
   $('#gcDocBtn').onclick=async()=>{
     const msg=$('#gcDocMsg'), list=$('#gcDocList');
@@ -8669,6 +8625,9 @@ async function renderSysFocus(){
 async function renderSysSignup(){
   let mode='open';
   try{ const { data, error } = await sb.rpc('signup_gate_mode'); if(!error) mode=data||'open'; }catch(e){ mode=null; }
+  /* ★세션 BN: 현재 초대 코드를 owner에게 보여 준다(105 signup_gate_get). 105 미적용이면 빈 칸 + 안내. */
+  let curCode='', codeNote='';
+  try{ const g=await sb.rpc('signup_gate_get'); if(!g.error && g.data){ curCode=String(g.data.code||''); } else codeNote='현재 코드를 읽으려면 105_admin_tools.sql이 필요해요.'; }catch(e){ codeNote='현재 코드를 읽으려면 105_admin_tools.sql이 필요해요.'; }
   if(mode===null){
     $('#doc').innerHTML=`<div class="doc-head"><h1>가입 설정</h1><div class="tabs"><button id="sgBack">${ic('back')}시스템</button></div></div>
       <p>가입 문턱 기능이 아직 배포되지 않았습니다. (76_signup_gate.sql 실행 필요)</p>`;
@@ -8687,7 +8646,8 @@ async function renderSysSignup(){
       ${opt('closed','가입을 받지 않아요','가입 버튼이 잠깁니다. owner가 직접 계정을 만들 때.')}
       <div id="sgCodeBox" style="margin-top:14px;${mode==='code'?'':'display:none'}">
         <label class="nd-label">초대 코드</label>
-        <input class="he-input" id="sgCode" type="text" maxlength="40" placeholder="예: andamiro-2026" spellcheck="false" autocomplete="off" style="max-width:320px">
+        <input class="he-input" id="sgCode" type="text" maxlength="40" value="${escapeAttr(curCode)}" placeholder="예: andamiro-2026" spellcheck="false" autocomplete="off" style="max-width:320px">
+        ${curCode?`<div class="doc-meta" style="margin-top:6px">지금 쓰이는 코드: <b>${escapeHtml(curCode)}</b> — 부원에게 이 코드를 알려 주세요.</div>`:codeNote?`<div class="ch-note" style="margin-top:6px">${escapeHtml(codeNote)}</div>`:''}
         <div class="doc-meta" style="margin-top:6px">대소문자는 구분하지 않아요. 코드가 새어나갔다 싶으면 여기서 바꾸면 즉시 반영됩니다. (이미 가입한 회원에겐 영향 없어요)</div>
       </div>
     </section>
@@ -8839,7 +8799,6 @@ async function renderSysFeatures(){
       ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
       ['landing_extras', '대문 곁가지',            '최근 활동 피드 · 누적 통계 · 오늘의 문서 타일.'],
       ['pwa_banner',     '앱 설치 배너',           '홈 화면 설치 안내. 꺼도 브라우저 메뉴로 직접 설치는 가능해요.'],
-      ['photo_wall',     '대문 사진 벽',           '대문 맨 위 사진 모자이크. 사진은 owner만 올릴 수 있어요 (90_landing_wall.sql 필요).'],
       ['history',        '연혁',                   '동아리의 발자취 — 타임라인과 A 속 구슬. ★기본 켬(운영진 결정). 내용 편집은 91_history.sql 필요, 화면은 없이도 보여요.'],
     ]},
   ];
@@ -8910,21 +8869,19 @@ async function renderSystem(){
   if(!guardPage('system_access')) return;
   const items=[
     { owner:true,          hash:'#//system/features', ic:'check', t:'기능 켜기/끄기',        d:'커뮤니티·질문·쪽지·캘린더·과제 등 모듈을 개별로 켜고 끕니다. 끄면 화면에서만 사라지고 데이터는 남아요.' },
-    { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지의 최대 글자수와 사진 용량을 조정합니다.' },
+    { cap:'system_limits', hash:'#//system/limits', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지·문서·KYPT(끄적·요약·일지·자료 파일)·피드백의 글자수와 용량을 조정합니다.' },
     { owner:true,          hash:'#//system/perms',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
-    { owner:true,          hash:'#//system/wall',   ic:'image', t:'대문 사진 벽',            d:'사진을 올리고 순서를 정합니다. ★지금은 대문에 표시하지 않습니다(세션 AW) — 자료는 그대로 남아 있어요.' },
     { owner:true,          hash:'#//system/landing', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
     { owner:true,          hash:'#//system/site',   ic:'home',  t:'사이트 정보',            d:'사이트 이름·소속·미션 문구. 소개 랜딩과 상단 로고 옆 이름에 쓰입니다.' },
     { owner:true,          hash:'#//system/nudges', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
     { owner:true,          hash:'#//system/signup', ic:'users', t:'가입 설정',              d:'누가 가입할 수 있는지 정합니다. 초대 코드 · 누구나 · 가입 중단.' },
     { owner:true,          hash:'#//system/focus',  ic:'check', t:'연구 집중 기간',         d:'기간을 켜면 대문 맨 위에 남은 날짜와 과제 진행률이 뜹니다.' },
-    { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·RPC·스토리지·엣지 함수를 전수 점검합니다.' },
+    { cap:'system_health', hash:'#//health',        ic:'check', t:'시스템 검사',            d:'테이블·컬럼·RPC·스토리지를 마이그레이션 번호별로 전수 점검하고, 실패는 종류(테이블 없음·권한·정책…)까지 짚어 줍니다.' },
     { cap:'admin_access',  hash:'#//admin',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
     { cap:'track_read',    hash:'#//system/tracks', ic:'edit',  t:'계열 목록',              d:'계열별 회원을 보고, 권한이 있으면 이름·색을 수정합니다.' },
-    { cap:'signup_review', hash:'#//requests',      ic:'inbox', t:'예전 가입 신청',         d:'이제 회원 가입은 즉시 처리됩니다. 이 화면은 예전 승인제 시절의 남은 신청만 정리합니다.' },
     { cap:'feedback_read', hash:'#//feedback/review', ic:'heart', t:'피드백 검토',           d:'회원들이 보낸 별점·의견을 모아 봅니다.' },
-    { cap:'system_maint',  hash:'#//system/maint',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진 정리, 채팅 사진 30일 정리.' },
+    { cap:'system_maint',  hash:'#//system/maint',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진·채팅 사진 정리, 프로필 없는 계정 복구, 가입 기록 정리, KYPT 자료함 안 쓰는 파일.' },
   ].filter(it => it.owner ? isOwner() : can(it.cap));
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템</h1>
@@ -8956,6 +8913,12 @@ const LIMIT_FIELDS = [
   { group:'쪽지',          chars:'lim_dm_chars',   kb:'lim_dm_img_kb',   kbLabel:'사진 1장' },
   { group:'문서',          chars:null,             kb:'lim_doc_img_kb',  kbLabel:'사진 1장',
     kb2:'lim_doc_total_kb', kb2Label:'문서 1개의 사진 합계' },
+  { group:'KYPT 끄적 · 빠른 메모', chars:'lim_kypt_note_chars',    kb:null, note:'끄적 탭과 폰의 빠른 메모 한 줄' },
+  { group:'KYPT 레퍼런스 요약',  chars:'lim_kypt_summary_chars', kb:null, note:'레퍼런스 키트 옆 칸의 공동 요약' },
+  { group:'KYPT 일지 한 칸',     chars:'lim_kypt_field_chars',   kb:null, note:'실험 기록 8칸 각각 (자동 저장)' },
+  { group:'KYPT 의견',           chars:'lim_kypt_comment_chars', kb:null, note:'피드백 탭·자료 의견 한 개' },
+  { group:'KYPT 자료함 파일',    chars:null,                     kb:'lim_kypt_file_kb', kbLabel:'파일 1개 (KB · 기본 20480 = 20MB)', kbMax:102400 },
+  { group:'앱 피드백',           chars:'lim_feedback_chars',     kb:null, note:'[피드백 보내기]의 의견' },
 ];
 async function renderSysLimits(){
   await loadLimits();
@@ -8972,17 +8935,17 @@ async function renderSysLimits(){
             <td>${f.chars
               ? `<input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자`
               : '<span class="muted">—</span>'}</td>
-            <td>
-              <input class="lim-in" type="number" min="5" max="500" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB
-              <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span>
+            <td>${f.kb ? `
+              <input class="lim-in" type="number" min="5" max="${f.kbMax||500}" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB
+              <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span>` : '<span class="muted">—</span>'}
               ${f.kb2 ? `<div style="margin-top:5px">
                 <input class="lim-in" type="number" min="100" max="20000" data-k="${f.kb2}" value="${LIMITS[f.kb2]}"> KB
                 <span class="hs-note" style="display:inline">(${escapeHtml(f.kb2Label)})</span></div>` : ''}
             </td>
-            <td class="hs-dt">${f.kb2
+            <td class="hs-dt">${f.note ? escapeHtml(f.note) : f.kb2
               ? '사진 1장은 이 용량으로 자동 압축돼요. 문서 1개에 넣을 수 있는 사진 수는 <b>합계 ÷ 1장 용량</b>으로 제한됩니다.'
               : (f.kbLabel==='사진 합계' ? '질문 1건의 사진을 합쳐 이 용량에 맞게 자동 압축'
-                                        : '사진 1장을 이 용량에 맞게 자동 압축')}</td>
+                                        : (f.kb==='lim_kypt_file_kb' ? '넘는 파일은 올라가지 않아요(압축 없음). 긴 영상은 YouTube 미등록 링크로.' : '사진 1장을 이 용량에 맞게 자동 압축'))}</td>
           </tr>`).join('')}
       </table>
       <div class="sys-actions">
@@ -9013,7 +8976,7 @@ async function renderSysMaint(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>유지 보수</h1>
       <div class="tabs"><button id="smBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">저장 공간을 정리합니다. 채팅 사진은 관리자가 접속하면 하루 한 번 자동 정리돼요.</div>
+    <div class="doc-meta">저장 공간과 데이터를 정리합니다. 채팅 사진은 관리자가 접속하면 하루 한 번 자동 정리돼요.</div>
     <div id="sysMaint"></div>`;
   $('#smBack').onclick=()=>{ location.hash='#//system'; };
   renderMaintenance('#sysMaint');
@@ -9403,6 +9366,8 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-10', text:'[대화방] 반응 이모지가 64종으로 늘었고 [+] 버튼과 창이 새 모양이에요. 내 말풍선은 상징색 톤으로, 회색 테두리와 선은 정리했습니다. 이름·사진을 눌러도 프로필로 넘어가지 않아요.' },
+  { date:'2026-09-10', text:'[시스템] 대문 사진 벽과 예전 가입 신청 화면을 없앴어요. 기능 스위치·상한(KYPT·피드백 6종)·권한(KYPT 관리)·가입 설정(현재 초대 코드 표시)·시스템 검사(마이그레이션 번호별 138항목, 실패 종류 표시)·유지 보수(프로필 복구·가입 기록·KYPT 파일 정리)를 지금 기능에 맞게 갱신했습니다.' },
   { date:'2026-09-10', text:'[KYPT·폰] 문제 화면이 폰에서 훨씬 단정해졌어요 — 탭은 옆으로 미는 띠(글자가 더는 쪼개지지 않아요), 긴 설명은 [?]를 눌러야 보이고, 어느 탭에 있든 화면 아래 한 줄에 쓰고 Enter 하면 끄적에 남습니다.' },
   { date:'2026-09-10', text:'[KYPT] 문제 안에서 아무 글자나 치면 바로 그 탭의 입력칸에 써져요(현황 제외). 연구일지·자료함에선 링크를 Ctrl+V만 해도 들어갑니다. ←→ 키로 탭을 옮기고, 현황의 단계별 마감은 접혀 있다가 목록의 [날짜 정하기]로 들어오면 열립니다.' },
   { date:'2026-09-10', text:'회원 가입이 다시 됩니다. 초대 코드가 틀리거나 비어 있으면 가입 버튼을 누르는 순간 그 이유가 바로 보여요.' },
@@ -9541,7 +9506,7 @@ async function renderFeedback(){
       <div class="fb-rate-txt" id="fbRateTxt">별을 눌러 점수를 매겨주세요</div>
 
       <label class="nd-label">피드백 내용</label>
-      <textarea class="ct-ta" id="fbBody" maxlength="1000" placeholder="좋았던 점, 불편했던 점, 있었으면 하는 기능… (5~1000자)"></textarea>
+      <textarea class="ct-ta" id="fbBody" maxlength="${LIMITS.lim_feedback_chars}" placeholder="좋았던 점, 불편했던 점, 있었으면 하는 기능… (5~${LIMITS.lim_feedback_chars}자)"></textarea>
 
       <label class="cp-chk" style="margin-top:8px">
         <input type="checkbox" id="fbAnon">
@@ -10592,251 +10557,6 @@ function welcomeHTML(force){
   </div>`;
 }
 
-/* ================== 대문 사진 벽 (90 · 세션 AO 후반) ==================
-   시안: 크기가 섞인 모자이크 콜라주. 6·9·12장 권장, 최대 12장.
-   저장 구조는 Storage 버킷 'landing' 하나가 전부다:
-     wall/<이름>.webp — 사진 (owner가 업로드, 브라우저에서 300KB 이하로 압축)
-     wall.json        — 사진 목록+순서 (진실의 원천 — 표를 만들지 않았다)
-   쓰기는 스토리지 RLS가 owner로 강제. 화면 버튼은 UI 통제일 뿐이다(규칙 17). */
-const WALL_BUCKET='landing';
-const WALL_MAX=12;
-const WALL_TARGET_KB=300;   // ★사용자 결정(세션 AO): 사진당 300KB 이내로 자동 변환
-const WALL_DIM=2000;        // 긴 변 상한(px) — 화면용으로 충분히 선명하다
-let _wallErr=null;
-
-async function loadWallCfg(){
-  try{
-    const { data, error } = await sb.storage.from(WALL_BUCKET).download('wall.json');
-    if(error) throw error;
-    const cfg = JSON.parse(await data.text());
-    _wallErr=null;
-    if(!cfg || !Array.isArray(cfg.photos)) return { photos: [], interval: 5 };
-    /* ★예전 형식(경로 문자열)과 새 형식({path,size})을 모두 받는다 — 저장할 때 새 형식으로 통일 */
-    const photos = cfg.photos
-      .map(p => (typeof p==='string') ? { path:p, size:'auto' } : { path:String(p.path||''), size:p.size||'auto' })
-      .filter(p => p.path);
-    /* 슬라이드 전환 간격(초) — owner가 관리 모달에서 조절, 기본 5초, 2~20으로 잘라낸다 */
-    const interval = Math.max(2, Math.min(20, Number(cfg.interval) || 5));
-    return { photos, interval };
-  }catch(e){
-    /* 90 미적용(버킷 없음)과 '아직 사진 없음'이 여기로 온다 — 우아한 실패.
-       오류는 보관해서 owner에게만 이유를 말한다(세션 W 교훈). */
-    _wallErr = e || null;
-    return null;
-  }
-}
-function wallUrl(p){
-  try{ return sb.storage.from(WALL_BUCKET).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; }
-}
-function wallHTML(cfg){
-  if(!featOn('photo_wall')) return '';
-  if(cfg===null || cfg===undefined){
-    return isOwner()
-      ? `<p class="pw-off">대문 사진 벽이 아직 준비되지 않았어요 — 처음이면 <code>90_landing_wall.sql</code>을 실행한 뒤
-         <button class="pw-edit-link" id="pwEditEmpty">사진 올리기 →</button></p>`
-      : '';
-  }
-  const ph=(cfg.photos||[]).slice(0,WALL_MAX);
-  if(!ph.length){
-    return isOwner()
-      ? `<p class="pw-off">대문 사진 벽이 비어 있어요. <button class="pw-edit-link" id="pwEditEmpty">사진 올리기 →</button></p>`
-      : '';
-  }
-  /* 크기 지정: 하나라도 직접 정했으면 수동 모드 — 전용 패턴을 끄고 지정값만 쓴다.
-     전부 '자동'이면 6·9·12 전용 패턴이 직사각형을 꽉 채운다.
-     ★클래스명을 조립하지 않는다 — 죽은 CSS 감지(T52)가 못 따라간다 */
-  const SZ_CLS={ big:'pw-big', wide:'pw-wide', tall:'pw-tall', small:'' };
-  const manual = ph.some(p=>p.size && p.size!=='auto');
-  const pat = manual ? '' : (ph.length>=12 ? 'pw-n12' : ph.length>=9 ? 'pw-n9' : ph.length>=6 ? 'pw-n6' : '');
-  const siteName=(document.querySelector('.brand-text')||{}).textContent||'안다 아카이브';
-  return `
-    <div class="pw-head">
-      <p class="pw-eyebrow">우리의 기록</p>
-      <h2 class="pw-title">${escapeHtml(siteName)}에 오신 것을 환영해요</h2>
-      <p class="pw-sub">함께 쌓아온 순간들이에요. 오늘 할 일과 문서는 사진 아래에서 이어집니다.</p>
-    </div>
-    <div class="pwall${pat?' '+pat:''}" id="pWall" data-interval="${escapeAttr(String(cfg.interval||5))}">
-      ${ph.map(p=>`<div class="pw-t${(manual&&SZ_CLS[p.size])?' '+SZ_CLS[p.size]:''}"><img loading="lazy" alt="동아리 사진" src="${escapeAttr(wallUrl(p.path))}"></div>`).join('')}
-      ${isOwner()?`<button class="pw-edit" id="pwEdit" title="사진 벽 관리">${ic('edit')}사진 관리</button>`:''}
-    </div>`;
-}
-
-/* 상시 슬라이드쇼 — 사진이 한 장씩 꽉 채워(cover) 느리게 줌되며 계속 순환한다.
-   (세션 AO 후반 4: '접속당 1회 인트로'를 상시 순환으로 교체 — 사용자 결정)
-   · 전환 크로스페이드 0.9초(2배 느리게) · 장당 표시 기본 5초, owner가 wall.json에서 2~20초 조절
-   · 슬라이드를 누르면 전체 모자이크로 정착 (페이지 스크롤·키 입력은 방해하지 않는다)
-   · fx '전부 끄기'/reduced-motion에서는 처음부터 모자이크만 보인다 */
-function playWallIntro(){
-  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  if(document.body.classList.contains('fx-flat')) return;
-  const wall=document.getElementById('pWall'); if(!wall) return;
-  const srcs=[...wall.querySelectorAll('.pw-t img')].map(im=>im.src).filter(Boolean);
-  if(srcs.length<2) return;                           // 한 장이면 연출할 게 없다
-  const ITER = Math.max(2, Math.min(20, Number(wall.dataset.interval) || 5)) * 1000;
-  const FADE = 900;                                   // CSS의 .pwi-img transition과 같은 값
-  wall.classList.add('pw-showing');
-  const ov=document.createElement('div');
-  ov.className='pw-intro';
-  ov.innerHTML='<img class="pwi-img pwi-a" alt=""><img class="pwi-img pwi-b" alt=""><div class="pwi-shine"></div>'
-    +'<div class="pwi-dots">'+srcs.map(()=>'<span class="pwi-dot"></span>').join('')+'</div>'
-    +'<span class="pwi-hint">누르면 전체 사진이 보여요</span>';
-  wall.appendChild(ov);
-  const A=ov.querySelector('.pwi-a');
-  const B=ov.querySelector('.pwi-b');
-  const dots=[...ov.querySelectorAll('.pwi-dot')];
-  /* 줌·빛줄기 길이를 간격에 맞춘다 — 간격을 바꿔도 리듬이 유지된다 */
-  const kenDur=((ITER+FADE)/1000+0.5)+'s';
-  A.style.animationDuration=kenDur;
-  B.style.animationDuration=kenDur;
-  ov.querySelector('.pwi-shine').style.animationDuration=((ITER+FADE)/1000)+'s';
-  const timers=[];
-  let useA=true;
-  let i=0;
-  let done=false;
-  const finish=()=>{                                  // 눌렀거나 화면을 떠났거나 — 모자이크로 정착
-    if(done) return;
-    done=true;
-    timers.forEach(clearTimeout);
-    window.removeEventListener('hashchange', finish);
-    ov.classList.add('out');
-    wall.classList.remove('pw-showing');
-    setTimeout(()=>{ if(ov.isConnected) ov.remove(); }, 700);
-  };
-  ov.addEventListener('click', finish);
-  window.addEventListener('hashchange', finish);
-  const step=()=>{
-    if(done) return;
-    if(document.hidden){ timers.push(setTimeout(step, 1000)); return; }   // 숨은 탭에선 넘기지 않는다
-    const el=useA?A:B;
-    const other=useA?B:A;
-    el.src=srcs[i];
-    el.classList.add('on');
-    other.classList.remove('on');
-    dots.forEach((d,k)=>d.classList.toggle('on', k===i));
-    i=(i+1)%srcs.length;                              // ★끝나도 처음으로 — 계속 순환한다
-    useA=!useA;
-    timers.push(setTimeout(step, ITER));
-  };
-  timers.push(setTimeout(step, 250));
-}
-
-/* 사진 벽 관리 (owner) — 추가·순서·삭제. 업로드는 [저장]을 눌렀을 때 한 번에. */
-async function openWallManager(){
-  if(!isOwner()) return;
-  const cfg = await loadWallCfg();
-  const items = ((cfg && cfg.photos) || []).slice(0, WALL_MAX).map(p=>({ path:p.path, size:p.size||'auto' }));
-  const orig = items.map(it=>it.path);
-  const interval0 = (cfg && cfg.interval) || 5;
-  const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box" style="max-width:520px">
-    <div class="modal-msg">대문 사진 벽</div>
-    <div class="modal-sub"><b>6 · 9 · 12장</b>이 가장 보기 좋아요 (최대 ${WALL_MAX}장).
-      올릴 때 자동으로 사진당 ${WALL_TARGET_KB}KB 이하로 줄입니다 — 용량 걱정 없이 올리세요.<br>
-      사진마다 <b>칸 크기</b>를 정할 수 있어요. 하나라도 직접 정하면 나머지 '자동'은 작게(1×1)로 깔립니다.</div>
-    ${cfg===null?`<p class="ch-note">저장소를 읽지 못했어요 — 처음이면 <code>90_landing_wall.sql</code>을 먼저 실행하세요.
-      ${_wallErr&&_wallErr.message?`<br>원인: ${escapeHtml(String(_wallErr.message))}`:''}</p>`:''}
-    <div class="pwm-grid" id="pwmGrid"></div>
-    <div class="ch-actrow">
-      <button class="ch-act" id="pwmAdd">＋ 사진 추가</button>
-      <input type="file" id="pwmFile" accept="image/*" multiple style="display:none">
-    </div>
-    <label class="nd-label">슬라이드 전환 간격 <span style="color:var(--text-dim);font-weight:400">(초 · 2~20)</span></label>
-    <input class="he-input" id="pwmIter" type="number" min="2" max="20" step="1" value="${escapeAttr(String(interval0))}" style="max-width:120px">
-    <div class="he-msg" id="pwmMsg"></div>
-    <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="modal-ok">저장</button></div>
-  </div>`;
-  document.body.appendChild(ov);
-  const close=()=>{ items.forEach(it=>{ if(it.blobUrl) URL.revokeObjectURL(it.blobUrl); }); ov.remove(); };
-  ov.querySelector('.modal-cancel').onclick=close;
-  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
-  const grid=ov.querySelector('#pwmGrid');
-  const msg=ov.querySelector('#pwmMsg');
-  /* 크기: 자동이면 6·9·12 전용 패턴. 하나라도 직접 정하면 수동 모드가 되어
-     '자동'인 나머지는 작게(1×1)로 깔린다 — 섞으면 패턴이 어긋나기 때문. */
-  const SZ_OPTS=[ ['auto','자동'], ['big','크게 (2×2)'], ['wide','가로로 길게'], ['tall','세로로 길게'], ['small','작게'] ];
-  const draw=()=>{
-    grid.innerHTML = items.length ? items.map((it,i)=>`
-      <div class="pwm-row">
-        <img src="${escapeAttr(it.blobUrl || wallUrl(it.path))}" alt="">
-        <span class="pwm-n">${escapeHtml(it.file ? it.file.name : String(it.path||'').split('/').pop())}${it.file?' <b>(새 사진)</b>':''}</span>
-        <span class="usel"><select class="pwm-sz" data-sz="${i}" title="이 사진의 칸 크기">
-          ${SZ_OPTS.map(([v,l])=>`<option value="${v}"${it.size===v?' selected':''}>${l}</option>`).join('')}
-        </select></span>
-        <button class="pwm-b" data-up="${i}" title="위로">↑</button>
-        <button class="pwm-b" data-dn="${i}" title="아래로">↓</button>
-        <button class="pwm-b danger" data-rm="${i}" title="빼기">✕</button>
-      </div>`).join('') : '<p class="ch-note" style="margin:4px 0">아직 사진이 없어요 — [＋ 사진 추가]를 눌러보세요.</p>';
-    grid.querySelectorAll('[data-sz]').forEach(s=>s.onchange=()=>{ items[Number(s.dataset.sz)].size=s.value; });
-    grid.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.up);
-      if(i>0){ const t=items[i-1]; items[i-1]=items[i]; items[i]=t; draw(); } });
-    grid.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.dn);
-      if(i<items.length-1){ const t=items[i+1]; items[i+1]=items[i]; items[i]=t; draw(); } });
-    grid.querySelectorAll('[data-rm]').forEach(b=>b.onclick=()=>{ const i=Number(b.dataset.rm);
-      const it=items.splice(i,1)[0]; if(it && it.blobUrl) URL.revokeObjectURL(it.blobUrl); draw(); });
-  };
-  draw();
-  const fileIn=ov.querySelector('#pwmFile');
-  ov.querySelector('#pwmAdd').onclick=()=>fileIn.click();
-  fileIn.onchange=()=>{
-    const fs=[...(fileIn.files||[])];
-    fileIn.value='';
-    for(const f of fs){
-      if(items.length>=WALL_MAX){ msg.className='msg err'; msg.textContent=`최대 ${WALL_MAX}장까지예요.`; break; }
-      items.push({ file:f, blobUrl:URL.createObjectURL(f), size:'auto' });
-    }
-    draw();
-  };
-  ov.querySelector('.modal-ok').onclick=async()=>{
-    const okb=ov.querySelector('.modal-ok');
-    const addb=ov.querySelector('#pwmAdd');
-    okb.disabled=true;
-    addb.disabled=true;
-    msg.className='msg';
-    try{
-      const newCount=items.filter(it=>!it.path).length;
-      /* ★"잠시만 기다리세요" + 예상 시간 — 첫 장은 장당 3초로 어림하고,
-         한 장 끝날 때마다 실제 평균으로 다시 계산한다 */
-      const t0=Date.now();
-      let done=0;
-      const eta=()=>{
-        if(!newCount) return '';
-        const remain = done
-          ? Math.ceil(((Date.now()-t0)/done)*(newCount-done)/1000)
-          : newCount*3;
-        return remain>0 ? ` · 약 ${remain}초 남음` : '';
-      };
-      const out=[];
-      for(const it of items){
-        if(it.path){ out.push({ path:it.path, size:it.size||'auto' }); continue; }
-        msg.textContent=`잠시만 기다리세요 — 사진을 줄이고 올리는 중이에요 (${done+1}/${newCount}${eta()})`;
-        const c=await compressImage(it.file, { mode:'contain', dim:WALL_DIM, target:WALL_TARGET_KB*1024, minQuality:0.4 });
-        const path='wall/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
-        const { error } = await sb.storage.from(WALL_BUCKET).upload(path, c.blob, { contentType:c.type, cacheControl:'31536000' });
-        if(error) throw error;
-        done++;
-        out.push({ path, size:it.size||'auto' });
-      }
-      const keep=out.map(o=>o.path);
-      const del=orig.filter(p=>!keep.includes(p));
-      if(del.length){ try{ await sb.storage.from(WALL_BUCKET).remove(del); }catch(e){} }
-      msg.textContent='잠시만 기다리세요 — 목록을 저장하는 중이에요…';
-      const iter=Math.max(2, Math.min(20, Number(ov.querySelector('#pwmIter').value) || 5));
-      const blob=new Blob([JSON.stringify({ photos: out, interval: iter })], { type:'application/json' });
-      const { error:e2 } = await sb.storage.from(WALL_BUCKET)
-        .upload('wall.json', blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
-      if(e2) throw e2;
-      close();
-      toast('사진 벽을 저장했어요.');
-      route();                                         // 대문 다시 그림
-    }catch(e){
-      okb.disabled=false;
-      addb.disabled=false;
-      msg.className='msg err';
-      msg.textContent='저장하지 못했습니다: '+((e&&e.message)||e)+' (90_landing_wall.sql 실행 여부를 확인하세요)';
-    }
-  };
-}
-
 /* ============================================================
    연혁(story) — 세션 AP. 타임라인 + 대형 A 구슬 + 라이트 패널.
    저장소: 공개 버킷 'history'의 story.json + ev/… 사진 (91_history.sql).
@@ -11223,7 +10943,7 @@ function kyptProblemsOf(y){ const c=_kyptCache; return (c?c.problems:[]).filter(
 function kyptMembersOf(pid){ const c=_kyptCache; return (c?c.members:[]).filter(m=>m.problem_id===pid); }
 function kyptIsMine(pid){ return kyptMembersOf(pid).some(m=>m.uid===(state.user&&state.user.id)); }
 /* 화면용 판단 — 최종 방어선은 언제나 RLS다(규칙 17) */
-function kyptAdminish(){ return state.role==='owner' || state.role==='admin'; }
+function kyptAdminish(){ return state.role==='owner' || (state.role==='admin' && can('kypt_manage')); }   // ★세션 BN: kypt_manage 캡(기본 admin 켬)
 function kyptCanEditProblem(p){
   if(!p || p.id==null) return false;   // ★id 없는 시드 행은 저장할 곳이 없다 — 편집 UI를 아예 내지 않는다
   const y = kyptYearRow(p.year);
@@ -11669,7 +11389,7 @@ function kv2DdayText(due){
 const KYPT_STAGE_CLS = { qual:'s-qual', theory:'s-theory', predict:'s-predict', exp:'s-exp', compare:'s-compare' };
 const KYPT_ASSET_KINDS = { paper:'문헌', video:'영상', data:'데이터', code:'코드', doc:'내부 문서', channel:'대화방', web:'웹', file:'파일' };
 const KYPT_KIND_CLS = { paper:'k-paper', video:'k-video', data:'k-data', code:'k-code', doc:'k-doc', channel:'k-channel', web:'k-web', file:'k-file' };
-const KYPT_UPLOAD_MAX = 20 * 1024 * 1024;   // 20MB — 무료 1GB 안에서 17문제가 살려면 이 정도
+function kyptUploadMax(){ return (Number(LIMITS.lim_kypt_file_kb)||20480) * 1024; }   // ★세션 BN: [상한]에서 조절 (기본 20MB)
 
 let _kv2 = {};            // problem_id → { entries, assets, links }
 let _kv2MsOpen = {};      // problem_id → 단계별 마감 구역을 열어 두었나 (세션 BK)
@@ -11856,7 +11576,7 @@ function kv2QuickMount(p, canEd){
   kv2QuickUnmount();
   if(!canEd || !p) return;
   const q=document.createElement('div'); q.id='kv2Quick'; q.className='kv2-quick';
-  q.innerHTML=`<input class="kv2-quick-in" id="kv2QuickIn" placeholder="빠른 메모 → 끄적에 남아요" aria-label="빠른 메모" autocomplete="off">
+  q.innerHTML=`<input class="kv2-quick-in" id="kv2QuickIn" maxlength="${LIMITS.lim_kypt_note_chars}" placeholder="빠른 메모 → 끄적에 남아요" aria-label="빠른 메모" autocomplete="off">
     <button class="kv2-quick-go" id="kv2QuickGo">남기기</button>`;
   document.body.appendChild(q); document.body.classList.add('has-quick');
   const inp=q.querySelector('#kv2QuickIn'), go=q.querySelector('#kv2QuickGo');
@@ -11997,7 +11717,7 @@ function krPanelHtml(p, r, canEd){
     <div class="kr-pl">${lk(r.url)}${r.url2?` · ${lk(r.url2)}`:''}</div>
     <div class="kr-pr">${readers.length?`읽은 사람 ${readers.map(u=>`<span class="kr-who">${krDot(u)}${escapeHtml(kyptName(u))}</span>`).join('')}`:'<span class="muted">아직 아무도 읽음 표시를 안 했어요.</span>'}</div>
     ${canEd
-      ? `<textarea class="kp-ta kr-ta" id="krTa" rows="8" placeholder="이 문헌에서 우리 문제에 쓸 만한 것 — 핵심 결과, 쓴 방법, 조심할 점. 짧아도 좋아요.">${escapeHtml(r.summary||'')}</textarea>
+      ? `<textarea class="kp-ta kr-ta" id="krTa" rows="8" maxlength="${LIMITS.lim_kypt_summary_chars}" placeholder="이 문헌에서 우리 문제에 쓸 만한 것 — 핵심 결과, 쓴 방법, 조심할 점. 짧아도 좋아요.">${escapeHtml(r.summary||'')}</textarea>
          <div class="kr-pacts"><button class="ch-act primary" id="krSave">저장</button><span class="kr-pby">${by}</span></div>`
       : `<div class="kr-ro">${r.summary?escapeHtml(r.summary):'<span class="muted">아직 요약이 없어요.</span>'}</div>${by?`<div class="kr-pby">${by}</div>`:''}`}
   </div>`;
@@ -12352,6 +12072,7 @@ async function kv2Save(e, key, value){
   if(value===base){ kv2SaveSt('저장됨'); try{ localStorage.removeItem(kv2DraftKey(e.id,key)); }catch(x){ /* 저장소 불가 — 무시 */ } return; }
   kv2SaveSt('저장 중…');
   let r;
+  if(typeof value==='string' && value.length > LIMITS.lim_kypt_field_chars){ toast(`한 칸은 ${LIMITS.lim_kypt_field_chars}자까지예요.`); return; }   // ★세션 BN 상한
   try{ r = await sb.rpc('kypt_save_field', { p_entry:e.id, p_key:key, p_value:value, p_base:base }); }
   catch(x){ r={ error:x }; /* 네트워크 실패도 아래 '저장 실패' 경로로 */ }
   const d = r && r.data;
@@ -12529,7 +12250,7 @@ async function kv2AddLink(p, url, note){
   return (_kv2[p.id].assets.find(a=>a.id===data.id)) || { id:data.id };
 }
 async function kv2Upload(p, e, file, note){
-  if(file.size > KYPT_UPLOAD_MAX){ toast('파일은 20MB까지예요. 긴 영상은 YouTube 미등록 링크로 올려 주세요.'); return null; }
+  if(file.size > kyptUploadMax()){ toast(`파일은 ${Math.round(kyptUploadMax()/1024/1024)}MB까지예요. 긴 영상은 YouTube 미등록 링크로 올려 주세요.`); return null; }
   const safe = String(file.name||'file').replace(/[^\w.\-가-힣]+/g,'_').slice(0,80);
   const path = `p${p.id}/e${e?e.id:0}/${Date.now()}_${safe}`;
   toast('올리는 중…');
@@ -13222,7 +12943,7 @@ async function kv2RenderScribbles(p, pane, canEd){
   const days=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
   pane.innerHTML=`
     ${canEd?`<div class="kv2-scadd">
-      <textarea class="kv2-cta" id="kv2ScText" rows="2" placeholder="떠오른 생각을 짧게 — Enter로 남기기, Shift+Enter 줄바꿈"></textarea>
+      <textarea class="kv2-cta" id="kv2ScText" rows="2" maxlength="${LIMITS.lim_kypt_note_chars}" placeholder="떠오른 생각을 짧게 — Enter로 남기기, Shift+Enter 줄바꿈"></textarea>
       ${kDateField('kv2ScDate', kToday(), { label:'끄적인 날', small:true })}
       <button class="ch-act primary" id="kv2ScAdd">남기기</button>
     </div>`:''}
@@ -13733,14 +13454,6 @@ async function renderLanding(){
     </div>`;
   $('#doc').querySelectorAll('.doc-link[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
   $('#doc').querySelectorAll('.lh-row[data-key]').forEach(a=>a.onclick=()=>{ location.hash=docHash(a.dataset.key); });
-  // ── 사진 벽(90): 라이트박스 · 관리 · 인트로 슬라이드쇼
-  const pWall=$('#pWall');
-  if(pWall){
-    pWall.querySelectorAll('img').forEach(im=>im.onclick=()=>openLightbox(im.src));
-    playWallIntro();
-  }
-  const pwe=$('#pwEdit'); if(pwe) pwe.onclick=openWallManager;
-  const pwe2=$('#pwEditEmpty'); if(pwe2) pwe2.onclick=openWallManager;
   $('#doc').querySelectorAll('.cat').forEach(cat=>{
     const head=cat.querySelector('.cat-head'), lbl=cat.querySelector('.ct-label');
     if(head) head.onclick=()=>{ const col=cat.classList.toggle('cat-collapsed'); if(lbl) lbl.textContent=col?'펼치기':'접기'; };
@@ -15443,7 +15156,18 @@ function refreshMsgDelete(uid){
 }
 
 /* ---- 채팅 + 반응 ---- */
-const EMOJIS=[{code:'heart',glyph:'❤️'},{code:'check',glyph:'✔️'},{code:'thumb',glyph:'👍'},{code:'smile',glyph:'😊'}];
+const EMOJIS=[{code:'heart',glyph:'❤️'},{code:'check',glyph:'✔️'},{code:'thumb',glyph:'👍'},{code:'smile',glyph:'😊'}];   // 예전 4종(코드로 저장됨) — 표시용 매핑
+/* ★세션 BN: 반응 이모지 64종. 새 반응은 글리프 자체를 emoji 열에 저장한다(예전 4종은 코드 그대로 두고 매핑). */
+const EMOJI_GROUPS = [
+  ['자주',   ['❤️','👍','😊','✔️','😂','🔥','👏','🙏','😮','😢','🎉','💯']],
+  ['표정',   ['😀','😄','😆','🤣','😍','🥰','😘','😎','🤔','🤨','😐','😴','🤯','🥳','😅','😭','😡','🤢','🤫','🫡','🥲','😇','🤩','😬']],
+  ['손·마음',['👌','✌️','🤞','🤝','💪','👀','🧠','💔','💖','💡','⭐','✨','🌟','💥','⚡','🌈']],
+  ['물리·연구',['🔬','🧪','🧲','📐','📏','🔭','⚛️','📊','📈','📉','🧮','🔧','🛠️','💻','📚','📝','🗓️','⏰','🚀','🏆','🥇','🎯','🧩','❓']],
+];
+const EMOJI_PICKER = EMOJI_GROUPS.flatMap(g=>g[1]);
+function emojiGlyph(code){ const e=EMOJIS.find(x=>x.code===code); return e ? e.glyph : code; }
+/* 글리프 → 저장값: 예전 4종은 코드로(기존 반응과 합쳐지게), 나머지는 글리프 그대로 */
+function emojiCode(glyph){ const e=EMOJIS.find(x=>x.glyph===glyph); return e ? e.code : glyph; }
 let reactState={};   // mid -> {counts:{code:n}, mine:code|null}
 
 function avatarFor(name, handle){
@@ -15584,16 +15308,8 @@ function appendMessage(m, doScroll=true){
       ${community.qid ? '' : `<div class="msg-reactions" data-mid="${m.id}"${mine?' data-ro="1"':''}></div>`}   <!-- ★내 메시지: 반응을 보기만(누르진 못함) -->
     </div>`;
   log.appendChild(el);
-  if(!mine && m.user_id){   // 본인 제외: 아바타/활동명 클릭 → 해당 회원 프로필
-    const go=()=>{ location.hash='#//member/'+m.user_id; };
-    const av=el.querySelector('.msg-avatar'), wh=el.querySelector('.msg-who');
-    const on=()=>el.classList.add('hov-profile'), off=()=>el.classList.remove('hov-profile');
-    [av, wh].forEach(x=>{
-      if(!x) return;
-      x.classList.add('go-profile'); x.onclick=go;
-      x.addEventListener('mouseenter', on); x.addEventListener('mouseleave', off);
-    });
-    el.dataset.cover = m.user_id;                              // hover 색 = 그 회원의 커버색
+  if(!mine && m.user_id){   // ★세션 BN: 아바타·활동명을 눌러도 프로필로 가지 않는다(사용자 결정). 커버색만 입힌다.
+    el.dataset.cover = m.user_id;
     ensureCovers([m.user_id]).then(()=>applyCovers(el));       // 초기 로드는 캐시 히트라 추가 조회 0
   }
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
@@ -15660,7 +15376,14 @@ const LIMITS = {
   lim_ans_chars:500,  lim_ans_img_kb:40,
   lim_q_chars:1000,   lim_q_img_kb:100,
   lim_dm_chars:500,   lim_dm_img_kb:40,
-  lim_doc_img_kb:150, lim_doc_total_kb:1500      // 문서 사진: 1장 / 문서 1개 합계
+  lim_doc_img_kb:150, lim_doc_total_kb:1500,     // 문서 사진: 1장 / 문서 1개 합계
+  /* ★세션 BN: 그동안 더해진 시스템의 상한 (set_app_limit 52 그대로 저장 — 키 이름은 lim_ 접두) */
+  lim_kypt_note_chars:600,      // KYPT 끄적 · 빠른 메모
+  lim_kypt_summary_chars:1500,  // KYPT 레퍼런스 키트 요약
+  lim_kypt_field_chars:4000,    // KYPT 일지 한 칸
+  lim_kypt_comment_chars:800,   // KYPT 피드백·자료 의견
+  lim_kypt_file_kb:20480,       // KYPT 자료함 파일 1개
+  lim_feedback_chars:1000       // 앱 피드백 의견
 };
 async function loadLimits(){
   try{
@@ -15902,14 +15625,22 @@ function renderReactions(mid){
   const s=reactState[mid] || newReact();
   const has=e=>s.mine && s.mine.has(e);
   const ro = box.dataset.ro==='1';        // ★내 메시지 — 남이 남긴 반응은 보이되, 내가 누르진 못한다
-  const pills=EMOJIS.filter(e=>s.counts[e.code]>0).map(e=>
-    `<button class="rpill${has(e.code)?' mine':''}${ro?' ro':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph} ${s.counts[e.code]}<span class="rtip">${escapeHtml(reactWhoText(s, e.code))}</span></button>`).join('');
+  const codes=Object.keys(s.counts||{}).filter(c=>s.counts[c]>0);
+  const pills=codes.map(c=>
+    `<button class="rpill${has(c)?' mine':''}${ro?' ro':''}" data-mid="${mid}" data-emoji="${escapeAttr(c)}">${emojiGlyph(c)} ${s.counts[c]}<span class="rtip">${escapeHtml(reactWhoText(s, c))}</span></button>`).join('');
   if(ro){ box.innerHTML = pills; return; }              // ＋ 버튼 없음. 반응이 없으면 빈 줄(자리도 안 차지)
-  const pop=EMOJIS.map(e=>`<button class="react-opt${has(e.code)?' on':''}" data-mid="${mid}" data-emoji="${e.code}">${e.glyph}</button>`).join('');
-  box.innerHTML = pills + `<span class="react-wrap"><button class="react-btn" data-mid="${mid}" title="반응 남기기">＋</button><span class="react-pop">${pop}</span></span>`;
+  const pop=EMOJI_GROUPS.map(([label, list])=>`<div class="react-grp"><div class="react-gl">${label}</div><div class="react-grid">${
+    list.map(g=>{ const c=emojiCode(g); return `<button class="react-opt${has(c)?' on':''}" data-mid="${mid}" data-emoji="${escapeAttr(c)}" title="${escapeAttr(g)}">${g}</button>`; }).join('')}</div></div>`).join('');
+  box.innerHTML = pills + `<span class="react-wrap"><button class="react-btn" data-mid="${mid}" title="반응 남기기" aria-label="반응 남기기"><span class="react-btn-face">☺</span><span class="react-btn-plus">+</span></button><span class="react-pop">${pop}</span></span>`;
   box.querySelectorAll('.rpill,.react-opt').forEach(b=>b.onclick=(ev)=>{ ev.stopPropagation(); toggleReaction(b.dataset.mid, b.dataset.emoji); });
   const rb=box.querySelector('.react-btn');
-  if(rb) rb.onclick=(ev)=>{ ev.stopPropagation(); const pop=box.querySelector('.react-pop'); const willOpen=!pop.classList.contains('open'); closeAllReactPops(); if(willOpen) pop.classList.add('open'); };
+  if(rb) rb.onclick=(ev)=>{ ev.stopPropagation(); const pop=box.querySelector('.react-pop'); const willOpen=!pop.classList.contains('open'); closeAllReactPops();
+    if(willOpen){
+      /* 위에 자리가 없으면(로그 맨 위 근처) 아래로 연다 — 채팅 로그의 overflow에 잘리지 않게 */
+      const log=box.closest('.chat-log'); const room = log ? (box.getBoundingClientRect().top - log.getBoundingClientRect().top) : 999;
+      pop.classList.toggle('down', room < 290);
+      pop.classList.add('open');
+    } };
 }
 function closeAllReactPops(){ document.querySelectorAll('.react-pop.open').forEach(p=>p.classList.remove('open')); }
 document.addEventListener('click',closeAllReactPops);
@@ -15965,7 +15696,7 @@ function subscribeChat(){
       const cur = community.qid || null;
       const got = (payload.new && payload.new.question_id) || null;
       if(String(cur) !== String(got)) return;
-      if(!cur && community.chOk){                       // ★83: 지금 보고 있는 대화방만
+      if(!cur){                                          // ★83/세션 BN: 지금 보고 있는 대화방만 — 83 미적용이면 둘 다 null이라 같다
         const mc = (payload.new && payload.new.channel_id!=null) ? String(payload.new.channel_id) : null;
         const vc = community.ch!=null ? String(community.ch) : null;
         if(mc !== vc) return;
@@ -16521,8 +16252,8 @@ function openEventDetail(e){
    시스템 페이지는 전부 '//' 네임스페이스에 산다 → 새 문서를 아무 이름으로 만들어도 시스템을 가리지 않는다.
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','questions','calendar','directory','inbox','docs',
-                   'admin','requests','health','system','system/limits','system/maint','system/perms',
-                   'system/landing','system/wall','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
+                   'admin','health','system','system/limits','system/maint','system/perms',
+                   'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
                    'password','me','trash','notfound','board','qr','story'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
@@ -16760,7 +16491,7 @@ function route(){
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','admin','requests','health','system','system/limits','system/maint','system/perms','system/landing','system/wall','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story','kypt'];
+  const fullWidthPages=['community','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','calendar','board','qr','story','kypt'];
   railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -16810,7 +16541,6 @@ function route(){
   if(sys && key==='inbox'){ renderInbox(); return; }
   if(sys && isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
   if(sys && key==='admin'){ if(isAdmin()) renderAdmin(); else location.hash='#//home'; return; }
-  if(sys && key==='requests'){ if(!guardPage('signup_review')) return; renderRequests(); return; }
   if(sys && key==='devlog'){ renderDevLog(); return; }                            // 운영 일지: 전 등급 열람
   if(sys && key==='feedback'){ renderFeedback(); return; }                        // 전 등급
   if(sys && key==='feedback/review'){ if(!guardPage('feedback_read')) return; renderFeedbackReview(); return; }
@@ -16820,10 +16550,6 @@ function route(){
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
   if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
   if(sys && key==='system/landing'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysLanding(); return; }
-  if(sys && key==='system/wall'){                                   // ★세션 AZ: 대문에서 내린 뒤 잃어버린 진입점을 되살린다
-    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; }
-    goHash('#//system'); openWallManager(); return;
-  }
   if(sys && key==='system/site'){    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSite(); return; }
   if(sys && key==='system/nudges'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysNudges(); return; }
   if(sys && key==='system/signup'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSignup(); return; }
