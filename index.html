@@ -3029,8 +3029,61 @@ body.fx-flat .story-pane{transition:none;}
 .kp-side .kv2-feed{ grid-template-columns:auto 1fr; }
 .kp-side .kv2-ftxt{ white-space:normal; }
 .kp-side .kv2-fprob{ grid-column:2 / -1; white-space:normal; }
+/* ★세션 BH: 수정 내역을 오른쪽 여백으로 — .rail-out일 때만(자리를 JS가 잰다 · kpFitFeedRail). 글자는 작게, 줄바꿈은 낱말 단위. */
+.kp-feedrail{ margin-top:14px; }
+.kp-feedin{ min-width:0; }
+.kypt-wrap.rail-out .kp-feedrail{ position:absolute; top:0; left:calc(100% + 18px); margin:0; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-week{ padding:9px 11px 6px; margin:0; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-wh{ font-size:11px; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-feed{ grid-template-columns:auto 1fr; gap:4px 7px; padding:4px 0; align-items:start; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-fwhen{ font-size:10.5px; padding-top:1px; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-ftxt{ font-size:12px; line-height:1.4; white-space:normal; word-break:keep-all; overflow-wrap:anywhere; }
+.kypt-wrap.rail-out .kp-feedrail .kv2-fprob{ font-size:11px; line-height:1.35; white-space:normal; word-break:keep-all; overflow-wrap:anywhere; }
+.kypt-wrap.rail-out .kp-feedrail .muted{ font-size:12px; }
 
 .kp-hint{ color:var(--text-dim); font-size:13px; margin:0 0 10px; }
+/* ★세션 BH: 레퍼런스 키트 탭 — 왼쪽 목록(키트 그대로) + 오른쪽 요약 칸(sticky). 사람별 읽음은 커버색 점. */
+.kr-head{ margin-bottom:10px; }
+.kr-legend{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 14px; font-size:12.5px; color:var(--text-dim); margin:0 0 8px; }
+.kr-who{ display:inline-flex; align-items:center; gap:5px; white-space:nowrap; }
+.kr-mine{ margin-left:auto; }
+.kr-dot{ display:inline-block; width:10px; height:10px; border-radius:50%; background:var(--cv, #9aa3ad); box-shadow:0 0 0 1.5px var(--card); flex:none; }
+.kr-filters{ display:flex; flex-wrap:wrap; gap:4px; }
+.kr-f{ font:inherit; font-size:12px; padding:3px 10px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text-dim); cursor:pointer; }
+.kr-f:hover{ border-color:var(--border-strong); color:var(--text); }
+.kr-f.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.kr-f.on .kv2-cnt{ color:rgba(255,255,255,.8); }
+.kr-main{ display:grid; grid-template-columns:1fr 292px; gap:20px; align-items:start; }
+.kr-list{ border-top:1px solid var(--border); }
+.kr-row{ display:grid; grid-template-columns:auto auto 1fr auto auto auto; align-items:center; gap:8px; padding:7px 4px; border-bottom:1px solid var(--border); font-size:13.5px; }
+.kr-row.sel{ background:var(--box-bg); }
+.kr-row.read .kr-title{ color:var(--text-dim); }
+.kr-ord{ font-family:var(--mono); font-size:11px; color:var(--text-dim); min-width:2ch; text-align:right; }
+.kr-title{ min-width:0; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; line-height:1.4; word-break:keep-all; overflow-wrap:anywhere; }
+.kr-title.nolink{ color:var(--text); }
+.kr-dots{ display:flex; gap:2px; min-width:10px; }
+.kr-chip{ font:inherit; font-size:11.5px; padding:2px 8px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text-dim); cursor:pointer; white-space:nowrap; }
+.kr-chip:hover{ border-color:var(--border-strong); color:var(--text); }
+.kr-read.on{ border-color:var(--ok); color:var(--ok); }
+.kr-sum.has{ border-color:var(--border-strong); color:var(--text); font-weight:700; }
+.kr-sum.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.kr-side{ position:sticky; top:76px; border:1px solid var(--border); border-radius:var(--r-2); padding:12px 14px; background:var(--card); }
+.kr-pan{ min-width:0; }
+.kr-pk{ display:flex; gap:8px; align-items:center; margin-bottom:6px; }
+.kr-pord{ font-family:var(--mono); font-size:11px; color:var(--text-dim); }
+.kr-pt{ font-weight:700; font-size:13.5px; line-height:1.45; margin-bottom:6px; word-break:keep-all; overflow-wrap:anywhere; }
+.kr-pl{ font-size:12.5px; margin-bottom:8px; }
+.kr-pr{ font-size:12px; color:var(--text-dim); display:flex; flex-wrap:wrap; gap:4px 8px; align-items:center; margin-bottom:10px; }
+.kr-ta{ box-sizing:border-box; font-size:13px; line-height:1.6; }
+.kr-pacts{ display:flex; align-items:center; gap:10px; margin-top:8px; }
+.kr-pby{ font-size:11.5px; color:var(--text-dim); }
+.kr-ro{ font-size:13px; line-height:1.6; white-space:pre-wrap; word-break:keep-all; overflow-wrap:anywhere; }
+.kr-empty p{ margin:6px 0 0; font-size:12.5px; }
+@media (max-width:900px){ .kr-main{ grid-template-columns:1fr; } .kr-side{ order:-1; position:static; } }
+@media (max-width:640px){ .kr-row{ display:flex; flex-wrap:wrap; } .kr-title{ flex:1 1 100%; order:-1; } .kr-dots{ margin-left:auto; } }
+/* ★세션 BH: 공식 문항 원문(영문) — 상세 제목 아래, 인용 블록 하나 */
+.kp-stmt{ margin:4px 0 16px; padding:10px 14px; border-left:3px solid var(--border-strong); background:var(--box-bg);
+  border-radius:0 var(--r-2) var(--r-2) 0; font-size:14px; line-height:1.62; color:var(--text); }
 
 /* 진행 스트립 — 문제 하나가 칸 하나. 배정되면 채워지고, 내가 맡은 것엔 테두리가 선다 */
 .kp-strip{ display:flex; flex-wrap:wrap; gap:5px; margin:0 0 20px; }
@@ -5492,10 +5545,28 @@ async function fetchRecent(){
     return rows;
   }catch(e){ return []; }
 }
+let _railObs=null;
+let _railCap=null;
 function railReserve(on){
   const rail=$('#rightrail'); if(!rail) return;
-  if(on){ rail.style.display=''; if(!rail.innerHTML) rail.innerHTML='<div class="recent"><div class="recent-h">최근 변경</div><div class="rc-item" style="cursor:default;color:var(--text-dim)">불러오는 중…</div></div>'; }
-  else { rail.style.display='none'; rail.innerHTML=''; }
+  /* ★세션 BH: 레일을 **지금 화면이 아직 떠 있는 동안** 켜고 끄면 본문 폭이 바뀌어 대문의 이동 버튼 격자가
+     3열→4열로 재배열된다 — 마지막 줄의 버튼 두 개가 "사라지는" 것처럼 보였다(사용자 신고).
+     레일의 표시 상태는 #doc의 내용이 실제로 바뀔 때(새 화면이 그려질 때) 같이 바꾼다.
+     그래도 안 바뀌면(같은 화면 재라우트) 1.5초 뒤에 적용한다. */
+  if(_railObs){ _railObs.disconnect(); _railObs=null; }
+  clearTimeout(_railCap);
+  const apply=()=>{
+    if(_railObs){ _railObs.disconnect(); _railObs=null; }
+    clearTimeout(_railCap);
+    if(on){ rail.style.display=''; if(!rail.innerHTML) rail.innerHTML='<div class="recent"><div class="recent-h">최근 변경</div><div class="rc-item" style="cursor:default;color:var(--text-dim)">불러오는 중…</div></div>'; }
+    else { rail.style.display='none'; rail.innerHTML=''; }
+  };
+  const shown = rail.style.display!=='none';
+  const doc=$('#doc');
+  if(shown===!!on || !doc){ apply(); return; }       // 이미 그 상태 — 미룰 이유가 없다
+  _railObs=new MutationObserver(apply);
+  _railObs.observe(doc, { childList:true });
+  _railCap=setTimeout(apply, 1500);
 }
 function renderRightRail(recent){
   const rail=$('#rightrail'); if(!rail) return;
@@ -9283,6 +9354,8 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 목록의 수정 내역은 오른쪽 여백으로 옮겨 작게 보입니다.' },
+  { date:'2026-09-10', text:'대문의 이동 버튼을 누를 때 버튼 격자가 순간 흔들리던 것을 고쳤어요. 가입 화면은 초대 코드 칸을 늘 보여 주고, 막혔을 때 이유를 더 정확히 알려 줍니다.' },
   { date:'2026-09-08', text:'[채널]이 [대화방]으로 이름이 바뀌었어요. 하는 일은 그대로예요 — 주제별로 대화하고 문서·자료·과제를 모아둡니다. 그리고 대문이 단순해졌어요: 큼직한 이동 버튼으로 바로 갈 수 있습니다.' },
   { date:'2026-09-08', text:'[KYPT] 피드백이 정확한 자리에 붙어요 — 실험 기록의 칸마다 💬, 자료마다 💬. 답글·해결·이모지 반응·@이름 부르기. 기록에 [검토 요청]을 누르면 같은 문제의 참여자가 [검토 완료]로 답합니다. 쪽지함엔 하루 한 번 묶어서 옵니다.' },
   { date:'2026-09-05', text:'[KYPT] 문제를 열면 현황이 먼저 보여요 — 연구 단계 체크, 다음 할 일, 최근 활동. 목록엔 이번 주 움직임과 "새 N" 표시가 붙었고, 진행 보드에도 KYPT 할 일이 나옵니다.' },
@@ -11014,9 +11087,40 @@ let _kyptMonth = null;      // 수정 내역을 거를 월 (null = 전체)
 let _kyptMsAll = null;      // 연도 전체의 단계별 마감일 (목록 화면용)
 let _kyptMsPid = null;      // 목록 오른쪽 일정표가 보여 주는 문제
 
+/* ★세션 BH: IYPT 2027 공식 문항 원문(영문). 사용자 결정으로 세션 AQ의 "원문은 옮기지 않는다"를 뒤집었다 —
+   부원이 아카이브 안에서 원문 그대로 읽을 수 있어야 한다. 102가 kypt_problems.statement_en에 같은 값을 넣고,
+   102 미적용이거나 값이 비어 있으면 화면은 여기서 채운다(kyptStatementEn). */
+const KYPT_SEED_EN = {
+  1: 'Investigate the optimal arrangement of pinholes in an opaque film to produce sunglasses that reduce light intensity and help correct short-sightedness.',
+  2: 'Data tracks on optical media (e.g. CDs / Blu-ray discs) behave as high-quality reflection-diffraction gratings. When illuminated, these discs can disperse light into its spectral components. Construct a spectrometer using a digital optical disc. Optimise the design to maximise the resolving power and minimise optical aberrations.',
+  3: 'A hollow sphere contains a heavy ball and some viscous fluid. The rolling motion of such a sphere down an inclined plane is uneven and surprisingly slow. Explain and investigate this effect.',
+  4: 'Certain types of ceramic capacitors emit an audible sound when an alternating voltage is applied across them. Investigate the characteristics of the sound produced and how they depend on relevant parameters, such as voltage, frequency, and capacitor properties.',
+  5: 'Construct a Bowditch pendulum (a pendulum whose strings form a "Y" shape). Investigate how the Lissajous patterns generated by the bob depend on the relevant parameters.',
+  6: 'A thin rubber membrane is stretched over a circular frame and driven into vibration by a loudspeaker. A small mirror is attached to the membrane, and a laser beam is reflected off it onto a distant screen. Under certain conditions, the laser spot traces out complex, steady, or evolving geometric patterns. Investigate the relationship between the driving parameters, the membrane’s properties, and the resulting light patterns.',
+  7: 'When a long-stemmed and sufficiently heavy funnel is released vertically into water with the stem pointing downward, it undergoes a series of damped vertical oscillations while gradually sinking. Investigate the motion and stability of the sinking funnel and the conditions under which the funnel tips over.',
+  8: 'A circular disc is suspended from the point where it is sandwiched between two wheels, making it free to oscillate as a pendulum. One of the wheels is driven by a motor and thus exerts an upward driving force on the disc. Investigate the motion of the disc.',
+  9: 'Bokeh is an effect observed in photographs that show objects at different distances from the camera and have both sharp and out-of-focus areas. If a slit is placed in front of the lens of the camera, the image may have unusual anisotropic distortions in out-of-focus areas, while in-focus areas remain undistorted and sharp. Investigate how the properties and sharpness of resulting images depend on relevant parameters.',
+  10: 'Place a small rod-shaped magnet on the bottom of a vessel filled with liquid and set it into rotation using a magnetic stirrer. Above a certain rotation speed, a thin air channel forms, extending from the liquid surface down to the rotating magnet itself. Investigate and explain this phenomenon.',
+  11: 'The sound isolation of a room may become breached if the door is not shut properly, even if the gap is negligibly small. Investigate how the shape and size of a small opening affect the transmission of sound.',
+  12: 'Under certain conditions, when a piece of chalk is dragged across a blackboard, the resulting trace is not a continuous line but a periodic sequence of dots, even though the motion is uninterrupted. This can happen with other writing materials and surfaces. Investigate the physical parameters that govern this phenomenon.',
+  13: 'A pendulum with a vertically oriented cylindrical bob is suspended above a channel of flowing water. When the bob is partially submerged, the flow may cause the pendulum to oscillate in a direction perpendicular to the flow. Explain this phenomenon and determine how it depends on relevant parameters.',
+  14: 'If a dilatant non-Newtonian fluid (e.g. a suspension of water and cornflour) is vibrated vertically in a reservoir. When certain conditions are met, wormlike structures that rise from the surface may form. Explain and investigate this phenomenon.',
+  15: 'A can or bottle of drink at room temperature can be cooled in a cooler containing ice. Adding salt and alcohol to the ice can increase the rate of cooling and affect the drink\'s final temperature. Investigate how the relevant parameters affect the lowest achievable temperature and the maximum cooling rate.',
+  16: 'Several neodymium magnets are attached to a horizontal disc, with adjacent magnets oriented in opposite directions. A fixed non-magnetic plate is placed horizontally above the disc. When the disc rotates about its vertical axis and a steel ball is placed on the plate, the ball may move either in the same direction as, or opposite to, the rotation of the disc. Investigate this phenomenon and determine how the motion depends on relevant parameters.',
+  17: 'A book is placed horizontally, and the partially open cover is allowed to fall. Investigate the motion of the falling book cover.',
+};
+function kyptStmtHtml(p){
+  const t = kyptStatementEn(p);
+  return t ? `<blockquote class="kp-stmt" lang="en">${escapeHtml(t)}</blockquote>` : '';
+}
+function kyptStatementEn(p){
+  if(!p) return '';
+  return String(p.statement_en || (Number(p.year)===KYPT_SEED_YEAR.year ? (KYPT_SEED_EN[p.no]||'') : '') || '');
+}
 function kyptSeedRows(){
   return KYPT_SEED.map(p=>Object.assign({}, p, {
     id: null, year: KYPT_SEED_YEAR.year, is_kypt: true, status: 'idle', body: null, title_en: p.title,
+    statement_en: KYPT_SEED_EN[p.no] || null,
     source_url: KYPT_SEED_YEAR.source_url
   }));
 }
@@ -11028,12 +11132,17 @@ async function loadKypt(force){
     const ry = await sb.from('kypt_years').select('year,title,event_at,source_url,locked').order('year',{ascending:false});
     if(ry.error) throw ry.error;
     years = ry.data || [];
-    let rp = await sb.from('kypt_problems')
-      .select('id,year,no,title,title_ko,title_en,summary,body,source_url,is_kypt,status,stage_done,updated_at').order('no',{ascending:true});
-    if(rp.error && /title_ko|stage_done|column/i.test(String(rp.error.message||''))){
-      // ★96(또는 94)이 아직이면 그 컬럼이 없다. 컬럼 하나 때문에 화면 전체가 시드로 떨어지면 안 된다(세션 AV).
-      rp = await sb.from('kypt_problems')
-        .select('id,year,no,title,title_en,summary,body,source_url,is_kypt,status,updated_at').order('no',{ascending:true});
+    /* ★컬럼이 없는 마이그레이션 단계(102 → 96/94 → 92만)로 한 단계씩 물러난다. 컬럼 하나 때문에
+       화면 전체가 시드로 떨어지면 안 된다(세션 AV). 세션 BH에서 statement_en(102)을 맨 앞에 더했다. */
+    const KYPT_SELECTS = [
+      'id,year,no,title,title_ko,title_en,summary,body,source_url,is_kypt,status,stage_done,statement_en,updated_at',
+      'id,year,no,title,title_ko,title_en,summary,body,source_url,is_kypt,status,stage_done,updated_at',
+      'id,year,no,title,title_en,summary,body,source_url,is_kypt,status,updated_at'
+    ];
+    let rp = null;
+    for(const cols of KYPT_SELECTS){
+      rp = await sb.from('kypt_problems').select(cols).order('no',{ascending:true});
+      if(!rp.error || !/statement_en|title_ko|stage_done|column/i.test(String(rp.error.message||''))) break;
     }
     if(rp.error) throw rp.error;
     problems = rp.data || [];
@@ -11128,9 +11237,10 @@ async function renderKyptPage(){
     <div class="kp-strip">${strip}</div>
     <div class="kp-main">
       <div class="kp-list">${list.map(kyptRowHtml).join('')}</div>
-      ${featOn('kypt_v2') ? `<aside class="kp-side">${kv2MsPanelHtml(list)}${kv2FeedBlockHtml(_kyptYear)}</aside>` : ''}
+      ${featOn('kypt_v2') ? `<aside class="kp-side">${kv2MsPanelHtml(list)}<div class="kp-feedrail"><div class="kp-feedin">${kv2FeedBlockHtml(_kyptYear)}</div></div></aside>` : ''}
     </div>
   </div>`;
+  kpFitFeedRail();                                   // ★세션 BH: 오른쪽에 자리가 있으면 수정 내역을 여백으로 내보낸다
   const ms=$('#kv2MsPick');
   if(ms) ms.onchange=()=>{ _kyptMsPid=Number(ms.value)||null; renderKyptPage(); };
   const mw=$('#kyptMonths');
@@ -11141,6 +11251,22 @@ async function renderKyptPage(){
   if(sel) sel.onchange=()=>{ _kyptYear=Number(sel.value); renderKyptPage(); };
   const mb=$('#kyptManageBtn'); if(mb) mb.onclick=openKyptManager;
   kyptBindSeedBtn();
+}
+/* ★세션 BH: 수정 내역 레일 — 목록(900px) 오른쪽에 남는 자리가 있으면 그리로 내보낸다.
+   자리가 180px도 안 되면(좁은 창) 예전처럼 오른쪽 칸 아래에 둔다. 창 크기가 바뀌면 다시 잰다. */
+const KP_RAIL_MIN = 180;
+const KP_RAIL_MAX = 236;
+let _kpRailBound = false;
+function kpFitFeedRail(){
+  const w=document.querySelector('.kypt-wrap'); const r=w && w.querySelector('.kp-feedrail'); if(!w || !r) return;
+  w.classList.remove('rail-out'); r.style.width='';
+  const room = document.documentElement.clientWidth - w.getBoundingClientRect().right - 18 - 16;   // 왼쪽 틈 18 + 창 가장자리 여유 16
+  if(room >= KP_RAIL_MIN){ r.style.width = Math.min(KP_RAIL_MAX, room) + 'px'; w.classList.add('rail-out'); }
+  if(!_kpRailBound){
+    _kpRailBound = true;
+    let t=null;
+    window.addEventListener('resize', ()=>{ clearTimeout(t); t=setTimeout(kpFitFeedRail, 120); });
+  }
 }
 /* ★빈 저장소에 시드를 넣는다 (owner/admin). SQL 재실행과 같은 결과 — RLS는 운영진만 통과시킨다. */
 function kyptBindSeedBtn(){
@@ -11207,6 +11333,7 @@ async function renderKyptProblem(year, no){
     <a class="kp-back" href="#//kypt">← ${escapeHtml(yrow.title||('KYPT '+p.year))}</a>
     <div class="doc-head"><h1><span class="kp-no big">${p.no}</span> ${escapeHtml(p.title)}</h1></div>
     <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.title_ko?' · ':''}<a class="kp-src" href="${escapeAttr(kyptSourceUrl(p))}" target="_blank" rel="noopener">공식 문제 원문 ↗</a></p>
+    ${kyptStmtHtml(p)}
     ${yrow.locked?`<p class="ch-note">${ic('lock')} 지난 연도라 읽기 전용입니다.</p>`:''}
     ${kyptSaveHint()}
     <div class="kp-people">
@@ -11578,13 +11705,14 @@ async function renderKyptProblemV2(year, no){
   const yrow = kyptYearRow(p.year) || {};
   let tab = 'status';
   try{ tab = localStorage.getItem(kv2TabKey(p.id)) || 'status'; }catch(e){ /* 저장소 불가 — 기본 탭 */ }
-  if(!['status','entries','assets','notes','feedback'].includes(tab)) tab='status';
+  if(!['status','entries','assets','refkit','notes','feedback'].includes(tab)) tab='status';
   try{ sb.rpc('kypt_mark_read', { p_problem: p.id }); }catch(e){ /* 94 미적용 — 안 읽음 없음 */ }   // 열었으니 읽었다
   if(_kv2Feed[p.year] && _kv2Feed[p.year].unread) _kv2Feed[p.year].unread[String(p.id)] = 0;
   $('#doc').innerHTML=`<div class="kypt-wrap kp-detail kv2">
     <a class="kp-back" href="#//kypt">← ${escapeHtml(yrow.title||('KYPT '+p.year))}</a>
     <div class="doc-head"><h1><span class="kp-no big">${p.no}</span> ${escapeHtml(p.title)}</h1></div>
     <p class="kp-en">${escapeHtml(p.title_ko||'')}${p.title_ko?' · ':''}<a class="kp-src" href="${escapeAttr(kyptSourceUrl(p))}" target="_blank" rel="noopener">공식 문제 원문 ↗</a></p>
+    ${kyptStmtHtml(p)}
     ${yrow.locked?`<p class="ch-note">${ic('lock')} 지난 연도라 읽기 전용입니다.</p>`:''}
     <div class="kp-people">
       <span class="kp-plab">참여</span>
@@ -11595,6 +11723,7 @@ async function renderKyptProblemV2(year, no){
       <button class="kp-tab${tab==='status'?' on':''}" data-kt="status">현황${(ws.todos||[]).filter(t=>!t.done_at).length?` <span class="kv2-cnt">${(ws.todos||[]).filter(t=>!t.done_at).length}</span>`:''}</button>
       <button class="kp-tab${tab==='entries'?' on':''}" data-kt="entries">연구일지 <span class="kv2-cnt">${ws.entries.length}</span></button>
       <button class="kp-tab${tab==='assets'?' on':''}" data-kt="assets">자료함 <span class="kv2-cnt">${ws.assets.length}</span></button>
+      <button class="kp-tab${tab==='refkit'?' on':''}" data-kt="refkit">레퍼런스 키트${_kr[p.id]&&!_kr[p.id].err?` <span class="kv2-cnt">${_kr[p.id].refs.length}</span>`:''}</button>
       <button class="kp-tab${tab==='notes'?' on':''}" data-kt="notes">끄적</button>
       <button class="kp-tab${tab==='feedback'?' on':''}" data-kt="feedback">피드백${
         (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length?` <span class="kv2-cnt">${(ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at).length}</span>`:''}</button>
@@ -11614,9 +11743,148 @@ function kv2RenderPane(p, tab, canEd){
   const pane=$('#kv2Pane'); if(!pane) return;
   if(tab==='status'){ kv2RenderStatus(p, pane, canEd); return; }
   if(tab==='assets'){ kv2RenderAssets(p, pane, canEd); return; }
+  if(tab==='refkit'){ kv2RenderRefkit(p, pane, canEd); return; }
   if(tab==='notes'){ kv2RenderScribbles(p, pane, canEd); return; }
   if(tab==='feedback'){ kv2RenderFeedbackTab(p, pane, canEd); return; }
   kv2RenderEntries(p, pane, canEd);
+}
+
+/* ================== 레퍼런스 키트 (102 · 세션 BH) ==================
+   IYPT 2027 Reference kit(Martchenko 외)의 참고 문헌을 문제별로 붙여 둔다. 목록은 키트 그대로(부원이 늘리지 않는다 —
+   자기 자료는 자료함에). 각 문헌에 ① 사람별 읽음 표(커버색 점) ② 공동 요약 하나. 요약은 옆 칸에서 쓰고 읽는다 —
+   목록이 길어지면 안 된다(사용자 요구). 102 미적용이면 탭 안에 안내만 나온다(규칙 13). */
+const KR_KIND = { paper:'논문', video:'영상', wiki:'위키', web:'웹' };
+const KR_KIND_CLS = { paper:'k-paper', video:'k-video', wiki:'k-doc', web:'k-web' };
+const KR_FILTERS = [['all','전체'],['paper','논문'],['video','영상'],['wiki','위키'],['web','웹'],['unread','안 읽은 것만']];
+let _kr = {};              // problem_id → { refs, reads, err }
+let _krUi = {};            // problem_id → { f, sel }
+async function kv2LoadRefkit(pid, force){
+  if(_kr[pid] && !force && !_kr[pid].err) return _kr[pid];
+  try{
+    const r = await sb.from('kypt_refkit')
+      .select('id,problem_id,ord,title,url,url2,kind,summary,summary_by,summary_at')
+      .eq('problem_id', pid).order('ord',{ascending:true});
+    if(r.error) throw r.error;
+    let reads=[];
+    try{
+      const ids=(r.data||[]).map(x=>x.id);
+      if(ids.length){ const rr=await sb.from('kypt_refkit_reads').select('ref_id,uid,read_at').in('ref_id', ids); if(!rr.error) reads=rr.data||[]; }
+    }catch(e){ /* 읽음 표만 못 읽어도 목록은 뜬다 */ }
+    _kr[pid] = { refs:(r.data||[]).slice(), reads:reads.slice(), err:null };
+  }catch(e){ _kr[pid] = { refs:[], reads:[], err:e }; }
+  return _kr[pid];
+}
+function krReadersOf(pid, rid){ const d=_kr[pid]; return d ? d.reads.filter(x=>Number(x.ref_id)===Number(rid)).map(x=>x.uid) : []; }
+function krMineRead(pid, rid){ return krReadersOf(pid, rid).includes(state.user&&state.user.id); }
+function krDot(uid, title){
+  return `<span class="kr-dot" style="--cv:${escapeAttr(coverOf(uid)||DEFAULT_COVER)}" title="${escapeAttr(title||kyptName(uid))}"></span>`;
+}
+async function kv2RenderRefkit(p, pane, canEd){
+  const _nav=_navSeq;
+  pane.innerHTML='<p class="muted">불러오는 중…</p>';
+  const d = await kv2LoadRefkit(p.id);
+  if(_nav!==_navSeq) return;
+  if(d.err){
+    pane.innerHTML = kyptAdminish()
+      ? `<p class="ch-note">레퍼런스 키트를 쓰려면 <code>102_refkit.sql</code>을 실행하세요.${d.err.message?`<br>원인: ${escapeHtml(String(d.err.message))}`:''}</p>`
+      : '<p class="muted">레퍼런스 키트는 준비 중이에요. 운영진에게 물어봐 주세요.</p>';
+    return;
+  }
+  const uids = [...new Set([...kyptMembersOf(p.id).map(m=>m.uid), ...d.reads.map(x=>x.uid)])];
+  await ensureCovers(uids);                                          // 사람별 점 색(커버색)
+  if(_nav!==_navSeq) return;
+  const tb=document.querySelector('#kv2Tabs .kp-tab[data-kt="refkit"]');
+  if(tb && !tb.querySelector('.kv2-cnt')) tb.insertAdjacentHTML('beforeend', ` <span class="kv2-cnt">${d.refs.length}</span>`);
+  krDraw(p, pane, canEd);
+}
+function krRowHtml(p, r, sel){
+  const readers = krReadersOf(p.id, r.id);
+  const mine = readers.includes(state.user&&state.user.id);
+  const link = r.url
+    ? `<a class="kr-title" href="${escapeAttr(r.url)}" target="_blank" rel="noopener" title="${escapeAttr(r.title)}">${escapeHtml(r.title)}</a>`
+    : `<span class="kr-title nolink" title="${escapeAttr(r.title)}">${escapeHtml(r.title)}</span>`;
+  return `<div class="kr-row${mine?' read':''}${sel?' sel':''}" data-krid="${r.id}">
+    <span class="kr-ord">${r.ord}</span>
+    <span class="kv2-akind ${KR_KIND_CLS[r.kind]||'k-web'}">${KR_KIND[r.kind]||escapeHtml(r.kind||'')}</span>
+    ${link}
+    <span class="kr-dots">${readers.map(u=>krDot(u, kyptName(u)+' 읽음')).join('')}</span>
+    <button class="kr-chip kr-read${mine?' on':''}" data-krread="${r.id}" title="${mine?'읽음 표시를 지웁니다':'읽었다고 표시합니다'}">${mine?'읽음':'안 읽음'}</button>
+    <button class="kr-chip kr-sum${r.summary?' has':''}${sel?' on':''}" data-krsum="${r.id}" title="${r.summary?'요약 보기':'요약 쓰기'}">요약</button>
+  </div>`;
+}
+function krPanelHtml(p, r, canEd){
+  if(!r) return `<div class="kr-empty"><b>요약 칸</b><p class="muted">목록에서 [요약]을 누르면 그 문헌의 요약이 여기 나와요.${canEd?' 참여자는 직접 쓰고 고칠 수 있어요.':''}</p></div>`;
+  const readers = krReadersOf(p.id, r.id);
+  const by = r.summary_by ? `${escapeHtml(kyptName(r.summary_by))} · ${kv2Fmt(r.summary_at)}` : '';
+  const lk = (u)=> u ? `<a href="${escapeAttr(u)}" target="_blank" rel="noopener">${escapeHtml(kv2Host(u)||u)} ↗</a>` : '';
+  return `<div class="kr-pan" data-krpan="${r.id}">
+    <div class="kr-pk"><span class="kv2-akind ${KR_KIND_CLS[r.kind]||'k-web'}">${KR_KIND[r.kind]||''}</span><span class="kr-pord">#${r.ord}</span></div>
+    <div class="kr-pt">${escapeHtml(r.title)}</div>
+    <div class="kr-pl">${lk(r.url)}${r.url2?` · ${lk(r.url2)}`:''}</div>
+    <div class="kr-pr">${readers.length?`읽은 사람 ${readers.map(u=>`<span class="kr-who">${krDot(u)}${escapeHtml(kyptName(u))}</span>`).join('')}`:'<span class="muted">아직 아무도 읽음 표시를 안 했어요.</span>'}</div>
+    ${canEd
+      ? `<textarea class="kp-ta kr-ta" id="krTa" rows="8" placeholder="이 문헌에서 우리 문제에 쓸 만한 것 — 핵심 결과, 쓴 방법, 조심할 점. 짧아도 좋아요.">${escapeHtml(r.summary||'')}</textarea>
+         <div class="kr-pacts"><button class="ch-act primary" id="krSave">저장</button><span class="kr-pby">${by}</span></div>`
+      : `<div class="kr-ro">${r.summary?escapeHtml(r.summary):'<span class="muted">아직 요약이 없어요.</span>'}</div>${by?`<div class="kr-pby">${by}</div>`:''}`}
+  </div>`;
+}
+function krDraw(p, pane, canEd){
+  const d=_kr[p.id]; if(!d) return;
+  const ui=_krUi[p.id] || (_krUi[p.id]={ f:'all', sel:null });
+  const refs=d.refs;
+  const shown = refs.filter(r => ui.f==='all' ? true : ui.f==='unread' ? !krMineRead(p.id, r.id) : r.kind===ui.f);
+  const readN = refs.filter(r=>krMineRead(p.id, r.id)).length;
+  const mem = kyptMembersOf(p.id);
+  const cnt = k => refs.filter(r=>r.kind===k).length;
+  pane.innerHTML=`
+    <div class="kr-head">
+      <p class="kp-hint">IYPT 2027 Reference kit(I. Martchenko 외, 2026-07-16 초안)의 참고 문헌 <b>${refs.length}</b>건. 링크는 새 창으로 열려요.
+        읽었으면 [읽음]을 눌러 두세요 — 사람마다 자기 <b>커버색 점</b>으로 표시됩니다. 요약은 옆 칸에서 쓰고 읽어요(목록은 길어지지 않아요).</p>
+      <div class="kr-legend">${mem.length ? mem.map(m=>`<span class="kr-who">${krDot(m.uid)}${escapeHtml(kyptName(m.uid))}</span>`).join('') : '<span class="muted">아직 참여자가 없어요.</span>'}
+        <span class="kr-mine">내가 읽음 <b>${readN}</b> / ${refs.length}</span></div>
+      <div class="kr-filters">${KR_FILTERS.map(([k,l])=>`<button class="kr-f${ui.f===k?' on':''}" data-krf="${k}">${l}${(k==='all'||k==='unread')?'':` <span class="kv2-cnt">${cnt(k)}</span>`}</button>`).join('')}</div>
+    </div>
+    <div class="kr-main">
+      <div class="kr-list">${shown.length ? shown.map(r=>krRowHtml(p, r, ui.sel===r.id)).join('') : '<p class="muted" style="padding:14px 4px">여기에 해당하는 문헌이 없어요.</p>'}</div>
+      <aside class="kr-side" id="krSide">${krPanelHtml(p, refs.find(r=>r.id===ui.sel)||null, canEd)}</aside>
+    </div>`;
+  pane.querySelectorAll('[data-krf]').forEach(b=>{ b.onclick=()=>{ ui.f=b.dataset.krf; krDraw(p, pane, canEd); }; });
+  pane.querySelectorAll('[data-krsum]').forEach(b=>{
+    b.onclick=()=>{
+      const id=Number(b.dataset.krsum);
+      ui.sel = (ui.sel===id) ? null : id;
+      krDraw(p, pane, canEd);
+      const side=pane.querySelector('#krSide');
+      if(side && ui.sel!=null && window.innerWidth<=900) side.scrollIntoView({ block:'nearest', behavior:'smooth' });
+    };
+  });
+  pane.querySelectorAll('[data-krread]').forEach(b=>{
+    b.onclick=async()=>{
+      const id=Number(b.dataset.krread); const uid=state.user&&state.user.id; if(!uid) return;
+      const mine = krMineRead(p.id, id);
+      b.disabled=true;
+      const r = mine
+        ? await sb.from('kypt_refkit_reads').delete().eq('ref_id', id).eq('uid', uid)
+        : await sb.from('kypt_refkit_reads').insert({ ref_id:id, uid });
+      if(r.error){ b.disabled=false; toast('읽음 표시를 바꾸지 못했어요: '+(r.error.message||'')); return; }
+      /* 응답 객체는 읽기 전용으로 — 복사해서 바꾼다(세션 AS 교훈) */
+      d.reads = mine ? d.reads.filter(x=>!(Number(x.ref_id)===id && x.uid===uid)) : d.reads.concat([{ ref_id:id, uid, read_at:new Date().toISOString() }]);
+      krDraw(p, pane, canEd);
+    };
+  });
+  const sv=pane.querySelector('#krSave');
+  if(sv) sv.onclick=async()=>{
+    const ta=pane.querySelector('#krTa'); const r=refs.find(x=>x.id===ui.sel); if(!ta || !r) return;
+    const v=ta.value.trim(); const uid=state.user&&state.user.id;
+    sv.disabled=true;
+    const u = await sb.from('kypt_refkit').update({ summary: v||null, summary_by: v?uid:null, summary_at: v?new Date().toISOString():null }).eq('id', r.id).select('id,summary,summary_by,summary_at').maybeSingle();
+    sv.disabled=false;
+    if(u.error){ toast('요약을 저장하지 못했어요: '+(u.error.message||'')); return; }
+    if(u.data){ Object.assign(r, { summary:u.data.summary, summary_by:u.data.summary_by, summary_at:u.data.summary_at }); }
+    else { Object.assign(r, { summary:v||null, summary_by:v?uid:null, summary_at:v?new Date().toISOString():null }); }
+    toast(v?'요약을 저장했어요.':'요약을 비웠어요.');
+    krDraw(p, pane, canEd);
+  };
 }
 
 /* ---------------- 실험 기록 목록 (= 일지) ---------------- */
@@ -16457,15 +16725,19 @@ async function loadSignupClubs(){
 $('#go-signup').onclick=()=>{ $('#loginCard').style.display='none'; $('#signupCard').style.display='block'; renderSignupCaptcha(); loadSignupClubs(); loadSignupTracks(); loadSignupGate(); };
 /* 가입 문턱(76): 'code'=초대 코드 필요 · 'open'=누구나 · 'closed'=가입 중단.
    ★코드 값 자체는 서버가 절대 내려주지 않는다 — 여기서는 '어떤 모드인지'만 받는다. */
-let SIGNUP_MODE='open';
+let SIGNUP_MODE='open', SIGNIN_GATE_UNKNOWN=false;
 async function loadSignupGate(){
+  SIGNIN_GATE_UNKNOWN=false;
   try{
     const { data, error } = await sb.rpc('signup_gate_mode');
     if(error) throw error;
     SIGNUP_MODE = data || 'open';
-  }catch(e){ SIGNUP_MODE='open'; }        // 76 미적용 → 예전처럼 누구나 가입
+  }catch(e){ SIGNIN_GATE_UNKNOWN=true; SIGNUP_MODE='open'; }   // 76 미적용이거나 anon이 못 부름 → 모드를 모른다
   const wrap=$('#su-codewrap'), btn=$('#su-btn'), sub=$('#su-sub');
-  if(wrap) wrap.style.display = (SIGNUP_MODE==='code') ? 'block' : 'none';
+  /* ★세션 BH: 모드를 모를 때도 코드 칸은 보여 준다(선택). 서버 트리거(98)는 모드를 못 읽으면
+     '막는 쪽(fail closed)'으로 넘어지는데, 화면만 '열림'이라 믿고 코드 칸을 숨기면
+     코드가 있는 사람도 빈 값으로 보내 "Database error saving new user"만 받는다. */
+  if(wrap) wrap.style.display = (SIGNUP_MODE==='code' || SIGNIN_GATE_UNKNOWN) ? 'block' : 'none';
   if(SIGNUP_MODE==='closed'){
     if(btn){ btn.disabled=true; btn.textContent='가입 중단'; }
     if(sub) sub.innerHTML='지금은 <b>회원 가입을 받지 않습니다</b>. 동아리 관리자에게 문의해 주세요.';
@@ -16533,7 +16805,13 @@ async function doSignupRequest(){
       /already|registered|exists/i.test(em)     ? '이미 가입된 이메일이에요. 로그인해 주세요.' :
       /지금은 회원 가입을 받지 않습니다/.test(em) ? em :
       /database error saving new user/i.test(em)
-        ? '계정을 만들다 서버에서 막혔어요. 운영진에게 알려 주세요 — SQL Editor에서 98_signup_rebuild.sql을 실행한 뒤 select * from public.signup_log order by at desc limit 20; 을 보면 진짜 이유가 나옵니다.' :
+        /* ★세션 BH: 트리거가 예외를 던지면 그 트랜잭션 전체가 롤백되므로 signup_log에도 줄이 남지 않는다.
+           그래서 signup_last_error가 빈손으로 오는 게 정상이다. 가장 흔한 실제 원인은 초대 코드(76 문턱)다. */
+        ? ('계정을 만들다 서버에서 막혔어요. '
+           + ((SIGNUP_MODE==='code'||SIGNIN_GATE_UNKNOWN)
+               ? '초대 코드가 틀렸거나 비어 있을 때 이렇게 나옵니다 — 동아리에서 받은 코드를 다시 확인해 주세요. '
+               : '')
+           + '계속 막히면 운영진에게 알려 주세요 — SQL Editor에서 98_signup_rebuild.sql 적용 여부와 diag_signup.sql(가입 시험 삽입)을 실행하면 진짜 이유가 나옵니다. (signup_log는 성공한 가입의 프로필 실패만 남습니다)') :
       ('가입 실패: '+em);
     return;
   }
