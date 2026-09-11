@@ -3,7 +3,7 @@
       Supabase API·CAPTCHA는 절대 캐시하지 않는다. 문서(index.html)는 네트워크 먼저, 실패하면 캐시.
    2) 새 역할: 푸시 알림 표시 + 알림 탭 → 앱을 KYPT 탭으로 연다.
    ★캐시 이름을 올렸다(anda-v1 → anda-v2): 이 파일이 설치되면 예전 캐시는 activate에서 지워진다. */
-const CACHE = 'anda-v2';
+const CACHE = 'anda-v3';   // 세션 BS: 배지·목적지 수정 — 이름을 올려야 폰이 새 워커를 받는다
 const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
 
 self.addEventListener('install', (e) => {
@@ -67,21 +67,24 @@ self.addEventListener('push', (e) => {
   let d = {};
   try { d = e.data ? e.data.json() : {}; } catch (_) { d = { body: e.data ? e.data.text() : '' }; }
   const title = d.title || '안다 아카이브';
-  const url = d.url || '/#//kypt';
+  const url = d.url || '#//kypt';
   e.waitUntil(self.registration.showNotification(title, {
     body: d.body || '',
     tag: d.tag || 'anda',
     renotify: true,
-    icon: d.icon || './icon-192.png',
-    badge: d.badge || './icon-192.png',
+    icon: d.icon || './icon-192.png',      // 오른쪽 큰 그림 — 앱 아이콘
+    badge: d.badge || './badge-96.png',    // 상태줄 작은 단색 표식 (컬러 아이콘을 넣으면 검은 네모가 된다)
     data: { url },
   }));
 });
 
 self.addEventListener('notificationclick', (e) => {
   e.notification.close();
-  const url = (e.notification.data && e.notification.data.url) || '/#//kypt';
-  const target = new URL(url, self.location.origin).href;
+  /* ★세션 BP: 사이트가 하위 경로(예: /repo/)에 있을 수 있다 — 서비스 워커의 scope(= index.html이 있는 폴더)를 기준으로 만든다.
+     예전엔 origin 기준 '/#//kypt' 라서 GitHub Pages 같은 곳에서 404로 갔다. */
+  const raw = (e.notification.data && e.notification.data.url) || '#//kypt';
+  const base = self.registration.scope;                                  // 예: https://user.github.io/repo/
+  const target = /^https?:/i.test(raw) ? raw : new URL(raw.replace(/^\/+/, ''), base).href;
   e.waitUntil((async () => {
     const wins = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for (const w of wins) {

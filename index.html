@@ -4614,7 +4614,7 @@ const NUDGE_KEY = 'anda_nudge_hide';     // 오늘 하루 숨김
 let _installPrompt = null;
 if('serviceWorker' in navigator && location.protocol.startsWith('http')){
   window.addEventListener('load', ()=>{
-    navigator.serviceWorker.register('sw.js').catch(()=>{});   // 파일이 없으면 조용히 무시
+    navigator.serviceWorker.register('sw.js').then(r=>{ try{ r.update(); }catch(e){} }).catch(()=>{});   // ★세션 BS: 새 sw.js를 바로 확인(GitHub Pages는 10분 캐시)
   // ★세션 BO: 알림을 탭했을 때 sw.js가 navigate를 못 쓰는 브라우저면 메시지로 목적지를 보낸다
   navigator.serviceWorker.addEventListener('message', (ev)=>{ const go=ev.data && ev.data.go; if(go){ try{ const u=new URL(go); if(u.hash) goHash(u.hash); }catch(e){} } });
   });
