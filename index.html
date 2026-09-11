@@ -1859,7 +1859,7 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .dgrp-cv{font-size:10px;color:var(--text-dim);transition:transform var(--dur-2) var(--ease);}
 .dgrp.closed .dgrp-cv{transform:rotate(-90deg);}
 .dgrp.closed .dgrp-b{display:none;}
-.dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:1px 14px;padding-bottom:12px;}
+.dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:8px 12px;padding:4px 0 16px;}
 /* ★세션 R — 목록 가독성.
    4열로 넓게 흩어놓으니 눈이 갈지자로 훑어야 했다. 열을 줄여 시선이 아래로만 흐르게 하고,
    분류 제목을 본문보다 확실히 위로 올려 덩어리가 먼저 보이게 한다. */
@@ -1868,25 +1868,27 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .dgrp-n{ font-size:12px; letter-spacing:.06em; color:var(--text-dim); }
 .dgrp.closed .dgrp-n, .dgrp-h:hover .dgrp-n{ color:var(--text); }
 .dgrp-c{ background:var(--box-bg); border-radius:var(--r-round); padding:1px 8px; }
-.dl2{ padding:7px 10px; }
-.dl2-t{ max-width:none; flex:0 1 auto; }
-.dl2-k{ flex:0 1 auto; opacity:.65; }
-.dl2-dot{ margin-left:auto; }
-.dl2-e{ margin-left:8px; }
-.dl2{display:flex;align-items:baseline;gap:8px;padding:8px 10px;border-radius:var(--r-1);
-  color:var(--text);text-decoration:none;}
-.dl2:hover{background:var(--box-bg);text-decoration:none;}
-.dl2-t{font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:none;max-width:64%;}
-.dl2:hover .dl2-t{text-decoration:underline;text-underline-offset:3px;}
-.dl2-k{font-size:11px;color:var(--text-dim);font-family:var(--mono);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0;}
-.dl2-dot{width:5px;height:5px;border-radius:50%;background:var(--warn);flex:none;align-self:center;}
+.dl2{display:flex;align-items:center;gap:12px;padding:11px 12px 11px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);
+  color:var(--text);text-decoration:none;position:relative;min-height:56px;
+  transition:transform .16s cubic-bezier(.22,.61,.36,1), box-shadow .16s, border-color .16s, background .16s;}
+.dl2:hover{background:var(--card);text-decoration:none;border-color:color-mix(in srgb, var(--accent) 45%, var(--border));
+  box-shadow:0 8px 22px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);transform:translateY(-2px);}
+.dl2:active{transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.08);}
+.dl2 .strata-b{height:28px;width:4px;border-radius:2px;}
+.dl2-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
+.dl2-t{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;letter-spacing:-.01em;}
+.dl2:hover .dl2-t{color:var(--accent);}
+.dl2-k{font-size:11px;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;display:flex;align-items:center;gap:8px;opacity:.85;}
+.dl2-dot{font-family:inherit;font-size:10px;font-weight:700;padding:1px 6px;border-radius:var(--r-round);background:color-mix(in srgb, var(--warn) 18%, transparent);color:var(--warn);flex:none;}
 .dl2.hid{opacity:.6;}
 .dl2.hid .dl2-t::after{content:' 👁';font-size:11px;}
-.dl2-e{margin-left:auto;opacity:0;border:0;background:none;color:var(--text-dim);
-  cursor:pointer;padding:0 2px;line-height:0;flex:none;align-self:center;}
+.dl2-e{opacity:0;border:0;background:none;color:var(--text-dim);cursor:pointer;padding:4px;line-height:0;flex:none;border-radius:6px;transition:opacity .12s;}
 .dl2:hover .dl2-e{opacity:1;}
-.dl2-e:hover{color:var(--accent);}
+.dl2-e:hover{color:var(--accent);background:var(--box-bg);}
+.dl2-go{flex:none;color:var(--text-dim);font-size:15px;opacity:.35;transform:translateX(-4px);transition:transform .16s cubic-bezier(.22,.61,.36,1), opacity .16s, color .16s;}
+.dl2:hover .dl2-go{opacity:1;transform:translateX(0);color:var(--accent);}
+body.fx-flat .dl2, body.fx-flat .dl2-go{transition:none;}
+@media (hover:none){ .dl2-e{opacity:1;} .dl2-go{opacity:.6;transform:none;} }
 @media(max-width:640px){ .dgrp-b{grid-template-columns:1fr;} .dl2-e{opacity:1;} }
 
 /* ═══════════ 화면 효과 3단 (세션 L) ═══════════
@@ -2642,49 +2644,8 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
 .story-wrap{max-width:1080px;margin:0 auto;}
 .story-note{font-size:13px;color:var(--text-dim);margin:2px 0 0;}
 /* --- 상단 타임라인 --- */
-.stl{margin:34px 0 6px;}
-.stl-row{display:flex;align-items:flex-end;position:relative;}
-.stl-row+.stl-row{margin-top:96px;}
-.stl-n{width:calc(100%/6);min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
-.stl-lab{height:46px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;margin-bottom:9px;min-width:0;max-width:96%;}
-.stl-date{font-size:12px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;letter-spacing:.04em;}
-.stl-title{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
-.stl-dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto;position:relative;z-index:2;
-  background:color-mix(in srgb, var(--accent) 26%, transparent);
-  border:2px solid color-mix(in srgb, var(--accent) 45%, transparent);
-  transition:background .5s ease, box-shadow .5s ease, border-color .5s ease;}
-.stl-n+.stl-n::before{content:'';position:absolute;left:-50%;right:50%;bottom:9px;height:3px;border-radius:2px;z-index:1;
-  background:color-mix(in srgb, var(--accent) 20%, transparent);}
-.stl-n:hover .stl-dot,.stl-n.open .stl-dot{background:var(--accent);border-color:var(--accent);
-  box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent), 0 8px 22px color-mix(in srgb, var(--accent) 38%, transparent);}
-.stl-pop{position:absolute;left:50%;width:216px;background:var(--card);border:1px solid var(--line);border-radius:12px;
-  padding:11px 12px;z-index:6;opacity:0;pointer-events:none;transition:opacity .45s ease, transform .45s ease;}
-.stl-n.up .stl-pop{bottom:calc(100% + 10px);transform:translate(-50%,8px);}
-.stl-n.down .stl-pop{top:calc(100% + 10px);transform:translate(-50%,-8px);}
-.stl-n:hover .stl-pop,.stl-n.open .stl-pop{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
-.stl-pop .stl-pimg{width:100%;border-radius:8px;border:1px solid var(--line);display:block;margin-bottom:8px;}
-.stl-pop .stl-ptxt{font-size:12.5px;line-height:1.65;color:var(--text);}
-.stl-pop .stl-pmuted{font-size:12px;color:var(--text-dim);}
-body.fx-flat .stl-dot,body.fx-flat .stl-pop{transition:none;}
-@media (prefers-reduced-motion: reduce){ .stl-dot,.stl-pop{transition:none;} }
-@media (max-width:640px){
-  .stl{position:relative;padding-left:6px;}
-  .stl::before{content:'';position:absolute;left:16px;top:8px;bottom:8px;width:3px;border-radius:2px;
-    background:color-mix(in srgb, var(--accent) 20%, transparent);}
-  .stl-row{flex-direction:column;align-items:stretch;}
-  .stl-row+.stl-row{margin-top:0;}
-  .stl-n{width:100%;flex-direction:row;align-items:center;gap:14px;padding:11px 0;}
-  .stl-n+.stl-n::before{display:none;}
-  .stl-lab{height:auto;margin-bottom:0;align-items:flex-start;text-align:left;order:2;max-width:none;flex:1;min-width:0;}
-  .stl-dot{order:1;}
-  .stl-n.up .stl-pop,.stl-n.down .stl-pop,.stl-n:hover .stl-pop,.stl-n.open .stl-pop{
-    position:static;width:auto;opacity:1;transform:none;top:auto;bottom:auto;
-    pointer-events:auto;display:none;margin:2px 0 4px 40px;order:3;flex-basis:100%;}
-  .stl-n.open .stl-pop{display:block;}
-  .stl-n{flex-wrap:wrap;}
-}
 /* --- 대형 A + 구슬 --- */
-.story-a-sec{margin:64px auto 10px;text-align:center;}
+.story-a-sec{margin:28px auto 10px;text-align:center;}
 .story-a-hint{font-size:12.5px;color:var(--text-dim);margin-top:14px;}
 .abox{position:relative;width:min(680px,96%);margin:18px auto 0;aspect-ratio:600/520;}
 .abox svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:2;}
@@ -2699,7 +2660,7 @@ body.fx-flat .stl-dot,body.fx-flat .stl-pop{transition:none;}
   transition:transform .4s var(--spring-soft, ease), box-shadow .4s ease;}
 .bead::after{content:'';position:absolute;left:20%;top:12%;width:26%;height:15%;border-radius:50%;
   background:rgba(255,255,255,.75);filter:blur(3px);transform:rotate(-24deg);}
-.beadw:hover .bead{transform:scale(1.07);
+.beadw:hover .bead{transform:scale(1.14);box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 28%, transparent), 0 12px 26px rgba(0,0,0,.28);
   box-shadow:inset -7px -10px 16px rgba(90,0,0,.30), inset 3px 5px 9px rgba(255,255,255,.35),
     0 14px 28px color-mix(in srgb, var(--accent) 30%, transparent);}
 .bead-y{font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;font-weight:700;color:#fff;
@@ -2714,21 +2675,33 @@ body.fx-flat .bead,body.fx-flat .beadw:hover .bead{transition:none;transform:non
   .bead-y{font-size:1.6em;}
 }
 /* --- 오른쪽 라이트 패널 (그림자 없음) --- */
-.story-scrim{position:fixed;inset:0;z-index:119;background:transparent;}
-.story-pane{position:fixed;top:0;right:0;bottom:0;width:min(420px,92vw);z-index:120;background:var(--card);
-  border-left:1px solid var(--line);padding:26px 26px 34px;overflow-y:auto;
-  transform:translateX(103%);transition:transform .5s var(--spring-soft, ease);}
-.story-pane.on{transform:translateX(0);}
+.story-scrim{position:fixed;inset:0;z-index:119;background:rgba(0,0,0,.28);backdrop-filter:blur(2px);}
+/* ★세션 BQ: 순간 카드 — 가운데 네모. 연필(수정)·✕는 오른쪽 위 */
+.story-pane{position:fixed;left:50%;top:50%;width:min(540px,92vw);max-height:min(86vh,760px);z-index:120;background:var(--card);
+  border:1px solid var(--line);border-radius:16px;padding:22px 26px 28px;overflow-y:auto;box-shadow:var(--sh-2);
+  transform:translate(-50%,-50%) scale(.96);opacity:0;transition:transform .28s var(--spring-soft, ease), opacity .2s ease;}
+.story-pane.on{transform:translate(-50%,-50%) scale(1);opacity:1;}
 body.fx-flat .story-pane{transition:none;}
-.story-pane .sp-close{position:absolute;top:14px;right:14px;border:1px solid var(--line);background:transparent;
-  color:var(--text-dim);width:30px;height:30px;border-radius:8px;cursor:pointer;font-size:15px;line-height:1;}
-.story-pane .sp-close:hover{color:var(--text);}
-.story-pane .sp-date{font-size:13px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;
-  letter-spacing:.05em;margin:4px 0 6px;}
-.story-pane h2{font-size:21px;margin:0 0 16px;line-height:1.35;}
-.story-pane .sp-img{width:100%;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 16px;}
+.story-pane .sp-top{display:flex;justify-content:flex-end;gap:6px;margin:-6px -10px 6px 0;}
+.story-pane .sp-ib{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;}
+.story-pane .sp-ib:hover{color:var(--accent);border-color:var(--accent);}
+.story-pane .sp-ib svg{width:15px;height:15px;}
+.story-pane .sp-date{font-size:13px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;letter-spacing:.04em;margin-bottom:6px;}
+.story-pane h2{font-size:21px;margin:0 0 6px;line-height:1.35;}
+.story-pane .sp-sub{font-size:14px;color:var(--text-dim);margin:0 0 14px;line-height:1.5;}
+.story-pane .sp-img{max-width:100%;max-height:220px;width:auto;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 14px;}
 .story-pane .sp-memo{font-size:14.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
 .story-pane .sp-memo-empty{font-size:13.5px;color:var(--text-dim);}
+.story-pane .sp-form{display:flex;flex-direction:column;gap:6px;}
+.story-pane .sp-form .nd-label{margin-top:8px;}
+.story-pane .sp-form textarea{min-height:120px;}
+.story-pane .sp-photo{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.story-pane .sp-thumb{width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid var(--line);}
+.story-pane .sp-acts{display:flex;justify-content:flex-end;gap:8px;margin-top:10px;}
+/* 날짜 부품: 연도·월·일 각각 */
+.sdate{display:inline-flex;gap:6px;align-items:center;}
+.sdate select{font:inherit;font-size:14px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--text);}
+.sdate .sd-y{min-width:86px;} .sdate .sd-m,.sdate .sd-d{min-width:64px;}
 /* --- 연혁 관리 모달 --- */
 .sm-list{margin:12px 0 4px;max-height:56vh;overflow-y:auto;}
 .smr{display:grid;grid-template-columns:24px 96px 1fr 28px;gap:6px 10px;padding:13px 2px;border-bottom:1px solid var(--line);
@@ -2833,6 +2806,11 @@ body.fx-flat .story-pane{transition:none;}
 .kp-nudge.on .kp-nudge-st{ background:var(--accent); color:#fff; }
 .kp-nudge-d{ font-size:13px; color:var(--text-dim); margin-top:4px; line-height:1.55; }
 .kp-nudge-msg{ font-size:12.5px; color:var(--accent); margin-top:4px; min-height:0; }
+.kp-nudge-dev{ display:flex; align-items:center; gap:8px; margin-top:6px; font-size:12px; }
+.kp-nudge-dev:empty{ display:none; }
+.kp-dev{ padding:2px 8px; border-radius:var(--r-round); font-weight:700; }
+.kp-dev.ok{ background:color-mix(in srgb, var(--ok) 14%, var(--card)); color:var(--ok); }
+.kp-dev.no{ background:var(--box-bg); color:var(--text-dim); }
 .kp-nudge-msg:empty{ display:none; }
 .kp-nudge-r{ display:flex; flex-direction:column; align-items:center; gap:8px; flex:none; }
 .kp-switch{ position:relative; width:64px; height:36px; border-radius:18px; border:none; background:var(--border-strong); cursor:pointer; padding:0; transition:background .18s; }
@@ -3322,7 +3300,8 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
 .kv2-upl{ cursor:pointer; }
 
 @media (max-width:640px){
-  .topbar .navbtn.navkypt{ padding:6px 9px; }
+  /* ★세션 BP: 폰 상단바에서 KYPT 버튼은 아이콘 사각형 하나 — 깃발 꼬리(clip-path)와 그 뒤 12px 여백을 걷는다. 캘린더가 빠진 뒤 그 여백만 남아 "틈"으로 보였다. */
+  .topbar .navbtn.navkypt{ padding:0; margin-right:0; clip-path:none; border-radius:9px; }
   .kp-note-box{ width:calc(50% - 5px); height:120px; }
   .kp-row{ gap:10px; }
   .kp-no{ font-size:17px; min-width:24px; }
@@ -5279,10 +5258,12 @@ async function renderDocsPage(){
   const rowHTML=d=>`
     <a class="dl2${isStub(d.key)?' stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
       ${strataHTML(d.key,'bar')}
-      <span class="dl2-t">${escapeHtml(d.title||d.key)}</span>
-      <span class="dl2-k">${escapeHtml(isMemberDocKey(d.key)? d.key : '/'+d.key)}</span>
-      ${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자"></span>`:''}
+      <span class="dl2-main">
+        <span class="dl2-t">${escapeHtml(d.title||d.key)}</span>
+        <span class="dl2-k">${escapeHtml(isMemberDocKey(d.key)? d.key : '/'+d.key)}${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자">짧음</span>`:''}</span>
+      </span>
       ${canEdit()?`<button class="dl2-e" data-edit="${escapeAttr(d.key)}" title="편집">${ic('edit')}</button>`:''}
+      <span class="dl2-go" aria-hidden="true">→</span>
     </a>`;
 
   /* ★화면 전체를 다시 그리지 않는다 — 목록 영역과 컨트롤 상태만 갱신(스크롤·포커스 유지) */
@@ -9253,6 +9234,9 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-11', text:'[문서] 문서 목록의 한 줄 한 줄이 카드가 됐어요 — 올리면 살짝 떠오르고 화살표가 나옵니다. 주소는 제목 아래로, 짧은 문서는 "짧음" 표시로.' },
+  { date:'2026-09-11', text:'[연혁] 타임라인 줄을 없애고 A 속 구슬만 남겼어요. 구슬에 올리면 반응하고, 누르면 네모 카드에 날짜·사건명·한 줄 소개·사진·회고록이 열립니다. 연혁 관리 권한이 있으면 카드 오른쪽 위 연필로 그 자리에서 바로 고쳐 저장돼요. 날짜는 연·월·일을 따로 고릅니다.' },
+  { date:'2026-09-11', text:'[KYPT] 끄적을 지울 때 한 번 더 묻고, 현황의 "미해결 피드백"엔 일지에 달린 의견만 셉니다(자료 의견은 따로 → 자료함으로). 알림을 탭하면 정확히 KYPT로 옵니다. 없는 주소로 가면 숫자가 떨어지는 404 화면이 나와요.' },
   { date:'2026-09-11', text:'[KYPT] 연구 기간 알림 — KYPT 탭의 큰 스위치를 켜면 매주 화요일 밤 10시 10분에 "오늘 연구는 잘 진행되었나요?" 푸시가 오고, 탭하면 바로 KYPT로 옵니다. 캘린더는 없앴고, 연혁은 admin도 편집할 수 있어요(권한 목록에 추가).' },
   { date:'2026-09-10', text:'[대화방] 반응 이모지가 64종으로 늘었고 [+] 버튼과 창이 새 모양이에요. 내 말풍선은 상징색 톤으로, 회색 테두리와 선은 정리했습니다. 이름·사진을 눌러도 프로필로 넘어가지 않아요.' },
   { date:'2026-09-10', text:'[시스템] 대문 사진 벽과 예전 가입 신청 화면을 없앴어요. 기능 스위치·상한(KYPT·피드백 6종)·권한(KYPT 관리)·가입 설정(현재 초대 코드 표시)·시스템 검사(마이그레이션 번호별 138항목, 실패 종류 표시)·유지 보수(프로필 복구·가입 기록·KYPT 파일 정리)를 지금 기능에 맞게 갱신했습니다.' },
@@ -10494,21 +10478,6 @@ function storyUrl(p){
   try{ return sb.storage.from(STORY_BUCKET).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; }
 }
 /* --- 타임라인 (한 줄 6개, 넘치면 다음 줄 / 홀수 번째 위·짝수 번째 아래 팝오버) --- */
-function storyTimelineHtml(events){
-  const rows=[];
-  for(let i=0;i<events.length;i+=6) rows.push(events.slice(i,i+6));
-  return `<div class="stl">`+rows.map((row,ri)=>`<div class="stl-row">`+row.map((ev,ci)=>{
-    const gi=ri*6+ci;                       // 전체 인덱스: 0부터 → 1번째(홀수)는 위
-    const pop = (ev.photo?`<img class="stl-pimg" src="${escapeAttr(storyUrl(ev.photo))}" alt="" loading="lazy">`:'')
-      + (ev.blurb ? `<div class="stl-ptxt">${escapeHtml(ev.blurb)}</div>`
-                  : `<div class="stl-pmuted">자세한 이야기는 준비 중이에요.</div>`);
-    return `<div class="stl-n ${gi%2===0?'up':'down'}" data-bead="${escapeAttr(ev.id)}">
-      <div class="stl-lab"><span class="stl-date">${escapeHtml(ev.date)}</span><span class="stl-title">${escapeHtml(ev.title)}</span></div>
-      <div class="stl-dot"></div>
-      <div class="stl-pop">${pop}</div>
-    </div>`;
-  }).join('')+`</div>`).join('')+`</div>`;
-}
 /* --- 대형 A + 떠다니는 구슬 (rAF 물리 — transform만 갱신, 세션 T 규칙) --- */
 let _beadRaf=0;
 let _beadIo=null;
@@ -10593,7 +10562,7 @@ function initStoryBeads(events){
     }
   };
   for(let k=0;k<120;k++) solve();                          // 초기 배치 안정화
-  box.innerHTML=beads.map((b,i)=>`<div class="beadw" data-bi="${i}"><div class="bead">
+  box.innerHTML=beads.map((b,i)=>`<div class="beadw" data-bi="${i}" data-ev="${escapeAttr(b.ev.id)}" title="${escapeAttr(b.ev.title)}"><div class="bead">
     <span class="bead-y">${escapeHtml((b.ev.date.match(/\d{4}/)||[''])[0])}</span>
     <span class="bead-t">${escapeHtml(b.ev.title)}</span>
   </div></div>`).join('');
@@ -10636,7 +10605,50 @@ function initStoryBeads(events){
   _beadIo.observe(box);
   _beadRaf=requestAnimationFrame(step);
 }
-/* --- 오른쪽 라이트 패널 (그림자 없음 — 얇은 실선만) --- */
+/* --- 날짜 부품 (세션 BQ): 저장은 '2026.03' 또는 '2026.03.15' 문자열 그대로 — 예전 데이터와 호환 --- */
+function storyDateParts(str){
+  const m=String(str||'').match(/(\d{4})\D?(\d{1,2})?\D?(\d{1,2})?/);
+  return m ? { y:Number(m[1])||'', m:m[2]?Number(m[2]):'', d:m[3]?Number(m[3]):'' } : { y:'', m:'', d:'' };
+}
+function storyDateStr(p){
+  if(!p.y) return '';
+  const mm = p.m ? '.'+String(p.m).padStart(2,'0') : '';
+  const dd = (p.m && p.d) ? '.'+String(p.d).padStart(2,'0') : '';
+  return String(p.y)+mm+dd;
+}
+function storyDateLabel(str){
+  const p=storyDateParts(str); if(!p.y) return str||'';
+  return `${p.y}년${p.m?` ${p.m}월`:''}${p.d?` ${p.d}일`:''}`;
+}
+function storyDateSelHtml(str, cls){
+  const p=storyDateParts(str), now=new Date().getFullYear();
+  const yrs=[]; for(let y=now+2; y>=1990; y--) yrs.push(y);
+  const opt=(v,l,sel)=>`<option value="${v}"${sel?' selected':''}>${l}</option>`;
+  return `<span class="sdate ${cls||''}">
+    <select class="he-input sd-y" aria-label="연도">${opt('','연도',!p.y)}${yrs.map(y=>opt(y,y,p.y===y)).join('')}</select>
+    <select class="he-input sd-m" aria-label="월">${opt('','월',!p.m)}${Array.from({length:12},(_,i)=>opt(i+1,(i+1)+'월',p.m===i+1)).join('')}</select>
+    <select class="he-input sd-d" aria-label="일">${opt('','일',!p.d)}${Array.from({length:31},(_,i)=>opt(i+1,(i+1)+'일',p.d===i+1)).join('')}</select>
+  </span>`;
+}
+function storyDateRead(root){
+  const q=k=>{ const el=root.querySelector('.sd-'+k); return el && el.value ? Number(el.value) : ''; };
+  return storyDateStr({ y:q('y'), m:q('m'), d:q('d') });
+}
+/* 목록 저장(story.json) — 관리 창과 즉석 편집이 같이 쓴다 */
+async function storyWriteJson(events){
+  const blob=new Blob([JSON.stringify({ events })], { type:'application/json' });
+  const { error } = await sb.storage.from(STORY_BUCKET).upload(STORY_JSON, blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
+  if(error) throw error;
+}
+async function storyUploadPhoto(file){
+  const c=await compressImage(file, { mode:'contain', dim:STORY_DIM, target:STORY_TARGET_KB*1024, minQuality:0.4 });
+  const photo='ev/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
+  const { error } = await sb.storage.from(STORY_BUCKET).upload(photo, c.blob, { contentType:c.type, cacheControl:'31536000' });
+  if(error) throw error;
+  return photo;
+}
+/* --- 순간 카드 (세션 BQ: 오른쪽 서랍 → 가운데 네모 카드. 연필로 즉석 편집) --- */
+let _storyEvents=null;                  // 지금 화면의 사건 목록 (즉석 편집이 여기서 바꾸고 저장한다)
 function closeStoryPane(){
   const sc=document.querySelector('.story-scrim'), pn=document.querySelector('.story-pane');
   if(sc) sc.remove();
@@ -10649,17 +10661,63 @@ function closeStoryPane(){
 function openStoryPane(ev){
   closeStoryPane();
   const sc=document.createElement('div'); sc.className='story-scrim';
-  const pn=document.createElement('aside'); pn.className='story-pane';
-  pn.innerHTML=`<button class="sp-close" aria-label="닫기">✕</button>
-    <div class="sp-date">${escapeHtml(ev.date)}</div>
-    <h2>${escapeHtml(ev.title)}</h2>
-    ${ev.photo?`<img class="sp-img" src="${escapeAttr(storyUrl(ev.photo))}" alt="">`:''}
-    ${ev.memo?`<div class="sp-memo">${escapeHtml(ev.memo)}</div>`
-             :`<div class="sp-memo-empty">회고록이 아직 없어요 — 운영진이 [연혁 관리]에서 채울 수 있어요.</div>`}`;
-  document.body.appendChild(sc);
-  document.body.appendChild(pn);
+  const pn=document.createElement('div'); pn.className='story-pane'; pn.setAttribute('role','dialog'); pn.setAttribute('aria-modal','true');
+  document.body.appendChild(sc); document.body.appendChild(sc.pn=pn);
+  const view=()=>{
+    pn.innerHTML=`<div class="sp-top">
+        ${can('history_edit')?`<button class="sp-ib sp-edit" title="즉석 수정" aria-label="수정">${ic('edit')}</button>`:''}
+        <button class="sp-ib sp-close" aria-label="닫기">✕</button></div>
+      <div class="sp-date">${escapeHtml(storyDateLabel(ev.date))}</div>
+      <h2>${escapeHtml(ev.title)}</h2>
+      ${ev.blurb?`<div class="sp-sub">${escapeHtml(ev.blurb)}</div>`:''}
+      ${ev.photo?`<img class="sp-img" src="${escapeAttr(storyUrl(ev.photo))}" alt="" loading="lazy">`:''}
+      ${ev.memo?`<div class="sp-memo">${escapeHtml(ev.memo)}</div>`
+               :`<div class="sp-memo-empty">회고록이 아직 없어요.${can('history_edit')?' 오른쪽 위 연필로 바로 적을 수 있어요.':''}</div>`}`;
+    pn.querySelector('.sp-close').onclick=closeStoryPane;
+    const eb=pn.querySelector('.sp-edit'); if(eb) eb.onclick=edit;
+  };
+  const edit=()=>{
+    const draft={ date:ev.date, title:ev.title, blurb:ev.blurb, memo:ev.memo, photo:ev.photo, file:null, blobUrl:null, removePhoto:false };
+    pn.innerHTML=`<div class="sp-top"><button class="sp-ib sp-close" aria-label="닫기">✕</button></div>
+      <div class="sp-form">
+        <label class="nd-label">날짜</label>${storyDateSelHtml(draft.date,'sp-sd')}
+        <label class="nd-label">사건명</label><input class="he-input sp-f-title" value="${escapeAttr(draft.title)}" placeholder="사건명">
+        <label class="nd-label">한 줄 소개 (소제목)</label><input class="he-input sp-f-blurb" value="${escapeAttr(draft.blurb)}" placeholder="한 줄로">
+        <label class="nd-label">회고록</label><textarea class="he-input sp-f-memo" rows="6" placeholder="그날의 이야기">${escapeHtml(draft.memo)}</textarea>
+        <label class="nd-label">사진</label>
+        <div class="sp-photo"><img class="sp-thumb" alt="" style="${draft.photo?'':'display:none'}" src="${draft.photo?escapeAttr(storyUrl(draft.photo)):''}">
+          <button class="ch-act sp-pset" type="button">${draft.photo?'사진 바꾸기':'사진 올리기'}</button>
+          <button class="ch-act sp-prm" type="button" style="${draft.photo?'':'display:none'}">사진 빼기</button></div>
+        <div class="msg" id="spMsg"></div>
+        <div class="sp-acts"><button class="ch-act" type="button" id="spCancel">취소</button><button class="ch-act primary" type="button" id="spSave">저장</button></div>
+      </div>`;
+    pn.querySelector('.sp-close').onclick=closeStoryPane;
+    pn.querySelector('#spCancel').onclick=view;
+    const fileIn=document.createElement('input'); fileIn.type='file'; fileIn.accept='image/*';
+    const thumb=pn.querySelector('.sp-thumb'), prm=pn.querySelector('.sp-prm'), pset=pn.querySelector('.sp-pset');
+    pn.querySelector('.sp-pset').onclick=()=>{ fileIn.onchange=()=>{ const f=fileIn.files&&fileIn.files[0]; if(!f) return; draft.file=f; draft.removePhoto=false;
+      if(draft.blobUrl) URL.revokeObjectURL(draft.blobUrl); draft.blobUrl=URL.createObjectURL(f); thumb.src=draft.blobUrl; thumb.style.display=''; prm.style.display=''; pset.textContent='사진 바꾸기'; }; fileIn.click(); };
+    prm.onclick=()=>{ draft.file=null; draft.removePhoto=true; if(draft.blobUrl){ URL.revokeObjectURL(draft.blobUrl); draft.blobUrl=null; } thumb.style.display='none'; prm.style.display='none'; pset.textContent='사진 올리기'; };
+    pn.querySelector('#spSave').onclick=async()=>{
+      const msg=pn.querySelector('#spMsg'), sv=pn.querySelector('#spSave'); sv.disabled=true; msg.className='msg'; msg.textContent='저장하는 중…';
+      try{
+        const title=pn.querySelector('.sp-f-title').value.trim(); if(!title) throw new Error('사건명을 적어 주세요.');
+        let photo=draft.removePhoto ? null : draft.photo;
+        if(draft.file){ msg.textContent='사진을 줄이고 올리는 중…'; photo=await storyUploadPhoto(draft.file); }
+        const next={ id:ev.id, date:storyDateRead(pn), title, blurb:pn.querySelector('.sp-f-blurb').value.trim(), memo:pn.querySelector('.sp-f-memo').value, photo };
+        const list=(_storyEvents||[]).map(e=>e.id===ev.id?next:e);
+        if(!list.some(e=>e.id===ev.id)) list.push(next);
+        await storyWriteJson(list);
+        const oldPhoto=ev.photo; if(oldPhoto && oldPhoto!==photo){ try{ await sb.storage.from(STORY_BUCKET).remove([oldPhoto]); }catch(e){} }
+        Object.assign(ev, next); _storyEvents=list;
+        toast('저장했어요.');
+        const bw=document.querySelector(`.beadw[data-ev="${CSS.escape(ev.id)}"]`); if(bw){ const t=bw.querySelector('.bead-t'), y=bw.querySelector('.bead-y'); if(t) t.textContent=ev.title; if(y) y.textContent=(ev.date.match(/\d{4}/)||[''])[0]; }
+        view();
+      }catch(e){ sv.disabled=false; msg.className='msg err'; msg.textContent='저장하지 못했어요: '+((e&&e.message)||e)+' (91_history.sql · 106 권한 확인)'; }
+    };
+  };
+  view();
   sc.onclick=closeStoryPane;
-  pn.querySelector('.sp-close').onclick=closeStoryPane;
   window.addEventListener('hashchange', closeStoryPane, { once:true });
   if(document.body.classList.contains('fx-flat')) pn.classList.add('on');
   else requestAnimationFrame(()=>requestAnimationFrame(()=>pn.classList.add('on')));
@@ -10754,6 +10812,8 @@ const VAPID_PUBLIC_KEY = 'BJzaxYJdyTQabIaqfOgO7KY9yahe_lU7ozzzOzi1u10e43q0_rAX4l
 const KYPT_NUDGE_TEXT = '오늘 연구는 잘 진행되었나요? 간단한 일지 작성해 주세요';
 let _pushPref = null;                        // { kypt_nudge:boolean } | null(미로드) · false(106 미적용)
 function pushSupported(){ return ('serviceWorker' in navigator) && ('PushManager' in window) && ('Notification' in window); }
+/* ★사용자 결정: 알림은 폰에만. 컴퓨터는 기기 등록을 하지 않고, 서버(107)도 폰 UA만 고른다. */
+function pushIsMobile(){ return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || (navigator.maxTouchPoints>1 && /Macintosh/.test(navigator.userAgent)); }
 function pushIsStandalone(){ return window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true; }
 function urlB64ToU8(b64){
   const pad='='.repeat((4-b64.length%4)%4); const s=(b64+pad).replace(/-/g,'+').replace(/_/g,'/');
@@ -10788,10 +10848,18 @@ async function pushSubscribeSelf(){
 }
 async function setKyptNudge(on){
   const uid=state.user&&state.user.id; if(!uid) return;
-  if(on) await pushSubscribeSelf();
+  if(on && pushIsMobile()) await pushSubscribeSelf();          // 컴퓨터에서는 스위치만 켜고 기기 등록은 하지 않는다
   const { error } = await sb.from('push_prefs').upsert({ uid, kypt_nudge:!!on, updated_at:new Date().toISOString() }, { onConflict:'uid' });
   if(error) throw error;
   _pushPref = { kypt_nudge:!!on };
+}
+/* 이 기기에 구독이 있나 — 스위치는 계정 단위지만 등록은 기기마다다(세션 BO 후반: 갤럭시에서 "켜짐"인데 알림이 안 온 원인) */
+async function pushThisDeviceState(){
+  try{
+    if(!pushSupported()) return 'na';
+    const reg=await navigator.serviceWorker.getRegistration(); if(!reg) return 'none';
+    const sub=await reg.pushManager.getSubscription(); return sub ? 'sub' : 'none';
+  }catch(e){ return 'none'; }
 }
 function kyptNudgeCardHtml(mineCount){
   const pref=_pushPref; const on=!!(pref && pref.kypt_nudge);
@@ -10801,18 +10869,29 @@ function kyptNudgeCardHtml(mineCount){
   return `<section class="kp-nudge${on?' on':''}" id="kpNudge">
     <div class="kp-nudge-l">
       <div class="kp-nudge-t">${ic('bell')} KYPT 연구 기간 알림 <span class="kp-nudge-st">${on?'켜짐':'꺼짐'}</span></div>
-      <div class="kp-nudge-d">켜 두면 <b>매주 화요일 밤 10시 10분</b>에 "${escapeHtml(KYPT_NUDGE_TEXT)}" 알림이 와요. 탭하면 바로 여기로 옵니다. 연구 기간이 끝나면 끄세요.
+      <div class="kp-nudge-d">켜 두면 <b>매주 화요일 밤 10시 10분</b>에 "${escapeHtml(KYPT_NUDGE_TEXT)}" 알림이 <b>폰으로</b> 와요(컴퓨터에는 안 옵니다). 탭하면 바로 여기로 옵니다. 연구 기간이 끝나면 끄세요.
         ${mineCount?'' : ' <span class="muted">(지금은 맡은 문제가 없어요 — 참여자로 지정되면 알림이 옵니다)</span>'}${iosNote}</div>
+      <div class="kp-nudge-dev" id="kpNudgeDev"></div>
       <div class="kp-nudge-msg" id="kpNudgeMsg">${na?(kyptAdminish()?'<code>106_push.sql</code>을 실행하면 쓸 수 있어요.':'준비 중이에요.'):(!sup?'이 브라우저는 푸시 알림을 지원하지 않아요.':'')}</div>
     </div>
     <div class="kp-nudge-r">
       <button class="kp-switch${on?' on':''}" id="kpNudgeSw" role="switch" aria-checked="${on?'true':'false'}" aria-label="연구 기간 알림"${(na||!sup)?' disabled':''}><span class="kp-switch-knob"></span></button>
-      ${on?`<button class="kr-chip" id="kpNudgeTest" title="지금 내 기기로 시험 알림을 보냅니다">지금 시험</button>`:''}
+      ${on?`<button class="kr-chip" id="kpNudgeTest" title="지금 내 폰으로 시험 알림을 보냅니다">${pushIsMobile()?'지금 시험':'폰으로 시험'}</button>`:''}
     </div>
   </section>`;
 }
 function kyptNudgeBind(){
   const sw=$('#kpNudgeSw'), msg=$('#kpNudgeMsg'); if(!sw) return;
+  const on=sw.classList.contains('on');
+  const dev=$('#kpNudgeDev');
+  if(dev && on && !pushIsMobile()){ dev.innerHTML='<span class="kp-dev no">컴퓨터에는 알림이 오지 않아요 — 폰에서 이 스위치를 한 번 켜 두면 폰이 등록됩니다.</span>'; }
+  if(dev && on && pushIsMobile()) pushThisDeviceState().then(st=>{
+    if(st==='sub') dev.innerHTML='<span class="kp-dev ok">이 기기 등록됨</span>';
+    else if(st==='none') dev.innerHTML='<span class="kp-dev no">이 기기는 아직 등록 안 됨</span> <button class="kr-chip" id="kpNudgeReg">이 기기도 켜기</button>';
+    const rb=$('#kpNudgeReg'); if(rb) rb.onclick=async()=>{ rb.disabled=true; if(msg) msg.textContent='이 기기를 등록하는 중…';
+      try{ await pushSubscribeSelf(); if(msg) msg.textContent=''; dev.innerHTML='<span class="kp-dev ok">이 기기 등록됨</span>'; toast('이 기기에도 알림이 와요.'); }
+      catch(e){ rb.disabled=false; if(msg) msg.textContent=String((e&&e.message)||e); } };
+  });
   sw.onclick=async()=>{
     const on=!sw.classList.contains('on');
     sw.disabled=true; if(msg) msg.textContent=on?'알림을 켜는 중…':'끄는 중…';
@@ -10822,15 +10901,19 @@ function kyptNudgeBind(){
       const box=$('#kpNudge'); if(box){ box.outerHTML=kyptNudgeCardHtml(kyptProblemsOf(_kyptYear).filter(p=>kyptIsMine(p.id)).length); kyptNudgeBind(); }
     }catch(e){ sw.disabled=false; if(msg) msg.textContent=String((e&&e.message)||e); }
   };
+  if(on && sw.disabled && pushSupported()) sw.disabled=false;
   const t=$('#kpNudgeTest');
   if(t) t.onclick=async()=>{
     t.disabled=true; if(msg) msg.textContent='시험 알림을 보내는 중…';
     try{
+      if(pushIsMobile() && (await pushThisDeviceState())==='none') await pushSubscribeSelf();     // 폰이 미등록이면 먼저 등록하고 보낸다
       const { data:{ session } } = await sb.auth.getSession();
       const r=await fetch(`${SUPABASE_URL}/functions/v1/kypt-nudge`, { method:'POST', headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+(session&&session.access_token||''), 'apikey':SUPABASE_KEY }, body:JSON.stringify({ test:true }) });
       const j=await r.json().catch(()=>({}));
       if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
-      if(msg) msg.textContent=`보냈어요 (${Number(j.sent||0)}기기). 몇 초 안에 알림이 뜨지 않으면 브라우저 알림 설정을 확인해 주세요.`;
+      if(msg) msg.textContent = Number(j.targets||0)===0
+        ? '등록된 폰이 없어요. 폰에서 이 스위치를 껐다 켜 주세요.'
+        : `폰 ${Number(j.sent||0)}대에 보냈어요. 몇 초 안에 알림이 뜨지 않으면 폰의 알림 설정을 확인해 주세요.`;
     }catch(e){ if(msg) msg.textContent='시험 알림 실패: '+String((e&&e.message)||e)+' — Edge Function kypt-nudge 배포 여부를 확인하세요.'; }
     t.disabled=false;
   };
@@ -12510,13 +12593,16 @@ async function kv2RenderStatus(p, pane, canEd){
   const open = (todos||[]).filter(t=>!t.done_at);
   const done = (todos||[]).filter(t=>t.done_at);
   const mem = kyptMembersOf(p.id);
-  const openC = (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at && c.target_kind!=='problem');
+  /* ★세션 BP: '미해결 피드백'은 일지(entry)에 달린 의견만. 자료 의견은 따로 세고 자료함 탭으로 보낸다(예전엔 href="#"라 대문으로 튀었다). */
+  const openC = (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at && c.target_kind==='entry');
+  const openA = (ws.comments||[]).filter(c=>!c.parent_id && !c.resolved_at && c.target_kind==='asset');
   const openR = (ws.reviews||[]).filter(r=>r.status==='open');
   const entryOf = id => ws.entries.find(x=>Number(x.id)===Number(id));
-  const fbHtml = (openC.length||openR.length) ? `<div class="kv2-st kv2-fbsum">
+  const fbHtml = (openC.length||openR.length||openA.length) ? `<div class="kv2-st kv2-fbsum">
+      ${openA.length?`<div class="kv2-fbl"><b>자료 의견 ${openA.length}</b><a class="kv2-fbi" href="${kv2ProblemHash(p)}" data-gotab="assets">자료함에서 보기 →</a></div>`:''}
       ${openC.length?`<div class="kv2-fbl"><b>미해결 피드백 ${openC.length}</b>${openC.slice(0,5).map(c=>{
         const en = c.target_kind==='entry' ? entryOf(c.target_id) : null;
-        const href = en ? `${kv2ProblemHash(p)}/e/${en.id}` : '#';
+        const href = en ? `${kv2ProblemHash(p)}/e/${en.id}` : kv2ProblemHash(p);
         return `<a class="kv2-fbi" href="${href}"><span class="kv2-ct">${escapeHtml(kyptName(c.author))}</span> ${escapeHtml(c.body.slice(0,60))}${
           en?`<span class="kv2-ct"> — ${escapeHtml(en.title||'(제목 없음)')}${c.field_key?` · ${(KYPT_FIELDS.find(f=>f[0]===c.field_key)||[])[1]||''}`:''}</span>`:''}</a>`; }).join('')}</div>`:''}
       ${openR.length?`<div class="kv2-fbl"><b>검토 요청 중 ${openR.length}</b>${openR.map(r=>{ const en=entryOf(r.entry_id);
@@ -12566,6 +12652,7 @@ async function kv2RenderStatus(p, pane, canEd){
     </div>`;
   /* ★세션 BK: 단계별 마감은 접힌 게 기본. 연 상태는 문제별로 기억(_kv2MsOpen) — 날짜를 고쳐 다시 그려도 안 닫힌다.
      목록의 [현황에서 날짜 정하기 →]로 들어오면(_kv2OpenMs) 열고 그 자리로 스크롤한다. */
+  pane.querySelectorAll('[data-gotab]').forEach(a=>{ a.onclick=(ev)=>{ ev.preventDefault(); const b=document.querySelector(`#kv2Tabs .kp-tab[data-kt="${a.dataset.gotab}"]`); if(b) b.click(); }; });
   const det=pane.querySelector('#kv2MsDet');
   if(det){
     det.addEventListener('toggle', ()=>{ _kv2MsOpen[p.id]=det.open; });
@@ -12953,6 +13040,8 @@ async function kv2RenderScribbles(p, pane, canEd){
   kDateBind(pane);
   pane.querySelectorAll('[data-scdel]').forEach(x=>{
     x.onclick=async()=>{
+      const n=rows.find(v=>String(v.id)===String(x.dataset.scdel));
+      const ok=await confirmModal('이 끄적을 지울까요?', n&&n.body ? String(n.body).slice(0,80) : '지우면 되돌릴 수 없어요.', '지우기'); if(!ok) return;   // ★세션 BP
       const { error } = await sb.from('kypt_notes').delete().eq('id', x.dataset.scdel);
       if(error){ toast('지우지 못했어요.'); return; }
       kv2RenderScribbles(p, pane, canEd);
@@ -13041,6 +13130,7 @@ async function renderStoryPage(){
   const cfg=await loadStoryCfg();
   if(_nav!==_navSeq) return;
   const events=(cfg && Array.isArray(cfg.events)) ? cfg.events : STORY_SEED.slice();
+  _storyEvents=events;                                                    // 즉석 편집의 기준 목록
   const ownerNote=(cfg===null && can('history_edit'))
     ? `<p class="ch-note">저장소를 아직 읽지 못해 기본 연혁을 보여주고 있어요 — <code>91_history.sql</code>을 실행하면 [연혁 관리]로 내용을 채울 수 있습니다.${
         _storyErr&&_storyErr.message?`<br>원인: ${escapeHtml(String(_storyErr.message))}`:''}</p>` : '';
@@ -13048,9 +13138,9 @@ async function renderStoryPage(){
     <div class="doc-head"><h1>연혁</h1>
       ${can('history_edit')?`<button class="ch-act" id="storyManageBtn" style="margin-left:auto">연혁 관리</button>`:''}
     </div>
-    <p class="story-note">우리가 걸어온 길 — 순간 위에 마우스를 올리거나 눌러 보세요.</p>
+    <p class="story-note">우리가 걸어온 길 — A 속의 구슬을 눌러 보세요. 구슬 하나가 한 순간이에요.</p>
     ${ownerNote}
-    ${events.length ? storyTimelineHtml(events) : `<p class="ch-note" style="margin-top:20px">아직 기록된 연혁이 없어요.${can('history_edit')?' [연혁 관리]에서 첫 사건을 추가해 보세요.':''}</p>`}
+    ${events.length ? '' : `<p class="ch-note" style="margin-top:20px">아직 기록된 연혁이 없어요.${can('history_edit')?' [연혁 관리]에서 첫 사건을 추가해 보세요.':''}</p>`}
     ${events.length ? `<div class="story-a-sec">
       <div class="abox">
         <div class="bead-layer" id="beadLayer"></div>
@@ -13062,9 +13152,6 @@ async function renderStoryPage(){
       <div class="story-a-hint">구슬을 누르면 그날의 이야기가 열려요.</div>
     </div>` : ''}
   </div>`;
-  document.querySelectorAll('.stl-n').forEach(nEl=>{
-    nEl.addEventListener('click',()=>{ nEl.classList.toggle('open'); });          // 모바일: 탭으로 토글
-  });
   const mb=$('#storyManageBtn'); if(mb) mb.onclick=openStoryManager;
   initStoryBeads(events);
 }
@@ -13103,17 +13190,17 @@ async function openStoryManager(){
     const thumb=()=> it.blobUrl ? it.blobUrl : (it.photo ? storyUrl(it.photo) : '');
     row.innerHTML=`
       <span class="smr-drag" title="끌어서 순서 변경">⠿</span>
-      <input class="he-input sm-date" placeholder="2026.03" value="${escapeAttr(it.date)}">
+      ${storyDateSelHtml(it.date,'sm-date')}
       <input class="he-input sm-title" placeholder="사건명" value="${escapeAttr(it.title)}">
-      <button class="pwm-b danger sm-del" title="이 사건 삭제">✕</button>
+      <button class="ch-act danger sm-del" title="이 사건 삭제">✕</button>
       <input class="he-input sm-blurb" placeholder="타임라인에 뜨는 한 줄 (마우스를 올리면 보여요)" value="${escapeAttr(it.blurb)}">
       <textarea class="he-input sm-memo" placeholder="회고록 — 구슬을 눌렀을 때 열리는 이야기">${escapeHtml(it.memo)}</textarea>
       <div class="sm-photo">
         <img class="sm-thumb" alt="" style="${thumb()?'':'display:none'}" src="${escapeAttr(thumb())}">
-        <button class="pwm-b sm-pset">${it.photo||it.blobUrl?'사진 바꾸기':'사진 올리기'}</button>
-        <button class="pwm-b sm-prm" style="${thumb()?'':'display:none'}">사진 빼기</button>
+        <button class="ch-act sm-pset">${it.photo||it.blobUrl?'사진 바꾸기':'사진 올리기'}</button>
+        <button class="ch-act sm-prm" style="${thumb()?'':'display:none'}">사진 빼기</button>
       </div>`;
-    row.querySelector('.sm-date').oninput=e=>{ it.date=e.target.value; };
+    row.querySelectorAll('.sm-date select').forEach(sel=>{ sel.onchange=()=>{ it.date=storyDateRead(row.querySelector('.sm-date')); }; });
     row.querySelector('.sm-title').oninput=e=>{ it.title=e.target.value; };
     row.querySelector('.sm-blurb').oninput=e=>{ it.blurb=e.target.value; };
     row.querySelector('.sm-memo').oninput=e=>{ it.memo=e.target.value; };
@@ -13155,7 +13242,7 @@ async function openStoryManager(){
     items.push(it);
     const row=makeRow(it);
     list.appendChild(row);
-    row.querySelector('.sm-date').focus();
+    const fy=row.querySelector('.sm-date .sd-y'); if(fy) fy.focus();
     list.scrollTop=list.scrollHeight;
   };
   /* 드래그 순서 변경 — 포인터 기반 (HTML5 DnD는 모바일에서 성립하지 않는다) */
@@ -13207,10 +13294,7 @@ async function openStoryManager(){
         let photo=it.photo||null;
         if(it.file){
           msg.textContent=`잠시만 기다리세요 — 사진을 줄이고 올리는 중이에요 (${done+1}/${newCount}${eta()})`;
-          const c=await compressImage(it.file, { mode:'contain', dim:STORY_DIM, target:STORY_TARGET_KB*1024, minQuality:0.4 });
-          photo='ev/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
-          const { error } = await sb.storage.from(STORY_BUCKET).upload(photo, c.blob, { contentType:c.type, cacheControl:'31536000' });
-          if(error) throw error;
+          photo=await storyUploadPhoto(it.file);
           done++;
         }
         out.push({ id:it.id||storyId(), date:(it.date||'').trim(), title:(it.title||'').trim(),
@@ -13220,10 +13304,7 @@ async function openStoryManager(){
       const del=orig.filter(p=>!keep.includes(p));
       if(del.length){ try{ await sb.storage.from(STORY_BUCKET).remove(del); }catch(e){} }
       msg.textContent='잠시만 기다리세요 — 목록을 저장하는 중이에요…';
-      const blob=new Blob([JSON.stringify({ events: out })], { type:'application/json' });
-      const { error:e2 } = await sb.storage.from(STORY_BUCKET)
-        .upload(STORY_JSON, blob, { upsert:true, contentType:'application/json', cacheControl:'0' });
-      if(e2) throw e2;
+      await storyWriteJson(out);
       close();
       toast('연혁을 저장했어요.');
       route();                                               // 연혁 페이지 다시 그림
