@@ -2644,8 +2644,49 @@ body.fx-full .login-card > *:nth-child(n+8){ animation-delay:.40s }
 .story-wrap{max-width:1080px;margin:0 auto;}
 .story-note{font-size:13px;color:var(--text-dim);margin:2px 0 0;}
 /* --- 상단 타임라인 --- */
+.stl{margin:34px 0 6px;}
+.stl-row{display:flex;align-items:flex-end;position:relative;}
+.stl-row+.stl-row{margin-top:96px;}
+.stl-n{width:calc(100%/6);min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;cursor:pointer;}
+.stl-lab{height:46px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;text-align:center;margin-bottom:9px;min-width:0;max-width:96%;}
+.stl-date{font-size:12px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;letter-spacing:.04em;}
+.stl-title{font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;}
+.stl-dot{width:22px;height:22px;border-radius:50%;flex:0 0 auto;position:relative;z-index:2;
+  background:color-mix(in srgb, var(--accent) 26%, transparent);
+  border:2px solid color-mix(in srgb, var(--accent) 45%, transparent);
+  transition:background .5s ease, box-shadow .5s ease, border-color .5s ease;}
+.stl-n+.stl-n::before{content:'';position:absolute;left:-50%;right:50%;bottom:9px;height:3px;border-radius:2px;z-index:1;
+  background:color-mix(in srgb, var(--accent) 20%, transparent);}
+.stl-n:hover .stl-dot,.stl-n.open .stl-dot{background:var(--accent);border-color:var(--accent);
+  box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent), 0 8px 22px color-mix(in srgb, var(--accent) 38%, transparent);}
+.stl-pop{position:absolute;left:50%;width:216px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:11px 12px;z-index:6;opacity:0;pointer-events:none;transition:opacity .45s ease, transform .45s ease;}
+.stl-n.up .stl-pop{bottom:calc(100% + 10px);transform:translate(-50%,8px);}
+.stl-n.down .stl-pop{top:calc(100% + 10px);transform:translate(-50%,-8px);}
+.stl-n:hover .stl-pop,.stl-n.open .stl-pop{opacity:1;transform:translate(-50%,0);pointer-events:auto;}
+.stl-pop .stl-pimg{width:100%;border-radius:8px;border:1px solid var(--line);display:block;margin-bottom:8px;}
+.stl-pop .stl-ptxt{font-size:12.5px;line-height:1.65;color:var(--text);}
+.stl-pop .stl-pmuted{font-size:12px;color:var(--text-dim);}
+body.fx-flat .stl-dot,body.fx-flat .stl-pop{transition:none;}
+@media (prefers-reduced-motion: reduce){ .stl-dot,.stl-pop{transition:none;} }
+@media (max-width:640px){
+  .stl{position:relative;padding-left:6px;}
+  .stl::before{content:'';position:absolute;left:16px;top:8px;bottom:8px;width:3px;border-radius:2px;
+    background:color-mix(in srgb, var(--accent) 20%, transparent);}
+  .stl-row{flex-direction:column;align-items:stretch;}
+  .stl-row+.stl-row{margin-top:0;}
+  .stl-n{width:100%;flex-direction:row;align-items:center;gap:14px;padding:11px 0;}
+  .stl-n+.stl-n::before{display:none;}
+  .stl-lab{height:auto;margin-bottom:0;align-items:flex-start;text-align:left;order:2;max-width:none;flex:1;min-width:0;}
+  .stl-dot{order:1;}
+  .stl-n.up .stl-pop,.stl-n.down .stl-pop,.stl-n:hover .stl-pop,.stl-n.open .stl-pop{
+    position:static;width:auto;opacity:1;transform:none;top:auto;bottom:auto;
+    pointer-events:auto;display:none;margin:2px 0 4px 40px;order:3;flex-basis:100%;}
+  .stl-n.open .stl-pop{display:block;}
+  .stl-n{flex-wrap:wrap;}
+}
 /* --- 대형 A + 구슬 --- */
-.story-a-sec{margin:28px auto 10px;text-align:center;}
+.story-a-sec{margin:64px auto 10px;text-align:center;}
 .story-a-hint{font-size:12.5px;color:var(--text-dim);margin-top:14px;}
 .abox{position:relative;width:min(680px,96%);margin:18px auto 0;aspect-ratio:600/520;}
 .abox svg{position:absolute;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:2;}
@@ -2675,21 +2716,22 @@ body.fx-flat .bead,body.fx-flat .beadw:hover .bead{transition:none;transform:non
   .bead-y{font-size:1.6em;}
 }
 /* --- 오른쪽 라이트 패널 (그림자 없음) --- */
-.story-scrim{position:fixed;inset:0;z-index:119;background:rgba(0,0,0,.28);backdrop-filter:blur(2px);}
-/* ★세션 BQ: 순간 카드 — 가운데 네모. 연필(수정)·✕는 오른쪽 위 */
-.story-pane{position:fixed;left:50%;top:50%;width:min(540px,92vw);max-height:min(86vh,760px);z-index:120;background:var(--card);
-  border:1px solid var(--line);border-radius:16px;padding:22px 26px 28px;overflow-y:auto;box-shadow:var(--sh-2);
-  transform:translate(-50%,-50%) scale(.96);opacity:0;transition:transform .28s var(--spring-soft, ease), opacity .2s ease;}
-.story-pane.on{transform:translate(-50%,-50%) scale(1);opacity:1;}
+/* ★세션 BR: 순간 카드 — 구슬 오른쪽 위에 얹히는 팝오버. 스크림 없음: 나머지 화면은 그대로 쓸 수 있다. */
+.story-pane{position:fixed;left:0;top:0;width:min(360px,calc(100vw - 24px));max-height:min(70vh,640px);z-index:120;background:var(--card);
+  border:1px solid var(--line);border-radius:14px;padding:16px 18px 20px;overflow-y:auto;box-shadow:0 14px 40px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.06);
+  transform:translateY(6px) scale(.98);opacity:0;transition:transform .22s var(--spring-soft, ease), opacity .16s ease;}
+.story-pane.on{transform:none;opacity:1;}
+.story-pane.sheet{left:12px !important;right:12px;top:auto !important;bottom:calc(12px + env(safe-area-inset-bottom));width:auto;max-height:60vh;}
+body.has-botnav .story-pane.sheet{bottom:calc(74px + env(safe-area-inset-bottom));}
 body.fx-flat .story-pane{transition:none;}
 .story-pane .sp-top{display:flex;justify-content:flex-end;gap:6px;margin:-6px -10px 6px 0;}
 .story-pane .sp-ib{width:32px;height:32px;border-radius:9px;border:1px solid var(--line);background:transparent;color:var(--text-dim);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;}
 .story-pane .sp-ib:hover{color:var(--accent);border-color:var(--accent);}
 .story-pane .sp-ib svg{width:15px;height:15px;}
 .story-pane .sp-date{font-size:13px;color:var(--text-dim);font-family:Georgia,'Nanum Myeongjo','Apple SD Gothic Neo',serif;letter-spacing:.04em;margin-bottom:6px;}
-.story-pane h2{font-size:21px;margin:0 0 6px;line-height:1.35;}
+.story-pane h2{font-size:18px;margin:0 0 6px;line-height:1.35;}
 .story-pane .sp-sub{font-size:14px;color:var(--text-dim);margin:0 0 14px;line-height:1.5;}
-.story-pane .sp-img{max-width:100%;max-height:220px;width:auto;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 14px;}
+.story-pane .sp-img{max-width:100%;max-height:160px;width:auto;border-radius:10px;border:1px solid var(--line);display:block;margin:0 0 14px;}
 .story-pane .sp-memo{font-size:14.5px;line-height:1.85;color:var(--text);white-space:pre-wrap;}
 .story-pane .sp-memo-empty{font-size:13.5px;color:var(--text-dim);}
 .story-pane .sp-form{display:flex;flex-direction:column;gap:6px;}
@@ -2704,13 +2746,13 @@ body.fx-flat .story-pane{transition:none;}
 .sdate .sd-y{min-width:86px;} .sdate .sd-m,.sdate .sd-d{min-width:64px;}
 /* --- 연혁 관리 모달 --- */
 .sm-list{margin:12px 0 4px;max-height:56vh;overflow-y:auto;}
-.smr{display:grid;grid-template-columns:24px 96px 1fr 28px;gap:6px 10px;padding:13px 2px;border-bottom:1px solid var(--line);
-  grid-template-areas:'drag date title del' 'drag blurb blurb blurb' 'drag memo memo memo' 'drag photo photo photo';}
+.smr{display:grid;grid-template-columns:24px 1fr 28px;gap:6px 10px;padding:13px 2px;border-bottom:1px solid var(--line);
+  grid-template-areas:'drag date del' 'drag title title' 'drag blurb blurb' 'drag memo memo' 'drag photo photo';}   /* 세션 BR: 날짜 부품(연·월·일)이 한 줄을 쓴다 */
 .smr.dragging{opacity:.55;background:color-mix(in srgb, var(--accent) 6%, transparent);border-radius:10px;}
 .smr-drag{grid-area:drag;align-self:stretch;display:flex;align-items:center;justify-content:center;cursor:grab;
   color:var(--text-dim);font-size:15px;letter-spacing:-1px;touch-action:none;user-select:none;-webkit-user-select:none;}
 .smr-drag:active{cursor:grabbing;}
-.smr .sm-date{grid-area:date;}
+.smr .sm-date{grid-area:date;justify-self:start;}
 .smr .sm-title{grid-area:title;}
 .smr .sm-del{grid-area:del;}
 .smr .sm-blurb{grid-area:blurb;}
@@ -9235,7 +9277,7 @@ async function renderSysSite(){
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
   { date:'2026-09-11', text:'[문서] 문서 목록의 한 줄 한 줄이 카드가 됐어요 — 올리면 살짝 떠오르고 화살표가 나옵니다. 주소는 제목 아래로, 짧은 문서는 "짧음" 표시로.' },
-  { date:'2026-09-11', text:'[연혁] 타임라인 줄을 없애고 A 속 구슬만 남겼어요. 구슬에 올리면 반응하고, 누르면 네모 카드에 날짜·사건명·한 줄 소개·사진·회고록이 열립니다. 연혁 관리 권한이 있으면 카드 오른쪽 위 연필로 그 자리에서 바로 고쳐 저장돼요. 날짜는 연·월·일을 따로 고릅니다.' },
+  { date:'2026-09-11', text:'[연혁] 구슬에 올리면 반응하고, 누르면 구슬 옆에 작은 카드가 떠서 날짜·사건명·한 줄 소개·사진·회고록이 보입니다(나머지 화면은 그대로 쓸 수 있어요). 저장하면 바로 반영됩니다. 연혁 관리 권한이 있으면 카드 오른쪽 위 연필로 그 자리에서 바로 고쳐 저장돼요. 날짜는 연·월·일을 따로 고릅니다.' },
   { date:'2026-09-11', text:'[KYPT] 끄적을 지울 때 한 번 더 묻고, 현황의 "미해결 피드백"엔 일지에 달린 의견만 셉니다(자료 의견은 따로 → 자료함으로). 알림을 탭하면 정확히 KYPT로 옵니다. 없는 주소로 가면 숫자가 떨어지는 404 화면이 나와요.' },
   { date:'2026-09-11', text:'[KYPT] 연구 기간 알림 — KYPT 탭의 큰 스위치를 켜면 매주 화요일 밤 10시 10분에 "오늘 연구는 잘 진행되었나요?" 푸시가 오고, 탭하면 바로 KYPT로 옵니다. 캘린더는 없앴고, 연혁은 admin도 편집할 수 있어요(권한 목록에 추가).' },
   { date:'2026-09-10', text:'[대화방] 반응 이모지가 64종으로 늘었고 [+] 버튼과 창이 새 모양이에요. 내 말풍선은 상징색 톤으로, 회색 테두리와 선은 정리했습니다. 이름·사진을 눌러도 프로필로 넘어가지 않아요.' },
@@ -10455,9 +10497,20 @@ let _storyErr=null;
 function storyId(){ return 'ev'+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 async function loadStoryCfg(){
   try{
-    const { data, error } = await sb.storage.from(STORY_BUCKET).download(STORY_JSON);
-    if(error) throw error;
-    const cfg = JSON.parse(await data.text());
+    /* ★세션 BR: 공개 버킷은 CDN이 앞에 있어 download()도 방금 덮어쓴 파일 대신 예전 것을 줄 수 있다("저장했는데 새로고침해도 그대로").
+       공개 URL에 매번 다른 쿼리를 붙여 CDN을 비켜 읽는다. 실패하면(비공개 버킷 등) 예전 방식으로. */
+    let text=null;
+    try{
+      const u=storyUrl(STORY_JSON); if(!u) throw new Error('no public url');
+      const r=await fetch(u+'?t='+Date.now(), { cache:'no-store' });
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      text=await r.text();
+    }catch(e0){
+      const { data, error } = await sb.storage.from(STORY_BUCKET).download(STORY_JSON);
+      if(error) throw error;
+      text=await data.text();
+    }
+    const cfg = JSON.parse(text);
     _storyErr=null;
     if(!cfg || !Array.isArray(cfg.events)) return { events: [] };
     const events = cfg.events.map(e=>({
@@ -10478,6 +10531,21 @@ function storyUrl(p){
   try{ return sb.storage.from(STORY_BUCKET).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; }
 }
 /* --- 타임라인 (한 줄 6개, 넘치면 다음 줄 / 홀수 번째 위·짝수 번째 아래 팝오버) --- */
+function storyTimelineHtml(events){
+  const rows=[];
+  for(let i=0;i<events.length;i+=6) rows.push(events.slice(i,i+6));
+  return `<div class="stl">`+rows.map((row,ri)=>`<div class="stl-row">`+row.map((ev,ci)=>{
+    const gi=ri*6+ci;                       // 전체 인덱스: 0부터 → 1번째(홀수)는 위
+    const pop = (ev.photo?`<img class="stl-pimg" src="${escapeAttr(storyUrl(ev.photo))}" alt="" loading="lazy">`:'')
+      + (ev.blurb ? `<div class="stl-ptxt">${escapeHtml(ev.blurb)}</div>`
+                  : `<div class="stl-pmuted">자세한 이야기는 준비 중이에요.</div>`);
+    return `<div class="stl-n ${gi%2===0?'up':'down'}" data-bead="${escapeAttr(ev.id)}">
+      <div class="stl-lab"><span class="stl-date">${escapeHtml(ev.date)}</span><span class="stl-title">${escapeHtml(ev.title)}</span></div>
+      <div class="stl-dot"></div>
+      <div class="stl-pop">${pop}</div>
+    </div>`;
+  }).join('')+`</div>`).join('')+`</div>`;
+}
 /* --- 대형 A + 떠다니는 구슬 (rAF 물리 — transform만 갱신, 세션 T 규칙) --- */
 let _beadRaf=0;
 let _beadIo=null;
@@ -10567,7 +10635,7 @@ function initStoryBeads(events){
     <span class="bead-t">${escapeHtml(b.ev.title)}</span>
   </div></div>`).join('');
   const els=[...box.querySelectorAll('.beadw')];
-  els.forEach((el,i)=>{ el.onclick=()=>openStoryPane(beads[i].ev); });
+  els.forEach((el,i)=>{ el.onclick=()=>openStoryPane(beads[i].ev, el); });
   let scale=1;
   const fit=()=>{
     scale=(box.clientWidth||600)/600;
@@ -10650,19 +10718,34 @@ async function storyUploadPhoto(file){
 /* --- 순간 카드 (세션 BQ: 오른쪽 서랍 → 가운데 네모 카드. 연필로 즉석 편집) --- */
 let _storyEvents=null;                  // 지금 화면의 사건 목록 (즉석 편집이 여기서 바꾸고 저장한다)
 function closeStoryPane(){
-  const sc=document.querySelector('.story-scrim'), pn=document.querySelector('.story-pane');
-  if(sc) sc.remove();
+  const pn=document.querySelector('.story-pane');
+  if(_spOutside){ document.removeEventListener('pointerdown', _spOutside, true); _spOutside=null; }
+  if(_spKey){ document.removeEventListener('keydown', _spKey); _spKey=null; }
   if(pn){
     if(document.body.classList.contains('fx-flat')){ pn.remove(); return; }
     pn.classList.remove('on');
-    setTimeout(()=>pn.remove(), 520);
+    setTimeout(()=>pn.remove(), 240);
   }
 }
-function openStoryPane(ev){
+let _spOutside=null, _spKey=null;
+/* 구슬의 오른쪽 위에 카드를 놓는다(카드의 왼쪽 아래 모서리가 구슬의 오른쪽 위에). 자리가 없으면 왼쪽/아래로 뒤집고, 폰에선 아래 시트 */
+function storyPanePlace(pn, anchor){
+  const vw=window.innerWidth, vh=window.innerHeight, M=12;
+  if(vw<=640 || !anchor){ pn.classList.add('sheet'); pn.style.left=pn.style.top=''; return; }
+  pn.classList.remove('sheet');
+  const r=anchor.getBoundingClientRect(); const w=pn.offsetWidth, h=pn.offsetHeight;
+  let left = r.right + 6, top = r.top - 6 - h;
+  if(left + w > vw - M) left = r.left - 6 - w;             // 오른쪽에 자리가 없으면 왼쪽으로
+  if(left < M) left = Math.min(vw - M - w, Math.max(M, r.right + 6));
+  if(top < M) top = Math.min(vh - M - h, r.bottom + 6);   // 위에 자리가 없으면 아래로
+  if(top < M) top = M;
+  pn.style.left = Math.round(left)+'px'; pn.style.top = Math.round(top)+'px';
+}
+function openStoryPane(ev, anchor){
   closeStoryPane();
-  const sc=document.createElement('div'); sc.className='story-scrim';
-  const pn=document.createElement('div'); pn.className='story-pane'; pn.setAttribute('role','dialog'); pn.setAttribute('aria-modal','true');
-  document.body.appendChild(sc); document.body.appendChild(sc.pn=pn);
+  const pn=document.createElement('div'); pn.className='story-pane'; pn.setAttribute('role','dialog');
+  document.body.appendChild(pn);
+  const place=()=>storyPanePlace(pn, anchor);
   const view=()=>{
     pn.innerHTML=`<div class="sp-top">
         ${can('history_edit')?`<button class="sp-ib sp-edit" title="즉석 수정" aria-label="수정">${ic('edit')}</button>`:''}
@@ -10675,6 +10758,7 @@ function openStoryPane(ev){
                :`<div class="sp-memo-empty">회고록이 아직 없어요.${can('history_edit')?' 오른쪽 위 연필로 바로 적을 수 있어요.':''}</div>`}`;
     pn.querySelector('.sp-close').onclick=closeStoryPane;
     const eb=pn.querySelector('.sp-edit'); if(eb) eb.onclick=edit;
+    place();
   };
   const edit=()=>{
     const draft={ date:ev.date, title:ev.title, blurb:ev.blurb, memo:ev.memo, photo:ev.photo, file:null, blobUrl:null, removePhoto:false };
@@ -10693,6 +10777,7 @@ function openStoryPane(ev){
       </div>`;
     pn.querySelector('.sp-close').onclick=closeStoryPane;
     pn.querySelector('#spCancel').onclick=view;
+    place();
     const fileIn=document.createElement('input'); fileIn.type='file'; fileIn.accept='image/*';
     const thumb=pn.querySelector('.sp-thumb'), prm=pn.querySelector('.sp-prm'), pset=pn.querySelector('.sp-pset');
     pn.querySelector('.sp-pset').onclick=()=>{ fileIn.onchange=()=>{ const f=fileIn.files&&fileIn.files[0]; if(!f) return; draft.file=f; draft.removePhoto=false;
@@ -10717,7 +10802,11 @@ function openStoryPane(ev){
     };
   };
   view();
-  sc.onclick=closeStoryPane;
+  /* 바깥을 누르면 닫히되, 그 클릭은 그대로 전달된다(다른 기능도 눌린다). 카드 안·구슬 자체는 예외. */
+  _spOutside=(e)=>{ if(pn.contains(e.target) || (anchor && anchor.contains(e.target))) return; closeStoryPane(); };
+  document.addEventListener('pointerdown', _spOutside, true);
+  _spKey=(e)=>{ if(e.key==='Escape') closeStoryPane(); };
+  document.addEventListener('keydown', _spKey);
   window.addEventListener('hashchange', closeStoryPane, { once:true });
   if(document.body.classList.contains('fx-flat')) pn.classList.add('on');
   else requestAnimationFrame(()=>requestAnimationFrame(()=>pn.classList.add('on')));
@@ -13138,9 +13227,9 @@ async function renderStoryPage(){
     <div class="doc-head"><h1>연혁</h1>
       ${can('history_edit')?`<button class="ch-act" id="storyManageBtn" style="margin-left:auto">연혁 관리</button>`:''}
     </div>
-    <p class="story-note">우리가 걸어온 길 — A 속의 구슬을 눌러 보세요. 구슬 하나가 한 순간이에요.</p>
+    <p class="story-note">우리가 걸어온 길 — 순간 위에 마우스를 올리거나, A 속의 구슬을 눌러 보세요.</p>
     ${ownerNote}
-    ${events.length ? '' : `<p class="ch-note" style="margin-top:20px">아직 기록된 연혁이 없어요.${can('history_edit')?' [연혁 관리]에서 첫 사건을 추가해 보세요.':''}</p>`}
+    ${events.length ? storyTimelineHtml(events) : `<p class="ch-note" style="margin-top:20px">아직 기록된 연혁이 없어요.${can('history_edit')?' [연혁 관리]에서 첫 사건을 추가해 보세요.':''}</p>`}
     ${events.length ? `<div class="story-a-sec">
       <div class="abox">
         <div class="bead-layer" id="beadLayer"></div>
@@ -13152,6 +13241,9 @@ async function renderStoryPage(){
       <div class="story-a-hint">구슬을 누르면 그날의 이야기가 열려요.</div>
     </div>` : ''}
   </div>`;
+  document.querySelectorAll('.stl-n').forEach(nEl=>{
+    nEl.addEventListener('click',()=>{ nEl.classList.toggle('open'); });          // 모바일: 탭으로 토글
+  });
   const mb=$('#storyManageBtn'); if(mb) mb.onclick=openStoryManager;
   initStoryBeads(events);
 }
