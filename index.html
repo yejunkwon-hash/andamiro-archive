@@ -854,6 +854,21 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .usel.sm{min-width:132px;}
 .usel.sm::after{right:9px;width:6px;height:6px;}
 .usel.block{display:flex;width:100%;}
+/* ★세션 BU: 상한 화면 — 카드 + 프리셋 칩 (표는 폰에서 비고가 한 글자씩 깨졌다) */
+.lim-savebar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 14px; }
+h2.lim-sech{ font-size:13px; font-weight:800; color:var(--text-dim); margin:0 0 10px; letter-spacing:.04em; text-transform:none; }
+.lim-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; }
+.lim-card{ border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--card); }
+.lim-t{ font-weight:800; font-size:14.5px; }
+.lim-note{ font-size:12.5px; color:var(--text-dim); line-height:1.5; margin:2px 0 8px; word-break:keep-all; overflow-wrap:anywhere; }
+.lim-ctl{ padding:8px 0 4px; border-top:1px dashed var(--border); }
+.lim-ctl.dirty{ box-shadow:inset 3px 0 0 var(--warn); padding-left:8px; }
+.lim-ctl-l{ font-size:12.5px; color:var(--text-dim); margin-bottom:6px; } .lim-ctl-l b{ color:var(--text); margin-left:4px; }
+.lim-chips{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
+.lim-chip{ font:inherit; font-size:12px; padding:4px 10px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text-dim); cursor:pointer; }
+.lim-chip:hover{ border-color:var(--border-strong); color:var(--text); }
+.lim-chip.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.lim-cust{ display:none; align-items:center; gap:4px; font-size:12px; color:var(--text-dim); } .lim-cust.show{ display:inline-flex; }
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
 /* ===== 피드백 ===== */
@@ -1206,6 +1221,7 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 
   /* 상한 입력 */
   .lim-in{width:72px;}
+  .lim-grid{ grid-template-columns:1fr; }
   .sys-actions{flex-wrap:wrap;gap:8px;}
 
   /* 시스템 메뉴 */
@@ -1362,9 +1378,18 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
   .chat-log{ zoom:1 !important; }
   .chat-size{ display:none !important; }
 
-  /* 채팅: 전체가 보이도록 (하단 바 + 상단 2줄 감안, 주소창 때문에 vh 대신 dvh) */
+  /* 채팅: 입력칸까지 한 화면에 (세션 BS). 제목 줄을 없애고 방 목록은 얇은 띠로, 로그 높이는 남는 만큼만. */
   .chat{ height:auto; min-height:0; max-width:100%; }
-  .chat-log{ max-height:calc(100dvh - 300px); min-height:280px; overflow-x:hidden; }
+  .chat-log{ flex:0 0 auto; max-height:none; min-height:160px; overflow-x:hidden; }   /* 높이는 fitChatLog()가 실제 위치를 재서 정한다 (flex:1이면 컨테이너 높이가 auto라 내용만큼 늘어난다) */
+  .chat-hint{ display:none; }
+  .chat-head{ padding:8px 12px; font-size:13px; }
+  .qb-head.comm-head{ display:none; }
+  .preview-hint{ display:none; }
+  .hub .hub-nav{ position:static; padding:0 0 8px; margin:0; scrollbar-width:none; }
+  .hub-nav::-webkit-scrollbar{ display:none; }
+  .hub .hub-nav .ch-item{ width:auto; flex:none; padding:5px 10px; font-size:12.5px; white-space:nowrap; border:1px solid var(--border); border-radius:var(--r-round); }
+  .hub .hub-nav .ch-item.on{ border-color:var(--accent); }
+  .hub{ gap:8px; }
 
   /* ★입력줄이 화면을 벗어나던 문제:
      textarea의 기본 최소 너비(약 20자)가 flex 축소를 막아 버튼들이 화면 밖으로 밀렸다.
@@ -2070,6 +2095,40 @@ body.fx-full::before{
   .hub-nav{ display:flex !important; overflow-x:auto; gap:4px; }
 }
 
+/* ★세션 BV: 채팅 목록 (카카오톡식) */
+.room-list{ display:flex; flex-direction:column; border:1px solid var(--border); border-radius:14px; overflow:hidden; background:var(--card); }
+.room-list.dim{ opacity:.7; }
+.room{ display:flex; align-items:center; gap:12px; padding:12px 14px; border-bottom:1px solid var(--border); text-decoration:none; color:var(--text); font:inherit; background:none; border-left:0; border-right:0; border-top:0; text-align:left; cursor:pointer; width:100%; }
+.room:last-child{ border-bottom:0; }
+.room:hover{ background:var(--box-bg); text-decoration:none; }
+.room-av{ flex:none; width:44px; height:44px; border-radius:14px; display:inline-flex; align-items:center; justify-content:center; font-weight:800; font-size:17px; color:#fff; background:hsl(var(--h) 55% 48%); }
+.room-main{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.room-t{ display:flex; align-items:center; gap:6px; }
+.room-n{ font-weight:800; font-size:15px; }
+.room-when{ margin-left:auto; font-size:11.5px; color:var(--text-dim); flex:none; }
+.room-p{ font-size:13px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.room-p b{ color:var(--text); font-weight:600; }
+/* 방 화면: 왼쪽 목록 없음. 오른쪽 열(작업 공간·접속자)은 넓은 화면에서만, ⋯로 토글 */
+.hub.room-view{ grid-template-columns:minmax(0,1fr) 250px; }
+@media(max-width:1100px){ .hub.room-view{ grid-template-columns:minmax(0,1fr); } .hub.room-view .hub-side{ display:none; } .hub.room-view.show-side .hub-side{ display:block; } }
+.chat-back{ display:inline-flex; align-items:center; color:#fff; margin-right:4px; }
+.chat-back svg{ width:16px; height:16px; }
+.chat-hn{ font-size:12px; opacity:.85; font-weight:600; }
+.chat-more{ margin-left:auto; background:rgba(255,255,255,.18); border:0; color:#fff; width:28px; height:26px; border-radius:8px; cursor:pointer; font-size:16px; line-height:1; }
+.chat-more:hover{ background:rgba(255,255,255,.3); }
+.chat-head{ position:relative; }
+.chat-menu{ position:absolute; right:10px; top:100%; margin-top:6px; z-index:40; background:var(--card); border:1px solid var(--border); border-radius:10px; box-shadow:var(--sh-2); min-width:200px; overflow:hidden; }
+.chat-menu button{ display:block; width:100%; text-align:left; font:inherit; font-size:13.5px; padding:10px 14px; background:none; border:0; color:var(--text); cursor:pointer; }
+.chat-menu button:hover{ background:var(--box-bg); }
+/* AoPS식 줄: 말풍선 대신 아바타·이름·본문이 한 덩어리, 내 말은 왼쪽 띠 */
+.chat.aops .msg{ padding:5px 8px; border-radius:6px; gap:8px; }
+.chat.aops .msg.mine{ background:color-mix(in srgb, var(--accent) 6%, transparent); box-shadow:inset 3px 0 0 var(--accent); flex-direction:row; }
+.chat.aops .msg.mine .msg-main{ align-items:flex-start; }
+.chat.aops .msg-bubble{ background:none; border:0; padding:0; border-radius:0; box-shadow:none; max-width:none; }
+.chat.aops .msg.mine .msg-bubble{ background:none; }
+.chat.aops .msg-who{ font-size:12.5px; }
+.chat.aops .msg-foot{ font-size:10.5px; }
+.chat.aops .chat-log{ gap:2px; padding:10px 8px; }
 /* 좌측 대화방 목록 (83) */
 .hub-nav{ min-width:0; position:sticky; top:70px; }
 .ch-item{ display:flex; align-items:center; gap:6px; width:100%; text-align:left; background:none;
@@ -2838,6 +2897,17 @@ body.fx-flat .story-pane{transition:none;}
 .kp-side .kv2-ftxt{ white-space:normal; }
 .kp-side .kv2-fprob{ grid-column:2 / -1; white-space:normal; }
 .kp-hint{ color:var(--text-dim); font-size:13px; margin:0 0 10px; }
+/* ★세션 BT: 프로필 — 상단 큰 저장 버튼 + 대기 중인 칸 표시 */
+.me-savebar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:-4px 0 16px; }
+.me-saveall{ display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:15px; font-weight:800; padding:11px 22px; border-radius:var(--r-round); border:none; background:var(--accent); color:#fff; cursor:pointer; box-shadow:0 6px 18px color-mix(in srgb, var(--accent) 30%, transparent); transition:transform .12s, box-shadow .12s, opacity .12s; }
+.me-saveall:hover:not(:disabled){ transform:translateY(-1px); box-shadow:0 10px 24px color-mix(in srgb, var(--accent) 36%, transparent); }
+.me-saveall:disabled{ opacity:.45; cursor:default; box-shadow:none; }
+.me-saveall svg{ width:16px; height:16px; }
+.me-savecnt:empty{ display:none; }
+.me-savecnt{ background:#fff; color:var(--accent); font-size:12px; font-weight:800; min-width:20px; height:20px; padding:0 6px; border-radius:10px; display:inline-flex; align-items:center; justify-content:center; }
+.me-savemsg{ font-size:12.5px; color:var(--text-dim); }
+.me-table td.dirty{ background:color-mix(in srgb, var(--warn) 10%, transparent); box-shadow:inset 3px 0 0 var(--warn); }
+.me-table td.dirty .handle-cell::after{ content:'변경됨'; font-size:10px; font-weight:700; color:var(--warn); margin-left:6px; }
 /* ★세션 BO: 연구 기간 알림 카드 + 큰 스위치 */
 .kp-nudge{ display:flex; align-items:center; gap:16px; margin:0 0 18px; padding:14px 18px; border:1px solid var(--border); border-radius:var(--r-2); background:var(--card); }
 .kp-nudge.on{ border-color:color-mix(in srgb, var(--accent) 45%, var(--border)); background:color-mix(in srgb, var(--accent) 5%, var(--card)); }
@@ -3547,7 +3617,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
     <button class="navbtn navkypt" id="kyptBtn"><svg class="nbi"><use href="#i-book"/></svg><span class="nbt">KYPT</span></button>
     <button class="navbtn" id="docsBtn"><svg class="nbi"><use href="#i-docs"/></svg><span class="nbt">문서</span></button>
     <button class="navbtn" id="directoryBtn"><svg class="nbi"><use href="#i-users"/></svg><span class="nbt">회원</span></button>
-    <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">대화방</span></button>
+    <button class="navbtn" id="communityBtn"><svg class="nbi"><use href="#i-chat"/></svg><span class="nbt">채팅</span></button>
     <button class="navbtn" id="qBtn"><svg class="nbi"><use href="#i-help"/></svg><span class="nbt">질문 게시판</span></button>
         <button class="navbtn" id="storyBtn"><svg class="nbi"><use href="#i-history"/></svg><span class="nbt">연혁</span></button>
     <button class="navtoggle" id="searchToggle" aria-label="문서 검색" title="문서 검색">
@@ -3589,7 +3659,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
   <nav class="botnav" id="botnav" aria-label="주요 메뉴">
     <button class="bn-item" data-nav="home"><svg class="bn-ic"><use href="#i-home"/></svg>홈</button>
     <button class="bn-item" data-nav="docs"><svg class="bn-ic"><use href="#i-docs"/></svg>문서</button>
-    <button class="bn-item" data-nav="community"><svg class="bn-ic"><use href="#i-chat"/></svg>대화방</button>
+    <button class="bn-item" data-nav="community"><svg class="bn-ic"><use href="#i-chat"/></svg>채팅</button>
     <button class="bn-item" data-nav="inbox"><svg class="bn-ic"><use href="#i-mail"/></svg>쪽지함<span class="bn-badge" id="botBadge" style="display:none">0</span></button>
     <button class="bn-item" data-nav="questions"><svg class="bn-ic"><use href="#i-help"/></svg>질문</button>
   </nav>
@@ -4445,7 +4515,7 @@ function openBioEditor(cur){
   ov.innerHTML=`<div class="modal-box">
     <div class="modal-msg">한 줄 소개</div>
     <div class="modal-sub">프로필에 표시돼요. 100자 이내 · 비우면 표시되지 않습니다.</div>
-    <input class="he-input" id="bioInput" type="text" maxlength="100" placeholder="예: 광학 좋아하는 22기" value="${escapeAttr(cur||'')}">
+    <input class="he-input" id="bioInput" type="text" maxlength="${Number(LIMITS.lim_bio_chars)||100}" placeholder="예: 광학 좋아하는 22기" value="${escapeAttr(cur||'')}">
     <div class="he-msg" id="bioMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">저장</button></div>
   </div>`;
@@ -8703,7 +8773,7 @@ async function renderSysFeatures(){
       ['kypt_v2',   'KYPT 실험 기록 (v2)', '문제 안에서 실험 1회 = 기록 1건(8칸 템플릿, 자동 저장), 자료함(링크·파일). 끄면 예전 상세 화면. 93_kypt_v2.sql 필요.'],
     ]},
     { name:'부가', items:[
-      ['community',      '대화방 (작업 공간·채팅)', '★<b>대화방이 여기 있습니다.</b> 주제별 작업 공간(문서·자료·과제·회의 링크)과 채팅. 끄면 대화방도 함께 사라져요.'],
+      ['community',      '채팅 (방 · 작업 공간)', '★<b>채팅이 여기 있습니다.</b> 방마다 대화와 작업 공간(문서·자료·과제·회의 링크). 끄면 채팅이 통째로 사라져요.'],
       ['qr',             'QR 라벨',                '기자재에 붙이는 문서 QR 스티커·라벨 시트 인쇄.'],
       ['nudges',         '참여 넛지',              '대문의 "짧은 문서" 배너와 우하단 안내 토스트. (세부 조정은 [넛지 설정])'],
       ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
@@ -8816,71 +8886,90 @@ async function renderSystem(){
 }
 
 /* 시스템 → 글자수·사진 용량 상한 */
+/* ★세션 BU: 상한 항목. 화면은 카드 하나 = 항목 하나. 컨트롤마다 프리셋 칩 + [직접] 숫자칸.
+   kind: chars(자) · kb(KB, 사진은 이 용량으로 자동 압축) · mb(파일 — 압축 없음, KB로 저장) */
+const LIM_PRESETS = {
+  chars_s: [100, 200, 300, 500, 1000],
+  chars_m: [300, 500, 1000, 2000, 4000],
+  kb_s:    [20, 40, 80, 150, 300],
+  kb_m:    [100, 150, 300, 500, 1000],
+  kb_sum:  [500, 1000, 1500, 3000, 6000],
+  mb:      [5, 10, 20, 50, 100],
+};
 const LIMIT_FIELDS = [
-  { group:'커뮤니티 채팅', chars:'lim_chat_chars', kb:'lim_chat_img_kb', kbLabel:'사진 1장' },
-  { group:'질문 답변',     chars:'lim_ans_chars',  kb:'lim_ans_img_kb',  kbLabel:'사진 1장' },
-  { group:'질문 본문',     chars:'lim_q_chars',    kb:'lim_q_img_kb',    kbLabel:'사진 합계' },
-  { group:'쪽지',          chars:'lim_dm_chars',   kb:'lim_dm_img_kb',   kbLabel:'사진 1장' },
-  { group:'문서',          chars:null,             kb:'lim_doc_img_kb',  kbLabel:'사진 1장',
-    kb2:'lim_doc_total_kb', kb2Label:'문서 1개의 사진 합계' },
-  { group:'KYPT 끄적 · 빠른 메모', chars:'lim_kypt_note_chars',    kb:null, note:'끄적 탭과 폰의 빠른 메모 한 줄' },
-  { group:'KYPT 레퍼런스 요약',  chars:'lim_kypt_summary_chars', kb:null, note:'레퍼런스 키트 옆 칸의 공동 요약' },
-  { group:'KYPT 일지 한 칸',     chars:'lim_kypt_field_chars',   kb:null, note:'실험 기록 8칸 각각 (자동 저장)' },
-  { group:'KYPT 의견',           chars:'lim_kypt_comment_chars', kb:null, note:'피드백 탭·자료 의견 한 개' },
-  { group:'KYPT 자료함 파일',    chars:null,                     kb:'lim_kypt_file_kb', kbLabel:'파일 1개 (KB · 기본 20480 = 20MB)', kbMax:102400 },
-  { group:'앱 피드백',           chars:'lim_feedback_chars',     kb:null, note:'[피드백 보내기]의 의견' },
+  { sec:'대화 · 질문 · 쪽지', items:[
+    { title:'채팅 메시지',  note:'한 번에 보내는 메시지 한 개', controls:[ {key:'lim_chat_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_chat_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
+    { title:'질문 본문',      note:'질문 게시판에 올리는 글', controls:[ {key:'lim_q_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m}, {key:'lim_q_img_kb', kind:'kb', label:'사진 합계(질문 1건)', presets:LIM_PRESETS.kb_m} ] },
+    { title:'질문 답변',      note:'답변 한 개', controls:[ {key:'lim_ans_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_ans_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
+    { title:'쪽지',           note:'쪽지 한 통', controls:[ {key:'lim_dm_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_dm_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
+  ]},
+  { sec:'문서', items:[
+    { title:'문서 사진',      note:'사진 1장은 이 용량으로 자동 압축돼요. 문서 1개에 넣을 수 있는 사진 수는 합계 ÷ 1장 용량.', controls:[ {key:'lim_doc_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_m}, {key:'lim_doc_total_kb', kind:'kb', label:'문서 1개의 사진 합계', presets:LIM_PRESETS.kb_sum, min:100, max:20000} ] },
+  ]},
+  { sec:'KYPT 연구', items:[
+    { title:'끄적 · 빠른 메모', note:'끄적 탭과 폰의 빠른 메모 한 줄', controls:[ {key:'lim_kypt_note_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s} ] },
+    { title:'레퍼런스 요약',    note:'레퍼런스 키트 옆 칸의 공동 요약', controls:[ {key:'lim_kypt_summary_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m} ] },
+    { title:'실험 기록 한 칸',  note:'실험 기록 8칸 각각 (자동 저장)', controls:[ {key:'lim_kypt_field_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m, max:20000} ] },
+    { title:'의견',             note:'피드백 탭·자료 의견 한 개', controls:[ {key:'lim_kypt_comment_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s} ] },
+    { title:'자료함 파일',      note:'넘는 파일은 올라가지 않아요(압축 없음). 긴 영상은 YouTube 미등록 링크로.', controls:[ {key:'lim_kypt_file_kb', kind:'mb', label:'파일 1개', presets:LIM_PRESETS.mb, min:1, max:200} ] },
+  ]},
+  { sec:'프로필 · 그 밖에', items:[
+    { title:'프로필 사진',      note:'256px 정사각형으로 줄인 뒤 이 용량으로 압축', controls:[ {key:'lim_avatar_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s, max:500} ] },
+    { title:'한 줄 소개',       note:'프로필의 한 줄 소개', controls:[ {key:'lim_bio_chars', kind:'chars', label:'글자수', presets:[50, 80, 100, 150, 200], max:500} ] },
+    { title:'연혁 사진',        note:'연혁 사건에 넣는 사진 1장', controls:[ {key:'lim_story_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_m, max:2000} ] },
+    { title:'앱 피드백',        note:'[피드백 보내기]의 의견', controls:[ {key:'lim_feedback_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m} ] },
+  ]},
 ];
+
 async function renderSysLimits(){
   await loadLimits();
+  const pend={};                                                // key → 바꾼 값(저장 전)
+  const unitOf=k=>k==='chars'?'자':k==='mb'?'MB':'KB';
+  const toShown=(c,v)=> c.kind==='mb' ? Math.round(v/1024) : v;          // 파일은 MB로 보여 주고 KB로 저장
+  const toStored=(c,v)=> c.kind==='mb' ? Math.round(v*1024) : v;
+  const ctlHtml=(c)=>{
+    const cur=toShown(c, LIMITS[c.key]); const inPreset=c.presets.includes(cur);
+    return `<div class="lim-ctl" data-key="${c.key}" data-kind="${c.kind}">
+      <div class="lim-ctl-l">${escapeHtml(c.label)} <b class="lim-cur">${cur}${unitOf(c.kind)}</b></div>
+      <div class="lim-chips">${c.presets.map(v=>`<button class="lim-chip${v===cur?' on':''}" data-v="${v}">${v}${unitOf(c.kind)}</button>`).join('')}<button class="lim-chip lim-custom${inPreset?'':' on'}" data-v="custom">직접</button>
+        <span class="lim-cust${inPreset?'':' show'}"><input class="lim-in" type="number" inputmode="numeric" min="${c.min||1}" max="${c.max||(c.kind==='chars'?5000:c.kind==='mb'?200:500)}" value="${cur}"> ${unitOf(c.kind)}</span></div>
+    </div>`;
+  };
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>글자수 · 사진 용량 상한</h1>
       <div class="tabs"><button id="slBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">바꾼 값은 모든 회원에게 <b>다음 접속부터</b> 적용됩니다.</div>
-    <section class="hs-sec">
-      <table class="hs-table">
-        <tr><th style="width:150px">구분</th><th style="width:180px">최대 글자수</th><th style="width:220px">사진 용량(KB)</th><th>비고</th></tr>
-        ${LIMIT_FIELDS.map(f=>`
-          <tr>
-            <td><b>${escapeHtml(f.group)}</b></td>
-            <td>${f.chars
-              ? `<input class="lim-in" type="number" min="1" max="5000" data-k="${f.chars}" value="${LIMITS[f.chars]}"> 자`
-              : '<span class="muted">—</span>'}</td>
-            <td>${f.kb ? `
-              <input class="lim-in" type="number" min="5" max="${f.kbMax||500}" data-k="${f.kb}" value="${LIMITS[f.kb]}"> KB
-              <span class="hs-note" style="display:inline">(${escapeHtml(f.kbLabel)})</span>` : '<span class="muted">—</span>'}
-              ${f.kb2 ? `<div style="margin-top:5px">
-                <input class="lim-in" type="number" min="100" max="20000" data-k="${f.kb2}" value="${LIMITS[f.kb2]}"> KB
-                <span class="hs-note" style="display:inline">(${escapeHtml(f.kb2Label)})</span></div>` : ''}
-            </td>
-            <td class="hs-dt">${f.note ? escapeHtml(f.note) : f.kb2
-              ? '사진 1장은 이 용량으로 자동 압축돼요. 문서 1개에 넣을 수 있는 사진 수는 <b>합계 ÷ 1장 용량</b>으로 제한됩니다.'
-              : (f.kbLabel==='사진 합계' ? '질문 1건의 사진을 합쳐 이 용량에 맞게 자동 압축'
-                                        : (f.kb==='lim_kypt_file_kb' ? '넘는 파일은 올라가지 않아요(압축 없음). 긴 영상은 YouTube 미등록 링크로.' : '사진 1장을 이 용량에 맞게 자동 압축'))}</td>
-          </tr>`).join('')}
-      </table>
-      <div class="sys-actions">
-        <button class="btn primary" id="limSave" style="width:auto;padding:8px 18px">저장</button>
-        <span class="hs-note" id="limMsg"></span>
-      </div>
-      <div class="hs-note">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만 문서·질문 사진은 영구 보관돼요.</div>
-    </section>`;
+    <div class="lim-savebar"><button class="me-saveall" id="limSave" disabled>저장 <span class="me-savecnt" id="limCnt"></span></button><span class="hs-note" id="limMsg">칩을 누르거나 [직접]에 숫자를 넣으면 여기 모였다가 한 번에 저장돼요. 모든 회원에게 다음 접속부터 적용됩니다.</span></div>
+    ${LIMIT_FIELDS.map(sec=>`<section class="hs-sec"><h2 class="lim-sech">${escapeHtml(sec.sec)}</h2>
+      <div class="lim-grid">${sec.items.map(it=>`<div class="lim-card"><div class="lim-t">${escapeHtml(it.title)}</div><div class="lim-note">${escapeHtml(it.note)}</div>${it.controls.map(ctlHtml).join('')}</div>`).join('')}</div></section>`).join('')}
+    <div class="hs-note" style="margin-top:8px">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만 문서·질문·연혁 사진은 영구 보관돼요.</div>`;
   $('#slBack').onclick=()=>{ location.hash='#//system'; };
+  const allCtl=[]; LIMIT_FIELDS.forEach(sec=>sec.items.forEach(it=>it.controls.forEach(c=>allCtl.push(c))));
+  const sync=()=>{ const n=Object.keys(pend).length; $('#limSave').disabled=!n; $('#limCnt').textContent=n?n:''; };
+  document.querySelectorAll('.lim-ctl').forEach(box=>{
+    const c=allCtl.find(x=>x.key===box.dataset.key); const inp=box.querySelector('.lim-in'), cust=box.querySelector('.lim-cust');
+    const setVal=(shown)=>{
+      const v=Number(shown); if(!v || v<(c.min||1)) return;
+      box.querySelector('.lim-cur').textContent=v+unitOf(c.kind);
+      box.querySelectorAll('.lim-chip').forEach(ch=>ch.classList.toggle('on', ch.dataset.v==='custom' ? !c.presets.includes(v) : Number(ch.dataset.v)===v));
+      inp.value=v;
+      const stored=toStored(c,v); if(stored===LIMITS[c.key]) delete pend[c.key]; else pend[c.key]=stored;
+      box.classList.toggle('dirty', c.key in pend); sync();
+    };
+    box.querySelectorAll('.lim-chip').forEach(ch=>{ ch.onclick=()=>{ if(ch.dataset.v==='custom'){ cust.classList.add('show'); inp.focus(); inp.select(); return; } cust.classList.remove('show'); setVal(ch.dataset.v); }; });
+    inp.addEventListener('change', ()=>setVal(inp.value));
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); setVal(inp.value); inp.blur(); } });
+  });
   $('#limSave').onclick=async()=>{
-    const msg=$('#limMsg'); msg.textContent='저장 중…';
-    let fail='';
-    for(const inp of [...document.querySelectorAll('.lim-in')]){
-      const k=inp.dataset.k, v=parseInt(inp.value,10);
-      if(!v || v===LIMITS[k]) continue;
-      const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:v });
-      if(error){ fail=error.message||'저장 실패'; break; }
-      LIMITS[k]=v;
+    const msg=$('#limMsg'); msg.textContent='저장 중…'; $('#limSave').disabled=true;
+    for(const k of Object.keys(pend)){
+      const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:pend[k] });
+      if(error){ msg.textContent='저장 실패: '+(error.message||''); sync(); return; }
+      LIMITS[k]=pend[k]; delete pend[k]; const box=document.querySelector(`.lim-ctl[data-key="${k}"]`); if(box) box.classList.remove('dirty');
     }
-    if(fail) msg.textContent='저장 실패: '+fail;
-    else msg.innerHTML = icOk()+' 저장했어요.';
+    sync(); msg.innerHTML = icOk()+' 저장했어요. 다음 접속부터 적용됩니다.';
   };
   window.scrollTo(0,0);
 }
-
 /* 시스템 → 유지 보수 */
 async function renderSysMaint(){
   $('#doc').innerHTML=`
@@ -9276,6 +9365,10 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-12', text:'[채팅] "대화방"이 "채팅"이 됐어요. 먼저 방 목록(마지막 말·시각)이 보이고, 방을 누르면 방 하나가 화면 전체를 씁니다 — 위에 ← 목록, 방 이름, ⋯ 메뉴(설정·작업 공간·접속 중). 방 안은 말풍선 대신 줄 단위로 촘촘하게 보여요. [+ 새 방]을 만들면 바로 그 방으로 들어갑니다.' },
+  { date:'2026-09-12', text:'[시스템] 상한 화면이 카드로 바뀌었어요 — 숫자를 치는 대신 칩(200자·500자…)을 고르고, 필요하면 [직접]에 넣습니다. 프로필 사진·한 줄 소개·연혁 사진 상한이 새로 생겼고 폰에서도 깨지지 않아요.' },
+  { date:'2026-09-12', text:'[프로필] 칸을 고치고 Enter나 바깥을 누르면 바로 적용되고(✓·✕ 버튼 없음), 위의 큰 [수정사항 저장]으로 한 번에 저장합니다. 저장 안 하고 나가려 하면 가운데 창이 물어봐요.' },
+  { date:'2026-09-12', text:'[대화방] 들어가면 마지막 메시지까지 확실히 내려가고(사진이 늦게 떠도 따라감), 폰에서는 제목을 접고 방 목록을 얇은 띠로 줄여 입력칸이 바로 보입니다.' },
   { date:'2026-09-11', text:'[문서] 문서 목록의 한 줄 한 줄이 카드가 됐어요 — 올리면 살짝 떠오르고 화살표가 나옵니다. 주소는 제목 아래로, 짧은 문서는 "짧음" 표시로.' },
   { date:'2026-09-11', text:'[연혁] 구슬에 올리면 반응하고, 누르면 구슬 옆에 작은 카드가 떠서 날짜·사건명·한 줄 소개·사진·회고록이 보입니다(나머지 화면은 그대로 쓸 수 있어요). 저장하면 바로 반영됩니다. 연혁 관리 권한이 있으면 카드 오른쪽 위 연필로 그 자리에서 바로 고쳐 저장돼요. 날짜는 연·월·일을 따로 고릅니다.' },
   { date:'2026-09-11', text:'[KYPT] 끄적을 지울 때 한 번 더 묻고, 현황의 "미해결 피드백"엔 일지에 달린 의견만 셉니다(자료 의견은 따로 → 자료함으로). 알림을 탭하면 정확히 KYPT로 옵니다. 없는 주소로 가면 숫자가 떨어지는 404 화면이 나와요.' },
@@ -9589,6 +9682,23 @@ async function savePassword(){
 }
 
 /* ================== 개인정보 (본인) ================== */
+/* ★세션 BT: 프로필의 저장 전 변경. { key: {v, save, render, cellId, cap} } — 저장하거나 버리기 전엔 비워지지 않는다 */
+let _meDirty = {};
+let _meSaveAllFn = null;
+function meDirtyCount(){ return Object.keys(_meDirty).length; }
+window.addEventListener('beforeunload', (e)=>{ if(meDirtyCount()){ e.preventDefault(); e.returnValue=''; } });
+/* 저장 안 한 채 다른 화면으로 가려 할 때 — 가운데 창. 돌아오는 값: 'save' | 'discard' | 'stay' */
+function meLeaveGuard(){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box"><div class="modal-msg">나가기 전에 변경사항을 저장하시겠습니까?</div>
+      <div class="modal-sub">프로필에서 고친 ${meDirtyCount()}개가 아직 저장되지 않았어요.</div>
+      <div class="modal-btns"><button class="modal-cancel" data-v="discard">저장 안 함</button><button class="modal-cancel" data-v="stay">계속 편집</button><button class="modal-ok" data-v="save">저장하고 나가기</button></div></div>`;
+    document.body.appendChild(ov);
+    ov.querySelectorAll('[data-v]').forEach(b=>{ b.onclick=()=>{ ov.remove(); resolve(b.dataset.v); }; });
+    ov.addEventListener('click', e=>{ if(e.target===ov){ ov.remove(); resolve('stay'); } });
+  });
+}
 async function renderMe(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지 · 규칙 12)
   let p={};
@@ -9603,6 +9713,10 @@ async function renderMe(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>프로필</h1>
       <div class="tabs"><button id="meProfile">${ic('user')}내 프로필 보기</button><button id="meBack">${ic('back')}문서로</button></div></div>
+    <div class="me-savebar" id="meSaveBar">
+      <button class="me-saveall" id="meSaveAll" disabled>수정사항 저장 <span class="me-savecnt" id="meSaveCnt"></span></button>
+      <span class="me-savemsg" id="meSaveMsg">칸의 연필을 눌러 고치고 Enter나 바깥을 누르면 적용돼요. 이 버튼으로 한 번에 저장합니다.</span>
+    </div>
     <div class="me-cover" id="meCoverBar"${p.cover_color?` style="--cv:${escapeAttr(p.cover_color)}"`:''}>
       <div class="me-cover-in" id="meCoverIn"></div>
     </div>
@@ -9638,8 +9752,8 @@ async function renderMe(){
   $('#meBack').onclick=()=>{ location.hash='#//home'; };
   $('#meProfile').onclick=()=>{ location.hash='#//member/'+state.user.id; };
 
-  /* ── 인라인 편집 (팝업 없이 표 안에서 바로 수정) ──
-     한 번에 한 칸만 편집 모드. Enter=저장 · Esc=취소. */
+  /* ── 인라인 편집 (세션 BT): 칸에서 고치고 Enter/바깥 클릭이면 '적용'(대기 상태)만. 서버 저장은 상단 [수정사항 저장] 한 번에.
+     Esc면 되돌린다. 대기 중인 값은 _meDirty에 모이고, 저장 안 한 채 나가면 route()의 문지기가 묻는다. */
   let meEditing = null;
   const meCancel = ()=>{ if(meEditing){ meEditing.restore(); meEditing=null; } };
 
@@ -9650,44 +9764,64 @@ async function renderMe(){
     const html = cell.innerHTML;
     const restore = ()=>{ cell.innerHTML = html; bindCellButtons(); };
     meEditing = { restore };
-
+    const cur = (_meDirty[opts.key] ? _meDirty[opts.key].v : opts.value) || '';
     const input = opts.select
       ? `<span class="usel sm inl-in"><select id="inlIn">${opts.options}</select></span>`
       : (opts.multi
-          ? `<textarea id="inlIn" class="inl-in inl-ta" rows="1" maxlength="${opts.max||100}" placeholder="${escapeAttr(opts.ph||'')}">${escapeHtml(opts.value||'')}</textarea>`
-          : `<input id="inlIn" class="inl-in" type="text" maxlength="${opts.max||60}" value="${escapeAttr(opts.value||'')}" placeholder="${escapeAttr(opts.ph||'')}">`);
-    cell.innerHTML = `<div class="inl-wrap">${input}
-      <button class="ibtn ok" id="inlSave" title="저장">${ic('check')}</button>
-      <button class="ibtn" id="inlCancel" title="취소">✕</button>
-      <span class="inl-msg" id="inlMsg"></span></div>`;
+          ? `<textarea id="inlIn" class="inl-in inl-ta" rows="1" maxlength="${opts.max||100}" placeholder="${escapeAttr(opts.ph||'')}">${escapeHtml(cur)}</textarea>`
+          : `<input id="inlIn" class="inl-in" type="text" maxlength="${opts.max||60}" value="${escapeAttr(cur)}" placeholder="${escapeAttr(opts.ph||'')}">`);
+    cell.innerHTML = `<div class="inl-wrap">${input}<span class="inl-msg" id="inlMsg"></span></div>`;
 
     const el = document.getElementById('inlIn');
+    if(opts.select){ const sel=el; const o=[...sel.options].find(x=>x.value===cur); if(o) o.selected=true; }
     el.focus(); if(el.select) el.select();
     if(opts.multi){                                   // 내용에 맞춰 줄이 늘어난다
       const grow=()=>{ el.style.height='auto'; el.style.height=Math.min(el.scrollHeight, 160)+'px'; };
       el.addEventListener('input', grow); grow();
     }
-    document.getElementById('inlCancel').onclick = ()=>{ meCancel(); };
-    const save = async()=>{
+    let done=false;
+    const apply = ()=>{
+      if(done) return; done=true;
       const v = (el.value||'').trim();
-      const msg = document.getElementById('inlMsg');
-      const btn = document.getElementById('inlSave'); btn.disabled = true;
-      try{
-        const shown = await opts.save(v);
-        meEditing = null;
-        cell.innerHTML = opts.render(shown!==undefined ? shown : v);
-        bindCellButtons();
-      }catch(e){
-        btn.disabled = false;
-        if(!handleErr(e, opts.cap)) { msg.textContent = (e&&e.message) || '저장 실패'; }
-      }
+      meEditing = null;
+      if(v === (opts.value||'')){ delete _meDirty[opts.key]; cell.innerHTML = opts.render(v); cell.classList.remove('dirty'); }
+      else { _meDirty[opts.key] = { v, save:opts.save, render:opts.render, cellId, cap:opts.cap }; cell.innerHTML = opts.render(v); cell.classList.add('dirty'); }
+      bindCellButtons(); meSaveBarSync();
     };
-    document.getElementById('inlSave').onclick = save;
     el.addEventListener('keydown', e=>{
-      if(e.key==='Enter'){ e.preventDefault(); save(); }
-      if(e.key==='Escape'){ e.preventDefault(); meCancel(); }
+      if(e.key==='Enter' && !(opts.multi && e.shiftKey)){ e.preventDefault(); apply(); }
+      if(e.key==='Escape'){ e.preventDefault(); done=true; meCancel(); }
     });
+    el.addEventListener('blur', ()=>{ setTimeout(()=>{ if(!done) apply(); }, 0); });
+    if(opts.select) el.addEventListener('change', apply);
   }
+  function meSaveBarSync(){
+    const n=Object.keys(_meDirty).length; const b=$('#meSaveAll'), c=$('#meSaveCnt'), m=$('#meSaveMsg');
+    if(b) b.disabled = n===0; if(c) c.textContent = n ? n : '';
+    if(m) m.textContent = n ? `${n}개 바뀜 — 아직 저장 전이에요.` : '칸의 연필을 눌러 고치고 Enter나 바깥을 누르면 적용돼요. 이 버튼으로 한 번에 저장합니다.';
+    document.querySelectorAll('.me-table td.dirty').forEach(td=>{ if(!_meDirty[[...Object.keys(_meDirty)].find(k=>_meDirty[k].cellId===td.id)]) td.classList.remove('dirty'); });
+  }
+  async function meSaveAll(){
+    const keys=Object.keys(_meDirty); if(!keys.length) return true;
+    const b=$('#meSaveAll'), m=$('#meSaveMsg'); if(b) b.disabled=true; if(m) m.textContent='저장하는 중…';
+    for(const k of keys){
+      const d=_meDirty[k];
+      try{
+        const shown = await d.save(d.v);
+        delete _meDirty[k];
+        const cell=document.getElementById(d.cellId); if(cell){ cell.innerHTML=d.render(shown!==undefined?shown:d.v); cell.classList.remove('dirty'); }
+      }catch(e){
+        if(b) b.disabled=false; bindCellButtons(); meSaveBarSync();
+        const msg=(e&&e.message)||'저장 실패';
+        if(m) m.textContent=`'${k==='name'?'이름':k==='handle'?'활동명':k==='club'?'소속':k==='track'?'계열':'한 줄 소개'}' 저장 실패: ${msg}`;
+        if(!handleErr(e, d.cap)) toast('저장하지 못했어요: '+msg);
+        return false;
+      }
+    }
+    bindCellButtons(); meSaveBarSync(); toast('저장했어요.'); return true;
+  }
+  $('#meSaveAll').onclick=meSaveAll;
+  _meSaveAllFn = meSaveAll;
 
   const cellHTML = (id, inner, btnId, title) =>
     `<div class="handle-cell"><span id="${id}">${inner}</span>
@@ -9695,7 +9829,7 @@ async function renderMe(){
 
   function bindCellButtons(){
     const nb=$('#meNameBtn');
-    if(nb) nb.onclick=()=>inlineEdit('meNameCell', {
+    if(nb) nb.onclick=()=>inlineEdit('meNameCell', { key:'name',
       value: p.name||'', max:20, ph:'이름',
       save: async v=>{ if(!v) throw new Error('이름을 입력해 주세요.');
         const { data, error } = await sb.rpc('set_my_name', { p_name:v }); if(error) throw error;
@@ -9706,7 +9840,7 @@ async function renderMe(){
     });
 
     const hb=$('#meHandleBtn');
-    if(hb) hb.onclick=()=>inlineEdit('meHandleCell', {
+    if(hb) hb.onclick=()=>inlineEdit('meHandleCell', { key:'handle',
       value: p.handle||'', max:20, ph:'활동명',
       save: async v=>{ if(!v) throw new Error('활동명을 입력해 주세요.');
         if(RESERVED_HANDLES.includes(v.toLowerCase())) throw new Error('사용할 수 없는 활동명이에요.');
@@ -9724,7 +9858,7 @@ async function renderMe(){
       if(!clubs.length) clubs=[{name:'무소속', is_none:true}];
       clubs.sort((a,b)=> (a.is_none?1:0)-(b.is_none?1:0) || String(a.name).localeCompare(String(b.name),'ko'));
       const cur = p.club || '무소속';
-      inlineEdit('meClubCell', {
+      inlineEdit('meClubCell', { key:'club', value: cur,
         select:true,
         options: clubs.map(c=>`<option value="${escapeAttr(c.name)}" ${c.name===cur?'selected':''}>${escapeHtml(c.name)}</option>`).join(''),
         save: async v=>{ const { data, error } = await sb.rpc('set_my_club', { p_club:v }); if(error) throw error;
@@ -9737,7 +9871,7 @@ async function renderMe(){
     if(tb) tb.onclick=async()=>{
       await loadTracks();
       const cur = p.track || '';
-      inlineEdit('meTrackCell', {
+      inlineEdit('meTrackCell', { key:'track', value: cur,
         select:true,
         options: `<option value="" ${!cur?'selected':''}>— 없음 —</option>`
           + (state.tracks||[]).map(t=>`<option value="${escapeAttr(t.name)}" ${t.name===cur?'selected':''}>${escapeHtml(t.name)}</option>`).join(''),
@@ -9805,9 +9939,9 @@ async function renderMe(){
     coverView();
 
     const bb=$('#meBioBtn');
-    if(bb) bb.onclick=()=>inlineEdit('meBioCell', {
+    if(bb) bb.onclick=()=>inlineEdit('meBioCell', { key:'bio',
       multi:true,
-      value: p.bio||'', max:100, ph:'예: 광학 좋아하는 22기',
+      value: p.bio||'', max:(Number(LIMITS.lim_bio_chars)||100), ph:'예: 광학 좋아하는 22기',
       cap:'',
       save: async v=>{ const { data, error } = await sb.rpc('set_my_bio', { p_bio:v }); if(error) throw error;
         p.bio = data || (v||null); state.bio = p.bio; return p.bio || ''; },
@@ -9815,6 +9949,8 @@ async function renderMe(){
     });
   }
   bindCellButtons();
+  Object.keys(_meDirty).forEach(k=>{ const d=_meDirty[k]; const cell=document.getElementById(d.cellId); if(cell){ cell.innerHTML=d.render(d.v); cell.classList.add('dirty'); } });
+  bindCellButtons(); meSaveBarSync();
   $('#meAvaChange').onclick=()=>$('#meAvaFile').click();
   $('#meAvaFile').onchange=onAvatarFile;
   $('#meAvaRemove').onclick=removeAvatar;
@@ -10028,10 +10164,10 @@ function compressImage(file, opts){
 
 /* 프로필 사진 업로드/제거 (Supabase Storage: avatars 버킷) — 위 압축기의 'cover' 프리셋 */
 const AVA_DIM = 256;                 // 정사각형 한 변(px)
-const AVA_TARGET = 40*1024;          // 목표 용량
+/* AVA_TARGET 은 LIMITS.lim_avatar_kb 로 옮겼다(세션 BU) */
 const AVA_RAW_MAX = IMG_RAW_MAX;     // (하위호환) 원본 파일 상한
 function compressAvatar(file){
-  return compressImage(file, { mode:'cover', dim:AVA_DIM, target:AVA_TARGET });
+  return compressImage(file, { mode:'cover', dim:AVA_DIM, target:(Number(LIMITS.lim_avatar_kb)||40)*1024 });   // ★세션 BU: [상한]에서 조절
 }
 async function onAvatarFile(e){
   const msg=$('#meAvaMsg'); const file=e.target.files&&e.target.files[0]; e.target.value='';
@@ -10421,7 +10557,7 @@ async function fetchActivity(){
 const LANDING_GO = [
   { hash:'#//kypt',      icon:'book',     label:'KYPT',      feat:'kypt',      hot:true },
   { hash:'#//docs',      icon:'docs',     label:'문서',       feat:null },
-  { hash:'#//community', icon:'chat',     label:'대화방',      feat:'community' },
+  { hash:'#//community', icon:'chat',     label:'채팅',        feat:'community' },
   { hash:'#//questions', icon:'help',     label:'질문 게시판',  feat:'questions' },
   { hash:'#//directory', icon:'users',    label:'회원',        feat:'directory' },
   { hash:'#//inbox',     icon:'mail',     label:'쪽지함',      feat:'inbox' },
@@ -10709,7 +10845,7 @@ async function storyWriteJson(events){
   if(error) throw error;
 }
 async function storyUploadPhoto(file){
-  const c=await compressImage(file, { mode:'contain', dim:STORY_DIM, target:STORY_TARGET_KB*1024, minQuality:0.4 });
+  const c=await compressImage(file, { mode:'contain', dim:STORY_DIM, target:(Number(LIMITS.lim_story_img_kb)||STORY_TARGET_KB)*1024, minQuality:0.4 });
   const photo='ev/'+Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,7)+(c.type==='image/webp'?'.webp':'.jpg');
   const { error } = await sb.storage.from(STORY_BUCKET).upload(photo, c.blob, { contentType:c.type, cacheControl:'31536000' });
   if(error) throw error;
@@ -12961,7 +13097,7 @@ function kv2ThreadHtml(p, kind, id, fk){
         <div class="kv2-cb">${kv2Mention(escapeHtml(r.body))}</div>
       </div>`).join('')}
       <div class="kv2-replybox" data-for="${c.id}" hidden>
-        <textarea class="kv2-cta" rows="2" placeholder="답글 — @이름 으로 부를 수 있어요"></textarea>
+        <textarea class="kv2-cta" rows="2" maxlength="${LIMITS.lim_kypt_comment_chars}" placeholder="답글 — @이름 으로 부를 수 있어요"></textarea>
         <button class="ch-act primary" data-send-reply="${c.id}">답글</button></div>
     </div>`;
   };
@@ -12969,7 +13105,7 @@ function kv2ThreadHtml(p, kind, id, fk){
     ${open.map(item).join('')}
     ${done.length?`<details class="kv2-cdone"><summary>해결됨 ${done.length}</summary>${done.map(item).join('')}</details>`:''}
     ${canWrite?`<div class="kv2-newc">
-      <textarea class="kv2-cta" rows="2" placeholder="${kind==='asset'?'이 자료에 대해…':(kind==='problem'?'이 문제에 대해 하고 싶은 말…':'이 칸에 대해…')} (@이름 으로 부르기 · Enter로 보내기)"></textarea>
+      <textarea class="kv2-cta" rows="2" maxlength="${LIMITS.lim_kypt_comment_chars}" placeholder="${kind==='asset'?'이 자료에 대해…':(kind==='problem'?'이 문제에 대해 하고 싶은 말…':'이 칸에 대해…')} (@이름 으로 부르기 · Enter로 보내기)"></textarea>
       <button class="ch-act primary" data-send-root="1">남기기</button></div>`
       : (_kv2No95 && kyptAdminish() ? `<p class="ch-note">피드백을 쓰려면 <code>95_kypt_feedback.sql</code>을 실행하세요.</p>` : '')}
   </div>`;
@@ -13258,7 +13394,7 @@ async function openStoryManager(){
   ov.innerHTML=`<div class="modal-box" style="max-width:660px">
     <div class="modal-msg">연혁 관리</div>
     <div class="modal-sub">모든 항목을 한 화면에서 바로 고칠 수 있어요. 왼쪽 <b>⠿</b>를 잡아 끌면 순서가 바뀝니다.
-      사진은 올릴 때 자동으로 ${STORY_TARGET_KB}KB 이하로 줄어요.</div>
+      사진은 올릴 때 자동으로 ${Number(LIMITS.lim_story_img_kb)||STORY_TARGET_KB}KB 이하로 줄어요.</div>
     ${cfg===null?`<p class="ch-note">저장소를 읽지 못했어요 — 처음이면 <code>91_history.sql</code>을 먼저 실행하세요.${
       _storyErr&&_storyErr.message?`<br>원인: ${escapeHtml(String(_storyErr.message))}`:''}</p>`:''}
     <div class="sm-list" id="smList"></div>
@@ -14693,15 +14829,52 @@ function unsubscribeChat(){ resetTyping(); if(chatChannel){ try{ sb.removeChanne
 /* 커뮤니티 게시글 목록 (72) — questions에서 kind='post'만. RPC가 없으면(미배포) 섹션을 통째로 숨겨 우아하게 실패 */
 
 
+/* ★세션 BV: 채팅은 두 단계 — 목록(#//community) → 방(#//community/<id|general>). 카카오톡처럼 방마다 마지막 말·시각이 보이고,
+   방 안은 AoPS 교실처럼 줄 단위(아바타·이름·본문)로 촘촘하게. */
+function roomHashOf(id){ return '#//community/'+(id==null?'general':id); }
+function roomKeyFromHash(){ const m=location.hash.match(/^#\/\/community(?:\/([^/?#]+))?/); return m ? (m[1]||null) : null; }
+async function renderRoomList(_nav){
+  const rooms=[{ id:null, name:chName(null) }].concat(community.channels.filter(c=>!c.archived));
+  let last={};
+  try{
+    let q=sb.from('messages').select('channel_id,body,created_at,user_name,images').is('question_id', null).order('created_at',{ascending:false}).limit(400);
+    const { data } = await q;
+    (data||[]).forEach(m=>{ const k=m.channel_id==null?'general':String(m.channel_id); if(!last[k]) last[k]=m; });
+  }catch(e){ /* 미리보기만 없다 */ }
+  if(_nav!==_navSeq) return;
+  const mgr=canManageChannels();
+  const dead=community.channels.filter(c=>c.archived);
+  const when=(iso)=>{ if(!iso) return ''; const d=new Date(iso), now=new Date(); const same=d.toDateString()===now.toDateString(); return same ? d.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'}) : (d.getFullYear()===now.getFullYear() ? `${d.getMonth()+1}.${d.getDate()}` : `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`); };
+  const hue=(str)=>{ let h=0; for(const ch of String(str)) h=(h*31+ch.charCodeAt(0))>>>0; return h%360; };
+  const row=(r)=>{ const k=r.id==null?'general':String(r.id); const m=last[k];
+    const prev = m ? ((m.body||'').trim() ? escapeHtml(String(m.body).replace(/\s+/g,' ').slice(0,60)) : (m.images&&m.images.length?'📷 사진':'')) : '<span class="muted">아직 말이 없어요</span>';
+    return `<a class="room" href="${roomHashOf(r.id)}">
+      <span class="room-av" style="--h:${hue(r.name)}">${escapeHtml(String(r.name).slice(0,1))}</span>
+      <span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(r.name)}</span>${r.visibility==='members'?`<span class="ch-lock" title="지정한 멤버와 운영진만">${ic('lock')}</span>`:''}<span class="room-when">${m?escapeHtml(when(m.created_at)):''}</span></span>
+      <span class="room-p">${m&&m.user_name?`<b>${escapeHtml(m.user_name)}</b> `:''}${prev}</span></span></a>`; };
+  rooms.sort((a,b)=>{ const ta=(last[a.id==null?'general':String(a.id)]||{}).created_at||'', tb=(last[b.id==null?'general':String(b.id)]||{}).created_at||''; return tb.localeCompare(ta); });
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>채팅</h1><div class="tabs">${mgr?`<button class="btn primary" id="roomAdd" style="width:auto;padding:8px 14px">+ 새 방</button>`:''}</div></div>
+    ${(mgr && !community.chOk)?`<p class="ch-note">방 나누기(83_channels.sql)가 아직이라 방이 하나뿐이에요.${community.chErr?' 원인: '+escapeHtml(String(community.chErr.message||community.chErr)):''}</p>`:''}
+    <div class="room-list">${rooms.map(row).join('')}</div>
+    ${(mgr&&dead.length)?`<div class="ls-h ch-arch-h" style="margin-top:18px">보관됨</div><div class="room-list dim">${dead.map(c=>`<button class="room room-arch" data-chset="${escapeAttr(String(c.id))}"><span class="room-av" style="--h:0;filter:grayscale(1)">${escapeHtml(String(c.name).slice(0,1))}</span><span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(c.name)}</span></span><span class="room-p muted">눌러서 설정 (보관 해제 · 삭제)</span></span></button>`).join('')}</div>`:''}`;
+  const add=$('#roomAdd'); if(add) add.onclick=addChannel;
+  document.querySelectorAll('.room-arch[data-chset]').forEach(b=>{ b.onclick=()=>openChannelSettings(Number(b.dataset.chset)); });
+  window.scrollTo(0,0);
+}
 async function renderCommunity(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
   community.qid = null;          // 커뮤니티 채팅 = question_id IS NULL 스레드
+  await loadChannels();                           // ★83 — 실패하면 chOk=false로 단일 채팅 모드
+  if(_nav!==_navSeq) return;
+  const rk=roomKeyFromHash();
+  if(rk==null && community.chOk){ await renderRoomList(_nav); return; }          // 목록 화면
+  community.ch = (rk==null || rk==='general') ? null : (Number(rk)||null);
+  if(community.ch!=null && !community.channels.some(c=>String(c.id)===String(community.ch))){ location.hash='#//community'; return; }
   $('#doc').innerHTML=`
-    <div class="qb-head"><h1>대화방</h1></div>
-    <div class="hub">
-      <nav class="hub-nav" id="chRail" style="display:none"></nav>
-      <section class="chat">
-        <div class="chat-head"><span># 일반</span><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
+    <div class="hub room-view">
+      <section class="chat aops">
+        <div class="chat-head"><a class="chat-back" href="#//community" title="채팅 목록">${ic('back')}</a><span># 일반</span><span class="chat-hn" id="chatHeadN"></span><button class="chat-more" id="chatMore" title="방 메뉴" aria-label="방 메뉴">⋯</button><span class="chat-size"><button class="csz-btn" id="cszDown" title="채팅창 축소">－</button><button class="csz-btn" id="cszUp" title="채팅창 확대">＋</button></span></div>
         <div class="chat-log" id="chatLog"><div class="chat-empty">메시지를 불러오는 중…</div></div>
         <div class="chat-preview" id="chatPreview" style="display:none"></div>
         <div class="typing-bar" id="typingBar"></div>
@@ -14735,6 +14908,24 @@ async function renderCommunity(){
     </div>`;
   /* ★세션 X: 대화방에서 게시글을 걷어냈다. 대화방은 '대화 + 작업 공간'이고,
      남겨둘 글은 질문 게시판과 문서가 맡는다. 자리를 나눠 갖던 것이 채팅에 돌아갔다. */
+  const head=document.querySelector('.chat-head > span'); if(head) head.textContent='# '+chName(community.ch);
+  /* ⋯ 메뉴: 방 설정(운영진) · 작업 공간 · 접속자 */
+  $('#chatMore').onclick=(ev)=>{
+    ev.stopPropagation(); const old=$('#chatMenu'); if(old){ old.remove(); return; }
+    const mn=document.createElement('div'); mn.id='chatMenu'; mn.className='chat-menu';
+    const c=community.channels.find(x=>String(x.id)===String(community.ch));
+    mn.innerHTML=`${(canManageChannels()&&community.ch!=null)?`<button data-act="set">방 설정 (이름 · 멤버 · 보관)</button>`:''}
+      ${community.ch!=null?`<button data-act="ws">작업 공간 보기/숨기기</button>`:''}
+      <button data-act="who">지금 접속 중</button>
+      <button data-act="list">채팅 목록으로</button>`;
+    $('#chatMore').parentElement.appendChild(mn);
+    mn.querySelectorAll('button').forEach(b=>{ b.onclick=()=>{ mn.remove(); const a=b.dataset.act;
+      if(a==='set') openChannelSettings(community.ch);
+      else if(a==='ws'){ document.querySelector('.hub.room-view').classList.toggle('show-side'); }
+      else if(a==='who'){ document.querySelector('.hub.room-view').classList.toggle('show-side'); const w=$('#hubOnline'); if(w) w.scrollIntoView({block:'nearest'}); }
+      else if(a==='list') location.hash='#//community'; }; });
+    setTimeout(()=>document.addEventListener('click', ()=>{ const m=$('#chatMenu'); if(m) m.remove(); }, { once:true }), 0);
+  };
   $('#chatSend').onclick=sendMessage;
   bindChatKeys($('#chatText'), sendMessage);      // Enter=전송 · Ctrl+Enter=줄바꿈
   $('#chatText').addEventListener('input', ()=>{ autoGrow($('#chatText')); updateCharCount(); updatePreview(); sendTyping(); });
@@ -14743,14 +14934,12 @@ async function renderCommunity(){
   community.previewOn=false;                       // 진입 시 미리보기 접힘 상태로 초기화
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
-  await loadChannels();                           // ★83 — 실패하면 chOk=false로 단일 채팅 모드
-  if(_nav!==_navSeq) return;
-  renderChannelRail();
-  renderWorkspace(_nav);                          // ★대화방 작업 공간(85)
+  renderWorkspace(_nav);                          // ★방 작업 공간(85)
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
   renderHubOnline(_nav);                          // 우측 레일: 지금 접속 중인 회원
+  setTimeout(()=>{ const n=$('#hubOnCount'), h=$('#chatHeadN'); if(n && h){ const v=(n.textContent||'').replace(/[^0-9]/g,''); h.textContent = v ? v+'명 접속 중' : ''; } }, 1500);
   window.scrollTo(0,0);
   typeToFocus('#chatText');    // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
 }
@@ -14824,6 +15013,7 @@ function renderChannelRail(){
 function canManageChannels(){ return state.role==='owner' || state.role==='admin'; }
 async function switchChannel(id){
   if(String(community.ch)===String(id)) return;
+  if(location.hash.startsWith('#//community')){ location.hash=roomHashOf(id); return; }   // ★세션 BV: 방은 주소로 옮긴다
   community.ch = id;
   renderChannelRail();
   renderWorkspace();                              // ★대화방이 바뀌면 작업 공간도 (85)
@@ -14861,7 +15051,7 @@ function addChannel(){
   const permOk=community.permOk;
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:420px">
-    <div class="modal-msg">새 대화방 만들기</div>
+    <div class="modal-msg">새 방 만들기</div>
     <div class="modal-sub">대화방은 주제 하나를 둘러싼 작업 공간이에요 — 대화·문서·자료를 한곳에 모읍니다.</div>
     <label class="nd-label">대화방 이름</label>
     <input class="he-input" id="chNewName" type="text" maxlength="30" placeholder="예: 실험실, 대회준비" autocomplete="off">
@@ -14919,7 +15109,7 @@ function addChannel(){
       close();
       await loadChannels();
       renderChannelRail();
-      toast('대화방을 만들었어요: # '+name);
+      toast('방을 만들었어요: # '+name); location.hash='#//community/'+data.id;
     }catch(e){
       okb.disabled=false;
       msg.className='msg err';
@@ -15021,7 +15211,7 @@ async function openChannelSettings(id){
     }catch(e){}
     const ov2=document.createElement('div'); ov2.className='modal-ov';
     ov2.innerHTML=`<div class="modal-box" style="max-width:400px">
-      <div class="modal-msg">대화방 삭제</div>
+      <div class="modal-msg">방 삭제</div>
       <div class="modal-sub"><b># ${escapeHtml(c.name)}</b> 대화방과 그 안의 대화${cnt==null?'':` <b>${cnt}건</b>`}·자료 목록이 <b>완전히 삭제</b>됩니다. 되돌릴 수 없어요.<br>가볍게 치우는 게 목적이면 '보관'을 쓰세요 — 대화가 남습니다.</div>
       <label class="nd-label">확인을 위해 대화방 이름을 그대로 입력하세요</label>
       <input class="he-input" id="cdName" type="text" placeholder="${escapeAttr(c.name)}" autocomplete="off">
@@ -15046,7 +15236,7 @@ async function openChannelSettings(id){
         await loadChannels();
         if(viewing){ await switchChannel(null); }
         else { renderChannelRail(); renderWorkspace(); }
-        toast('대화방을 삭제했어요: # '+c.name);
+        toast('방을 지웠어요: # '+c.name);
       }catch(e){
         m2.className='msg err';
         m2.textContent='삭제하지 못했습니다: '+((e&&e.message)||e)+' (89_channel_perms.sql 실행 여부를 확인하세요)';
@@ -15055,7 +15245,7 @@ async function openChannelSettings(id){
   };
   ov.querySelector('.modal-ok').onclick=async()=>{
     const name=(ov.querySelector('#csName').value||'').trim();
-    if(!name){ showErr('대화방 이름을 입력해 주세요.'); return; }
+    if(!name){ showErr('방 이름을 입력해 주세요.'); return; }
     const okb=ov.querySelector('.modal-ok');
     okb.disabled=true;
     try{
@@ -15379,7 +15569,7 @@ async function loadMessages(){
     await ensureCovers(rows.map(m=>m.user_id));    // hover 커버색 일괄 선로딩(개별 조회 방지)
     await prefetchRoles(rows.map(m=>m.user_id));   // 작성자 등급(삭제 권한 판정용)
     rows.forEach(m=>appendMessage(m,false));
-    scrollChatBottom();
+    fitChatLog(); [200, 700, 1500].forEach(t=>setTimeout(fitChatLog, t)); scrollChatBottom(); stickChatBottom(4000);
   }catch(e){ log.innerHTML='<div class="chat-empty">메시지를 불러오지 못했습니다. (DB 설정 09_community_chat.sql 실행 여부 확인)</div>'; }
 }
 
@@ -15492,6 +15682,38 @@ async function renderMath(node){
   ], throwOnError:false }); }catch(e){}
 }
 function scrollChatBottom(){ const log=$('#chatLog'); if(log) log.scrollTop=log.scrollHeight; }
+/* ★세션 BS(폰): 입력칸까지 한 화면에 들어오도록 로그 높이를 실제 위치로 잰다 — 상단에 무엇이 있든, 키보드가 올라와도. */
+let _fitBound=false;
+function fitChatLog(){
+  const log=$('#chatLog'); if(!log) return;
+  if(!window.matchMedia('(max-width:640px)').matches){ log.style.height=''; return; }
+  const vh=(window.visualViewport && window.visualViewport.height) || window.innerHeight;
+  const top=log.getBoundingClientRect().top;
+  let below=0; let el=log.nextElementSibling;
+  while(el){ const cs=getComputedStyle(el); if(cs.display!=='none') below+=el.getBoundingClientRect().height; el=el.nextElementSibling; }
+  const nav=document.querySelector('.botnav'); const navH=(nav && getComputedStyle(nav).display!=='none' && window.innerHeight-vh<80) ? nav.getBoundingClientRect().height : 0;
+  const h=Math.max(160, Math.floor(vh - top - below - navH - 12));
+  log.style.height=h+'px';
+  if(!_fitBound){ _fitBound=true;
+    window.addEventListener('resize', fitChatLog);
+    if(window.visualViewport) window.visualViewport.addEventListener('resize', fitChatLog);
+  }
+}
+/* ★세션 BS: 처음 들어왔을 때 사진·수식이 뒤늦게 로드되며 높이가 자라면 '맨 아래'가 위로 밀려 있었다(날짜 줄 근처에서 멈춘 것처럼 보임).
+   몇 초 동안은 내용이 자랄 때마다 다시 맨 아래로 붙인다. 사용자가 위로 올리면 바로 그만둔다. */
+function stickChatBottom(ms){
+  const log=$('#chatLog'); if(!log) return;
+  let stick=true; const until=Date.now()+(ms||4000);
+  const go=()=>{ if(stick) log.scrollTop=log.scrollHeight; };
+  const onScroll=()=>{ if(log.scrollHeight - log.scrollTop - log.clientHeight > 80) stick=false; };
+  log.addEventListener('scroll', onScroll, { passive:true });
+  log.querySelectorAll('img').forEach(im=>{ if(!im.complete) im.addEventListener('load', go, { once:true }); });
+  const ro = ('ResizeObserver' in window) ? new ResizeObserver(()=>{ if(Date.now()>until){ ro.disconnect(); return; } go(); }) : null;
+  if(ro) [...log.children].forEach(el=>ro.observe(el));
+  requestAnimationFrame(()=>requestAnimationFrame(go));
+  [150, 400, 900, 1800].forEach(t=>setTimeout(go, t));
+  setTimeout(()=>{ stick=false; log.removeEventListener('scroll', onScroll); if(ro) ro.disconnect(); }, (ms||4000)+100);
+}
 
 /* 미리보기 단축키: Ctrl 키만 '탭'하면 토글(Ctrl+C 등 조합키는 무시). 커뮤니티 채팅에서만 동작. */
 let _ctrlSolo=false;
@@ -15518,7 +15740,11 @@ const LIMITS = {
   lim_kypt_field_chars:4000,    // KYPT 일지 한 칸
   lim_kypt_comment_chars:800,   // KYPT 피드백·자료 의견
   lim_kypt_file_kb:20480,       // KYPT 자료함 파일 1개
-  lim_feedback_chars:1000       // 앱 피드백 의견
+  lim_feedback_chars:1000,      // 앱 피드백 의견
+  /* ★세션 BU */
+  lim_avatar_kb:40,             // 프로필 사진(256px 정사각형으로 줄인 뒤 목표 용량)
+  lim_bio_chars:100,            // 한 줄 소개
+  lim_story_img_kb:300          // 연혁 사진
 };
 async function loadLimits(){
   try{
@@ -16138,7 +16364,18 @@ function pgOnceFire(){
   _pgInTimer=setTimeout(()=>{ el.classList.remove('pg-once'); }, 420);
 }
 
+let _meGuarding=false;
 function route(){
+  /* ★세션 BT: 프로필에 저장 전 변경이 있으면 먼저 묻는다 */
+  if(meDirtyCount() && !_meGuarding && !/^#\/\/me(\b|$)/.test(location.hash)){
+    _meGuarding=true;
+    meLeaveGuard().then(async v=>{
+      if(v==='stay'){ _meGuarding=false; location.hash='#//me'; return; }
+      if(v==='save'){ const ok = _meSaveAllFn ? await _meSaveAllFn() : false; if(!ok){ _meGuarding=false; location.hash='#//me'; return; } }
+      _meDirty={}; _meGuarding=false; route();
+    });
+    return;
+  }
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   _navSeq++;               // ★새 네비 세대 — 진행 중이던 이전 렌더의 뒤늦은 화면 쓰기를 무효화
   playPageIn();            // ★페이지 진입 애니메이션 (세션 AI)
@@ -16188,7 +16425,7 @@ function route(){
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
   const fullWidthPages=['community','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt'];
-  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('community/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
                      admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
@@ -16207,7 +16444,7 @@ function route(){
   if(sys && isTrashDoc){ if(canEdit()) renderTrashDoc(decodeURIComponent(key.slice(6))); else location.hash='#//home'; return; }
   if(sys && key==='directory'){ renderDirectory(); return; }
   if(sys && (key==='main' || key==='home')){ renderLanding(); return; }   // 대문은 '#//main' 일 때만
-  if(sys && key==='community'){ renderCommunity(); return; }
+  if(sys && (key==='community' || key.startsWith('community/'))){ renderCommunity(); return; }   // ★세션 BV: 목록 / 방
   if(sys && isQuestion){ renderQuestion(Number(key.slice(2))); return; }
   if(sys && key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
     const parts=key.slice(4).split('/');
