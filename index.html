@@ -854,21 +854,23 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .usel.sm{min-width:132px;}
 .usel.sm::after{right:9px;width:6px;height:6px;}
 .usel.block{display:flex;width:100%;}
-/* ★세션 BU: 상한 화면 — 카드 + 프리셋 칩 (표는 폰에서 비고가 한 글자씩 깨졌다) */
-.lim-savebar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:0 0 14px; }
-h2.lim-sech{ font-size:13px; font-weight:800; color:var(--text-dim); margin:0 0 10px; letter-spacing:.04em; text-transform:none; }
-.lim-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:10px; }
-.lim-card{ border:1px solid var(--border); border-radius:12px; padding:12px 14px; background:var(--card); }
-.lim-t{ font-weight:800; font-size:14.5px; }
-.lim-note{ font-size:12.5px; color:var(--text-dim); line-height:1.5; margin:2px 0 8px; word-break:keep-all; overflow-wrap:anywhere; }
-.lim-ctl{ padding:8px 0 4px; border-top:1px dashed var(--border); }
-.lim-ctl.dirty{ box-shadow:inset 3px 0 0 var(--warn); padding-left:8px; }
-.lim-ctl-l{ font-size:12.5px; color:var(--text-dim); margin-bottom:6px; } .lim-ctl-l b{ color:var(--text); margin-left:4px; }
-.lim-chips{ display:flex; flex-wrap:wrap; gap:5px; align-items:center; }
-.lim-chip{ font:inherit; font-size:12px; padding:4px 10px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text-dim); cursor:pointer; }
+/* ★세션 BU/BX: 상한 화면 — 카드 + 프리셋 칩, 빼곡하게. 누를 때마다 저장. */
+.lim-savebar{ margin:0 0 10px; }
+.hs-sec h2.lim-sech{ font-size:12px; font-weight:800; color:var(--text-dim); margin:0 0 6px; padding:0; border:0; letter-spacing:.04em; text-transform:none; }
+.hs-sec + .hs-sec{ margin-top:10px; }
+.lim-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(470px, 1fr)); gap:6px; }
+.lim-card{ border:1px solid var(--border); border-radius:8px; padding:6px 10px 4px; background:var(--card); }
+.lim-t{ font-weight:800; font-size:13px; display:flex; align-items:baseline; gap:8px; min-width:0; white-space:nowrap; }
+.lim-note{ font-weight:400; font-size:11px; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.lim-ctl{ display:flex; align-items:center; gap:8px; padding:4px 0; border-top:1px dashed var(--border); flex-wrap:wrap; }
+.lim-ctl.saved{ box-shadow:inset 3px 0 0 var(--ok); padding-left:6px; } .lim-ctl.err{ box-shadow:inset 3px 0 0 var(--accent); padding-left:6px; }
+.lim-ctl-l{ font-size:11.5px; color:var(--text-dim); flex:none; min-width:150px; } .lim-ctl-l b{ color:var(--text); margin-left:3px; }
+.lim-chips{ display:flex; flex-wrap:wrap; gap:3px; align-items:center; }
+.lim-chip{ font:inherit; font-size:11px; padding:2px 7px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text-dim); cursor:pointer; line-height:1.3; }
 .lim-chip:hover{ border-color:var(--border-strong); color:var(--text); }
 .lim-chip.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
-.lim-cust{ display:none; align-items:center; gap:4px; font-size:12px; color:var(--text-dim); } .lim-cust.show{ display:inline-flex; }
+.lim-cust{ display:none; align-items:center; gap:3px; font-size:11px; color:var(--text-dim); } .lim-cust.show{ display:inline-flex; }
+.lim-cust .lim-in{ width:64px; padding:2px 6px; font-size:12px; }
 .lim-in{width:90px;padding:5px 8px;border:1px solid var(--border-strong);border-radius:6px;background:var(--card);color:var(--text);font-size:13px;}
 .sys-actions{display:flex;align-items:center;gap:10px;margin:10px 0 6px;}
 /* ===== 피드백 ===== */
@@ -2129,6 +2131,73 @@ body.fx-full::before{
 .chat.aops .msg-who{ font-size:12.5px; }
 .chat.aops .msg-foot{ font-size:10.5px; }
 .chat.aops .chat-log{ gap:2px; padding:10px 8px; }
+/* ★세션 BW: 새 방 패널(지메일식) · 세미나 */
+.compose{ position:fixed; right:28px; bottom:0; width:min(560px, calc(100vw - 16px)); z-index:95; background:var(--card); border:1px solid var(--border-strong); border-bottom:0; border-radius:12px 12px 0 0; max-height:88vh; overflow:auto; }
+body.has-botnav .compose{ bottom:calc(66px + env(safe-area-inset-bottom)); right:8px; }
+.c-h{ display:flex; align-items:center; padding:10px 16px; background:var(--box-bg); border-bottom:1px solid var(--border); font-weight:800; position:sticky; top:0; }
+.c-x{ margin-left:auto; background:none; border:0; color:var(--text-dim); cursor:pointer; font-size:14px; }
+.c-b{ padding:4px 16px 14px; }
+.c-row{ display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.c-row.nob{ border-bottom:0; padding-bottom:2px; }
+.c-row label{ width:84px; color:var(--text-dim); font-size:13px; flex:none; }
+.c-row input{ flex:1; min-width:160px; border:0; font:inherit; font-size:14px; outline:0; background:transparent; color:var(--text); }
+.c-hint{ color:var(--text-dim); font-size:12px; }
+.seg{ display:inline-flex; border:1px solid var(--border); border-radius:999px; overflow:hidden; }
+.seg button{ font:inherit; font-size:13px; padding:5px 14px; border:0; background:none; color:var(--text-dim); cursor:pointer; white-space:nowrap; }
+.seg button.on{ background:var(--text); color:var(--card); font-weight:700; }
+.c-link{ flex:1; display:flex; align-items:center; gap:8px; font-family:var(--mono); font-size:12px; color:var(--link); background:color-mix(in srgb, var(--link) 8%, transparent); padding:6px 10px; border-radius:8px; min-width:0; }
+.c-link span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.c-copy{ margin-left:auto; font:inherit; font-size:12px; font-weight:700; border:0; background:none; color:var(--text-dim); cursor:pointer; }
+.people{ display:grid; grid-template-columns:repeat(auto-fill, minmax(118px, 1fr)); gap:8px; padding:10px 0 2px; }
+.pp{ font:inherit; padding:8px 10px; border:1px solid var(--border); border-radius:10px; font-size:13px; display:flex; align-items:center; gap:8px; cursor:pointer; background:var(--card); color:var(--text); text-align:left; }
+.pp i{ width:20px; height:20px; border-radius:50%; background:var(--cv, #C9C2C2); flex:none; }
+.pp.on{ border-color:var(--accent); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); background:color-mix(in srgb, var(--accent) 5%, var(--card)); font-weight:700; }
+.pp.me{ border-style:dashed; color:var(--text-dim); cursor:default; }
+.c-f{ display:flex; align-items:center; gap:8px; margin-top:12px; flex-wrap:wrap; }
+.sem-tag{ font-size:10.5px; font-weight:800; padding:2px 7px; border-radius:999px; background:color-mix(in srgb, var(--accent) 12%, transparent); color:var(--accent); }
+.sem-tag.end{ background:var(--box-bg); color:var(--text-dim); }
+.sem-link{ font:inherit; font-size:12px; font-weight:700; background:rgba(255,255,255,.2); color:#fff; border:0; border-radius:999px; padding:3px 10px; cursor:pointer; margin-left:auto; }
+.sem-link + .chat-more{ margin-left:6px; }
+.sem-pin{ margin:10px 10px 4px; border:2px solid var(--info); border-radius:10px; background:color-mix(in srgb, var(--info) 7%, var(--card)); }
+.sem-ph{ display:flex; align-items:center; gap:8px; padding:6px 10px; font-size:12px; color:var(--info); font-weight:800; border-bottom:1px solid color-mix(in srgb, var(--info) 25%, transparent); }
+.sem-ph span{ margin-left:auto; font-weight:600; display:flex; gap:8px; align-items:center; }
+.sem-unpin{ font:inherit; font-size:11px; border:1px solid currentColor; background:none; color:inherit; border-radius:999px; padding:1px 8px; cursor:pointer; }
+.sem-pimg{ display:block; max-width:100%; max-height:min(52vh, 480px); margin:10px auto; border-radius:6px; border:1px solid var(--border); background:#fff; }
+.sem-ptxt{ padding:12px 14px; font-size:15px; line-height:1.7; white-space:pre-wrap; }
+.chat.aops .msg.sem-host{ background:color-mix(in srgb, var(--info) 8%, transparent); box-shadow:inset 3px 0 0 var(--info); }
+.sem-lab{ font-size:10px; font-weight:800; color:#fff; background:var(--info); padding:1px 6px; border-radius:999px; margin-left:4px; vertical-align:1px; }
+.msg-pin{ font:inherit; font-size:11px; background:none; border:0; cursor:pointer; opacity:.5; margin-left:6px; } .msg-pin:hover{ opacity:1; }
+.sem-sp{ border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden; margin-bottom:14px; }
+.sem-sph{ padding:10px 12px; border-bottom:1px solid var(--border); font-weight:800; font-size:13.5px; display:flex; align-items:center; } .sem-sph small{ margin-left:auto; color:var(--text-dim); font-weight:600; font-size:11.5px; }
+.sem-file{ display:flex; align-items:center; gap:8px; padding:7px 12px; font-size:12.5px; background:var(--box-bg); border-bottom:1px solid var(--border); } .sem-file b{ color:var(--accent); } .sem-file span{ margin-left:auto; color:var(--text-dim); font-size:11.5px; }
+.sem-thumbs{ padding:8px 10px; display:flex; flex-direction:column; gap:6px; max-height:380px; overflow:auto; }
+.sem-th{ display:flex; gap:8px; align-items:center; padding:5px; border:1px solid var(--border); border-radius:8px; background:var(--card); font:inherit; cursor:pointer; text-align:left; }
+.sem-th img{ width:112px; height:64px; object-fit:cover; border-radius:4px; background:#fff; border:1px solid var(--border); flex:none; }
+.sem-th .k{ font-size:12px; color:var(--text-dim); } .sem-th .st{ font-size:10.5px; color:var(--ok); margin-left:auto; }
+.sem-th.on{ border-color:var(--accent); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--accent) 30%, transparent); background:color-mix(in srgb, var(--accent) 5%, var(--card)); } .sem-th.on .k{ color:var(--accent); font-weight:800; }
+.sem-th:focus-visible{ outline:2px solid var(--accent); }
+.sem-spf{ padding:10px 12px; border-top:1px solid var(--border); display:flex; gap:8px; align-items:center; flex-wrap:wrap; } .sem-pg{ font-size:12px; color:var(--text-dim); } .sem-post{ margin-left:auto; }
+.sem-hint{ font-size:11.5px; color:var(--text-dim); padding:0 12px 10px; line-height:1.5; } .sem-empty{ padding:10px 12px; font-size:13px; color:var(--text-dim); margin:0; }
+.sem-qh{ font-size:12px; color:var(--text-dim); padding:6px 12px 2px; }
+.sem-tiles{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; padding:4px 12px 8px; }
+.sem-tile{ font:inherit; text-align:left; background:var(--box-bg); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:13px; cursor:pointer; line-height:1.45; }
+.sem-tile b{ display:block; font-size:12px; margin-bottom:2px; } .sem-tile:hover{ border-color:var(--accent); }
+.sem-wait span{ color:var(--text-dim); }
+.sem-poll{ margin:8px 12px; border:1px solid var(--border); border-radius:10px; padding:8px 12px; background:var(--card); }
+.sem-pq{ font-weight:800; font-size:13.5px; display:flex; align-items:center; gap:8px; } .sem-pq span{ margin-left:auto; font-weight:600; font-size:12px; color:var(--text-dim); display:flex; gap:6px; align-items:center; }
+.sem-pclose{ font:inherit; font-size:11px; border:1px solid var(--border); background:none; border-radius:999px; padding:1px 8px; cursor:pointer; }
+.sem-popts{ display:flex; gap:6px; margin-top:8px; }
+.sem-po{ position:relative; flex:1; font:inherit; border:1px solid var(--border); border-radius:8px; background:var(--card); padding:8px 6px; cursor:pointer; overflow:hidden; display:flex; flex-direction:column; align-items:center; gap:2px; }
+.sem-pbar{ position:absolute; left:0; top:0; bottom:0; background:color-mix(in srgb, var(--info) 18%, transparent); transition:width .3s; }
+.sem-po b, .sem-po small{ position:relative; } .sem-po small{ font-size:11px; color:var(--text-dim); } .sem-po.on{ border-color:var(--info); box-shadow:inset 0 0 0 2px color-mix(in srgb, var(--info) 30%, transparent); }
+.sar-log{ display:flex; flex-direction:column; gap:6px; max-width:820px; }
+.sar-msg{ padding:6px 10px; border-radius:6px; } .sar-msg.host{ background:color-mix(in srgb, var(--info) 8%, transparent); box-shadow:inset 3px 0 0 var(--info); }
+.sar-msg b{ font-size:12.5px; } .sar-msg b i{ font-style:normal; font-size:10px; color:#fff; background:var(--info); padding:1px 6px; border-radius:999px; margin-left:4px; } .sar-msg span{ font-size:11px; color:var(--text-dim); margin-left:8px; } .sar-msg p{ margin:2px 0 0; white-space:pre-wrap; }
+.sar-img{ display:block; max-width:320px; border-radius:6px; margin-top:6px; }
+.sar-slide{ margin:8px 0; border:2px solid var(--info); border-radius:10px; overflow:hidden; background:#fff; } .sar-slide img{ display:block; max-width:100%; } .sar-cap{ font-size:12px; color:var(--info); padding:5px 10px; font-weight:700; }
+.sar-att{ margin:10px 0; } .sar-people{ display:flex; flex-wrap:wrap; gap:6px; padding:8px 0; } .sar-people span{ font-size:12.5px; padding:3px 10px; border:1px solid var(--border); border-radius:999px; }
+.sar-polls{ margin:8px 0 14px; } .sar-poll{ font-size:13px; padding:6px 10px; background:var(--box-bg); border-radius:8px; margin-bottom:4px; }
+@media(max-width:640px){ .sem-tiles{ grid-template-columns:1fr 1fr; } .sem-thumbs{ flex-direction:row; overflow-x:auto; max-height:none; scroll-snap-type:x mandatory; } .sem-th{ flex:none; scroll-snap-align:start; flex-direction:column; } .sem-th img{ width:140px; height:80px; } .compose{ right:0; left:0; width:auto; border-radius:14px 14px 0 0; } }
 /* 좌측 대화방 목록 (83) */
 .hub-nav{ min-width:0; position:sticky; top:70px; }
 .ch-item{ display:flex; align-items:center; gap:6px; width:100%; text-align:left; background:none;
@@ -8930,21 +8999,31 @@ async function renderSysLimits(){
   const ctlHtml=(c)=>{
     const cur=toShown(c, LIMITS[c.key]); const inPreset=c.presets.includes(cur);
     return `<div class="lim-ctl" data-key="${c.key}" data-kind="${c.kind}">
-      <div class="lim-ctl-l">${escapeHtml(c.label)} <b class="lim-cur">${cur}${unitOf(c.kind)}</b></div>
-      <div class="lim-chips">${c.presets.map(v=>`<button class="lim-chip${v===cur?' on':''}" data-v="${v}">${v}${unitOf(c.kind)}</button>`).join('')}<button class="lim-chip lim-custom${inPreset?'':' on'}" data-v="custom">직접</button>
-        <span class="lim-cust${inPreset?'':' show'}"><input class="lim-in" type="number" inputmode="numeric" min="${c.min||1}" max="${c.max||(c.kind==='chars'?5000:c.kind==='mb'?200:500)}" value="${cur}"> ${unitOf(c.kind)}</span></div>
+      <span class="lim-ctl-l">${escapeHtml(c.label)} <b class="lim-cur">${cur}${unitOf(c.kind)}</b></span>
+      <span class="lim-chips">${c.presets.map(v=>`<button class="lim-chip${v===cur?' on':''}" data-v="${v}">${v}${unitOf(c.kind)}</button>`).join('')}<button class="lim-chip lim-custom${inPreset?'':' on'}" data-v="custom">직접</button>
+        <span class="lim-cust${inPreset?'':' show'}"><input class="lim-in" type="number" inputmode="numeric" min="${c.min||1}" max="${c.max||(c.kind==='chars'?5000:c.kind==='mb'?200:500)}" value="${cur}"> ${unitOf(c.kind)}</span></span>
     </div>`;
   };
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>글자수 · 사진 용량 상한</h1>
       <div class="tabs"><button id="slBack">${ic('back')}시스템</button></div></div>
-    <div class="lim-savebar"><button class="me-saveall" id="limSave" disabled>저장 <span class="me-savecnt" id="limCnt"></span></button><span class="hs-note" id="limMsg">칩을 누르거나 [직접]에 숫자를 넣으면 여기 모였다가 한 번에 저장돼요. 모든 회원에게 다음 접속부터 적용됩니다.</span></div>
+    <div class="lim-savebar"><span class="hs-note" id="limMsg">칩을 누르거나 [직접]에 숫자를 넣으면 <b>바로 저장</b>돼요. 모든 회원에게 다음 접속부터 적용됩니다.</span></div>
     ${LIMIT_FIELDS.map(sec=>`<section class="hs-sec"><h2 class="lim-sech">${escapeHtml(sec.sec)}</h2>
-      <div class="lim-grid">${sec.items.map(it=>`<div class="lim-card"><div class="lim-t">${escapeHtml(it.title)}</div><div class="lim-note">${escapeHtml(it.note)}</div>${it.controls.map(ctlHtml).join('')}</div>`).join('')}</div></section>`).join('')}
+      <div class="lim-grid">${sec.items.map(it=>`<div class="lim-card" title="${escapeAttr(it.note)}"><div class="lim-t">${escapeHtml(it.title)}<span class="lim-note">${escapeHtml(it.note)}</span></div>${it.controls.map(ctlHtml).join('')}</div>`).join('')}</div></section>`).join('')}
     <div class="hs-note" style="margin-top:8px">⚠ 사진 용량을 키우면 Storage(무료 1GB)가 빨리 찹니다. 채팅 사진은 30일 뒤 자동 삭제되지만 문서·질문·연혁 사진은 영구 보관돼요.</div>`;
   $('#slBack').onclick=()=>{ location.hash='#//system'; };
   const allCtl=[]; LIMIT_FIELDS.forEach(sec=>sec.items.forEach(it=>it.controls.forEach(c=>allCtl.push(c))));
-  const sync=()=>{ const n=Object.keys(pend).length; $('#limSave').disabled=!n; $('#limCnt').textContent=n?n:''; };
+  const sync=async()=>{                                              // ★세션 BX: 바뀐 값은 즉시 저장
+    const msg=$('#limMsg');
+    for(const k of Object.keys(pend)){
+      const v=pend[k]; delete pend[k];
+      const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:v });
+      const box=document.querySelector(`.lim-ctl[data-key="${k}"]`);
+      if(error){ if(msg) msg.textContent='저장 실패: '+(error.message||''); if(box) box.classList.add('err'); continue; }
+      LIMITS[k]=v; if(box){ box.classList.remove('dirty','err'); box.classList.add('saved'); setTimeout(()=>box.classList.remove('saved'), 900); }
+      if(msg) msg.innerHTML=icOk()+' 저장했어요. 다음 접속부터 적용됩니다.';
+    }
+  };
   document.querySelectorAll('.lim-ctl').forEach(box=>{
     const c=allCtl.find(x=>x.key===box.dataset.key); const inp=box.querySelector('.lim-in'), cust=box.querySelector('.lim-cust');
     const setVal=(shown)=>{
@@ -8953,21 +9032,12 @@ async function renderSysLimits(){
       box.querySelectorAll('.lim-chip').forEach(ch=>ch.classList.toggle('on', ch.dataset.v==='custom' ? !c.presets.includes(v) : Number(ch.dataset.v)===v));
       inp.value=v;
       const stored=toStored(c,v); if(stored===LIMITS[c.key]) delete pend[c.key]; else pend[c.key]=stored;
-      box.classList.toggle('dirty', c.key in pend); sync();
+      sync();
     };
     box.querySelectorAll('.lim-chip').forEach(ch=>{ ch.onclick=()=>{ if(ch.dataset.v==='custom'){ cust.classList.add('show'); inp.focus(); inp.select(); return; } cust.classList.remove('show'); setVal(ch.dataset.v); }; });
     inp.addEventListener('change', ()=>setVal(inp.value));
     inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); setVal(inp.value); inp.blur(); } });
   });
-  $('#limSave').onclick=async()=>{
-    const msg=$('#limMsg'); msg.textContent='저장 중…'; $('#limSave').disabled=true;
-    for(const k of Object.keys(pend)){
-      const { error } = await sb.rpc('set_app_limit', { p_key:k, p_value:pend[k] });
-      if(error){ msg.textContent='저장 실패: '+(error.message||''); sync(); return; }
-      LIMITS[k]=pend[k]; delete pend[k]; const box=document.querySelector(`.lim-ctl[data-key="${k}"]`); if(box) box.classList.remove('dirty');
-    }
-    sync(); msg.innerHTML = icOk()+' 저장했어요. 다음 접속부터 적용됩니다.';
-  };
   window.scrollTo(0,0);
 }
 /* 시스템 → 유지 보수 */
@@ -9365,6 +9435,8 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-12', text:'[시스템] 상한 화면은 칩을 누르는 순간 저장되고 훨씬 빼곡해졌어요. 채팅·답변·쪽지·끄적·요약 입력칸에 최대 글자수가 적혀 있고, 사진을 올리면 몇 KB로 줄였는지 알려 줍니다.' },
+  { date:'2026-09-12', text:'[세미나] 방을 만들 때 "세미나"를 고르면 입장 링크가 생기고 공동 진행자를 이름으로 고릅니다(새 방 패널은 오른쪽 아래에 조용히). 세미나 방에서는 진행자가 PDF를 올려 쪽을 고르고(Enter) 방에 띄우면 맨 위에 고정되고, 메시지도 📌로 고정할 수 있어요. 답 골라 내리기(옵션)·O/X·1~5 투표·참석 기록·[세미나 끝] 뒤 하루 후 보관함으로 — 슬라이드·대화·투표·참석이 그대로 남습니다.' },
   { date:'2026-09-12', text:'[채팅] "대화방"이 "채팅"이 됐어요. 먼저 방 목록(마지막 말·시각)이 보이고, 방을 누르면 방 하나가 화면 전체를 씁니다 — 위에 ← 목록, 방 이름, ⋯ 메뉴(설정·작업 공간·접속 중). 방 안은 말풍선 대신 줄 단위로 촘촘하게 보여요. [+ 새 방]을 만들면 바로 그 방으로 들어갑니다.' },
   { date:'2026-09-12', text:'[시스템] 상한 화면이 카드로 바뀌었어요 — 숫자를 치는 대신 칩(200자·500자…)을 고르고, 필요하면 [직접]에 넣습니다. 프로필 사진·한 줄 소개·연혁 사진 상한이 새로 생겼고 폰에서도 깨지지 않아요.' },
   { date:'2026-09-12', text:'[프로필] 칸을 고치고 Enter나 바깥을 누르면 바로 적용되고(✓·✕ 버튼 없음), 위의 큰 [수정사항 저장]으로 한 번에 저장합니다. 저장 안 하고 나가려 하면 가운데 창이 물어봐요.' },
@@ -12004,7 +12076,7 @@ function krPanelHtml(p, r, canEd){
     <div class="kr-pl">${lk(r.url)}${r.url2?` · ${lk(r.url2)}`:''}</div>
     <div class="kr-pr">${readers.length?`읽은 사람 ${readers.map(u=>`<span class="kr-who">${krDot(u)}${escapeHtml(kyptName(u))}</span>`).join('')}`:'<span class="muted">아직 아무도 읽음 표시를 안 했어요.</span>'}</div>
     ${canEd
-      ? `<textarea class="kp-ta kr-ta" id="krTa" rows="8" maxlength="${LIMITS.lim_kypt_summary_chars}" placeholder="이 문헌에서 우리 문제에 쓸 만한 것 — 핵심 결과, 쓴 방법, 조심할 점. 짧아도 좋아요.">${escapeHtml(r.summary||'')}</textarea>
+      ? `<textarea class="kp-ta kr-ta" id="krTa" rows="8" maxlength="${LIMITS.lim_kypt_summary_chars}" placeholder="이 문헌에서 우리 문제에 쓸 만한 것 — 핵심 결과, 쓴 방법, 조심할 점. 짧아도 좋아요. (최대 ${LIMITS.lim_kypt_summary_chars}자)">${escapeHtml(r.summary||'')}</textarea>
          <div class="kr-pacts"><button class="ch-act primary" id="krSave">저장</button><span class="kr-pby">${by}</span></div>`
       : `<div class="kr-ro">${r.summary?escapeHtml(r.summary):'<span class="muted">아직 요약이 없어요.</span>'}</div>${by?`<div class="kr-pby">${by}</div>`:''}`}
   </div>`;
@@ -13234,7 +13306,7 @@ async function kv2RenderScribbles(p, pane, canEd){
   const days=Object.keys(byDate).sort((a,b)=>b.localeCompare(a));
   pane.innerHTML=`
     ${canEd?`<div class="kv2-scadd">
-      <textarea class="kv2-cta" id="kv2ScText" rows="2" maxlength="${LIMITS.lim_kypt_note_chars}" placeholder="떠오른 생각을 짧게 — Enter로 남기기, Shift+Enter 줄바꿈"></textarea>
+      <textarea class="kv2-cta" id="kv2ScText" rows="2" maxlength="${LIMITS.lim_kypt_note_chars}" placeholder="떠오른 생각을 짧게 — Enter로 남기기, Shift+Enter 줄바꿈 · 최대 ${LIMITS.lim_kypt_note_chars}자"></textarea>
       ${kDateField('kv2ScDate', kToday(), { label:'끄적인 날', small:true })}
       <button class="ch-act primary" id="kv2ScAdd">남기기</button>
     </div>`:''}
@@ -13886,6 +13958,9 @@ async function uploadChatImages(files, onMsg, targetBytes){
     if(up.error) throw up.error;
     out.push(sb.storage.from('chat-images').getPublicUrl(path).data.publicUrl);
   }
+  /* ★세션 BX: 무엇으로 줄였는지 알려 준다 — 상한이 왜 있는지 부원이 알게 */
+  const kb=Math.round((targetBytes||chatImgBytes())/1024);
+  toast(files.length>1 ? `사진 ${files.length}장을 각 ${kb}KB로 줄여 올렸어요.` : `사진을 ${kb}KB로 줄여 올렸어요.`);
   return out;
 }
 /* 첨부 트레이(썸네일+삭제) 렌더 */
@@ -14306,7 +14381,7 @@ async function openDmThread(tid){
     </div>
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
-      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
+      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장) · 1장 ${LIMITS.lim_dm_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
       <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="답장을 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="abtn primary" id="ipSend">${ic('mail')}보내기</button>
     </div>
@@ -14365,7 +14440,7 @@ async function openNewDm(uid){
     </div>
     <div class="cimg-tray" id="dmTray" style="display:none"></div>
     <div class="ip-reply">
-      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장)">${ic2('camera','ic20')}</button>
+      <button class="cimg-btn" id="dmImgBtn" title="사진 첨부 (최대 5장) · 1장 ${LIMITS.lim_dm_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
       <textarea id="ipInput" maxlength="${LIMITS.lim_dm_chars}" placeholder="쪽지를 입력하세요… (Enter 보내기 · Ctrl+Enter 줄바꿈)"></textarea>
       <button class="abtn primary" id="ipSend">${ic('mail')}보내기</button>
     </div>
@@ -14582,8 +14657,8 @@ async function renderQuestion(qid){
               <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
             </svg>
           </button>
-          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <textarea id="chatText" maxlength="${LIMITS.lim_ans_chars}" rows="1" placeholder="답변을 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
+          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능) · 1장 ${LIMITS.lim_ans_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
+          <textarea id="chatText" maxlength="${LIMITS.lim_ans_chars}" rows="1" placeholder="답변을 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$) · 최대 ${LIMITS.lim_ans_chars}자"></textarea>
           <button id="chatSend">전송</button>
         </div>
         <div class="chat-count" id="chatCount"></div>
@@ -14797,6 +14872,10 @@ async function loadChannels(){
      먼저 새 컬럼으로 시도하고, 실패하면 예전 컬럼으로 재시도 (loadDocs 표본 패턴).
      permOk = 89 적용 여부 — 공개 범위·삭제 UI가 이 플래그 뒤에 숨는다. */
   let r = await sb.from('channels')
+    .select('id,key,name,description,sort,archived,visibility,kind,join_code,hosts,moderated,pinned,ended_at,seminar_status,created_by')
+    .order('sort',{ascending:true}).order('id',{ascending:true});
+  community.semOk = !r.error;                                   // ★108 세미나 컬럼
+  if(r.error) r = await sb.from('channels')
     .select('id,key,name,description,sort,archived,visibility')
     .order('sort',{ascending:true}).order('id',{ascending:true});
   community.permOk = !r.error;
@@ -14837,9 +14916,10 @@ async function renderRoomList(_nav){
   const rooms=[{ id:null, name:chName(null) }].concat(community.channels.filter(c=>!c.archived));
   let last={};
   try{
-    let q=sb.from('messages').select('channel_id,body,created_at,user_name,images').is('question_id', null).order('created_at',{ascending:false}).limit(400);
-    const { data } = await q;
-    (data||[]).forEach(m=>{ const k=m.channel_id==null?'general':String(m.channel_id); if(!last[k]) last[k]=m; });
+    let q=sb.from('messages').select('channel_id,body,created_at,author_name,images,pending').is('question_id', null).order('created_at',{ascending:false}).limit(400);
+    let { data, error } = await q;
+    if(error){ const r2=await sb.from('messages').select('channel_id,body,created_at,author_name,images').is('question_id', null).order('created_at',{ascending:false}).limit(400); data=r2.data; }
+    (data||[]).forEach(m=>{ if(m.pending) return; const k=m.channel_id==null?'general':String(m.channel_id); if(!last[k]) last[k]=m; });
   }catch(e){ /* 미리보기만 없다 */ }
   if(_nav!==_navSeq) return;
   const mgr=canManageChannels();
@@ -14850,15 +14930,17 @@ async function renderRoomList(_nav){
     const prev = m ? ((m.body||'').trim() ? escapeHtml(String(m.body).replace(/\s+/g,' ').slice(0,60)) : (m.images&&m.images.length?'📷 사진':'')) : '<span class="muted">아직 말이 없어요</span>';
     return `<a class="room" href="${roomHashOf(r.id)}">
       <span class="room-av" style="--h:${hue(r.name)}">${escapeHtml(String(r.name).slice(0,1))}</span>
-      <span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(r.name)}</span>${r.visibility==='members'?`<span class="ch-lock" title="지정한 멤버와 운영진만">${ic('lock')}</span>`:''}<span class="room-when">${m?escapeHtml(when(m.created_at)):''}</span></span>
-      <span class="room-p">${m&&m.user_name?`<b>${escapeHtml(m.user_name)}</b> `:''}${prev}</span></span></a>`; };
+      <span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(r.name)}</span>${r.kind==='seminar'?`<span class="sem-tag${r.seminar_status==='ended'?' end':''}">${r.seminar_status==='ended'?'세미나 · 끝남':'세미나 · LIVE'}</span>`:''}${r.visibility==='members'?`<span class="ch-lock" title="지정한 멤버와 운영진만">${ic('lock')}</span>`:''}<span class="room-when">${m?escapeHtml(when(m.created_at)):''}</span></span>
+      <span class="room-p">${m&&m.author_name?`<b>${escapeHtml(m.author_name)}</b> `:''}${prev}</span></span></a>`; };
   rooms.sort((a,b)=>{ const ta=(last[a.id==null?'general':String(a.id)]||{}).created_at||'', tb=(last[b.id==null?'general':String(b.id)]||{}).created_at||''; return tb.localeCompare(ta); });
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>채팅</h1><div class="tabs">${mgr?`<button class="btn primary" id="roomAdd" style="width:auto;padding:8px 14px">+ 새 방</button>`:''}</div></div>
+    <div class="doc-head"><h1>채팅</h1><div class="tabs"><button id="semArchBtn">${ic('history')}세미나 보관함</button>${mgr?`<button class="btn primary" id="roomAdd" style="width:auto;padding:8px 14px">+ 새 방</button>`:''}</div></div>
     ${(mgr && !community.chOk)?`<p class="ch-note">방 나누기(83_channels.sql)가 아직이라 방이 하나뿐이에요.${community.chErr?' 원인: '+escapeHtml(String(community.chErr.message||community.chErr)):''}</p>`:''}
     <div class="room-list">${rooms.map(row).join('')}</div>
     ${(mgr&&dead.length)?`<div class="ls-h ch-arch-h" style="margin-top:18px">보관됨</div><div class="room-list dim">${dead.map(c=>`<button class="room room-arch" data-chset="${escapeAttr(String(c.id))}"><span class="room-av" style="--h:0;filter:grayscale(1)">${escapeHtml(String(c.name).slice(0,1))}</span><span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(c.name)}</span></span><span class="room-p muted">눌러서 설정 (보관 해제 · 삭제)</span></span></button>`).join('')}</div>`:''}`;
   const add=$('#roomAdd'); if(add) add.onclick=addChannel;
+  $('#semArchBtn').onclick=()=>{ location.hash='#//seminars'; };
+  try{ if(community.semOk) sb.rpc('seminar_archive_now').then(r=>{ if(!r.error && Number(r.data)>0) renderRoomList(_nav); }); }catch(e){}
   document.querySelectorAll('.room-arch[data-chset]').forEach(b=>{ b.onclick=()=>openChannelSettings(Number(b.dataset.chset)); });
   window.scrollTo(0,0);
 }
@@ -14890,8 +14972,8 @@ async function renderCommunity(){
               <path d="M8 10 L6 6 M13 7.5 L12 3.5 M18.5 6 L18 2 M24 5.4 L24 1.4 M29.5 6 L30 2 M35 7.5 L36 3.5 M40 10 L42 6"/>
             </svg>
           </button>
-          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능)">${ic2('camera','ic20')}</button>
-          <textarea id="chatText" maxlength="${LIMITS.lim_chat_chars}" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$)"></textarea>
+          <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능) · 1장 ${LIMITS.lim_chat_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
+          <textarea id="chatText" maxlength="${LIMITS.lim_chat_chars}" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$) · 최대 ${LIMITS.lim_chat_chars}자"></textarea>
           <button id="chatSend">전송</button>
         </div>
         <div class="chat-count" id="chatCount"></div>
@@ -14914,7 +14996,9 @@ async function renderCommunity(){
     ev.stopPropagation(); const old=$('#chatMenu'); if(old){ old.remove(); return; }
     const mn=document.createElement('div'); mn.id='chatMenu'; mn.className='chat-menu';
     const c=community.channels.find(x=>String(x.id)===String(community.ch));
-    mn.innerHTML=`${(canManageChannels()&&community.ch!=null)?`<button data-act="set">방 설정 (이름 · 멤버 · 보관)</button>`:''}
+    const sc=semCur(), sh=semIs(sc)&&semIsHost(sc);
+    mn.innerHTML=`${sh?`<button data-act="mod">${sc.moderated?'답 골라 내리기 끄기':'답 골라 내리기 켜기'}</button><button data-act="poll">투표 시작</button>${sc.pinned?'<button data-act="unpin">고정 해제</button>':''}${sc.seminar_status!=='ended'?'<button data-act="end">세미나 끝</button>':''}`:''}
+      ${(canManageChannels()&&community.ch!=null)?`<button data-act="set">방 설정 (이름 · 멤버 · 보관)</button>`:''}
       ${community.ch!=null?`<button data-act="ws">작업 공간 보기/숨기기</button>`:''}
       <button data-act="who">지금 접속 중</button>
       <button data-act="list">채팅 목록으로</button>`;
@@ -14923,7 +15007,11 @@ async function renderCommunity(){
       if(a==='set') openChannelSettings(community.ch);
       else if(a==='ws'){ document.querySelector('.hub.room-view').classList.toggle('show-side'); }
       else if(a==='who'){ document.querySelector('.hub.room-view').classList.toggle('show-side'); const w=$('#hubOnline'); if(w) w.scrollIntoView({block:'nearest'}); }
-      else if(a==='list') location.hash='#//community'; }; });
+      else if(a==='list') location.hash='#//community';
+      else if(a==='mod'){ sb.from('channels').update({ moderated:!sc.moderated }).eq('id', sc.id).then(r=>{ if(r.error) toast('바꾸지 못했어요: '+r.error.message); else { sc.moderated=!sc.moderated; toast(sc.moderated?'이제 답은 진행자가 골라 내려요.':'답이 바로 올라와요.'); } }); }
+      else if(a==='poll') semStartPoll();
+      else if(a==='unpin') semSetPinned(null);
+      else if(a==='end') semEnd(); }; });
     setTimeout(()=>document.addEventListener('click', ()=>{ const m=$('#chatMenu'); if(m) m.remove(); }, { once:true }), 0);
   };
   $('#chatSend').onclick=sendMessage;
@@ -14935,11 +15023,13 @@ async function renderCommunity(){
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
   renderWorkspace(_nav);                          // ★방 작업 공간(85)
+  _semPending=[]; _semSel=null; if(semIs(semCur())){ try{ await kyptLoadPeople(); }catch(e){} }   // ★108: 진행자 이름·대기 답 준비
   await loadMessages();
   await renderChatAdmin();
   subscribeChat();
   renderHubOnline(_nav);                          // 우측 레일: 지금 접속 중인 회원
-  setTimeout(()=>{ const n=$('#hubOnCount'), h=$('#chatHeadN'); if(n && h){ const v=(n.textContent||'').replace(/[^0-9]/g,''); h.textContent = v ? v+'명 접속 중' : ''; } }, 1500);
+  await semMount(_nav);                                              // ★108 세미나 (대기 답은 loadMessages가 이미 모았다)
+  setTimeout(()=>{ if(semIs(semCur())) return; const n=$('#hubOnCount'), h=$('#chatHeadN'); if(n && h){ const v=(n.textContent||'').replace(/[^0-9]/g,''); h.textContent = v ? v+'명 접속 중' : ''; } }, 1500);
   window.scrollTo(0,0);
   typeToFocus('#chatText');    // 자동 포커스 대신: 아무 키나 치면 그때 입력창으로
 }
@@ -15047,78 +15137,242 @@ function chPickedIds(box){
   return [...box.querySelectorAll('input:checked')].map(i=>i.value);
 }
 
-function addChannel(){
-  const permOk=community.permOk;
-  const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box" style="max-width:420px">
-    <div class="modal-msg">새 방 만들기</div>
-    <div class="modal-sub">대화방은 주제 하나를 둘러싼 작업 공간이에요 — 대화·문서·자료를 한곳에 모읍니다.</div>
-    <label class="nd-label">대화방 이름</label>
-    <input class="he-input" id="chNewName" type="text" maxlength="30" placeholder="예: 실험실, 대회준비" autocomplete="off">
-    ${permOk?`
-    <label class="nd-label">공개 범위</label>
-    <div class="ch-visrow">
-      <label><input type="radio" name="chVis" value="all" checked> 부원 전체</label>
-      <label><input type="radio" name="chVis" value="members"> 멤버만</label>
-    </div>
-    <div class="chm-box" id="chMembers" style="display:none"></div>
-    <p class="ch-note" id="chVisNote" style="display:none">선택한 멤버와 운영진(owner/admin)만 이 대화방을 볼 수 있어요.</p>`:''}
-    <div class="he-msg" id="chMsg"></div>
-    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
-  </div>`;
-  document.body.appendChild(ov);
-  const close=()=>ov.remove();
-  ov.querySelector('.modal-cancel').onclick=close;
-  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
-  const nameIn=ov.querySelector('#chNewName');
-  nameIn.focus();
-  const mbox=ov.querySelector('#chMembers');
-  let pickerLoaded=false;
-  if(permOk){
-    ov.querySelectorAll('input[name=chVis]').forEach(rd=>{
-      rd.onchange=async()=>{
-        const members = ov.querySelector('input[name=chVis]:checked').value==='members';
-        mbox.style.display = members?'':'none';
-        ov.querySelector('#chVisNote').style.display = members?'':'none';
-        if(members && !pickerLoaded){ pickerLoaded=true; await chMemberPicker(mbox, new Set()); }
-      };
-    });
-  }
-  ov.querySelector('.modal-ok').onclick=async()=>{
-    const name=(nameIn.value||'').trim();
-    const msg=ov.querySelector('#chMsg');
-    if(!name){ msg.className='msg err'; msg.textContent='대화방 이름을 입력해 주세요.'; return; }
-    const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
-    const key=base || ('ch'+Date.now().toString(36));
-    const row={ key, name, sort:(community.channels.length+1) };
-    const vis = permOk ? ov.querySelector('input[name=chVis]:checked').value : 'all';
-    if(permOk) row.visibility=vis;   // ★89 미적용 DB에 새 컬럼을 보내면 insert가 통째로 죽는다(규칙 9)
-    const okb=ov.querySelector('.modal-ok');
-    okb.disabled=true;
-    try{
-      const { data, error } = await sb.from('channels').insert(row).select().single();
-      if(error) throw error;
-      if(permOk && vis==='members'){
-        const ids=chPickedIds(mbox);
-        if(ids.length){
-          const { error:e2 } = await sb.from('channel_members')
-            .insert(ids.map(u=>({ channel_id:data.id, user_id:u, added_by:(state.user&&state.user.id)||null })));
-          if(e2) throw e2;
-        }
-      }
-      close();
-      await loadChannels();
-      renderChannelRail();
-      toast('방을 만들었어요: # '+name); location.hash='#//community/'+data.id;
-    }catch(e){
-      okb.disabled=false;
-      msg.className='msg err';
-      msg.textContent='만들지 못했습니다: '+((e&&e.message)||e)+' (83_channels.sql 실행 여부와 권한을 확인하세요)';
+function addChannel(){ openRoomCompose(); }
+/* ================== 세미나 (108 · 세션 BW) ==================
+   방(channels.kind='seminar')에 얹는 것들: 진행자 · 입장 링크 · 고정 상자 · 슬라이드(진행자) · 답 골라 내리기(옵션) · 투표 · 참석 · 끝/보관함. */
+function semCur(){ return community.ch!=null ? community.channels.find(c=>String(c.id)===String(community.ch)) : null; }
+function semIs(c){ return !!(c && c.kind==='seminar'); }
+function semIsHost(c){ c=c||semCur(); const me=state.user&&state.user.id; if(!c||!me) return false; return (c.hosts||[]).includes(me) || c.created_by===me || canManageChannels(); }
+function semHostNames(c){ return ((c&&c.hosts)||[]).map(u=>kyptName(u)).join(' · '); }
+function semSlideUrl(path){ try{ return sb.storage.from('seminar').getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } }
+let _semPoll=null, _semVotes=[], _semSlides=[], _semSel=null, _semRt=null;
+/* 머리 + 고정 상자 + 슬라이드 탭 + 투표 카드 + 대기 답 타일 */
+async function semMount(_nav){
+  const c=semCur(); if(!semIs(c)) return;
+  const host=semIsHost(c);
+  const hn=$('#chatHeadN'); if(hn) hn.textContent = `세미나 · 진행자 ${semHostNames(c)||kyptName(c.created_by)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':''}`;
+  const head=document.querySelector('.chat-head');
+  if(head && !head.querySelector('.sem-link')){ const b=document.createElement('button'); b.className='sem-link'; b.textContent='입장 링크 복사'; b.onclick=async()=>{ try{ await navigator.clipboard.writeText(semJoinUrl(c.join_code)); toast('입장 링크를 복사했어요.'); }catch(e){ toast(semJoinUrl(c.join_code)); } }; head.insertBefore(b, $('#chatMore')); }
+  // 고정 상자 자리 · 투표 · 대기 답
+  const chat=document.querySelector('.chat');
+  if(chat && !$('#semPin')){ const d=document.createElement('div'); d.id='semPin'; chat.insertBefore(d, $('#chatLog')); }
+  if(chat && !$('#semPoll')){ const d=document.createElement('div'); d.id='semPoll'; chat.insertBefore(d, $('#chatPreview')); }
+  if(chat && host && !$('#semQueue')){ const d=document.createElement('div'); d.id='semQueue'; chat.insertBefore(d, $('#chatPreview')); }
+  semDrawPin(); semQueueDraw();
+  // 참석
+  try{ const me=state.user.id; await sb.from('seminar_attendance').upsert({ channel_id:c.id, uid:me, last_at:new Date().toISOString() }, { onConflict:'channel_id,uid' }); }catch(e){}
+  // 슬라이드 탭(진행자)
+  if(host){ const side=document.querySelector('.hub-side'); if(side && !$('#semSlides')){ const d=document.createElement('section'); d.id='semSlides'; d.className='sem-sp'; side.insertBefore(d, side.firstChild); } await semSlidesLoad(); semSlidesDraw(); }
+  // 투표
+  await semPollLoad(); semPollDraw();
+  // 실시간: 방 행(고정·모드·끝) · 투표 · 표
+  if(_semRt){ try{ sb.removeChannel(_semRt); }catch(e){} }
+  _semRt = sb.channel('sem-'+c.id)
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'channels', filter:'id=eq.'+c.id }, p=>{ Object.assign(c, p.new||{}); semDrawPin(); const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':''}`; })
+    .on('postgres_changes', { event:'*', schema:'public', table:'seminar_polls', filter:'channel_id=eq.'+c.id }, async()=>{ await semPollLoad(); semPollDraw(); })
+    .on('postgres_changes', { event:'*', schema:'public', table:'seminar_votes' }, async p=>{ if(_semPoll && String((p.new||p.old||{}).poll_id)===String(_semPoll.id)){ await semPollLoad(); semPollDraw(); } })
+    .subscribe();
+}
+function semDrawPin(){
+  const c=semCur(); const box=$('#semPin'); if(!box) return;
+  const p=c&&c.pinned; if(!p){ box.innerHTML=''; return; }
+  box.innerHTML=`<div class="sem-pin"><div class="sem-ph">📌 ${p.type==='slide'?'지금 보는 슬라이드':'지금 다루는 것'}<span>${p.type==='slide'?`${p.page} / ${p.total} · `:''}${escapeHtml(kyptName(p.by))} · ${escapeHtml(kv2Fmt(p.at)||'')}${semIsHost(c)?' <button class="sem-unpin">고정 해제</button>':''}</span></div>
+    ${p.type==='slide'?`<img class="sem-pimg" src="${escapeAttr(p.url)}" alt="슬라이드 ${p.page}">`:`<div class="sem-ptxt">${escapeHtml(p.body||'')}</div>`}</div>`;
+  const u=box.querySelector('.sem-unpin'); if(u) u.onclick=()=>semSetPinned(null);
+  const im=box.querySelector('.sem-ptxt'); if(im) renderMath(im);
+}
+async function semSetPinned(pinned){
+  const c=semCur(); if(!c) return;
+  const { error } = await sb.from('channels').update({ pinned }).eq('id', c.id);
+  if(error){ toast('고정하지 못했어요: '+(error.message||'')); return; }
+  c.pinned=pinned; semDrawPin();
+}
+/* 슬라이드: PDF → pdf.js로 쪽마다 그림 → 압축 → seminar 버킷 */
+async function semSlidesLoad(){
+  const c=semCur(); if(!c) return;
+  try{ const { data } = await sb.from('seminar_slides').select('id,file_id,page,path,seminar_files(name,pages)').eq('channel_id', c.id).order('file_id').order('page'); _semSlides=data||[]; }catch(e){ _semSlides=[]; }
+}
+function semSlidesDraw(){
+  const box=$('#semSlides'); if(!box) return; const c=semCur();
+  const files={}; _semSlides.forEach(s=>{ const f=s.seminar_files||{}; (files[s.file_id]=files[s.file_id]||{ name:f.name||'파일', pages:f.pages||0, slides:[] }).slides.push(s); });
+  const posted=new Set(); document.querySelectorAll('.msg[data-slide]').forEach(el=>posted.add(el.dataset.slide));
+  box.innerHTML=`<div class="sem-sph">🎞 슬라이드 <small>진행자만 보여요</small></div>
+    ${Object.keys(files).length?Object.entries(files).map(([fid,f])=>`<div class="sem-file"><b>PDF</b> ${escapeHtml(f.name)} <span>${f.pages}쪽</span></div>
+      <div class="sem-thumbs">${f.slides.map(s=>`<button type="button" class="sem-th${_semSel===s.id?' on':''}" data-sid="${s.id}" data-page="${s.page}" data-total="${f.pages}" data-path="${escapeAttr(s.path)}"><img src="${escapeAttr(semSlideUrl(s.path))}" alt="" loading="lazy"><span class="k">${s.page}${(c&&c.pinned&&c.pinned.type==='slide'&&String(c.pinned.slide_id)===String(s.id))?' · 지금':''}</span>${posted.has(String(s.id))?'<span class="st">올림</span>':''}</button>`).join('')}</div>`).join('')
+      :'<p class="sem-empty">아직 올린 파일이 없어요.</p>'}
+    <div class="sem-spf"><label class="btn" style="width:auto;padding:6px 12px;cursor:pointer">PDF 올리기<input type="file" accept="application/pdf" id="semPdf" style="display:none"></label><span class="sem-pg" id="semPg">${_semSel?'':'쪽을 고르고 Enter'}</span><button class="btn primary sem-post" id="semPost" style="width:auto;padding:6px 14px"${_semSel?'':' disabled'}>방에 올리기</button></div>
+    <div class="sem-hint">파워포인트·한글은 <b>PDF로 저장</b>해서 올려 주세요(브라우저는 PDF만 읽어요). 쪽마다 그림으로 바뀌고 자동으로 줄어요.</div>
+    <div class="msg" id="semMsg"></div>`;
+  box.querySelectorAll('.sem-th').forEach(b=>{
+    b.onclick=()=>{ _semSel=Number(b.dataset.sid); box.querySelectorAll('.sem-th').forEach(x=>x.classList.toggle('on', x===b)); $('#semPost').disabled=false; $('#semPg').textContent=`${b.dataset.page} / ${b.dataset.total}`; b.focus(); };
+    b.onkeydown=(e)=>{ if(e.key==='Enter'){ e.preventDefault(); b.click(); semPostSlide(); } if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=b.nextElementSibling; if(n) n.click(); } if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const p=b.previousElementSibling; if(p) p.click(); } };
+  });
+  $('#semPost').onclick=semPostSlide;
+  $('#semPdf').onchange=(e)=>{ const f=e.target.files&&e.target.files[0]; if(f) semUploadPdf(f); };
+}
+async function semPostSlide(){
+  const c=semCur(); const b=document.querySelector(`.sem-th[data-sid="${_semSel}"]`); if(!c||!b) return;
+  const url=semSlideUrl(b.dataset.path); const page=Number(b.dataset.page), total=Number(b.dataset.total);
+  const row={ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:`슬라이드 ${page} / ${total}`, question_id:null, images:[url], channel_id:c.id, kind:'slide' };
+  const { data, error } = await sb.from('messages').insert(row).select().single();
+  if(error){ toast('올리지 못했어요: '+(error.message||'')); return; }
+  await semSetPinned({ type:'slide', slide_id:_semSel, url, page, total, by:state.user.id, at:new Date().toISOString(), msg_id:data&&data.id });
+  const el=document.querySelector(`.msg[data-mid="${data&&data.id}"]`); if(el) el.dataset.slide=String(_semSel);
+  semSlidesDraw();
+}
+let _pdfjsP=null;
+function loadPdfjs(){
+  if(window.pdfjsLib) return Promise.resolve(window.pdfjsLib);
+  if(_pdfjsP) return _pdfjsP;
+  _pdfjsP=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); }; s.onerror=()=>rej(new Error('pdf.js를 불러오지 못했어요')); document.head.appendChild(s); });
+  return _pdfjsP;
+}
+async function semUploadPdf(file){
+  const c=semCur(); const m=$('#semMsg'); if(!c) return;
+  try{
+    m.className='msg'; m.textContent='PDF를 읽는 중…';
+    const pdfjs=await loadPdfjs();
+    const pdf=await pdfjs.getDocument({ data:await file.arrayBuffer() }).promise;
+    const { data:fr, error:fe } = await sb.from('seminar_files').insert({ channel_id:c.id, uid:state.user.id, name:file.name, pages:pdf.numPages }).select().single(); if(fe) throw fe;
+    const target=(Number(LIMITS.lim_doc_img_kb)||150)*1024;
+    for(let i=1;i<=pdf.numPages;i++){
+      m.textContent=`쪽 ${i} / ${pdf.numPages} 만드는 중…`;
+      const page=await pdf.getPage(i); const vp0=page.getViewport({ scale:1 }); const scale=Math.min(2, 1600/vp0.width); const vp=page.getViewport({ scale });
+      const cv=document.createElement('canvas'); cv.width=Math.round(vp.width); cv.height=Math.round(vp.height);
+      await page.render({ canvasContext:cv.getContext('2d'), viewport:vp }).promise;
+      const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.85));
+      let out; try{ out=await compressImage(new File([blob],'p.jpg',{ type:'image/jpeg' }), { mode:'contain', dim:1600, target, minQuality:0.5 }); }catch(e){ out={ blob, type:'image/jpeg' }; }
+      const path=`${c.id}/${fr.id}/${String(i).padStart(3,'0')}${out.type==='image/webp'?'.webp':'.jpg'}`;
+      const { error:ue } = await sb.storage.from('seminar').upload(path, out.blob, { contentType:out.type, cacheControl:'31536000', upsert:true }); if(ue) throw ue;
+      const { error:se } = await sb.from('seminar_slides').insert({ file_id:fr.id, channel_id:c.id, page:i, path }); if(se) throw se;
     }
-  };
+    m.className='msg'; m.textContent=`${pdf.numPages}쪽 준비됐어요.`;
+    await semSlidesLoad(); semSlidesDraw();
+  }catch(e){ m.className='msg err'; m.textContent='올리지 못했어요: '+((e&&e.message)||e); }
+}
+/* 답 골라 내리기(옵션): 대기 중인 답은 진행자에게 타일로, 본인에겐 '확인 중'으로 */
+function semQueueDraw(){
+  const box=$('#semQueue'); if(!box) return;
+  const items=_semPending.filter(x=>!x.done);
+  box.innerHTML = items.length ? `<div class="sem-qh">올라온 답 ${items.length} — 누르면 모두에게 공개돼요</div><div class="sem-tiles">${items.map(x=>`<button type="button" class="sem-tile" data-mid="${x.m.id}"><b>${escapeHtml(x.m.author_name||'회원')}</b>${escapeHtml(String(x.m.body||'').slice(0,140))}${(x.m.images&&x.m.images.length)?' 📷':''}</button>`).join('')}</div>` : '';
+  box.querySelectorAll('.sem-tile').forEach(b=>{ b.onclick=async()=>{ b.disabled=true; const { error } = await sb.from('messages').update({ pending:false }).eq('id', Number(b.dataset.mid)); if(error){ b.disabled=false; toast('공개하지 못했어요: '+(error.message||'')); } }; });
+}
+let _semPending=[];
+function semHandlePending(m){
+  const c=semCur(); if(!c) return false;
+  if(!m.pending) return false;
+  const me=state.user&&state.user.id;
+  if(semIsHost(c)){ if(!_semPending.some(x=>x.m.id===m.id)) _semPending.push({ m }); semQueueDraw(); return true; }
+  if(m.user_id===me){ const log=$('#chatLog'); if(log && !log.querySelector('[data-mid="'+m.id+'"]')){ const d=document.createElement('div'); d.className='msg-system sem-wait'; d.setAttribute('data-mid', m.id); d.innerHTML=`<span>내 답 "${escapeHtml(String(m.body||'').slice(0,40))}" — 진행자 확인 중</span>`; log.appendChild(d); } return true; }
+  return true;                                                     // 남의 대기 답은 안 보인다
+}
+/* 투표 */
+async function semPollLoad(){
+  const c=semCur(); if(!c) return;
+  try{ const { data } = await sb.from('seminar_polls').select('*').eq('channel_id', c.id).is('closed_at', null).order('created_at',{ascending:false}).limit(1); _semPoll=(data&&data[0])||null;
+    if(_semPoll){ const v=await sb.from('seminar_votes').select('uid,choice').eq('poll_id', _semPoll.id); _semVotes=v.data||[]; } else _semVotes=[]; }catch(e){ _semPoll=null; }
+}
+function semPollDraw(){
+  const box=$('#semPoll'); if(!box) return; const c=semCur(); const p=_semPoll;
+  if(!p){ box.innerHTML=''; return; }
+  const opts = p.kind==='ox' ? ['O','X'] : ['1','2','3','4','5'];
+  const me=state.user&&state.user.id; const mine=(_semVotes.find(v=>v.uid===me)||{}).choice; const n=_semVotes.length;
+  box.innerHTML=`<div class="sem-poll"><div class="sem-pq">📊 ${escapeHtml(p.question||'어떻게 생각하나요?')} <span>${n}명 참여${semIsHost(c)?' · <button class="sem-pclose">끝</button>':''}</span></div>
+    <div class="sem-popts">${opts.map(o=>{ const k=_semVotes.filter(v=>v.choice===o).length; const pct=n?Math.round(k*100/n):0; return `<button type="button" class="sem-po${mine===o?' on':''}" data-o="${o}"><span class="sem-pbar" style="width:${pct}%"></span><b>${o}</b><small>${k}</small></button>`; }).join('')}</div></div>`;
+  box.querySelectorAll('.sem-po').forEach(b=>{ b.onclick=async()=>{ const { error } = await sb.from('seminar_votes').upsert({ poll_id:p.id, uid:me, choice:b.dataset.o }, { onConflict:'poll_id,uid' }); if(error) toast('투표하지 못했어요: '+(error.message||'')); else { await semPollLoad(); semPollDraw(); } }; });
+  const cl=box.querySelector('.sem-pclose'); if(cl) cl.onclick=async()=>{ await sb.from('seminar_polls').update({ closed_at:new Date().toISOString() }).eq('id', p.id); await semPollLoad(); semPollDraw(); };
+}
+async function semStartPoll(){
+  const c=semCur(); if(!c) return;
+  const q=prompt('투표 질문 (비우면 "어떻게 생각하나요?")', ''); if(q===null) return;
+  const kind = confirm('O/X 투표로 할까요? (취소 = 1~5 척도)') ? 'ox' : 'scale5';
+  const { error } = await sb.from('seminar_polls').insert({ channel_id:c.id, kind, question:(q||'').trim()||null, opened_by:state.user.id });
+  if(error){ toast('투표를 열지 못했어요: '+(error.message||'')); return; }
+  await semPollLoad(); semPollDraw();
+}
+async function semEnd(){
+  const c=semCur(); if(!c) return;
+  const ok=await confirmModal('세미나를 끝낼까요?', '방은 하루 동안 그대로 남고(글도 쓸 수 있어요), 다음 날 세미나 보관함으로 옮겨져요.', '끝내기'); if(!ok) return;
+  const { error } = await sb.rpc('seminar_end', { p_channel:c.id }); if(error){ toast('끝내지 못했어요: '+(error.message||'')); return; }
+  c.seminar_status='ended'; c.ended_at=new Date().toISOString(); c.pinned=null; semDrawPin(); toast('세미나를 끝냈어요.');
+  const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)} · 끝남(하루 뒤 보관함으로)`;
+}
+/* 보관함 */
+async function renderSeminars(){
+  const m=location.hash.match(/^#\/\/seminars(?:\/(\d+))?/); const id=m&&m[1];
+  try{ await sb.rpc('seminar_archive_now'); }catch(e){}
+  if(id){
+    const { data:a, error } = await sb.from('seminar_archive').select('*').eq('id', Number(id)).maybeSingle();
+    if(error||!a){ $('#doc').innerHTML=`<div class="doc-head"><h1>세미나 보관함</h1></div><p class="ch-note">기록을 찾지 못했어요.</p>`; return; }
+    const r=a.record||{}; const uids=[...new Set([].concat(a.hosts||[], (r.attendance||[]).map(x=>x.uid), (r.messages||[]).map(x=>x.uid)))].filter(Boolean);
+    try{ await kyptLoadPeople(); }catch(e){} await ensureCovers(uids);
+    const line=(x)=> x.kind==='slide' && x.images && x.images[0] ? `<div class="sar-slide"><img src="${escapeAttr(x.images[0])}" alt=""><div class="sar-cap">${escapeHtml(x.body||'')} · ${escapeHtml(x.name||kyptName(x.uid))}</div></div>`
+      : `<div class="sar-msg${x.host?' host':''}"><b>${escapeHtml(x.name||kyptName(x.uid))}${x.host?' <i>진행자</i>':''}</b><span>${escapeHtml(kv2Fmt(x.at)||'')}</span><p>${escapeHtml(x.body||'')}${(x.images||[]).map(u=>`<img class="sar-img" src="${escapeAttr(u)}" alt="">`).join('')}</p></div>`;
+    $('#doc').innerHTML=`<div class="doc-head"><h1>${escapeHtml(a.title)}</h1><div class="tabs"><button id="sarBack">${ic('back')}보관함</button></div></div>
+      <div class="doc-meta">세미나 · 진행자 ${escapeHtml((a.hosts||[]).map(u=>kyptName(u)).join(' · '))} · ${escapeHtml(kv2Fmt(a.started_at)||'')} ~ ${escapeHtml(kv2Fmt(a.ended_at)||'')} · 참석 ${(r.attendance||[]).length}명</div>
+      <details class="sar-att"><summary>참석자 ${(r.attendance||[]).length}명</summary><div class="sar-people">${(r.attendance||[]).map(x=>`<span>${escapeHtml(kyptName(x.uid))}</span>`).join('')}</div></details>
+      ${(r.polls||[]).length?`<div class="sar-polls">${r.polls.map(p=>`<div class="sar-poll">📊 ${escapeHtml(p.question||'투표')} — ${Object.entries(p.votes||{}).map(([k,v])=>`${k}: ${v}`).join(' · ')||'표 없음'}</div>`).join('')}</div>`:''}
+      <div class="sar-log">${(r.messages||[]).map(line).join('')||'<p class="muted">남은 대화가 없어요.</p>'}</div>`;
+    $('#sarBack').onclick=()=>{ location.hash='#//seminars'; };
+    renderMath($('.sar-log'));
+    return;
+  }
+  const { data, error } = await sb.from('seminar_archive').select('id,title,hosts,started_at,ended_at,record').order('ended_at',{ascending:false});
+  try{ await kyptLoadPeople(); }catch(e){}
+  $('#doc').innerHTML=`<div class="doc-head"><h1>세미나 보관함</h1><div class="tabs"><button id="sarChat">${ic('chat')}채팅</button></div></div>
+    <div class="doc-meta">끝난 세미나는 하루 뒤 여기로 옮겨져요 — 슬라이드·대화·투표·참석이 그대로 남습니다.</div>
+    ${error?`<p class="ch-note">보관함을 읽지 못했어요: ${escapeHtml(error.message||'')} (108_seminar.sql)</p>`:''}
+    <div class="room-list">${(data||[]).map(a=>`<a class="room" href="#//seminars/${a.id}"><span class="room-av" style="--h:215">S</span><span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(a.title)}</span><span class="room-when">${escapeHtml((a.ended_at||'').slice(0,10))}</span></span><span class="room-p">진행자 ${escapeHtml((a.hosts||[]).map(u=>kyptName(u)).join(' · '))} · 참석 ${((a.record||{}).attendance||[]).length}명 · 슬라이드 ${((a.record||{}).slides||[]).length}쪽</span></span></a>`).join('')||'<p class="muted" style="padding:14px">아직 보관된 세미나가 없어요.</p>'}</div>`;
+  $('#sarChat').onclick=()=>{ location.hash='#//community'; };
 }
 
-/* 대화방 설정 — 이름 · 공개 범위(89) · 순서 · 보관 · 삭제(89) */
+/* ★세션 BW: 새 방 패널 — 지메일 작성창처럼 오른쪽 아래, 그림자 없음. 종류(일반/세미나) · 입장 링크 · 공동 진행자(이름 격자).
+   멤버 제한 고르기는 없앴다(사용자 결정) — 방은 누구나, 세미나는 링크가 있으면 누구나. */
+function semCode(){ const a='abcdefghjkmnpqrstuvwxyz23456789'; let o=''; for(let i=0;i<6;i++) o+=a[Math.floor(Math.random()*a.length)]; return o; }
+function semJoinUrl(code){ return location.origin + location.pathname + '#//seminar/' + code; }
+async function openRoomCompose(){
+  const old=$('#roomCompose'); if(old) old.remove();
+  const box=document.createElement('div'); box.id='roomCompose'; box.className='compose';
+  const code=semCode(); let kind='room'; const co=new Set();
+  const me=state.user&&state.user.id;
+  let members=[]; try{ const { data } = await sb.from('members_public').select('id,name,handle').order('name',{ascending:true}); members=(data||[]).filter(m=>m.id!==me); }catch(e){}
+  const people=()=>members.map(m=>`<button type="button" class="pp${co.has(m.id)?' on':''}" data-uid="${escapeAttr(m.id)}"><i data-cover="${escapeAttr(m.id)}"></i>${escapeHtml(m.name||m.handle||'회원')}</button>`).join('');
+  const draw=()=>{
+    box.innerHTML=`<div class="c-h">새 방 <button class="c-x" type="button" aria-label="닫기">✕</button></div>
+      <div class="c-b">
+        <div class="c-row"><label>방 이름</label><input id="rcName" placeholder="예: 광학 기초 세미나" maxlength="40"></div>
+        <div class="c-row"><label>종류</label><span class="seg"><button type="button" class="${kind==='room'?'on':''}" data-k="room">일반 방</button><button type="button" class="${kind==='seminar'?'on':''}" data-k="seminar">세미나</button></span>
+          <span class="c-hint">${community.semOk===false?'세미나는 108_seminar.sql이 필요해요':'세미나면 입장 링크가 생기고 진행자만 슬라이드를 올려요'}</span></div>
+        ${kind==='seminar'?`<div class="c-row"><label>입장 링크</label><span class="c-link"><span>${escapeHtml(semJoinUrl(code))}</span><button type="button" class="c-copy">복사</button></span></div>
+        <div class="c-row nob"><label>공동 진행자</label><span class="c-hint">이름을 눌러 고르세요 — 나는 자동으로 진행자</span></div>
+        <div class="people"><span class="pp me"><i data-cover="${escapeAttr(me||'')}"></i>${escapeHtml(state.name||'나')} (나)</span>${people()}</div>`:''}
+        <div class="c-f"><button type="button" class="btn primary" id="rcGo" style="width:auto;padding:8px 16px">${kind==='seminar'?'만들고 들어가기':'만들기'}</button><button type="button" class="btn" id="rcCancel" style="width:auto;padding:8px 14px">취소</button>
+          <span class="c-hint" style="margin-left:auto">${kind==='seminar'?'링크가 있는 부원은 누구나 들어와요':'모든 부원이 볼 수 있어요'}</span></div>
+        <div class="msg" id="rcMsg"></div></div>`;
+    box.querySelector('.c-x').onclick=()=>box.remove(); box.querySelector('#rcCancel').onclick=()=>box.remove();
+    box.querySelectorAll('.seg button').forEach(b=>{ b.onclick=()=>{ if(b.dataset.k==='seminar' && community.semOk===false) return; const n=box.querySelector('#rcName').value; kind=b.dataset.k; draw(); box.querySelector('#rcName').value=n; }; });
+    box.querySelectorAll('.pp[data-uid]').forEach(b=>{ b.onclick=()=>{ const u=b.dataset.uid; if(co.has(u)) co.delete(u); else co.add(u); b.classList.toggle('on', co.has(u)); }; });
+    const cp=box.querySelector('.c-copy'); if(cp) cp.onclick=async()=>{ try{ await navigator.clipboard.writeText(semJoinUrl(code)); toast('입장 링크를 복사했어요.'); }catch(e){ toast('복사가 막혔어요 — 주소를 직접 긁어 주세요.'); } };
+    ensureCovers([me].concat(members.map(m=>m.id)).filter(Boolean)).then(()=>applyCovers(box));
+    box.querySelector('#rcGo').onclick=async()=>{
+      const name=(box.querySelector('#rcName').value||'').trim(); const m=box.querySelector('#rcMsg');
+      if(!name){ m.className='msg err'; m.textContent='방 이름을 적어 주세요.'; return; }
+      const base=name.toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,''); const key=(base||'ch')+'-'+Date.now().toString(36);
+      const row={ key, name, sort:(community.channels.length+1) };
+      if(community.permOk) row.visibility='all';
+      if(kind==='seminar'){ Object.assign(row, { kind:'seminar', join_code:code, hosts:[me].concat([...co]), moderated:false, seminar_status:'live' }); }
+      box.querySelector('#rcGo').disabled=true;
+      try{
+        const { data, error } = await sb.from('channels').insert(row).select().single(); if(error) throw error;
+        await loadChannels(); box.remove(); toast(kind==='seminar'?'세미나 방을 만들었어요.':'방을 만들었어요: # '+name);
+        location.hash='#//community/'+data.id;
+      }catch(e){ box.querySelector('#rcGo').disabled=false; m.className='msg err'; m.textContent='만들지 못했어요: '+((e&&e.message)||e); }
+    };
+    setTimeout(()=>{ const n=box.querySelector('#rcName'); if(n) n.focus(); }, 30);
+  };
+  draw(); document.body.appendChild(box);
+}
+
 async function openChannelSettings(id){
   const c=community.channels.find(x=>String(x.id)===String(id));
   if(!c) return;
@@ -15604,6 +15858,7 @@ function appendMessage(m, doScroll=true){
   const log=$('#chatLog'); if(!log) return;
   const empty=log.querySelector('.chat-empty'); if(empty) empty.remove();
   if(log.querySelector('[data-mid="'+m.id+'"]')) return;   // 중복 방지(일반·시스템 공통)
+  if(m.pending && semHandlePending(m)) return;              // ★108: 진행자 확인 전 답
   ensureDaySep(log, m.created_at);                          // 날짜가 바뀌면 구분선
   if(m.kind==='system'){                                   // 시스템 공지: 회색·중앙 정렬
     const s=document.createElement('div');
@@ -15637,6 +15892,11 @@ function appendMessage(m, doScroll=true){
     el.dataset.cover = m.user_id;
     ensureCovers([m.user_id]).then(()=>applyCovers(el));       // 초기 로드는 캐시 히트라 추가 조회 0
   }
+  { const sc=semCur(); if(semIs(sc)){                            // ★108: 진행자 라벨 · 슬라이드 · 📌
+      if((sc.hosts||[]).includes(m.user_id) || m.user_id===sc.created_by){ el.classList.add('sem-host'); const w=el.querySelector('.msg-who'); if(w && !w.querySelector('.sem-lab')) w.insertAdjacentHTML('beforeend',' <span class="sem-lab">진행자</span>'); }
+      if(m.kind==='slide'){ el.classList.add('sem-slidemsg'); }
+      if(semIsHost(sc) && m.kind!=='slide' && m.kind!=='system'){ const f=el.querySelector('.msg-foot'); if(f){ const b=document.createElement('button'); b.className='msg-pin'; b.title='고정 상자에 올리기'; b.textContent='📌'; b.onclick=()=>semSetPinned({ type:'msg', msg_id:m.id, body:m.body||'', by:state.user.id, at:new Date().toISOString() }); f.appendChild(b); } }
+  } }
   if(canDel){ const db=el.querySelector('.msg-del'); if(db) db.onclick=()=>deleteMessage(m); }
   else if(isAdmin() && m.user_id && !(m.user_id in roleCache)) ensureRole(m.user_id);   // 실시간 신규 메세지: 작성자 등급 확인 후 버튼 반영
   if(m.user_id && !(m.user_id in avatarCache)) ensureAvatar(m.user_id);
@@ -15885,6 +16145,7 @@ async function sendMessage(){
     const row={ user_id:state.user.id, author_name:state.name||null,
       author_handle:state.handle||null, body, question_id: community.qid || null, images };
     if(!community.qid && community.chOk && community.ch!=null) row.channel_id=community.ch;   // ★83
+    { const sc=semCur(); if(semIs(sc) && sc.moderated && !semIsHost(sc)) row.pending=true; }   // ★108 답 골라 내리기
     const { error } = await sb.from('messages').insert(row);
     if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨
   }catch(e){
@@ -16063,6 +16324,13 @@ function subscribeChat(){
         if(mc !== vc) return;
       }
       appendMessage(payload.new, true);
+    })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'messages' }, payload=>{           // ★108: 대기 답이 공개되면
+      const n=payload.new||{}; if(n.pending) return;
+      const vc = community.ch!=null ? String(community.ch) : null; const mc = n.channel_id!=null ? String(n.channel_id) : null; if(mc!==vc) return;
+      _semPending=_semPending.filter(x=>x.m.id!==n.id); semQueueDraw();
+      const w=document.querySelector('.sem-wait[data-mid="'+n.id+'"]'); if(w) w.remove();
+      appendMessage(n, true);
     })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
       const id=payload.old&&payload.old.id;
@@ -16425,7 +16693,7 @@ function route(){
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
   const fullWidthPages=['community','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt'];
-  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('community/') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('community/') && !key.startsWith('seminars') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
                      admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
@@ -16445,6 +16713,8 @@ function route(){
   if(sys && key==='directory'){ renderDirectory(); return; }
   if(sys && (key==='main' || key==='home')){ renderLanding(); return; }   // 대문은 '#//main' 일 때만
   if(sys && (key==='community' || key.startsWith('community/'))){ renderCommunity(); return; }   // ★세션 BV: 목록 / 방
+  if(sys && key.startsWith('seminar/')){ (async()=>{ const code=key.slice(8); const { data } = await sb.from('channels').select('id').eq('join_code', code).maybeSingle(); if(data) location.hash='#//community/'+data.id; else { $('#doc').innerHTML='<div class="doc-head"><h1>세미나</h1></div><p class="ch-note">이 입장 링크의 세미나를 찾지 못했어요. 끝나서 보관함으로 갔거나 링크가 틀렸을 수 있어요.</p>'; } })(); return; }
+  if(sys && (key==='seminars' || key.startsWith('seminars/'))){ renderSeminars(); return; }
   if(sys && isQuestion){ renderQuestion(Number(key.slice(2))); return; }
   if(sys && key.startsWith('rev/')){                     // 과거 버전 열람 (흑백)
     const parts=key.slice(4).split('/');
