@@ -2228,6 +2228,12 @@ body.has-botnav .compose{ bottom:calc(66px + env(safe-area-inset-bottom)); right
 .sem-tile.on{ border-color:var(--accent); background:color-mix(in srgb, var(--accent) 6%, var(--card)); box-shadow:inset 0 0 0 1px var(--accent); }
 .sem-tile.cur{ outline:2px dashed color-mix(in srgb, var(--accent) 50%, transparent); outline-offset:1px; }
 .sem-x{ color:var(--accent); font-weight:900; margin-right:2px; }
+.sem-tools{ display:flex; flex-wrap:wrap; gap:6px; padding:8px 10px 2px; }
+.sem-tb{ font:inherit; font-size:12px; font-weight:700; padding:5px 11px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
+.sem-tb:hover{ border-color:var(--accent); } .sem-tb.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.sem-tb.danger{ color:var(--accent); } .sem-tb.dim{ color:var(--text-dim); cursor:default; border-style:dashed; }
+.sem-scmv{ position:absolute; right:4px; top:3px; display:flex; gap:2px; } .sem-scmv button{ border:0; background:none; color:var(--text-dim); cursor:pointer; font-size:10px; padding:2px 3px; } .sem-scmv button:hover{ color:var(--accent); }
+.sem-scx{ position:static; }
 .sem-stunote{ margin:6px 12px 2px; padding:6px 10px; font-size:12px; color:var(--text-dim); background:var(--box-bg); border-radius:8px; }
 .sem-qh kbd{ font-family:var(--mono); font-size:10px; border:1px solid var(--border); border-radius:3px; padding:0 4px; background:var(--card); }
 .chat.aops .msg.sem-reply{ background:var(--box-bg); margin-left:22px; padding:2px 8px; border-radius:4px; }
@@ -9479,6 +9485,7 @@ async function renderSysSite(){
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-14', text:'[세미나] 진행자 도구(답 골라 내리기·투표·고정 해제·지금 공개·작업 공간·방 설정·세미나 끝)가 ⋯ 안이 아니라 머리 아래 버튼 띠로 나와요. 대본 항목은 ▲▼로도 옮기고, 슬라이드는 고른 쪽만 대본에 넣을 수 있어요. 발사 때 나던 시퀀스 권한 오류를 고쳤습니다(113).' },
   { date:'2026-09-13', text:'[세미나] 방을 만들 때 공개 시각과 한 줄 소개를 정할 수 있어요. 그때까지는 진행자만 들어가 준비하고, 부원에겐 목록에 "세미나 · 9/20(토) 19:30 · D-3"로 예고됩니다(비공개로 두면 목록에도 안 보여요). 시각이 되면 자동으로 열리고, 진행자는 [지금 공개]로 앞당길 수 있어요.' },
   { date:'2026-09-13', text:'[세미나] 대본은 끌어서 순서를 바꾸고, 올린 PDF를 [대본에 넣기]로 쪽마다 넣을 수 있어요. 큐에서 W로 그 학생에게만 귓속말. 답이 초당 5개 넘게 쏟아지면 목록이 멈추고 Space로 재개. 사진은 더블클릭하면 새 창에. 보관함 기록은 "학생 답 전부/3개/숨김" 토글과 HTML 내보내기. 같은 사진은 두 번 저장되지 않아요.' },
   { date:'2026-09-13', text:'[세미나] 진행자 콘솔: 같은 답은 ×n으로 묶이고, 여러 타일을 골라 한 번에 공개(J/K·Enter·X·Shift+A). 세미나 방은 답 골라 내리기가 기본으로 켜지고, 대기 답은 이제 서버가 학생에게 숨깁니다. 오른쪽에 대본 큐 — 붙여 넣고 Space로 한 줄씩 발사. 투표는 진행자가 [결과 공개]를 누를 때까지 학생에겐 결과가 숨고, 객관식·단답이 생겼어요.' },
@@ -15053,9 +15060,8 @@ async function renderCommunity(){
     ev.stopPropagation(); const old=$('#chatMenu'); if(old){ old.remove(); return; }
     const mn=document.createElement('div'); mn.id='chatMenu'; mn.className='chat-menu';
     const c=community.channels.find(x=>String(x.id)===String(community.ch));
-    const sc=semCur(), sh=semIs(sc)&&semIsHost(sc);
-    mn.innerHTML=`${(sh&&semNotYet(sc))?`<button data-act="opennow">지금 공개</button>`:''}${sh?`<button data-act="mod">${sc.moderated?'답 골라 내리기 끄기':'답 골라 내리기 켜기'}</button><button data-act="poll">투표 시작</button>${sc.pinned?'<button data-act="unpin">고정 해제</button>':''}${sc.seminar_status!=='ended'?'<button data-act="end">세미나 끝</button>':''}`:''}
-      ${(canManageChannels()&&community.ch!=null)?`<button data-act="set">방 설정 (이름 · 멤버 · 보관)</button>`:''}
+    const sc=semCur();
+    mn.innerHTML=`${(canManageChannels()&&community.ch!=null)?`<button data-act="set">방 설정 (이름 · 멤버 · 보관)</button>`:''}
       ${community.ch!=null?`<button data-act="ws">작업 공간 보기/숨기기</button>`:''}
       <button data-act="who">지금 접속 중</button>
       <button data-act="list">채팅 목록으로</button>`;
@@ -15232,6 +15238,8 @@ async function semMount(_nav){
   if(chat && !$('#semPin')){ const d=document.createElement('div'); d.id='semPin'; chat.insertBefore(d, $('#chatLog')); }
   if(chat && !$('#semPoll')){ const d=document.createElement('div'); d.id='semPoll'; chat.insertBefore(d, $('#chatPreview')); }
   if(chat && host && !$('#semQueue')){ const d=document.createElement('div'); d.id='semQueue'; chat.insertBefore(d, $('#chatPreview')); }
+  if(host && chat && !$('#semTools')){ const d=document.createElement('div'); d.id='semTools'; d.className='sem-tools'; chat.insertBefore(d, $('#semPin')); }
+  semToolsDraw();
   semDrawPin(); semQueueDraw();
   if(!host && c.moderated && chat && !$('#semStuNote')){ const d=document.createElement('div'); d.id='semStuNote'; d.className='sem-stunote'; d.textContent='이 방은 답을 진행자가 골라 올려요. 보낸 답은 먼저 진행자에게 가니 한 번만 보내 주세요. 수식은 $x^2$처럼.'; chat.insertBefore(d, $('#chatPreview')); }
   // 참석
@@ -15246,10 +15254,31 @@ async function semMount(_nav){
   // 실시간: 방 행(고정·모드·끝) · 투표 · 표
   if(_semRt){ try{ sb.removeChannel(_semRt); }catch(e){} }
   _semRt = sb.channel('sem-'+c.id)
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'channels', filter:'id=eq.'+c.id }, p=>{ Object.assign(c, p.new||{}); semDrawPin(); const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':''}`; })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'channels', filter:'id=eq.'+c.id }, p=>{ Object.assign(c, p.new||{}); semDrawPin(); semToolsDraw(); const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':''}`; })
     .on('postgres_changes', { event:'*', schema:'public', table:'seminar_polls', filter:'channel_id=eq.'+c.id }, async()=>{ await semPollLoad(); semPollDraw(); })
     .on('postgres_changes', { event:'*', schema:'public', table:'seminar_votes' }, async p=>{ if(_semPoll && String((p.new||p.old||{}).poll_id)===String(_semPoll.id)){ await semPollLoad(); semPollDraw(); } })
     .subscribe();
+}
+/* ★세션 CD: ⋯ 메뉴를 해체 — 진행자 도구를 머리 아래 띠에 전부 꺼내 둔다 */
+function semToolsDraw(){
+  const box=$('#semTools'); const c=semCur(); if(!box||!c) return;
+  const ended=c.seminar_status==='ended';
+  box.innerHTML=`
+    <button class="sem-tb${c.moderated?' on':''}" data-a="mod" title="켜면 부원의 답이 먼저 진행자에게 오고, 골라서 공개합니다">${c.moderated?'답 골라 내리기: 켬':'답 골라 내리기: 끔'}</button>
+    <button class="sem-tb" data-a="poll">📊 투표 시작</button>
+    ${c.pinned?'<button class="sem-tb" data-a="unpin">📌 고정 해제</button>':'<span class="sem-tb dim" title="메시지의 📌나 슬라이드 올리기로 고정합니다">📌 고정 없음</span>'}
+    ${semNotYet(c)?'<button class="sem-tb" data-a="opennow">지금 공개</button>':''}
+    <button class="sem-tb" data-a="ws">작업 공간 · 접속 중</button>
+    ${(canManageChannels()&&c.id!=null)?'<button class="sem-tb" data-a="set">방 설정</button>':''}
+    ${ended?'<span class="sem-tb dim">끝남 · 하루 뒤 보관함</span>':'<button class="sem-tb danger" data-a="end">세미나 끝</button>'}`;
+  box.querySelectorAll('[data-a]').forEach(b=>{ b.onclick=()=>{ const a=b.dataset.a;
+    if(a==='mod') sb.from('channels').update({ moderated:!c.moderated }).eq('id', c.id).then(r=>{ if(r.error) toast('바꾸지 못했어요: '+r.error.message); else { c.moderated=!c.moderated; semToolsDraw(); toast(c.moderated?'이제 답은 진행자가 골라 내려요.':'답이 바로 올라와요.'); } });
+    else if(a==='poll') semStartPoll();
+    else if(a==='unpin') semSetPinned(null).then(semToolsDraw);
+    else if(a==='opennow') sb.from('channels').update({ opens_at:new Date().toISOString() }).eq('id', c.id).then(r=>{ if(r.error) toast('공개하지 못했어요: '+r.error.message); else { c.opens_at=new Date().toISOString(); toast('공개했어요.'); semToolsDraw(); } });
+    else if(a==='ws') document.querySelector('.hub.room-view').classList.toggle('show-side');
+    else if(a==='set') openChannelSettings(c.id);
+    else if(a==='end') semEnd().then(semToolsDraw); }; });
 }
 function semDrawPin(){
   const c=semCur(); const box=$('#semPin'); if(!box) return;
@@ -15263,7 +15292,7 @@ async function semSetPinned(pinned){
   const c=semCur(); if(!c) return;
   const { error } = await sb.from('channels').update({ pinned }).eq('id', c.id);
   if(error){ toast('고정하지 못했어요: '+(error.message||'')); return; }
-  c.pinned=pinned; semDrawPin();
+  c.pinned=pinned; semDrawPin(); semToolsDraw();
 }
 /* 슬라이드: PDF → pdf.js로 쪽마다 그림 → 압축 → seminar 버킷 */
 async function semSlidesLoad(){
@@ -15280,16 +15309,17 @@ function semSlidesDraw(){
     ${Object.keys(files).length?Object.entries(files).map(([fid,f])=>{ const tot=f.slides.reduce((a,s)=>a+(s.bytes||0),0); return `<div class="sem-file"><b>PDF</b> ${escapeHtml(f.name)} <span>${f.slides.length}/${f.pages}쪽${tot?` · ${Math.round(tot/1024)}KB`:''}</span></div>
       <div class="sem-thumbs">${f.slides.map(s=>`<button type="button" class="sem-th${_semSel===s.id?' on':''}" data-sid="${s.id}" data-page="${s.page}" data-total="${f.pages}" data-path="${escapeAttr(s.path)}" title="더블클릭 또는 Enter로 올리기"><img src="${escapeAttr(semSlideUrl(s.path))}" alt="" loading="lazy"><span class="k">${s.page}${s.bytes?`<small>${Math.round(s.bytes/1024)}KB</small>`:''}</span>${posted.has(String(s.id))?'<span class="st">올림</span>':''}</button>`).join('')}</div>`; }).join('')
       :'<p class="sem-empty">아직 올린 파일이 없어요.</p>'}
-    <div class="sem-spf"><label class="btn" style="width:auto;padding:6px 12px;cursor:pointer">PDF 올리기<input type="file" accept="application/pdf" id="semPdf" style="display:none"></label>${_semSlides.length?`<button class="btn" id="semToScript" style="width:auto;padding:6px 10px" title="모든 쪽을 대본 큐에 순서대로 넣습니다">대본에 넣기</button>`:''}<span class="sem-pg" id="semPg">${_semSel?'':'쪽을 고르고 Enter'}</span><button class="btn primary sem-post" id="semPost" style="width:auto;padding:6px 14px"${_semSel?'':' disabled'}>방에 올리기</button></div>
+    <div class="sem-spf"><label class="btn" style="width:auto;padding:6px 12px;cursor:pointer">PDF 올리기<input type="file" accept="application/pdf" id="semPdf" style="display:none"></label>${_semSlides.length?`<button class="btn" id="semToScriptOne" style="width:auto;padding:6px 10px" title="고른 쪽 하나를 대본 큐 끝에 넣습니다"${_semSel?'':' disabled'}>이 쪽 대본에</button><button class="btn" id="semToScript" style="width:auto;padding:6px 10px" title="모든 쪽을 대본 큐에 순서대로 넣습니다">전부 대본에</button>`:''}<span class="sem-pg" id="semPg">${_semSel?'':'쪽을 고르고 Enter'}</span><button class="btn primary sem-post" id="semPost" style="width:auto;padding:6px 14px"${_semSel?'':' disabled'}>방에 올리기</button></div>
     <div class="sem-hint">파워포인트·한글은 <b>PDF로 저장</b>해서 올려 주세요(브라우저는 PDF만 읽어요). 쪽마다 그림으로 바뀌고 자동으로 줄어요.</div>
     <div class="msg" id="semMsg"></div>`;
   box.querySelectorAll('.sem-th').forEach(b=>{
-    b.onclick=()=>{ _semSel=Number(b.dataset.sid); box.querySelectorAll('.sem-th').forEach(x=>x.classList.toggle('on', x===b)); $('#semPost').disabled=false; $('#semPg').textContent=`${b.dataset.page} / ${b.dataset.total}`; b.focus(); };
+    b.onclick=()=>{ _semSel=Number(b.dataset.sid); box.querySelectorAll('.sem-th').forEach(x=>x.classList.toggle('on', x===b)); $('#semPost').disabled=false; const t1=$('#semToScriptOne'); if(t1) t1.disabled=false; $('#semPg').textContent=`${b.dataset.page} / ${b.dataset.total}`; b.focus(); };
     b.ondblclick=()=>{ b.click(); semPostSlide(); };
     b.onkeydown=(e)=>{ if(e.key==='Enter'){ e.preventDefault(); b.click(); semPostSlide(); } if(e.key==='ArrowRight'||e.key==='ArrowDown'){ e.preventDefault(); const n=b.nextElementSibling; if(n) n.click(); } if(e.key==='ArrowLeft'||e.key==='ArrowUp'){ e.preventDefault(); const p=b.previousElementSibling; if(p) p.click(); } };
   });
   $('#semPost').onclick=semPostSlide;
   $('#semPdf').onchange=(e)=>{ const f=e.target.files&&e.target.files[0]; if(f) semUploadPdf(f); };
+  const t1=$('#semToScriptOne'); if(t1) t1.onclick=async()=>{ const b=document.querySelector(`.sem-th[data-sid="${_semSel}"]`); if(!b) return; const { error } = await sb.from('seminar_script').insert({ channel_id:c.id, ord:_semScript.length+1, kind:'slide', payload:{ page:Number(b.dataset.page) } }); if(error){ toast('대본에 넣지 못했어요: '+(error.message||'')); return; } await semScriptLoad(); semScriptDraw(); toast(`슬라이드 ${b.dataset.page}쪽을 대본 큐에 넣었어요.`); };
   const ts=$('#semToScript'); if(ts) ts.onclick=async()=>{ let ord=_semScript.length; const rows=_semSlides.map(s=>({ channel_id:c.id, ord:++ord, kind:'slide', payload:{ page:s.page } })); const { error } = await sb.from('seminar_script').insert(rows); if(error){ toast('대본에 넣지 못했어요: '+(error.message||'')); return; } await semScriptLoad(); semScriptDraw(); toast(`슬라이드 ${rows.length}쪽을 대본 큐에 넣었어요.`); };
 }
 async function semPostSlide(){
@@ -15400,7 +15430,7 @@ function semScriptDraw(){
   const next=_semScript.find(x=>!x.fired_at);
   box.innerHTML=`<div class="sem-sph">📜 대본 큐 <small>${_semScript.length?`${_semScript.filter(x=>x.fired_at).length} / ${_semScript.length} · Space = 다음 발사`:'Space = 다음 발사'}</small></div>
     ${!_semScriptOk?'<p class="sem-empty">대본 큐는 110_seminar_console.sql이 필요해요.</p>':''}
-    <div class="sem-scl">${_semScript.map(it=>`<div class="sem-sc${it.fired_at?' done':''}${it===next?' next':''} k-${it.kind}" data-id="${it.id}" draggable="${it.fired_at?'false':'true'}" title="끌어서 순서 바꾸기">${it.kind==='pause'?'⏸ 여기서 답 기다리기':it.kind==='slide'?`🎞 슬라이드 ${(it.payload||{}).page||''}`:escapeHtml(it.body||'')}<button class="sem-scx" data-del="${it.id}" title="지우기">×</button></div>`).join('')||'<p class="sem-empty">아직 대본이 없어요. 아래에 붙여 넣으세요.</p>'}</div>
+    <div class="sem-scl">${_semScript.map(it=>`<div class="sem-sc${it.fired_at?' done':''}${it===next?' next':''} k-${it.kind}" data-id="${it.id}" draggable="${it.fired_at?'false':'true'}" title="끌어서 순서 바꾸기">${it.kind==='pause'?'⏸ 여기서 답 기다리기':it.kind==='slide'?`🎞 슬라이드 ${(it.payload||{}).page||''}`:escapeHtml(it.body||'')}<span class="sem-scmv">${it.fired_at?'':`<button data-mv="up" data-id="${it.id}" title="위로">▲</button><button data-mv="down" data-id="${it.id}" title="아래로">▼</button>`}<button class="sem-scx" data-del="${it.id}" title="지우기">×</button></span></div>`).join('')||'<p class="sem-empty">아직 대본이 없어요. 아래에 붙여 넣으세요.</p>'}</div>
     <details class="sem-scadd"><summary>+ 대본 넣기</summary><textarea id="semScriptIn" rows="6" placeholder="빈 줄로 구분해 붙여 넣으세요.&#10;'---' 한 줄 = 멈춤(답 기다리기)&#10;'[슬라이드 3]' = 3쪽 올리기"></textarea>
       <div class="sem-scacts"><button class="btn primary" id="semScriptAdd" style="width:auto;padding:6px 12px">넣기</button><button class="btn" id="semScriptTpl" style="width:auto;padding:6px 10px">시작 템플릿</button></div></details>`;
   const add=$('#semScriptAdd'); if(add) add.onclick=async()=>{
@@ -15411,6 +15441,7 @@ function semScriptDraw(){
   };
   const tpl=$('#semScriptTpl'); if(tpl) tpl.onclick=()=>{ const ta=$('#semScriptIn'); ta.value=`안녕하세요, ${c.name} 교실입니다. 곧 시작합니다.\n\n이 방은 답을 진행자가 골라 올립니다. 여러분이 쓴 답은 먼저 진행자에게 가요. 같은 답을 반복해 보내지 말고 한 번만 보내 주세요.\n\n수식은 달러 기호로 감싸면 됩니다: $x^2+1$. 몰라도 전혀 상관없어요.\n\n전체 기록은 내일 세미나 보관함에 올라갑니다. 필기하지 않으셔도 돼요.\n\n---\n\n자, 시작해 볼까요?`; ta.focus(); };
   box.querySelectorAll('[data-del]').forEach(b=>{ b.onclick=async()=>{ await sb.from('seminar_script').delete().eq('id', Number(b.dataset.del)); await semScriptLoad(); semScriptDraw(); }; });
+  box.querySelectorAll('[data-mv]').forEach(b=>{ b.onclick=async(e)=>{ e.stopPropagation(); const id=Number(b.dataset.id); const ids=_semScript.map(x=>x.id); const i=ids.indexOf(id); const j=b.dataset.mv==='up'?i-1:i+1; if(j<0||j>=ids.length) return; if(_semScript[j].fired_at) return; [ids[i],ids[j]]=[ids[j],ids[i]]; for(let k=0;k<ids.length;k++){ const it=_semScript.find(x=>x.id===ids[k]); if(it && it.ord!==k+1) await sb.from('seminar_script').update({ ord:k+1 }).eq('id', ids[k]); } await semScriptLoad(); semScriptDraw(); }; });
   /* 드래그로 순서 — 발사 안 한 항목끼리 */
   let dragId=null; const list=box.querySelector('.sem-scl');
   box.querySelectorAll('.sem-sc[draggable="true"]').forEach(el=>{
