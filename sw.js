@@ -3,8 +3,8 @@
       Supabase API·CAPTCHA는 절대 캐시하지 않는다. 문서(index.html)는 네트워크 먼저, 실패하면 캐시.
    2) 새 역할: 푸시 알림 표시 + 알림 탭 → 앱을 KYPT 탭으로 연다.
    ★캐시 이름을 올렸다(anda-v1 → anda-v2): 이 파일이 설치되면 예전 캐시는 activate에서 지워진다. */
-const CACHE = 'anda-v3';   // 세션 BS: 배지·목적지 수정 — 이름을 올려야 폰이 새 워커를 받는다
-const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './manifest.webmanifest'];
+const CACHE = 'anda-v4';   // 세션 CI: manifest 파일명 변경(anda-archive.webmanifest)   // 세션 BS: 배지·목적지 수정 — 이름을 올려야 폰이 새 워커를 받는다
+const SHELL = ['./', './index.html', './icon-192.png', './icon-512.png', './anda-archive.webmanifest'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
