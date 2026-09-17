@@ -1641,6 +1641,18 @@ textarea.inl-ta{width:100%;min-height:34px;max-height:160px;resize:none;overflow
 footer.site{max-width:1180px;margin:14px auto 30px;padding:0 14px;color:var(--text-dim);font-size:12px;text-align:center;}
 
 /* ===== 로그인 화면 ===== */
+/* ===== 법적 고지 · 가입 동의 (116 · 세션 CM) ===== */
+.legal-links{margin-top:12px;font-size:12px;color:var(--text-dim);text-align:center;}
+.legal-links a{color:var(--text-dim);text-decoration:underline;cursor:pointer;}
+.su-consent{margin-top:10px;display:flex;flex-direction:column;gap:3px;font-size:12.5px;line-height:1.35;}
+@media(max-height:760px) and (min-width:521px){ .su-consent{margin-top:6px;gap:1px;font-size:12px;} #signupCard #su-captcha{margin-top:8px !important;} }
+.login-card .su-consent label{display:flex !important;gap:8px;align-items:flex-start;margin:0 !important;padding:0;font-weight:400;cursor:pointer;}
+.login-card .su-consent input[type=checkbox]{width:16px !important;height:16px !important;min-height:0;margin:2px 0 0 !important;padding:0;flex:none;}
+.su-consent a{text-decoration:underline;}
+.su-consent-all{font-weight:600 !important;}
+/* 비공개 저장소: 서명 주소로 바뀌기 전 공개 주소는 그리지 않는다(깨진 그림 깜빡임 방지). 서명 실패 시엔 원래대로. */
+img[src*="/storage/v1/object/public/"]:not([data-sg-fail]){visibility:hidden;}
+[style*="/storage/v1/object/public/"]:not([data-sg-fail]){background-image:none !important;}
 #login{position:fixed;inset:0;background-color:var(--bg);
   background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
                    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
@@ -1878,8 +1890,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
    카드를 크게 늘어놓으면 39개가 39개의 덩어리로 보인다. 한 줄짜리 항목으로 낮추고
    분류로 묶어야 '훑어서 찾기'가 된다. 부가 정보(조회·좋아요·수정자)는 문서 화면에 있으니
    목록에서는 뺀다 — 목록의 일은 '찾게 해주는 것' 하나다. */
-.docs-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 6px;}
-.docs-q{flex:1;min-width:190px;border:1px solid var(--border);background:var(--card);
+.docs-tools{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:0 0 14px;}
+.docs-q{flex:1;min-width:190px;max-width:420px;border:1px solid var(--border);background:var(--card);
   border-radius:var(--r-2);padding:9px 13px;font-size:14px;color:var(--text);}
 .docs-q:focus{outline:none;border-color:var(--accent);}
 .docs-sel{border:1px solid var(--border);background:var(--card);border-radius:var(--r-2);
@@ -1887,8 +1899,8 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .docs-chip{background:var(--box-bg);border:1px solid var(--border);color:var(--text-dim);
   font-size:12px;font-weight:700;padding:8px 13px;border-radius:var(--r-2);cursor:pointer;}
 .docs-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
-.dgrp{border-top:1px solid var(--border);}
-.dgrp:first-of-type{border-top:0;}
+/* ★세션 CL: 문서 목록을 다른 탭과 같은 결로 — 구역은 선 없이 작은 머리글, 카드는 한 겹 얇게 */
+.dgrp{border-top:0;}
 .dgrp-h{display:flex;align-items:center;gap:8px;width:100%;background:none;border:0;
   padding:15px 2px 9px;cursor:pointer;color:var(--text);font:inherit;text-align:left;}
 .dgrp-n{font-size:14px;font-weight:800;letter-spacing:-.2px;}
@@ -1896,34 +1908,36 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
 .dgrp-cv{font-size:10px;color:var(--text-dim);transition:transform var(--dur-2) var(--ease);}
 .dgrp.closed .dgrp-cv{transform:rotate(-90deg);}
 .dgrp.closed .dgrp-b{display:none;}
-.dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:8px 12px;padding:4px 0 16px;}
+.dgrp-b{display:grid;grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:6px;padding:2px 0 14px;}
 /* ★세션 R — 목록 가독성.
    4열로 넓게 흩어놓으니 눈이 갈지자로 훑어야 했다. 열을 줄여 시선이 아래로만 흐르게 하고,
    분류 제목을 본문보다 확실히 위로 올려 덩어리가 먼저 보이게 한다. */
-.dgrp-b{ grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); max-width:940px; }
-.dgrp-h{ padding-top:20px; padding-bottom:6px; }
+.dgrp-b{ grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); max-width:none; }
+.dgrp-h{ padding-top:14px; padding-bottom:6px; }
 .dgrp-n{ font-size:12px; letter-spacing:.06em; color:var(--text-dim); }
 .dgrp.closed .dgrp-n, .dgrp-h:hover .dgrp-n{ color:var(--text); }
 .dgrp-c{ background:var(--box-bg); border-radius:var(--r-round); padding:1px 8px; }
-.dl2{display:flex;align-items:center;gap:12px;padding:11px 12px 11px 12px;border-radius:12px;border:1px solid var(--border);background:var(--card);
-  color:var(--text);text-decoration:none;position:relative;min-height:56px;
-  transition:transform .16s cubic-bezier(.22,.61,.36,1), box-shadow .16s, border-color .16s, background .16s;}
-.dl2:hover{background:var(--card);text-decoration:none;border-color:color-mix(in srgb, var(--accent) 45%, var(--border));
-  box-shadow:0 8px 22px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);transform:translateY(-2px);}
-.dl2:active{transform:translateY(0);box-shadow:0 2px 8px rgba(0,0,0,.08);}
-.dl2 .strata-b{height:28px;width:4px;border-radius:2px;}
-.dl2-main{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1;}
-.dl2-t{font-size:15px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;letter-spacing:-.01em;}
+.dgrp-b{ border-radius:12px; }
+.dl2-dot{ background:transparent; color:var(--warn); padding:0; font-size:10.5px; }
+.dl2-dot::before{ content:'· '; }
+.dl2{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:10px;border:1px solid transparent;background:var(--card);
+  color:var(--text);text-decoration:none;position:relative;min-height:48px;
+  transition:border-color .14s, background .14s;}
+.dl2:hover{background:var(--box-bg);text-decoration:none;border-color:var(--border);}
+.dl2:active{background:color-mix(in srgb, var(--accent) 6%, var(--box-bg));}
+.dl2 .strata-b{height:24px;width:3px;border-radius:2px;}
+.dl2-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
+.dl2-t{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;letter-spacing:-.01em;}
 .dl2:hover .dl2-t{color:var(--accent);}
-.dl2-k{font-size:11px;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;display:flex;align-items:center;gap:8px;opacity:.85;}
+.dl2-k{font-size:10.5px;color:var(--text-dim);font-family:var(--mono);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;display:flex;align-items:center;gap:6px;opacity:.7;}
 .dl2-dot{font-family:inherit;font-size:10px;font-weight:700;padding:1px 6px;border-radius:var(--r-round);background:color-mix(in srgb, var(--warn) 18%, transparent);color:var(--warn);flex:none;}
 .dl2.hid{opacity:.6;}
 .dl2.hid .dl2-t::after{content:' 👁';font-size:11px;}
 .dl2-e{opacity:0;border:0;background:none;color:var(--text-dim);cursor:pointer;padding:4px;line-height:0;flex:none;border-radius:6px;transition:opacity .12s;}
 .dl2:hover .dl2-e{opacity:1;}
 .dl2-e:hover{color:var(--accent);background:var(--box-bg);}
-.dl2-go{flex:none;color:var(--text-dim);font-size:15px;opacity:.35;transform:translateX(-4px);transition:transform .16s cubic-bezier(.22,.61,.36,1), opacity .16s, color .16s;}
-.dl2:hover .dl2-go{opacity:1;transform:translateX(0);color:var(--accent);}
+.dl2-go{flex:none;color:var(--text-dim);font-size:14px;opacity:0;transform:translateX(-4px);transition:transform .16s cubic-bezier(.22,.61,.36,1), opacity .16s, color .16s;}
+.dl2:hover .dl2-go{opacity:.8;transform:translateX(0);color:var(--accent);}
 body.fx-flat .dl2, body.fx-flat .dl2-go{transition:none;}
 @media (hover:none){ .dl2-e{opacity:1;} .dl2-go{opacity:.6;transform:none;} }
 @media(max-width:640px){ .dgrp-b{grid-template-columns:1fr;} .dl2-e{opacity:1;} }
@@ -3171,7 +3185,7 @@ body.fx-flat .story-pane{transition:none;}
 @media (max-width:640px){ .kr-row{ display:flex; flex-wrap:wrap; } .kr-title{ flex:1 1 100%; order:-1; } .kr-dots{ margin-left:auto; } }
 /* ★세션 BI: 탭 표시선이 미끄러지고, 내용은 방향에 맞춰 살짝 들어온다(←→ 키로 옮길 때의 피드백) */
 .kp-tabs{ position:relative; }
-#kv2Tabs .kp-tab.on{ border-bottom-color:transparent; }
+#kv2Tabs .kp-tab.on, #labTabs .kp-tab.on{ border-bottom-color:transparent; }
 .kp-tabind{ position:absolute; left:0; bottom:-1px; height:2px; width:0; background:var(--accent); border-radius:1px;
   transition:left .22s cubic-bezier(.22,.61,.36,1), width .22s cubic-bezier(.22,.61,.36,1); pointer-events:none; }
 .kp-tabind.noanim{ transition:none; }
@@ -3672,6 +3686,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
       <a id="go-signup">회원 가입 →</a>
     </div>
     <div class="msg" id="li-msg"></div>
+    <div class="legal-links"><a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a> · <a href="terms.html" target="_blank" rel="noopener">이용약관</a></div>
   </div>
 
   <!-- 비밀번호 재설정: 6자리 PIN -->
@@ -3698,8 +3713,22 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
     <div class="login-row"><a id="pin-back">← 로그인으로 돌아가기</a></div>
   </div>
 
+  <!-- 가입 이메일 인증 (세션 CN) — 코드 입력 또는 메일 속 링크 -->
+  <div class="login-card" id="verifyCard" style="display:none">
+    <h1>이메일 인증</h1>
+    <div class="sub"><b id="vf-email"></b> 로 인증 메일을 보냈어요.<br>메일 속 <b>6자리 인증번호</b>를 입력하거나, 메일의 <b>링크</b>를 눌러 주세요.</div>
+    <label>인증번호 (6자리)</label>
+    <input id="vf-code" type="text" inputmode="numeric" maxlength="10" placeholder="000000" autocomplete="one-time-code" class="pin-input">
+    <button class="btn primary" id="vf-verify">인증하고 시작하기</button>
+    <div id="vf-captcha" style="margin-top:14px"></div>
+    <button class="btn ghost" id="vf-resend" style="margin-top:8px">인증 메일 다시 보내기</button>
+    <div class="pin-note">메일이 안 보이면 <b>스팸함</b>을 확인해 주세요. 인증을 마치기 전에는 로그인할 수 없어요.</div>
+    <div class="msg" id="vf-msg"></div>
+    <div class="login-row"><a id="vf-back">← 로그인으로 돌아가기</a></div>
+  </div>
+
   <div class="login-card" id="signupCard" style="display:none">
-    <div class="sub" id="su-sub">가입 버튼을 누르면 <b>바로 계정이 만들어지고 로그인</b>됩니다. (초기 등급: viewer)</div>
+    <div class="sub" id="su-sub">가입하기를 누르면 입력한 <b>이메일로 인증번호</b>가 갑니다. 인증을 마치면 바로 들어갈 수 있어요. (초기 등급: viewer)</div>
     <div id="su-codewrap">
       <label>초대 코드 <span style="color:var(--text-dim);font-weight:400">(동아리에서 받은 코드)</span></label>
       <input id="su-code" type="text" maxlength="40" placeholder="동아리에서 받은 코드" autocomplete="off" spellcheck="false">
@@ -3739,6 +3768,12 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
         <label>계열 <span class="su-hint">(나중에 바꿀 수 있어요)</span></label>
         <span class="usel block"><select id="su-track"><option value="">선택 안 함</option></select></span>
       </div>
+    </div>
+    <div class="su-consent" id="su-consent">
+      <label class="su-consent-all"><input type="checkbox" id="su-agree-all"> <span>아래 내용에 모두 동의합니다</span></label>
+      <label><input type="checkbox" class="su-agree" id="su-agree-terms"> <span>[필수] <a href="terms.html" target="_blank" rel="noopener">이용약관</a>에 동의합니다</span></label>
+      <label><input type="checkbox" class="su-agree" id="su-agree-privacy"> <span>[필수] <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>의 수집 항목·목적·보유 기간·국외 이전(Supabase·Cloudflare 등)을 확인했습니다</span></label>
+      <label><input type="checkbox" class="su-agree" id="su-agree-age"> <span>[필수] 만 14세 이상입니다</span></label>
     </div>
     <div id="su-captcha" style="margin-top:14px"></div>
     <button class="btn primary" id="su-btn">가입하기</button>
@@ -3868,6 +3903,126 @@ const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 let ACCESS_TOKEN = null;
 sb.auth.onAuthStateChange((_e, session)=>{ ACCESS_TOKEN = (session && session.access_token) || null; });
 
+/* ===== 법적 고지 (116 · 세션 CM) =====
+   약관·처리방침은 index.html 옆의 terms.html / privacy.html (로그인 없이 공개 — 개인정보 보호법 제30조 제2항). */
+const LEGAL_VERSION = '2026-09-16';
+function signupConsentOk(){
+  const ids=['su-agree-terms','su-agree-privacy','su-agree-age'];
+  return ids.every(id=>{ const el=document.getElementById(id); return !!(el && el.checked); });
+}
+function bindSignupConsent(){
+  const all=document.getElementById('su-agree-all'); if(!all) return;
+  const items=[...document.querySelectorAll('.su-agree')];
+  all.onchange=()=>{ items.forEach(i=>{ i.checked=all.checked; }); };
+  items.forEach(i=>{ i.onchange=()=>{ all.checked = items.every(x=>x.checked); }; });
+}
+/* Edge Function 호출 (사용자 JWT). 404면 미배포 — 부르는 쪽이 폴백한다. */
+async function callEdge(name, body){
+  const { data:{ session } } = await sb.auth.getSession();
+  const r = await fetch(`${SUPABASE_URL}/functions/v1/${name}`, {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', 'Authorization':'Bearer '+((session&&session.access_token)||''), 'apikey':SUPABASE_KEY },
+    body:JSON.stringify(body||{})
+  });
+  let data=null;
+  try{ data=await r.json(); }catch(e){ /* 본문 없는 응답 — 상태 코드만 쓴다 */ }
+  return { status:r.status, ok:r.ok, data };
+}
+
+/* ===== 비공개 저장소 서명 주소 (116 · 세션 CM) =====
+   116이 모든 버킷을 비공개로 바꾼다 → DB에 저장된 예전 '공개 주소'는 더 이상 열리지 않는다.
+   화면에 공개 주소(src·href·style)가 나타나면 로그인한 회원의 권한으로 1시간짜리 서명 주소로 바꿔 끼운다.
+   ★서명 실패(116 미적용 등)면 원래 주소를 그대로 둔다 — 우아한 실패(규칙 13). */
+const STORAGE_PUB_MARK = '/storage/v1/object/public/';
+const SIGN_TTL_SEC = 3600;
+const _signCache = new Map();
+const _signQueue = new Map();
+let _signTimer = null;
+function storagePubParse(u){
+  if(!u || typeof u!=='string') return null;
+  const i=u.indexOf(STORAGE_PUB_MARK); if(i<0) return null;
+  if(u.slice(0,i)!==SUPABASE_URL) return null;
+  let rest=u.slice(i+STORAGE_PUB_MARK.length);
+  let q=''; const qi=rest.search(/[?#]/); if(qi>=0){ q=rest.slice(qi); rest=rest.slice(0,qi); }
+  const bi=rest.indexOf('/'); if(bi<=0) return null;
+  let path=rest.slice(bi+1);
+  try{ path=decodeURIComponent(path); }catch(e){ /* 인코딩이 깨진 주소 — 받은 그대로 쓴다 */ }
+  return { bucket:rest.slice(0,bi), path, q };
+}
+function signedStorageUrl(u){
+  const p=storagePubParse(u); if(!p) return Promise.resolve(u);
+  const key=p.bucket+'/'+p.path+'|'+p.q;
+  const hit=_signCache.get(key);
+  if(hit && hit.exp>Date.now()) return Promise.resolve(hit.url);
+  if(!state || !state.user) return Promise.resolve(u);
+  return new Promise(res=>{
+    if(!_signQueue.has(p.bucket)) _signQueue.set(p.bucket, new Map());
+    const m=_signQueue.get(p.bucket);
+    if(!m.has(p.path)) m.set(p.path, []);
+    m.get(p.path).push({ key, q:p.q, orig:u, res });
+    if(!_signTimer) _signTimer=setTimeout(flushSignQueue, 30);
+  });
+}
+async function flushSignQueue(){
+  _signTimer=null;
+  const jobs=[..._signQueue.entries()]; _signQueue.clear();
+  for(const [bucket, m] of jobs){
+    const paths=[...m.keys()];
+    let out=[];
+    try{
+      const { data, error } = await sb.storage.from(bucket).createSignedUrls(paths, SIGN_TTL_SEC);
+      if(error) throw error;
+      out=data||[];
+    }catch(e){ out=[]; }
+    const byPath={}; out.forEach(o=>{ if(o && o.path && o.signedUrl && !o.error) byPath[o.path]=o.signedUrl; });
+    paths.forEach(path=>{
+      const signed=byPath[path];
+      (m.get(path)||[]).forEach(w=>{
+        if(!signed){ w.res(w.orig); return; }
+        const v = w.q && w.q[0]==='?' ? '&'+w.q.slice(1) : '';
+        const url = signed + v;
+        _signCache.set(w.key, { url, exp: Date.now() + (SIGN_TTL_SEC-300)*1000 });
+        w.res(url);
+      });
+    });
+  }
+}
+function storageFixEl(el){
+  if(!el || el.nodeType!==1) return;
+  ['src','href'].forEach(a=>{
+    const v=el.getAttribute(a);
+    if(!v || v.indexOf(STORAGE_PUB_MARK)<0) return;
+    signedStorageUrl(v).then(nu=>{
+      if(el.getAttribute(a)!==v) return;
+      if(nu===v){ el.setAttribute('data-sg-fail','1'); return; }
+      el.setAttribute(a, nu);
+    });
+  });
+  const st=el.getAttribute('style');
+  if(st && st.indexOf(STORAGE_PUB_MARK)>=0){
+    const urls=[]; st.replace(/url\((['"]?)([^'")]+)\1\)/g, (_m,_q,u)=>{ if(u.indexOf(STORAGE_PUB_MARK)>=0) urls.push(u); return _m; });
+    Promise.all(urls.map(u=>signedStorageUrl(u))).then(list=>{
+      if(el.getAttribute('style')!==st) return;
+      let ns=st, changed=false;
+      urls.forEach((u,i)=>{ if(list[i]!==u){ ns=ns.split(u).join(list[i]); changed=true; } });
+      if(changed) el.setAttribute('style', ns); else el.setAttribute('data-sg-fail','1');
+    });
+  }
+}
+function storageFixTree(node){
+  if(!node || node.nodeType!==1) return;
+  storageFixEl(node);
+  node.querySelectorAll('[src*="/object/public/"],[href*="/object/public/"],[style*="/object/public/"]').forEach(storageFixEl);
+}
+const _storageObs = new MutationObserver(muts=>{
+  if(!state || !state.user) return;
+  muts.forEach(mu=>{
+    if(mu.type==='attributes') storageFixEl(mu.target);
+    else mu.addedNodes.forEach(storageFixTree);
+  });
+});
+_storageObs.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','href','style'] });
+
 /* ===== Cloudflare Turnstile (CAPTCHA) ===== */
 const TS_SITEKEY = '0x4AAAAAADxloShb4WCYFvpB';
 let liWidget=null, suWidget=null, pinWidget=null, liToken='', suToken='', pinToken='';
@@ -3968,9 +4123,100 @@ async function doLogin(){
   const { error } = await sb.auth.signInWithPassword({ email, password:pw, options:{ captchaToken: liToken } });
   $('#li-btn').disabled=false; $('#li-btn').textContent='로그인';
   resetLoginCaptcha();
-  if(error){ msg.className='msg err'; msg.textContent='로그인 실패: '+error.message; return; }
+  if(error){
+    if(/not confirmed|email_not_confirmed/i.test(String(error.message||'')+' '+String(error.code||''))){
+      msg.className='msg'; msg.textContent='';
+      openVerifyCard(email, true);          // 인증을 안 마친 계정 — 인증 카드에서 이어서
+      return;
+    }
+    msg.className='msg err'; msg.textContent='로그인 실패: '+error.message; return;
+  }
   await onLoggedIn();
 }
+/* ================== 가입 이메일 인증 (세션 CN) ==================
+   ★Supabase 대시보드: Authentication → Providers(Sign In / Providers) → Email → "Confirm email" 켜기.
+     Email Templates → "Confirm signup" 본문에 {{ .Token }} (인증번호)와 {{ .ConfirmationURL }} (링크)를 함께 넣는다.
+     커스텀 SMTP가 없으면 기본 메일은 팀원에게만 가므로 가입이 사실상 막힌다(세션 AG).
+   서버 설정이 꺼져 있으면 signUp이 세션을 돌려주므로 예전처럼 바로 들어간다(우아한 실패). */
+const VF_RESEND_COOLDOWN_SEC = 60;
+const vfFlow = { email:'', cooldownUntil:0, timer:null };
+let vfWidget = null;
+let vfToken = '';
+function authRedirectUrl(){ return location.origin + location.pathname; }
+function vfMsg(t, kind){ const m=$('#vf-msg'); if(!m) return; m.className='msg'+(kind?' '+kind:''); m.textContent=t||''; }
+function renderVerifyCaptcha(){
+  if(!window.turnstile || vfWidget!==null) return;
+  if(!document.getElementById('vf-captcha')) return;
+  vfWidget=turnstile.render('#vf-captcha',{sitekey:TS_SITEKEY,callback:t=>{vfToken=t;},'expired-callback':()=>{vfToken='';},'error-callback':()=>{vfToken='';}});
+}
+function resetVerifyCaptcha(){ if(window.turnstile && vfWidget!==null) turnstile.reset(vfWidget); vfToken=''; }
+function vfTickResend(){
+  const b=$('#vf-resend'); if(!b) return;
+  const left=Math.ceil((vfFlow.cooldownUntil-Date.now())/1000);
+  if(left>0){ b.disabled=true; b.textContent=`인증 메일 다시 보내기 (${left}초)`; }
+  else{ b.disabled=false; b.textContent='인증 메일 다시 보내기'; if(vfFlow.timer){ clearInterval(vfFlow.timer); vfFlow.timer=null; } }
+}
+function vfStartCooldown(){
+  vfFlow.cooldownUntil=Date.now()+VF_RESEND_COOLDOWN_SEC*1000;
+  if(vfFlow.timer) clearInterval(vfFlow.timer);
+  vfFlow.timer=setInterval(vfTickResend, 1000); vfTickResend();
+}
+function openVerifyCard(email, fromLogin){
+  vfFlow.email=String(email||'').trim().toLowerCase();
+  ['loginCard','signupCard','pinCard'].forEach(id=>{ const el=document.getElementById(id); if(el) el.style.display='none'; });
+  $('#verifyCard').style.display='block';
+  $('#vf-email').textContent=vfFlow.email;
+  $('#vf-code').value='';
+  renderVerifyCaptcha();
+  if(fromLogin){ vfMsg('아직 이메일 인증을 마치지 않은 계정이에요. 받은 인증번호를 입력하거나, 메일이 없으면 다시 보내 주세요.'); vfTickResend(); }
+  else{ vfMsg('인증 메일을 보냈어요. 몇 분 안에 도착합니다.', 'ok'); vfStartCooldown(); }
+  $('#vf-code').focus();
+}
+function closeVerifyCard(){
+  if(vfFlow.timer){ clearInterval(vfFlow.timer); vfFlow.timer=null; }
+  resetVerifyCaptcha();
+  $('#verifyCard').style.display='none';
+  $('#loginCard').style.display='block';
+  if(vfFlow.email && $('#li-email')) $('#li-email').value=vfFlow.email;
+}
+async function verifySignupCode(){
+  const code=String($('#vf-code').value||'').replace(/\D/g,'');
+  if(code.length<6){ vfMsg('메일로 받은 6자리 인증번호를 입력해 주세요.','err'); return; }
+  const b=$('#vf-verify'); b.disabled=true; b.textContent='확인 중…';
+  let ok=false, lastErr=null;
+  for(const t of ['signup','email']){
+    const r = await sb.auth.verifyOtp({ email: vfFlow.email, token: code, type: t });
+    if(!r.error && r.data && r.data.session){ ok=true; break; }
+    lastErr = r.error || lastErr;
+  }
+  b.disabled=false; b.textContent='인증하고 시작하기';
+  if(!ok){
+    const em=String((lastErr&&lastErr.message)||'');
+    vfMsg(/expired|invalid/i.test(em) ? '인증번호가 틀렸거나 만료됐어요. 가장 최근에 받은 메일의 번호를 입력하거나 다시 보내 주세요.' : ('인증 실패: '+em), 'err');
+    return;
+  }
+  if(vfFlow.timer){ clearInterval(vfFlow.timer); vfFlow.timer=null; }
+  vfMsg('인증 완료! 들어갑니다…','ok');
+  $('#verifyCard').style.display='none';
+  $('#loginCard').style.display='block';
+  await onLoggedIn();
+}
+async function resendSignupMail(){
+  if(Date.now()<vfFlow.cooldownUntil) return;
+  if(window.turnstile && !vfToken){ vfMsg('보안 확인(CAPTCHA)을 완료한 뒤 눌러 주세요.','err'); renderVerifyCaptcha(); return; }
+  const b=$('#vf-resend'); b.disabled=true;
+  try{
+    const { error } = await sb.auth.resend({ type:'signup', email: vfFlow.email, options:{ emailRedirectTo: authRedirectUrl(), captchaToken: vfToken || undefined } });
+    if(error) throw error;
+    vfMsg('인증 메일을 다시 보냈어요. ★이전 메일의 번호는 무효예요 — 가장 최근 메일의 번호를 입력해 주세요.','ok');
+    vfStartCooldown();
+  }catch(e){
+    const em=String((e&&e.message)||e);
+    vfMsg(/rate|seconds|too many/i.test(em) ? '잠시 뒤에 다시 시도해 주세요. (메일 발송 한도)' : ('다시 보내지 못했어요: '+em), 'err');
+    b.disabled=false;
+  }finally{ resetVerifyCaptcha(); }
+}
+
 /* ================== 비밀번호 재설정 — 6자리 PIN ==================
    Supabase Auth의 이메일 OTP를 쓴다. PIN은 서버가 이메일별로 1개씩 발급·검증하므로
    여러 명이 동시에 진행해도 서로 섞이지 않는다(내 이메일 + 내 PIN이 맞아야만 통과).
@@ -4150,20 +4396,20 @@ function openContactModal(){
 async function onLoggedIn(){
   const { data:{ user } } = await sb.auth.getUser();
   state.user = user;
-  let { data: prof } = await sb.from('profiles').select('role,email,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
+  let { data: prof } = await sb.from('profiles').select('role,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
   if(!prof){
     /* ★계정은 만들어졌는데 프로필이 없는 반쪽 상태 — 가입 트리거가 도중에 넘어졌을 때 생긴다(세션 AX).
        예전엔 여기서 등급 viewer에 이름 없는 유령 계정으로 들어갔다. 이제는 스스로 되살린다. */
     try{
       const { data:fix } = await sb.rpc('ensure_my_profile');
       if(fix && fix.ok){
-        const r2 = await sb.from('profiles').select('role,email,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
+        const r2 = await sb.from('profiles').select('role,name,handle,avatar_url,track,member_no').eq('id', user.id).maybeSingle();
         prof = r2.data || null;
       }
     }catch(e){ /* 97 미적용 — 예전처럼 빈 프로필로 진행 */ }
   }
   state.role = prof?.role || 'viewer';
-  state.email = prof?.email || user.email;
+  state.email = (user && user.email) || '';   // ★116: 이메일은 본인 로그인 세션에서만 읽는다
   state.name = prof?.name || '';
   state.handle = prof?.handle || '';
   state.avatar_url = prof?.avatar_url || '';
@@ -7810,6 +8056,11 @@ async function renderWithdrawReqs(_nav){
       const { error } = await sb.rpc('approve_withdraw', { p_user: b.dataset.wd });
       if(error) throw error;
       m.className='msg ok'; m.textContent=who+' 님의 탈퇴를 처리했습니다.';
+      /* ★116: 로그인 계정(이메일)까지 지운다. Edge 미배포면 안내만 한다. */
+      try{
+        const fr = await callEdge('withdraw-self', { finalize: b.dataset.wd });
+        if(!fr.ok) m.textContent += fr.status===404 ? ' (withdraw-self 함수가 배포되지 않아 로그인 계정의 이메일은 아직 남아 있습니다)' : ' (계정 이메일 삭제 실패: '+((fr.data&&fr.data.error)||('HTTP '+fr.status))+')';
+      }catch(e){ m.textContent += ' (계정 이메일 삭제 실패: '+((e&&e.message)||e)+')'; }
       setTimeout(()=>renderAdmin(), 900);
     }catch(e){
       m.className='msg err'; m.textContent='처리하지 못했습니다: '+((e&&e.message)||e);
@@ -7856,7 +8107,6 @@ async function renderAdmin(){
           </div>
         </div>
       </td>
-      <td>${escapeHtml(m.email||'')}</td>
       <td>${m.cohort!=null?m.cohort:'-'}</td>
       <td>${clubCell(m.id, ex.club, clubNames)}</td>
       <td>${trackChipHTML(ex.track)}</td>
@@ -7875,7 +8125,7 @@ async function renderAdmin(){
     <div class="table-hint">← 표를 옆으로 밀어서 나머지 항목을 볼 수 있어요</div>
     <div class="table-scroll">
     <table class="wtable admin-table">
-      <tr><th>회원</th><th>이메일</th><th>기수</th><th>소속</th><th>계열</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
+      <tr><th>회원</th><th>기수</th><th>소속</th><th>계열</th><th>등급</th><th>마지막 활동</th>${isOwner()?'<th>체류 시간</th><th>누적 체류 시간</th>':''}</tr>
       ${rows}
     </table>
     </div>
@@ -9563,7 +9813,10 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-09-16', text:'[가입] 가입할 때 이메일 인증을 받아요 — 메일로 온 6자리 번호를 입력하거나 링크를 누르면 바로 들어갑니다.' },
+  { date:'2026-09-16', text:'[개인정보] 회원의 이메일은 이제 본인 말고는 운영진 화면에도 보이지 않아요. 탈퇴는 프로필 맨 아래에서 바로 처리되고(승인 대기 없음), 로그인 계정까지 지워집니다. 로그인하지 않으면 사진·파일을 포함해 아무것도 열 수 없고, 가입할 때 이용약관·개인정보 처리방침 동의를 받습니다.' },
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
+  { date:'2026-09-16', text:'[문서] 목록이 더 차분해졌어요 — 카드 테두리는 올렸을 때만 보이고, 구역 사이 줄도 뺐습니다. [물리실] 세미나·채팅·질문은 ←→ 키로도 옮겨 다닙니다.' },
   { date:'2026-09-16', text:'[물리실] 채팅과 질문 게시판도 물리실 안으로 들어왔어요 — 상단 탭이 [물리실] 하나로 정리되고, 그 안에서 세미나 · 채팅 · 질문 게시판을 옮겨 다닙니다.' },
   { date:'2026-09-16', text:'[물리실] 상단에 "물리실" 탭이 생겼어요 — 세미나(진행 중·예정·보관함)와 채팅을 한자리에서 봅니다. 세미나는 이제 채팅 목록에 섞이지 않아요. 과제는 인터페이스를 다시 손보는 동안 잠시 내려 두었습니다.' },
   { date:'2026-09-14', text:'[채팅] 과제가 생겼어요 — 운영진이 방에서 [＋ 과제 내기]로 문제와 마감을 올리면 대상자에게 알림이 가고(마감 하루 전·1시간 전에 안 낸 사람에게 한 번 더), 각자 답을 냅니다. 낸 답은 본인과 운영진만 보다가 [답 공개]를 누르면 모두에게 풀려요. 운영진은 제출을 타일로 훑으며 [방에 올리기]·[피드백]·[확인]을 누르면 됩니다.' },
@@ -9864,7 +10117,7 @@ function renderPassword(){
     ${rec?`<div class="notice" style="border-left-color:var(--accent)"><b>보안을 위해 지금 새 비밀번호를 설정하세요.</b><br>재설정 링크로 로그인되었습니다. 새 비밀번호를 설정해야 계속 이용할 수 있어요.</div>`:''}
     <div class="doc-meta">${escapeHtml(state.email||'')} 계정</div>
     <div class="editor" style="max-width:420px">
-      <label>새 비밀번호 <span class="hint">(6자 이상)</span></label>
+      <label>새 비밀번호 <span class="hint">(8자 이상)</span></label>
       <input id="pw-new" type="password" autocomplete="new-password" placeholder="새 비밀번호">
       <label>새 비밀번호 확인</label>
       <input id="pw-new2" type="password" autocomplete="new-password" placeholder="한 번 더 입력">
@@ -9879,7 +10132,7 @@ function renderPassword(){
 }
 async function savePassword(){
   const p1=$('#pw-new').value, p2=$('#pw-new2').value, msg=$('#pw-msg'); msg.className='msg';
-  if(p1.length<6){ msg.className='msg err'; msg.textContent='비밀번호는 6자 이상이어야 합니다.'; return; }
+  if(p1.length<8){ msg.className='msg err'; msg.textContent='비밀번호는 8자 이상이어야 합니다.'; return; }
   if(p1!==p2){ msg.className='msg err'; msg.textContent='두 비밀번호가 일치하지 않습니다.'; return; }
   $('#pw-save').disabled=true; $('#pw-save').textContent='처리 중…';
   const { error } = await sb.auth.updateUser({ password: p1 });
@@ -9915,7 +10168,7 @@ async function renderMe(){
   await loadPushPref();                                   // ★세션 CG: 알림 카드
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지 · 규칙 12)
   let p={};
-  try{ const { data } = await sb.from('profiles').select('email,role,cohort,name,handle,avatar_url,member_no,club,track,bio,cover_color').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
+  try{ const { data } = await sb.from('profiles').select('role,cohort,name,handle,avatar_url,member_no,club,track,bio,cover_color').eq('id', state.user.id).single(); p=data||{}; }catch(e){}
   if(_nav!==_navSeq) return;              // ★낡은 렌더 폐기
   const joined = state.user && state.user.created_at ? fmtKST(state.user.created_at) : '-';
   coverCache[state.user.id] = p.cover_color || null;      // 내 커버색 캐시(쪽지함·질문 아바타 링에 즉시 반영)
@@ -9937,7 +10190,7 @@ async function renderMe(){
     <div class="me-wrap">
       <table class="wtable me-table" style="max-width:480px">
         <tr><th style="width:110px">회원번호</th><td>#${p.member_no??'-'}</td></tr>
-        <tr><th>이메일</th><td>${escapeHtml(p.email||state.email||'-')}</td></tr>
+        <tr><th>이메일</th><td>${escapeHtml(state.email||'-')} <span class="muted" style="font-size:12px">(본인에게만 보여요)</span></td></tr>
         <tr><th>이름</th><td id="meNameCell"><div class="handle-cell"><span id="meNameText">${escapeHtml(p.name||'-')}</span><button class="handle-edit" id="meNameBtn" title="이름 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>활동명</th><td id="meHandleCell"><div class="handle-cell"><span id="meHandleText">${escapeHtml(p.handle||'-')}</span><button class="handle-edit" id="meHandleBtn" title="활동명 변경">${ic('edit')}</button></div></td></tr>
         <tr><th>소속</th><td id="meClubCell"><div class="handle-cell"><span id="meClubText">${escapeHtml(p.club||'무소속')}</span><button class="handle-edit" id="meClubBtn" title="소속 변경">${ic('edit')}</button></div></td></tr>
@@ -10199,24 +10452,42 @@ async function mountWithdraw(_nav){
        <div class="msg" id="wdMsg"></div>`
     : `<div class="wd-head">회원 탈퇴</div>
        <p class="wd-body">
+         <b>바로 처리됩니다</b> — 운영진 승인을 기다리지 않아요.<br>
+         <b>지워지는 것</b> — 로그인 계정(이메일·비밀번호), 이름·활동명·활동명 이력, 기수·소속·계열, 프로필 사진·소개, 알림 등록.<br>
          <b>남는 것</b> — 문서 편집 이력, 질문과 답변, 회원 문서.
-         <span class="muted">작성자는 '${WITHDRAWN_LABEL}'으로 표시돼요.</span><br>
-         <b>사라지는 것</b> — 로그인, 이름·활동명·프로필 사진.<br>
-         <span class="muted">회원번호는 남습니다. 다른 사람에게 넘어가지 않아요.
-         그리고 <b>되돌릴 수 없습니다.</b></span>
+         <span class="muted">작성자는 '${WITHDRAWN_LABEL}'으로 표시돼요. 남기고 싶지 않은 글이나 회원 문서는 탈퇴 <b>전에</b> 지우거나 운영진에게 삭제를 요청해 주세요.</span><br>
+         <span class="muted">회원번호는 남고 다른 사람에게 넘어가지 않습니다. 그리고 <b>되돌릴 수 없습니다.</b></span>
        </p>
-       <button class="btn ghost danger" id="wdAsk" style="width:auto;padding:8px 18px">탈퇴 신청하기</button>
+       <button class="btn ghost danger" id="wdAsk" style="width:auto;padding:8px 18px">탈퇴하기</button>
        <div class="msg" id="wdMsg"></div>`;
+  wrap.insertAdjacentHTML('beforeend', `<div class="legal-links" style="text-align:left;margin-top:16px"><a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a> · <a href="terms.html" target="_blank" rel="noopener">이용약관</a></div>`);
   box.appendChild(wrap);
 
   const msg=()=>$('#wdMsg');
   const ask=$('#wdAsk');
   if(ask) ask.onclick=async()=>{
-    if(!confirm('탈퇴를 신청할까요?\n\n운영진이 확인한 뒤 처리되며, 처리된 뒤에는 되돌릴 수 없습니다.')) return;
-    const reason=(prompt('떠나는 이유를 한 줄 남겨주시겠어요? (선택 — 비워도 됩니다)')||'').trim();
+    if(!confirm('정말 탈퇴할까요?\n\n· 계정(이메일·비밀번호)과 이름·활동명·사진이 바로 지워집니다\n· 남긴 문서와 답변은 \''+WITHDRAWN_LABEL+'\'으로 남습니다\n· 되돌릴 수 없습니다')) return;
+    const typed=(prompt('확인을 위해 "탈퇴"라고 입력해 주세요.')||'').trim();
+    if(typed!=='탈퇴'){ msg().className='msg err'; msg().textContent='입력이 맞지 않아 취소했어요.'; return; }
     ask.disabled=true;
+    /* ★116: 즉시 탈퇴 — Edge withdraw-self가 프로필 익명화(anda_withdraw_user) + 인증 계정 이메일 삭제(soft delete)를 한 번에 한다. */
     try{
-      const { error } = await sb.rpc('request_withdraw', { p_reason: reason || null });
+      const r = await callEdge('withdraw-self', { confirm:'탈퇴' });
+      if(r.ok){
+        try{ await sb.auth.signOut(); }catch(e){ /* 계정이 이미 지워져 세션 종료가 실패해도 괜찮다 */ }
+        alert('탈퇴가 처리됐어요. 그동안 함께해 주셔서 고맙습니다.');
+        location.reload();
+        return;
+      }
+      if(r.status!==404){ throw new Error((r.data && (r.data.error||r.data.message)) || ('HTTP '+r.status)); }
+    }catch(e){
+      msg().className='msg err'; msg().textContent='탈퇴하지 못했습니다: '+((e&&e.message)||e);
+      ask.disabled=false;
+      return;
+    }
+    /* Edge 미배포(404) — 예전 방식: 신청 → 운영진 처리 */
+    try{
+      const { error } = await sb.rpc('request_withdraw', { p_reason: null });
       if(error) throw error;
       msg().className='msg ok'; msg().textContent='신청했어요. 운영진이 확인하면 처리됩니다.';
       setTimeout(()=>renderMe(), 900);
@@ -11302,9 +11573,25 @@ function pushPrefCardBind(root){
     };
   });
 }
+/* ★116: 웹 푸시는 브라우저 제조사의 국외 서버를 거친다 → 켜기 전에 이전 사항을 알리고 동의를 받는다(제28조의8 제2항). 기기마다 한 번. */
+const PUSH_CONSENT_KEY = 'anda_push_consent';
+function pushConsentOk(){
+  try{ if(localStorage.getItem(PUSH_CONSENT_KEY)===LEGAL_VERSION) return true; }catch(e){ /* 저장소 차단 — 매번 묻는다 */ }
+  const ok = confirm('[알림 수신 · 개인정보 국외 이전 동의]\n\n'
+    + '· 이전 항목: 알림 구독 주소·암호화 키, 알림 제목·내용(암호화 전송)\n'
+    + '· 이전받는 자·국가: 이 브라우저의 푸시 서비스 — Google LLC(미국), Apple Inc.(미국), Mozilla Corporation(미국) 중 해당 사업자\n'
+    + '· 시기·방법: 알림을 보낼 때마다 암호화된 통신망으로 전송\n'
+    + '· 목적: 과제·멘션·연구 기간 알림 전달\n'
+    + '· 보유 기간: 알림을 끄거나 탈퇴할 때까지(사업자 서버에는 전달 즉시 삭제가 원칙)\n'
+    + '· 거부 방법·효과: [취소]를 누르면 알림만 오지 않고 다른 기능은 그대로 쓸 수 있어요. 켠 뒤에도 프로필에서 언제든 끌 수 있어요.\n\n'
+    + '동의하고 알림을 켤까요?');
+  if(ok){ try{ localStorage.setItem(PUSH_CONSENT_KEY, LEGAL_VERSION); }catch(e){ /* 저장소 차단 — 다음에 다시 묻는다 */ } }
+  return ok;
+}
 async function pushSubscribeSelf(){
   if(!pushSupported()) throw new Error('이 브라우저는 푸시 알림을 지원하지 않아요.');
   if(!VAPID_PUBLIC_KEY) throw new Error('알림 서버 키(VAPID)가 아직 설정되지 않았어요. 운영진에게 알려 주세요.');
+  if(!pushConsentOk()) throw new Error('알림 켜기를 취소했어요.');
   const perm = await Notification.requestPermission();
   if(perm!=='granted') throw new Error('알림 권한이 꺼져 있어요. 브라우저 설정에서 이 사이트의 알림을 허용해 주세요.');
   const reg = await navigator.serviceWorker.register('sw.js');
@@ -15097,6 +15384,7 @@ function unsubscribeChat(){ resetTyping(); if(chatChannel){ try{ sb.removeChanne
 /* ================== 디지털 물리실 (세션 CJ) ==================
    세미나와 채팅을 한 지붕 아래로. #//lab = 세미나 목록(기본) · #//lab/chat = 채팅 방 목록.
    채팅 목록에서 세미나 방은 빠진다(여기 있으니까). 방 화면(#//community/<id>)은 그대로 쓴다. */
+let _labKeys=false;
 function labTab(){ const h=location.hash; return h.startsWith('#//lab/chat') ? 'chat' : h.startsWith('#//lab/q') ? 'q' : 'seminar'; }
 async function renderLab(){
   const _nav=_navSeq;
@@ -15109,9 +15397,35 @@ async function renderLab(){
       <button class="kp-tab${tab==='chat'?' on':''}" data-lt="chat">채팅</button>
       ${featOn('questions')?`<button class="kp-tab${tab==='q'?' on':''}" data-lt="q">질문</button>`:''}
       <span class="kv2-soon">과제는 준비 중</span>
+      <span class="kp-tabind" aria-hidden="true"></span>
     </div>
     <div class="kp-pane" id="labPane"><p class="muted">불러오는 중…</p></div>`;
-  document.querySelectorAll('#labTabs .kp-tab').forEach(b=>{ b.onclick=()=>{ const t=b.dataset.lt; location.hash = t==='chat' ? '#//lab/chat' : t==='q' ? '#//lab/q' : '#//lab'; }; });
+  /* ★세션 CL: 탭은 클릭 · ←→(Home/End)로 옮긴다. 표시선은 KYPT와 같은 .kp-tabind. */
+  const labTabs=[...document.querySelectorAll('#labTabs .kp-tab')];
+  const labGo=(b)=>{ const t=b.dataset.lt; location.hash = t==='chat' ? '#//lab/chat' : t==='q' ? '#//lab/q' : '#//lab'; };
+  labTabs.forEach(b=>{
+    b.setAttribute('role','tab'); b.tabIndex = b.classList.contains('on') ? 0 : -1;
+    b.onclick=()=>labGo(b);
+    b.onkeydown=(ev)=>{ const i=labTabs.indexOf(b); let j=null;
+      if(ev.key==='ArrowRight') j=(i+1)%labTabs.length; else if(ev.key==='ArrowLeft') j=(i-1+labTabs.length)%labTabs.length;
+      else if(ev.key==='Home') j=0; else if(ev.key==='End') j=labTabs.length-1;
+      if(j===null) return; ev.preventDefault(); labGo(labTabs[j]); };
+  });
+  const onTab=labTabs.find(b=>b.classList.contains('on')); if(onTab) setTimeout(()=>onTab.focus({ preventScroll:true }), 0);
+  if(!_labKeys){ _labKeys=true;
+    document.addEventListener('keydown', (ev)=>{
+      if(ev.defaultPrevented || ev.ctrlKey || ev.metaKey || ev.altKey) return;
+      if(!['ArrowLeft','ArrowRight','Home','End'].includes(ev.key)) return;
+      const wrap=document.querySelector('#labTabs'); if(!wrap) return;
+      if(kv2InField(ev.target) || (ev.target && ev.target.closest && ev.target.closest('.kp-tab'))) return;
+      if(document.querySelector('.modal-ov, .qc-ov, .lightbox, .block-ov, .compose, .sem-pnew')) return;
+      const tabs=[...wrap.querySelectorAll('.kp-tab')]; const i=tabs.findIndex(x=>x.classList.contains('on')); if(i<0) return;
+      const j = ev.key==='ArrowRight' ? (i+1)%tabs.length : ev.key==='ArrowLeft' ? (i-1+tabs.length)%tabs.length : ev.key==='Home' ? 0 : tabs.length-1;
+      ev.preventDefault(); tabs[j].click();
+    });
+  }
+  { const w=$('#labTabs'), on=w&&w.querySelector('.kp-tab.on'), ind=w&&w.querySelector('.kp-tabind');
+    if(on&&ind){ ind.classList.add('noanim'); ind.style.left=on.offsetLeft+'px'; ind.style.width=on.offsetWidth+'px'; requestAnimationFrame(()=>ind.classList.remove('noanim')); } }
   if(tab==='chat') await renderRoomList(_nav, $('#labPane'));
   else if(tab==='q') await renderQuestions($('#labPane'));
   else await labSeminars(_nav);
@@ -17558,6 +17872,11 @@ $('#li-pw').addEventListener('keydown',e=>{ if(e.key==='Enter') doLogin(); });
 $('#li-reset').onclick=openPinCard;
 $('#contactLink').onclick=openContactModal;
 $('#pin-back').onclick=closePinCard;
+  $('#vf-back').onclick=closeVerifyCard;
+  $('#vf-verify').onclick=verifySignupCode;
+  $('#vf-resend').onclick=resendSignupMail;
+  $('#vf-code').addEventListener('keydown',e=>{ if(e.key==='Enter') verifySignupCode(); });
+  bindSignupConsent();
 $('#pin-send').onclick=()=>sendPin(false);
 $('#pin-resend').onclick=()=>sendPin(true);
 $('#pin-verify').onclick=verifyPin;
@@ -17634,6 +17953,7 @@ async function doSignupRequest(){
   const invite=(($('#su-code')&&$('#su-code').value)||'').trim();      // 초대 코드(76) — 서버가 최종 검사
   const pw=$('#su-pw').value, pw2=$('#su-pw2').value;
   if(SIGNUP_MODE==='closed'){ msg.className='msg err'; msg.textContent='지금은 회원 가입을 받지 않습니다.'; return; }
+  if(!signupConsentOk()){ msg.className='msg err'; msg.textContent='필수 동의 항목(이용약관 · 개인정보 처리방침 · 만 14세 이상)을 모두 체크해 주세요.'; return; }
   if(SIGNUP_MODE==='code' && !invite){ msg.className='msg err'; msg.textContent='초대 코드를 입력해 주세요.'; return; }
   if(!email||!name||!handle||!cohort||!pw){ msg.className='msg err'; msg.textContent='모든 항목을 입력해 주세요.'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[a-z]{2,}$/i.test(email)){ msg.className='msg err'; msg.textContent='이메일 형식이 올바르지 않아요.'; return; }
@@ -17663,7 +17983,7 @@ async function doSignupRequest(){
   let data=null, error=null;
   try{
     const r=await sb.auth.signUp({ email, password:pw,
-      options:{ captchaToken: suToken, data:{ name, cohort:parseInt(cohort,10), handle, club, track, invite_code: invite } } });
+      options:{ captchaToken: suToken, emailRedirectTo: authRedirectUrl(), data:{ name, cohort:parseInt(cohort,10), handle, club, track, invite_code: invite, terms_version: LEGAL_VERSION, privacy_version: LEGAL_VERSION, age14: true, agreed_at: new Date().toISOString() } } });
     data=r.data; error=r.error;
   }catch(e){ error=e; }
   $('#su-btn').disabled=false; $('#su-btn').textContent='가입하기';
@@ -17704,8 +18024,9 @@ async function doSignupRequest(){
     await onLoggedIn();
     return;
   }
-  msg.className='msg ok';                          // (Confirm email이 켜져 있는 경우의 안전망)
-  msg.textContent='가입 완료! 이메일로 온 확인 링크를 누른 뒤 로그인해 주세요.';
+  /* ★세션 CN: Confirm email이 켜져 있으면 세션 없이 돌아온다 → 인증 카드로 */
+  msg.className='msg ok'; msg.textContent='';
+  openVerifyCard(email, false);
 }
 /* 사용자 드롭다운 메뉴 (아이콘 트리거 · 호버/탭 · 항목 클릭 시 닫힘) */
 const umTrig = $('#umTrigger');
