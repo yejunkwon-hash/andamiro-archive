@@ -977,6 +977,189 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .wk-keybox{display:flex;align-items:center;gap:5px;flex:none;padding-top:4px;}
 .wk-keybox label{margin:0;font-size:11px;color:var(--text-dim);font-weight:700;white-space:nowrap;}
 .wk-keybox input{width:150px;padding:4px 8px !important;font-size:12px !important;font-family:ui-monospace,Consolas,monospace;}
+.wk-addr{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text-dim);border:1px solid var(--border);border-radius:6px;padding:3px 8px;white-space:nowrap;}
+/* 제목 규칙 안내 (118) — 막는 것(err)은 빨강, 알려만 주는 것(warn)은 주황 */
+.title-chk{font-size:12px;line-height:1.45;margin-top:4px;min-height:0;}
+.title-chk:empty{display:none;}
+.title-chk.err{color:var(--accent);}
+.title-chk.warn{color:var(--warn);}
+.title-chk.info{color:var(--text-dim);}
+/* 편집기 개편 (세션 CP) */
+.wk-tb-sep{width:1px;align-self:stretch;background:var(--border);margin:2px 4px;}
+.wk-tb-hint{margin-left:auto;align-self:center;font-size:11.5px;color:var(--text-dim);}
+@media(max-width:640px){ .wk-tb-hint{display:none;} }
+.wk-selbar{position:fixed;z-index:9000;display:flex;align-items:center;gap:2px;padding:4px;border-radius:10px;
+  background:var(--card);border:1px solid var(--border-strong);box-shadow:0 6px 22px rgba(0,0,0,.16);}
+.wk-selbar.dock{left:50% !important;top:auto !important;bottom:14px;transform:translateX(-50%);}
+.wk-selbar button{background:transparent;border:0;color:var(--text);font-size:13px;font-weight:700;min-width:30px;height:30px;padding:0 8px;border-radius:7px;cursor:pointer;}
+.wk-selbar button:hover{background:var(--box-bg);color:var(--accent);}
+.wk-sb-sep{width:1px;height:18px;background:var(--border);margin:0 3px;display:inline-block;}
+.wk-ctx{position:fixed;z-index:9001;min-width:220px;padding:5px;border-radius:10px;background:var(--card);
+  border:1px solid var(--border-strong);box-shadow:0 10px 30px rgba(0,0,0,.18);display:flex;flex-direction:column;}
+.wk-ctx button{display:flex;justify-content:space-between;gap:18px;background:transparent;border:0;color:var(--text);
+  font-size:13px;padding:7px 10px;border-radius:7px;cursor:pointer;text-align:left;}
+.wk-ctx button:hover{background:var(--box-bg);}
+.wk-ctx .wk-sb-sep{width:auto;height:1px;margin:4px 6px;display:block;}
+.wk-cx-k{color:var(--text-dim);font-family:var(--mono);font-size:11.5px;}
+.wk-cx-hint{font-size:11px;color:var(--text-dim);padding:6px 10px 3px;border-top:1px solid var(--border);margin-top:4px;}
+.doc-body h4, .wk-preview h4{ margin:1.3em 0 .35em; font-size:14.5px; }
+/* 분류 나무 · 태그 (120) */
+.docs-head-btns{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end;}
+.docs-head-btns .btn{white-space:nowrap;}
+@media(max-width:640px){
+  .docs-head{flex-wrap:wrap;gap:10px;}
+  .docs-head-btns{width:100%;justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:2px;}
+  .docs-head-btns .btn{padding:7px 10px !important;font-size:13px;}
+  .docs-head-btns #dpNew{order:-1;}                 /* 폰: 가장 자주 누르는 [새 문서]를 맨 앞으로 */
+}
+.dl2-tags{display:flex;flex-wrap:wrap;gap:3px 0;margin-top:2px;}
+.dl2-tags .tag-chip:first-child, .dl2-tags .ops-chip:first-child{margin-left:0;}
+.dl2-k .st-badge{font-size:10px;padding:0 5px;margin-left:6px;}
+.tag-chip{display:inline-block;font-family:inherit;font-size:11px;font-weight:600;color:var(--text-dim);background:var(--box-bg);
+  border:1px solid var(--border);border-radius:999px;padding:1px 8px;margin-left:5px;line-height:1.6;cursor:default;}
+button.tag-chip{cursor:pointer;}
+.tag-chip.big{font-size:12px;padding:3px 10px;margin:0 6px 6px 0;}
+.tag-chip.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.ops-chip{display:inline-block;font-size:10.5px;font-weight:700;color:var(--warn);border:1px dashed var(--warn);border-radius:5px;padding:0 6px;margin-left:5px;line-height:1.6;font-family:inherit;}
+.docs-tags{margin:2px 0 12px;}
+.doc-tags{margin-top:8px;} .doc-tags .tag-chip{margin:0 6px 0 0;}
+.ops-pick{display:flex;flex-wrap:wrap;gap:4px 12px;padding-top:6px;}
+.ops-opt{font-size:12.5px;font-weight:400;display:inline-flex !important;flex-direction:row;align-items:center;gap:5px;margin:0 !important;white-space:nowrap;cursor:pointer;}
+.ops-opt input{width:auto !important;margin:0 !important;padding:0 !important;flex:none;}
+.sm-list{display:flex;flex-direction:column;gap:2px;max-height:52vh;overflow:auto;margin:10px 0;border:1px solid var(--border);border-radius:10px;padding:4px;}
+.sm-opt{display:flex;justify-content:space-between;gap:10px;background:transparent;border:0;color:var(--text);text-align:left;padding:8px 10px;border-radius:7px;cursor:pointer;font-size:13.5px;white-space:pre;}
+.sm-opt:hover:not(:disabled){background:var(--box-bg);}
+.sm-opt:disabled{opacity:.4;cursor:not-allowed;}
+.sm-hint{color:var(--text-dim);font-size:11.5px;}
+.tr-seed{padding:16px;border:1px dashed var(--border-strong);border-radius:12px;background:var(--box-bg);}
+.tr-seed .btn{margin-right:6px;}
+.tr-tools{display:flex;align-items:center;gap:10px;margin:0 0 10px;}
+.tr-tools .muted{font-size:11.5px;font-family:var(--mono);}
+.tr-tree, .tr-unplaced{margin-bottom:14px;}
+.tr-node{display:flex;align-items:center;gap:8px;padding:7px 8px 7px calc(8px + (var(--d,1) - 1) * 18px);border-radius:8px;border:1px solid transparent;user-select:none;}
+.tr-node:hover{background:var(--box-bg);}
+.tr-node[draggable="true"]{cursor:grab;}
+.tr-cv{background:transparent;border:0;color:var(--text-dim);cursor:pointer;width:18px;padding:0;transition:transform var(--dur-1, .15s);}
+.tr-item.closed > .tr-node .tr-cv{transform:rotate(-90deg);}
+.tr-item.closed > .tr-kids{display:none;}
+.tr-name{font-weight:700;font-size:14px;white-space:nowrap;}
+.tr-node{flex-wrap:wrap;}
+.tr-tpl{white-space:nowrap;}
+@media(max-width:640px){ .tr-node .tr-acts{opacity:1 !important;margin-left:26px !important;width:100%;flex-wrap:wrap;} .tr-doc .tr-b{opacity:1 !important;} }
+.tr-cnt{font-family:var(--mono);font-size:11px;color:var(--text-dim);background:var(--box-bg);border-radius:999px;padding:0 7px;}
+.tr-tpl{font-size:11px;color:var(--text-dim);}
+.tr-acts{margin-left:auto;display:flex;gap:4px;opacity:0;transition:opacity .12s;}
+.tr-node:hover .tr-acts, .tr-node:focus-within .tr-acts{opacity:1;}
+@media(hover:none){ .tr-acts{opacity:1;} }
+.tr-b{background:var(--card);border:1px solid var(--border);color:var(--text);font-size:11.5px;font-weight:600;padding:3px 8px;border-radius:6px;cursor:pointer;}
+.tr-b:hover{border-color:var(--accent);color:var(--accent);}
+.tr-b.danger:hover{background:var(--accent);color:#fff;}
+.tr-b:disabled{opacity:.4;cursor:not-allowed;}
+.tr-kids{display:flex;flex-direction:column;}
+.tr-doc{display:flex;align-items:center;gap:6px;padding:5px 8px;margin-left:calc(26px + (var(--d,1) - 1) * 18px);border-radius:7px;border:1px solid transparent;font-size:13.5px;}
+.tr-doc[draggable="true"]{cursor:grab;}
+.tr-doc:hover{background:var(--box-bg);}
+.tr-doc .tr-b{margin-left:auto;opacity:0;}
+.tr-doc:hover .tr-b{opacity:1;}
+@media(hover:none){ .tr-doc .tr-b{opacity:1;} }
+.tr-dt{color:var(--text);text-decoration:none;font-weight:600;}
+.tr-addr{font-family:var(--mono);font-size:10.5px;color:var(--text-dim);}
+.tr-un-h{border-top:1px dashed var(--border);border-radius:0;margin-top:6px;padding-top:12px;}
+.tr-empty{font-size:12.5px;color:var(--text-dim);padding:6px 34px;}
+.dragging{opacity:.45;}
+.dz-inside{background:color-mix(in srgb, var(--accent) 10%, transparent) !important;border-color:var(--accent) !important;}
+.dz-before{box-shadow:inset 0 3px 0 var(--accent);}
+.dz-after{box-shadow:inset 0 -3px 0 var(--accent);}
+.dz-no{cursor:not-allowed;}
+/* 물리실 도면 · 위치 · 상태 (121) */
+.lm-wrap{position:relative;width:100%;border-radius:10px;overflow:hidden;background:var(--box-bg);border:1px solid var(--border);user-select:none;}
+.lm-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
+.lm-wrap{margin:0 auto;}
+.lm-wrap.pick, .lm-wrap.editing{cursor:crosshair;}
+.lm-dot{position:absolute;width:12px;height:12px;margin:-6px 0 0 -6px;border-radius:50%;background:#e0242b;box-shadow:0 0 0 2px #fff;z-index:2;}
+.lm-dot.spot{background:#e0242b;opacity:.55;cursor:pointer;}
+.lm-dot.free{width:9px;height:9px;margin:-4.5px 0 0 -4.5px;opacity:.6;}
+.lm-dot.sel{opacity:1;box-shadow:0 0 0 3px var(--accent);}
+.lm-dot.glow{width:16px;height:16px;margin:-8px 0 0 -8px;background:#ff1e2d;opacity:1;z-index:3;
+  box-shadow:0 0 0 2px #fff, 0 0 12px 4px rgba(255,30,45,.75), 0 0 28px 10px rgba(255,30,45,.35);animation:lmGlow 1.6s ease-in-out infinite;}
+@keyframes lmGlow{ 0%,100%{ box-shadow:0 0 0 2px #fff, 0 0 10px 3px rgba(255,30,45,.7), 0 0 22px 8px rgba(255,30,45,.3);} 50%{ box-shadow:0 0 0 2px #fff, 0 0 18px 7px rgba(255,30,45,.9), 0 0 40px 16px rgba(255,30,45,.4);} }
+@media (prefers-reduced-motion: reduce){ .lm-dot.glow{animation:none;} }
+body.fx-flat .lm-dot.glow{animation:none;}
+.lm-lab{position:absolute;left:50%;top:14px;transform:translateX(-50%);white-space:nowrap;font-size:11px;font-weight:700;color:#fff;
+  background:rgba(20,20,20,.72);padding:1px 6px;border-radius:5px;pointer-events:none;}
+.lm-wrap.small .lm-lab{display:none;}
+.editing .lm-dot{cursor:grab;}
+.lm-card{border:1px solid var(--border);border-radius:12px;padding:10px;margin:0 0 16px;background:var(--card);max-width:520px;}
+.lm-card-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;font-size:13.5px;margin-bottom:8px;}
+.lm-more{margin-left:auto;font-size:12px;}
+.lm-old{font-size:11.5px;color:var(--text-dim);margin-top:6px;}
+.lm-tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:0 0 12px;}
+.lm-tools .docs-q{flex:1;min-width:200px;}
+.lm-list{margin-top:12px;display:flex;flex-direction:column;gap:4px;}
+.lm-list-h{font-size:14px;margin-bottom:4px;}
+.lm-item{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;border:1px solid var(--border);color:var(--text);text-decoration:none;font-size:13.5px;}
+.lm-item:hover{background:var(--box-bg);}
+.lm-item .muted{margin-left:auto;font-size:12px;}
+.lp-spots{margin:10px 0 2px;}
+.st-badge{display:inline-block;vertical-align:middle;font-size:12px;font-weight:800;padding:2px 8px;border-radius:6px;margin-left:6px;letter-spacing:0;}
+.st-ok{color:#2e9e5b;border:1px solid #2e9e5b;}
+.st-warn{color:#fff;background:var(--warn);}
+.st-bad{color:#fff;background:#d33;}
+.wk-loc, .wk-st{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding-top:4px;}
+.wk-st input{flex:1;min-width:140px;}
+/* QR 신고 · 주문 (122) */
+.item-bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding:10px 12px;border:1px solid var(--border);border-radius:12px;background:var(--box-bg);margin:0 0 12px;}
+.item-q{font-size:13px;font-weight:700;margin-right:4px;}
+.item-b{background:var(--card);border:1px solid var(--border-strong);color:var(--text);font-size:13px;font-weight:700;padding:6px 11px;border-radius:8px;cursor:pointer;}
+.item-b:hover{border-color:var(--accent);color:var(--accent);}
+.item-b.ord{margin-left:auto;}
+.item-open{margin:-4px 0 14px;display:flex;flex-direction:column;gap:4px;}
+.item-rep{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:13px;padding:6px 10px;border-left:3px solid #d33;background:color-mix(in srgb, #d33 6%, transparent);border-radius:0 8px 8px 0;}
+.item-rep-acts{margin-left:auto;display:flex;gap:4px;}
+.or-h{font-size:16px;margin:18px 0 8px;display:flex;align-items:center;gap:8px;}
+.or-list{display:flex;flex-direction:column;gap:6px;}
+.or-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:var(--card);}
+.or-row.stale{border-color:var(--warn);}
+.or-main{flex:1;min-width:220px;font-size:14px;}
+.or-sub{font-size:12px;color:var(--text-dim);margin-top:2px;}
+.or-doc{font-family:var(--mono);font-size:11.5px;margin-left:4px;}
+.or-step{font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;background:var(--box-bg);border:1px solid var(--border);white-space:nowrap;}
+.or-row.st-approved .or-step{color:#3558d6;border-color:#3558d6;}
+.or-row.st-ordered .or-step{color:var(--warn);border-color:var(--warn);}
+.or-row.st-arrived .or-step{color:#2e9e5b;border-color:#2e9e5b;}
+.or-row.st-rejected .or-step, .or-row.st-cancelled .or-step{color:var(--text-dim);}
+.or-acts{display:flex;gap:4px;flex-wrap:wrap;}
+.or-acts a.tr-b{text-decoration:none;}
+.own-line{font-size:12.5px;color:var(--text-dim);margin-top:6px;}
+.tr-own{font-size:11.5px;color:var(--text-dim);white-space:nowrap;}
+.tr-own.me{color:var(--accent);font-weight:700;}
+.tr-ho{opacity:.8;}
+.ho-prev{border-left:3px solid var(--border-strong);padding:8px 12px;margin:8px 0 12px;background:var(--box-bg);border-radius:0 8px 8px 0;}
+.ho-h{font-size:13px;font-weight:700;margin:4px 0 6px;}
+.ho-body{white-space:pre-wrap;font-size:13.5px;line-height:1.6;}
+.ho-ta{width:100%;min-height:160px;font-size:13.5px;line-height:1.6;}
+.pm-opt{cursor:pointer;} .pm-opt input{width:auto !important;margin:0 6px 0 0 !important;}
+.aud-bar{display:flex;flex-wrap:wrap;align-items:center;gap:8px;padding:10px 12px;border:1px dashed var(--accent);border-radius:12px;margin:0 0 12px;font-size:13px;}
+.aud-btns{display:flex;gap:4px;flex-wrap:wrap;margin-left:auto;}
+.item-b.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.aud-prog{height:8px;border-radius:999px;background:var(--box-bg);overflow:hidden;margin:4px 0 6px;}
+.aud-bar-fill{height:100%;background:var(--accent);border-radius:999px;}
+.aud-sec{margin-bottom:10px;}
+.aud-bad{font-size:13px;line-height:1.9;margin-top:6px;}
+.or-done{margin-top:14px;} .or-done summary{cursor:pointer;color:var(--text-dim);font-size:13px;margin-bottom:8px;}
+/* 삭제된 문서 자리 (118) */
+.dd-banner{margin:4px 0 18px;padding:12px 14px;border:1px dashed var(--border-strong);border-radius:10px;background:var(--box-bg);color:var(--text);font-size:14px;}
+.dd-no, .doc-no{font-family:var(--mono);font-weight:700;}
+.doc-no{font-size:.95em;letter-spacing:.02em;}
+.dd-note{color:var(--text-dim);font-size:13.5px;}
+.dd-sec-h{font-size:13px;font-weight:700;margin:0 0 8px;}
+.dd-view{margin-top:18px;}
+.dd-view[hidden]{display:none;}
+.dd-vt{margin:6px 0 10px;font-size:18px;}
+/* 편집 잠금 (119) */
+.lock-badge{color:var(--warn);font-weight:700;}
+.lock-lost{border-left-color:var(--warn) !important;}
+.lock-lost[hidden]{display:none;}
 .wk-row2{display:grid;grid-template-columns:2fr 1fr;gap:10px;}
 .wk-row2 > div{min-width:0;}
 .wk-row3{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
@@ -1925,7 +2108,6 @@ body.dark .msg.ok{background:#1f3323;color:#8fd39c;border-color:#2f5236;}
   transition:border-color .14s, background .14s;}
 .dl2:hover{background:var(--box-bg);text-decoration:none;border-color:var(--border);}
 .dl2:active{background:color-mix(in srgb, var(--accent) 6%, var(--box-bg));}
-.dl2 .strata-b{height:24px;width:3px;border-radius:2px;}
 .dl2-main{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1;}
 .dl2-t{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;letter-spacing:-.01em;}
 .dl2:hover .dl2-t{color:var(--accent);}
@@ -2407,32 +2589,6 @@ body.has-botnav .compose{ bottom:calc(66px + env(safe-area-inset-bottom)); right
   @media(max-width:768px){ .hub .chat, .chat{ min-height:calc(100vh - 210px); } }
 }
 
-/* ═══ 지층 막대 (86 · 세션 Y) ═══
-   이 앱의 현재 톤은 '조용한 목록'이다. 지층도 그 톤을 지킨다 —
-   작고, 채도 낮고, 마우스를 올렸을 때만 또렷해진다. 시선을 뺏지 않는다. */
-.strata{ display:flex; overflow:hidden; border-radius:2px; flex:none;
-  background:var(--border); opacity:.72; transition:opacity var(--dur-1); }
-.strata i{ display:block; flex-basis:0; }
-.dl2:hover .strata, .strata:hover{ opacity:1; }
-
-/* 목록 — 제목 왼쪽의 얇은 세로 막대. 오래된 층이 아래 (지층이니까) */
-.strata-b{ width:4px; height:19px; flex-direction:column-reverse; align-self:center; }
-.strata-b i{ min-height:2px; }
-
-/* 문서 상단 — 가로. 오래된 층이 왼쪽 (시간이 왼→오른쪽으로 흐른다) */
-.strata-w{ height:7px; flex-direction:row; flex:1; min-width:0; border-radius:3px; opacity:.85; }
-.strata-w i{ min-width:5px; }
-.strata-row{ display:flex; align-items:center; gap:10px; margin:-4px 0 16px; }
-.strata-cap{ flex:none; font-family:var(--mono); font-size:10.5px; color:var(--text-dim); }
-
-/* 층 사이 실낱 구분 — 인접한 흙빛끼리 뭉쳐 보이는 걸 막는다 */
-.strata-b i + i{ box-shadow:0 1px 0 rgba(255,255,255,.5) inset; }
-.strata-w i + i{ box-shadow:1px 0 0 rgba(255,255,255,.5) inset; }
-body.dark .strata-b i + i{ box-shadow:0 1px 0 rgba(0,0,0,.35) inset; }
-body.dark .strata-w i + i{ box-shadow:1px 0 0 rgba(0,0,0,.35) inset; }
-body.dark .strata{ opacity:.85; }
-
-@media(max-width:640px){ .strata-b{ height:17px; } }
 
 /* ═══════════ 문서 본문 조판 v4 (세션 AA) ═══════════
    진단: 지금 본문이 '나무위키 항목'처럼 읽히는 이유는 네 가지였다.
@@ -4433,6 +4589,10 @@ async function onLoggedIn(){
     loadLimits().catch(()=>{}),          // 글자수·사진 용량 상한 (owner가 [시스템]에서 조정)
     loadPerms().catch(()=>{}),           // 등급별 권한 매트릭스
     loadFeatures().catch(()=>{}),        // ★기능 스위치(82) — 미배포면 기본값(간결 모드)
+    loadTree().catch(()=>{}),            // ★분류 나무(120) — 미적용이면 null(예전 분류)
+    loadLabMap().catch(()=>{}),          // ★물리실 도면(121) — 미적용이면 null
+    loadDocLocs().catch(()=>{}),         // ★문서 위치·상태(121)
+    loadOwners().catch(()=>{}),          // ★분야 담당자(123)
   ]);
   applyFx(); fxWatch();                  // ★화면 효과(세션 L) — 렉이면 스스로 한 단계 내린다
   loadNudgeCfg().then(scheduleNudges);   // 넛지(73) — 미배포면 조용히 없음
@@ -4440,6 +4600,7 @@ async function onLoggedIn(){
   await ensureOwner();         // ★owner가 0명이면 회원번호 1번을 자동 승격 (잠김 방지)
   showApp();
   startHeartbeat();          // 접속 표시 + 체류시간 누적 시작
+  startPulse();              // ★10초 변경 확인(124) — 바뀐 부분만 제자리에서 다시 그린다
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
   setTimeout(()=>{ purgeOldTrash(); }, 6000);                                    // 휴지통 30일 지난 문서 영구 삭제
@@ -5711,6 +5872,7 @@ const DOC_G_ETC = '분류 없음';        // ★한 줄 한 선언 — 다중 �
 const DOC_G_MEMBER = '회원';
 function docGroupOf(d){
   if(isMemberDocKey(d.key)) return DOC_G_MEMBER;
+  if(treeOn()){ const nid=docNodeOf(d.key); return nid ? nodePath(nid) : DOC_G_ETC; }   // ★분류 나무(120)가 있으면 그게 진실
   const c = Array.isArray(d.category) ? String(d.category[0]||'').trim() : '';
   if(c) return c;                                        // 사람이 정한 분류가 언제나 이긴다
   const hay = (String(d.key||'')+' '+String(d.title||'')+' '+String(d.eng||'')).toLowerCase();
@@ -5719,69 +5881,1044 @@ function docGroupOf(d){
 }
 /* 나열 순서: 정해둔 순서 → 사람이 만든 분류(가나다) → 분류 없음 → 회원 */
 function docGroupOrder(names){
+  if(treeOn()){                                            // ★나무 순서(위→아래, 부모 다음 자식)
+    const pre=state.tree.order.map(n=>nodePath(n.id));
+    return [...pre.filter(p=>names.includes(p)),
+            ...names.filter(n=>!pre.includes(n) && n!==DOC_G_ETC && n!==DOC_G_MEMBER).sort((a,b)=>a.localeCompare(b,'ko')),
+            DOC_G_ETC, DOC_G_MEMBER].filter(n=>names.includes(n));
+  }
   const fixed = DOC_GROUPS.map(g=>g.name);
   const custom = names.filter(n=>!fixed.includes(n) && n!==DOC_G_ETC && n!==DOC_G_MEMBER)
                       .sort((a,b)=>a.localeCompare(b,'ko'));
   return [...fixed, ...custom, DOC_G_ETC, DOC_G_MEMBER].filter(n=>names.includes(n));
 }
-/* ================== 지층 (86) — 세션 Y ==================
-   문서마다 '누가 언제 쌓았는지'를 얇은 막대로 보여준다.
-   층 하나 = 한 기수가 연달아 편집한 구간, 색 = 그 기수.
-
-   ★반드시 지킬 것 — 이걸 어기면 이 앱은 '성과 측정 도구'가 된다:
-     1. 이 값으로 정렬하지 마라 ("편집 많은 순" 같은 건 만들지 않는다)
-     2. 숫자를 크게 쓰지 마라 — 막대는 형태로 말한다
-     3. 층이 하나면 "편집 1회"가 아니라 "첫 층" — 시작은 부족함이 아니다
-     4. 색만으로 구분하게 두지 마라 — 반드시 툴팁으로 기수를 함께 준다
-     5. 사람을 비교하는 데 쓰지 마라 — 문서의 이력이지 개인의 실적이 아니다
-
-   ★색은 상징색(빨강)과 부딪히지 않게 채도를 낮춘 흙빛 계열로 골랐다.
-     명도가 서로 다르므로 색을 못 봐도 층 경계가 보인다. */
-const STRATA_COLORS = ['#8C6239','#5B7C6B','#6B6E8F','#A08447','#7A5C6E'];
-const STRATA_UNKNOWN = '#B4ADA8';
-let STRATA = null;                            // { doc_key: [{c:기수,n:편집수}, …] } · null = 아직/미적용
-
-async function loadStrata(keys){
+/* ================== 분류 나무 · 태그 (120 · 세션 CP) ==================
+   ★분류는 나무다: 분류 안에 하위 분류(최대 6단), 문서는 분류 하나에 놓인다.
+   ★나무 모양은 관리자만, 문서 옮기기는 편집자도. 끌어 놓기가 기본이고, 폰·키보드용 [옮기기] 버튼이 같은 일을 한다.
+   ★끌어 놓기의 함정(순환·깊이·같은 이름·비어 있지 않은 분류 지우기·동시 수정·지워진 곳으로 옮기기)은
+     서버(120)가 최종 판정한다. 화면은 미리 막을 수 있는 건 미리 막고, 서버가 거절하면 나무를 새로 불러온다.
+   ★나무가 비어 있거나 120 미적용이면 예전 분류(DOC_GROUPS + 문서의 category)로 그대로 돈다.
+   ★운영 태그(관리자끼리만): 손으로 다는 4개 + 서버가 세어 주는 자동 4개(사진 없음 · 사용법 비어 있음 · 위치 미기재 · 너무 짧음). */
+const TREE_MAX_DEPTH = 6;
+const ADMIN_TAGS = ['고장·수리 필요','검토 필요','재고 부족','매뉴얼 필요'];
+const AUTO_TAG_NAMES = { noimg:'사진 없음', nousage:'사용법 비어 있음', noloc:'위치 미기재', short:'너무 짧음' };
+const TREE_CLOSED_LS = 'anda_tree_closed';
+function indexTree(t){
+  if(!t) return null;
+  const nodes=(t.nodes||[]).map(n=>Object.assign({}, n));
+  const byId={}, kids={};
+  nodes.forEach(n=>{ byId[n.id]=n; });
+  nodes.forEach(n=>{ const p=(n.parent_id==null || !byId[n.parent_id]) ? 0 : n.parent_id; (kids[p]=kids[p]||[]).push(n); });
+  Object.values(kids).forEach(a=>a.sort((x,y)=>(x.sort-y.sort)||(x.id-y.id)));
+  const place={}; (t.place||[]).forEach(p=>{ place[p.key]=p; });
+  const order=[];
+  const walk=(pid,d)=>{ (kids[pid]||[]).forEach(n=>{ n.depth=d; order.push(n); if(d<20) walk(n.id, d+1); }); };
+  walk(0,1);
+  return { version:t.version, nodes, byId, kids, place, order };
+}
+async function loadTree(){
+  try{ const { data, error } = await sb.rpc('tree_get'); if(error) throw error; state.tree=indexTree(data); }
+  catch(e){ state.tree=null; }
+  return state.tree;
+}
+function treeOn(){ return !!(state.tree && state.tree.nodes.length); }
+function nodePath(id){
+  const T=state.tree; if(!T) return '';
+  const out=[]; let n=T.byId[id]; let g=0;
+  while(n && g++<20){ out.unshift(n.name); n=T.byId[n.parent_id]; }
+  return out.join(' › ');
+}
+function nodeTemplate(id){
+  const T=state.tree; let n=T && T.byId[id]; let g=0;
+  while(n && g++<20){ if(n.template) return n.template; n=T.byId[n.parent_id]; }
+  return null;
+}
+function docNodeOf(key){ const T=state.tree; const p=T && T.place[key]; return (p && T.byId[p.node_id]) ? p.node_id : null; }
+function nodeIsUnder(id, anc){ const T=state.tree; let n=T && T.byId[id]; let g=0; while(n && g++<30){ if(n.id===anc) return true; n=T.byId[n.parent_id]; } return false; }
+function nodeHeight(id){ const T=state.tree; const k=(T.kids[id]||[]); return 1+(k.length?Math.max(...k.map(c=>nodeHeight(c.id))):0); }
+function nodeDocCount(id, deep){
+  const T=state.tree; const live=new Set((state.docs||[]).map(d=>d.key));
+  let n=Object.values(T.place).filter(p=>p.node_id===id && live.has(p.key)).length;
+  if(deep) (T.kids[id]||[]).forEach(c=>{ n+=nodeDocCount(c.id, true); });
+  return n;
+}
+/* 분류 고르기 칸 — 나무가 있으면 나무(들여쓰기), 없으면 예전 이름 목록 */
+function docCatSelectHTML(id, curKey, curName, cls){
+  if(treeOn()){
+    const cur = curKey ? docNodeOf(curKey) : null;
+    return `<span class="usel block"><select id="${id}"${cls?` class="${cls}"`:''}>
+      <option value="">고르기…</option>
+      ${state.tree.order.map(n=>`<option value="node:${n.id}"${n.id===cur?' selected':''}>${'　'.repeat(n.depth-1)}${escapeHtml(n.name)}</option>`).join('')}
+    </select></span>`;
+  }
+  const opts=docCategoryOptions();
+  const c=String(curName||'').split(',')[0].trim();
+  if(c && !opts.includes(c)) opts.push(c);                 // 예전 자유 입력 값도 남겨 둔다
+  return `<span class="usel block"><select id="${id}"${cls?` class="${cls}"`:''}>
+    <option value="">고르기…</option>
+    ${opts.map(o=>`<option value="${escapeAttr(o)}"${o===c?' selected':''}>${escapeHtml(o)}</option>`).join('')}
+  </select></span>`;
+}
+/* 고른 값 → { nodeId, name } */
+function docCatValue(v){
+  v=String(v||'');
+  if(v.startsWith('node:')){ const id=Number(v.slice(5)); const n=state.tree && state.tree.byId[id]; return { nodeId:id, name: n ? n.name : '' }; }
+  return { nodeId:null, name:v.trim() };
+}
+async function placeDoc(key, nodeId, index){
+  if(isMemberDocKey(key)) return { ok:true };
+  const { data, error } = await sb.rpc('doc_place_set', { p_key:key, p_node:nodeId, p_index:(index==null?null:index) });
+  if(error) throw error;
+  return data;
+}
+/* 태그 */
+async function loadDocTags(){
   try{
-    const { data, error } = await sb.rpc('doc_strata', { p_keys: keys || null });
+    const { data, error } = await sb.from('doc_tags').select('doc_key,kind,tag');
     if(error) throw error;
-    STRATA = data || {};
-  }catch(e){ STRATA = null; }                 // 86 미적용 → 조용히 안 그린다
-  return STRATA;
+    const m={}; (data||[]).forEach(r=>{ const e=(m[r.doc_key]=m[r.doc_key]||{ field:[], admin:[] }); (e[r.kind]||(e[r.kind]=[])).push(r.tag); });
+    state.docTags=m;
+  }catch(e){ state.docTags=null; }
+  return state.docTags;
 }
-function strataColor(c){
-  if(c==null) return STRATA_UNKNOWN;
-  const i=((Number(c) % STRATA_COLORS.length) + STRATA_COLORS.length) % STRATA_COLORS.length;
-  return STRATA_COLORS[i];
+function docTagsOf(key, kind){ return ((state.docTags||{})[key]||{})[kind] || []; }
+function allFieldTags(){ const s=new Set(); Object.values(state.docTags||{}).forEach(e=>(e.field||[]).forEach(t=>s.add(t))); return [...s].sort((a,b)=>a.localeCompare(b,'ko')); }
+function parseTagInput(v){ return [...new Set(String(v||'').split(/[,，]/).map(s=>normTitle(s).replace(/^#/,'')).filter(Boolean))]; }
+async function loadAuditFlags(){
+  if(!isAdmin()) return null;
+  try{
+    const { data, error } = await sb.rpc('doc_audit_flags'); if(error) throw error;
+    const m={}; (data||[]).forEach(r=>{
+      const f=[];
+      if(!r.has_img) f.push('noimg');
+      if(r.is_gear && !r.has_steps && !r.has_usage) f.push('nousage');
+      if(r.is_gear && r.loc_empty && !(state.docLoc && state.docLoc[r.key])) f.push('noloc');
+      if(Number(r.len) < STUB_LEN) f.push('short');
+      m[r.key]=f;
+    });
+    state.audit=m;
+  }catch(e){ state.audit=null; }
+  return state.audit;
 }
-/* 사람이 읽는 한 줄. ★층이 하나뿐인 문서를 "편집 1회"라고 부르지 않는다. */
-function strataLabel(layers){
-  if(!layers || !layers.length) return '';
-  const edits=layers.reduce((n,l)=>n+(l.n||0),0);
-  if(layers.length===1 && edits===1) return '첫 층';
-  const cohorts=new Set(layers.filter(l=>l.c!=null).map(l=>l.c)).size;
-  return cohorts>1 ? `${cohorts}기수 · 편집 ${edits}회` : `편집 ${edits}회`;
+/* 하나 고르기 팝업 — options: [{value,label,disabled,hint}] */
+function selectModal(title, sub, options, okLabel){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box" style="max-width:460px;text-align:left">
+      <div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}
+      <div class="sm-list">${options.map((o,i)=>`<button type="button" class="sm-opt" data-i="${i}"${o.disabled?' disabled':''}>
+        <span>${escapeHtml(o.label)}</span>${o.hint?`<span class="sm-hint">${escapeHtml(o.hint)}</span>`:''}</button>`).join('')}</div>
+      <div class="modal-btns"><button class="modal-cancel">취소</button></div></div>`;
+    document.body.appendChild(ov);
+    const done=v=>{ ov.remove(); resolve(v); };
+    ov.querySelectorAll('.sm-opt').forEach(b=>b.onclick=()=>done(options[+b.dataset.i].value));
+    ov.querySelector('.modal-cancel').onclick=()=>done(null);
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(null); });
+  });
 }
-/* 막대 HTML. mode: 'bar'(목록·세로) | 'wide'(문서 상단·가로) */
-function strataHTML(key, mode){
-  if(!STRATA) return '';
-  const layers=STRATA[key];
-  if(!layers || !layers.length) return '';
-  const tip=strataLabel(layers);
-  const segs=layers.map(l=>{
-    const who = l.c==null ? '기수 미상' : (l.c+'기');
-    return `<i style="flex-grow:${l.n};background:${strataColor(l.c)}" title="${escapeAttr(who+' · 편집 '+l.n+'회')}"></i>`;
-  }).join('');
-  return `<span class="strata ${mode==='wide'?'strata-w':'strata-b'}" role="img"
-    aria-label="편집 이력: ${escapeAttr(tip)}" title="${escapeAttr(tip)}">${segs}</span>`;
+/* 나무를 바꾸는 서버 호출 + 공통 오류 처리 (TREE_STALE이면 새로 불러온다) */
+async function treeCall(fn, args, okMsg){
+  try{
+    const { data, error } = await sb.rpc(fn, args);
+    if(error) throw error;
+    if(okMsg) toast(okMsg);
+    return data || { ok:true };
+  }catch(e){
+    const h=docErrCode(e);
+    toast(h==='TREE_STALE' ? '다른 사람이 방금 분류를 바꿨어요 — 새로 불러왔어요.' : ((e&&e.message)||'바꾸지 못했어요'));
+    return null;
+  }finally{
+    await loadTree();
+    if(/^#\/\/doctree/.test(location.hash||'')) paintDocTree();
+  }
 }
+function treeClosed(){ try{ return new Set(JSON.parse(localStorage.getItem(TREE_CLOSED_LS)||'[]')); }catch(e){ return new Set(); } }
+function saveTreeClosed(s){ try{ localStorage.setItem(TREE_CLOSED_LS, JSON.stringify([...s])); }catch(e){} }
+
+async function renderDocTree(){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="doc-head"><h1>문서 분류</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  await Promise.all([ loadTree(), (state.docTags===undefined ? loadDocTags() : null), loadOwners() ]);
+  if(_nav!==_navSeq) return;
+  const admin=isAdmin();
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>문서 분류</h1>
+      <div class="tabs"><button id="trDocs">${ic('docs')}문서 목록</button></div></div>
+    <div class="doc-meta">${admin ? '분류와 문서를 끌어서 옮겨요. 분류 위에 놓으면 그 안으로, 위·아래 끝에 놓으면 그 앞·뒤로 들어가요.'
+                                   : '문서를 끌어서 다른 분류로 옮길 수 있어요. 분류 자체는 관리자가 정해요.'}</div>
+    <div id="trBody"></div>`;
+  $('#trDocs').onclick=()=>{ location.hash='#//docs'; };
+  paintDocTree();
+  railReserve(false);
+  window.scrollTo(0,0);
+}
+let _trDrag=null;                            // { kind:'node'|'doc', id }
+function paintDocTree(){
+  const box=$('#trBody'); if(!box) return;
+  const admin=isAdmin(), editor=canEdit();
+  if(!state.tree){
+    box.innerHTML=`<div class="notice">분류 나무가 아직 준비되지 않았어요 (120_doc_tree.sql 실행 필요). 지금은 예전 분류로 보여요.</div>`;
+    return;
+  }
+  const T=state.tree;
+  const live=(state.docs||[]).filter(d=>!isMemberDocKey(d.key));
+  if(!T.nodes.length){
+    box.innerHTML = admin
+      ? `<div class="tr-seed"><b>분류 나무가 비어 있어요.</b><p>지금 문서 목록에 보이는 분류(${escapeHtml(docCategoryOptions().join(' · '))} …)로 나무를 시작할 수 있어요. 시작한 뒤 끌어서 마음대로 고치면 돼요.</p>
+         <button class="btn primary" id="trSeed" style="width:auto">지금 목록으로 시작하기</button>
+         <button class="btn ghost" id="trAddRoot0" style="width:auto">빈 나무에서 시작</button></div>`
+      : `<div class="notice">아직 분류 나무가 없어요. 관리자가 만들면 여기에 보여요.</div>`;
+    const sd=$('#trSeed'); if(sd) sd.onclick=async()=>{
+      const groups={};
+      live.forEach(d=>{ const g=docGroupOf(d); (groups[g]=groups[g]||[]).push(d.key); });
+      const order=docGroupOrder(Object.keys(groups)).filter(g=>g!==DOC_G_ETC && g!==DOC_G_MEMBER);
+      await treeCall('tree_seed', { p_groups: order.map(g=>({ name:g, keys:groups[g] })) }, '나무를 시작했어요.');
+    };
+    const a0=$('#trAddRoot0'); if(a0) a0.onclick=()=>treeAddNode(null);
+    return;
+  }
+  const closed=treeClosed();
+  const titleOf={}; live.forEach(d=>{ titleOf[d.key]=d.title||d.key; });
+  const docsIn=id=>Object.values(T.place).filter(p=>p.node_id===id && titleOf[p.key]!==undefined)
+                     .sort((a,b)=>(a.sort-b.sort)||a.key.localeCompare(b.key));
+  const docRow=(key, depth)=>{
+    const ft=docTagsOf(key,'field');
+    return `<div class="tr-doc" data-doc="${escapeAttr(key)}"${editor?' draggable="true"':''} style="--d:${(depth||0)+1}">
+      <a href="${docHash(key)}" class="tr-dt">${escapeHtml(titleOf[key])}</a><span class="tr-addr">${escapeHtml(docAddr(key))}</span>
+      ${ft.map(t=>`<span class="tag-chip">#${escapeHtml(t)}</span>`).join('')}
+      ${editor?`<button class="tr-b" data-mvdoc="${escapeAttr(key)}" title="다른 분류로 옮기기">옮기기</button>`:''}</div>`;
+  };
+  const nodeHTML=n=>{
+    const kids=T.kids[n.id]||[]; const docs=docsIn(n.id); const isClosed=closed.has(n.id);
+    const tpl=n.template && DOC_TEMPLATES[n.template] ? DOC_TEMPLATES[n.template] : null;
+    return `<div class="tr-item${isClosed?' closed':''}" data-item="${n.id}">
+      <div class="tr-node" data-node="${n.id}"${admin?' draggable="true"':''} style="--d:${n.depth}">
+        <button class="tr-cv" data-tog="${n.id}" aria-label="펼치기/접기">▾</button>
+        <span class="tr-name">${escapeHtml(n.name)}</span>
+        <span class="tr-cnt" title="이 분류와 그 아래 문서 수">${nodeDocCount(n.id, true)}</span>
+        ${state.owners && (admin || ((state.owners||{})[n.id]||[]).some(o=>o.me)) ? `<button class="tr-b tr-ho" data-ho="${n.id}" title="인수인계 메모">인수인계</button>` : ''}
+        ${tpl?`<span class="tr-tpl" title="이 분류에서 새 문서를 만들면 고르는 틀">${tpl.icon} ${escapeHtml(tpl.name)}</span>`:''}
+        ${((state.owners||{})[n.id]||[]).length?`<span class="tr-own${(state.owners[n.id]).some(o=>o.me)?' me':''}" title="${thisYearKST()}년 담당">👤 ${state.owners[n.id].map(o=>escapeHtml(o.name)).join(', ')}</span>`:''}
+        ${admin?`<span class="tr-acts">
+          <button class="tr-b" data-addsub="${n.id}"${n.depth>=TREE_MAX_DEPTH?' disabled title="6단까지만 만들 수 있어요"':''}>+ 하위</button>
+          <button class="tr-b" data-ren="${n.id}">이름</button>
+          <button class="tr-b" data-tpl="${n.id}">틀</button>
+          ${isOwner() && state.owners?`<button class="tr-b" data-own="${n.id}">담당</button>`:''}
+          <button class="tr-b" data-mvnode="${n.id}">옮기기</button>
+          <button class="tr-b danger" data-del="${n.id}">지우기</button></span>`:''}
+      </div>
+      <div class="tr-kids">${kids.map(nodeHTML).join('')}${docs.map(p=>docRow(p.key, n.depth)).join('')}</div>
+    </div>`;
+  };
+  const unplaced=live.filter(d=>docNodeOf(d.key)==null).sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
+  box.innerHTML=`
+    ${admin?`<div class="tr-tools"><button class="btn ghost" id="trAddRoot" style="width:auto">${ic('plus')} 맨 위 분류</button>
+      <span class="muted">나무 판 ${escapeHtml(String(T.version))}</span></div>`:''}
+    <div class="tr-tree" id="trTree">${(T.kids[0]||[]).map(nodeHTML).join('')}</div>
+    <div class="tr-item tr-unplaced" data-unplaced="1">
+      <div class="tr-node tr-un-h" data-unplaced="1"><span class="tr-name">분류 없음</span><span class="tr-cnt">${unplaced.length}</span>
+        <span class="muted" style="margin-left:8px;font-size:12px">여기 놓으면 분류에서 빠져요</span></div>
+      <div class="tr-kids">${unplaced.map(d=>docRow(d.key, 0)).join('') || '<div class="tr-empty">모든 문서가 분류에 들어 있어요 👍</div>'}</div>
+    </div>`;
+  const ar=$('#trAddRoot'); if(ar) ar.onclick=()=>treeAddNode(null);
+  box.querySelectorAll('[data-tog]').forEach(b=>b.onclick=()=>{
+    const id=Number(b.dataset.tog); const s=treeClosed(); if(s.has(id)) s.delete(id); else s.add(id); saveTreeClosed(s);
+    b.closest('.tr-item').classList.toggle('closed'); });
+  box.querySelectorAll('[data-addsub]').forEach(b=>b.onclick=()=>treeAddNode(Number(b.dataset.addsub)));
+  box.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>treeRename(Number(b.dataset.ren)));
+  box.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>treeTemplate(Number(b.dataset.tpl)));
+  box.querySelectorAll('[data-own]').forEach(b=>b.onclick=()=>treeOwners(Number(b.dataset.own)));
+  box.querySelectorAll('[data-ho]').forEach(b=>b.onclick=()=>treeHandover(Number(b.dataset.ho)));
+  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>treeDelete(Number(b.dataset.del)));
+  box.querySelectorAll('[data-mvnode]').forEach(b=>b.onclick=()=>treeMoveNodePick(Number(b.dataset.mvnode)));
+  box.querySelectorAll('[data-mvdoc]').forEach(b=>b.onclick=()=>treeMoveDocPick(b.dataset.mvdoc));
+  bindTreeDnD(box);
+}
+function treeNameCheck(v){
+  const s=normTitle(v);
+  if(!s) return { level:'err', msg:'' };
+  if([...s].length>40) return { level:'err', msg:'40자까지예요.' };
+  if(/[\/›#]/.test(s)) return { level:'err', msg:'/ › # 는 쓸 수 없어요.' };
+  return null;
+}
+async function treeAddNode(parent){
+  const T=state.tree;
+  const name=await promptModal(parent==null ? '맨 위 분류 만들기' : `'${nodePath(parent)}' 아래에 분류 만들기`, '', '', '만들기', v=>{
+    const p=treeNameCheck(v); if(p) return p;
+    const sib=(T.kids[parent==null?0:parent]||[]); if(sib.some(n=>n.name.toLowerCase()===normTitle(v).toLowerCase())) return { level:'err', msg:'같은 자리에 같은 이름이 있어요.' };
+    return null; });
+  if(name==null) return;
+  await treeCall('tree_node_add', { p_parent:parent, p_name:normTitle(name), p_version:T.version });
+}
+async function treeRename(id){
+  const T=state.tree; const n=T.byId[id]; if(!n) return;
+  const name=await promptModal('분류 이름 바꾸기', '문서의 번호 주소는 그대로예요.', n.name, '바꾸기', v=>{
+    const p=treeNameCheck(v); if(p) return p;
+    const sib=(T.kids[n.parent_id==null?0:n.parent_id]||[]); if(sib.some(x=>x.id!==id && x.name.toLowerCase()===normTitle(v).toLowerCase())) return { level:'err', msg:'같은 자리에 같은 이름이 있어요.' };
+    return null; });
+  if(name==null || normTitle(name)===n.name) return;
+  await treeCall('tree_node_rename', { p_id:id, p_name:normTitle(name), p_version:T.version });
+}
+async function treeTemplate(id){
+  const T=state.tree; const n=T.byId[id]; if(!n) return;
+  const opts=[{ value:'', label:'틀 없음 (위 분류의 틀을 따라가요)' }].concat(
+    Object.entries(DOC_TEMPLATES).map(([k,t])=>({ value:k, label:`${t.icon} ${t.name}`, hint:(n.template===k?'지금':'') })));
+  const v=await selectModal(`'${n.name}'의 기본 틀`, '이 분류(와 그 아래)에서 새 문서를 만들면 이 틀이 먼저 골라져요.', opts);
+  if(v==null) return;
+  await treeCall('tree_node_template', { p_id:id, p_template:v||null, p_version:T.version });
+}
+async function treeDelete(id){
+  const T=state.tree; const n=T.byId[id]; if(!n) return;
+  const kids=(T.kids[id]||[]).length, docs=nodeDocCount(id,false);
+  if(kids || docs){ toast(`비어 있지 않은 분류는 지울 수 없어요 (하위 분류 ${kids}개 · 문서 ${docs}개). 먼저 옮겨 주세요.`); return; }
+  if(!await confirmModal(`'${n.name}' 분류를 지울까요?`, '빈 분류만 지울 수 있어요.', '지우기')) return;
+  await treeCall('tree_node_delete', { p_id:id, p_version:T.version });
+}
+/* 끌지 않고 옮기기 (폰·키보드) */
+async function treeMoveNodePick(id){
+  const T=state.tree; const h=nodeHeight(id);
+  const opts=[{ value:'root', label:'맨 위' }].concat(T.order.map(n=>({ value:String(n.id),
+    label:'　'.repeat(n.depth-1)+n.name,
+    disabled: n.id===id || nodeIsUnder(n.id, id) || (n.depth+h>TREE_MAX_DEPTH) || n.id===T.byId[id].parent_id,
+    hint: (n.id===id || nodeIsUnder(n.id,id)) ? '자기 아래' : ((n.depth+h>TREE_MAX_DEPTH) ? '6단 넘음' : '') })));
+  const v=await selectModal(`'${T.byId[id].name}' 옮기기`, '어느 분류 아래로 옮길까요? (맨 뒤에 들어가요)', opts);
+  if(v==null) return;
+  await treeCall('tree_node_move', { p_id:id, p_parent: v==='root'?null:Number(v), p_index:null, p_version:T.version });
+}
+async function treeMoveDocPick(key){
+  const T=state.tree; const cur=docNodeOf(key);
+  const opts=T.order.map(n=>({ value:String(n.id), label:'　'.repeat(n.depth-1)+n.name, disabled:n.id===cur, hint:n.id===cur?'지금':'' }))
+    .concat([{ value:'none', label:'분류 없음', disabled:cur==null }]);
+  const v=await selectModal('문서 옮기기', '어느 분류로 옮길까요?', opts);
+  if(v==null) return;
+  await treeCall('doc_place_set', { p_key:key, p_node: v==='none'?null:Number(v), p_index:null });
+}
+/* 끌어 놓기 — 놓을 자리: 분류 줄의 위 1/4 = 앞, 아래 1/4 = 뒤, 가운데 = 안. 문서 줄은 앞/뒤만 */
+function bindTreeDnD(box){
+  const T=state.tree;
+  const clear=()=>box.querySelectorAll('.dz-before,.dz-after,.dz-inside,.dz-no').forEach(el=>el.classList.remove('dz-before','dz-after','dz-inside','dz-no'));
+  box.querySelectorAll('[draggable="true"]').forEach(el=>{
+    el.addEventListener('dragstart', e=>{
+      _trDrag = el.dataset.node ? { kind:'node', id:Number(el.dataset.node) } : { kind:'doc', id:el.dataset.doc };
+      try{ e.dataTransfer.setData('text/plain', _trDrag.kind+':'+_trDrag.id); e.dataTransfer.effectAllowed='move'; }catch(_){}
+      el.classList.add('dragging');
+    });
+    el.addEventListener('dragend', ()=>{ el.classList.remove('dragging'); clear(); _trDrag=null; });
+  });
+  const zoneOf=(el, e)=>{
+    const r=el.getBoundingClientRect(); const y=(e.clientY-r.top)/Math.max(1,r.height);
+    if(el.classList.contains('tr-doc')) return y<0.5?'before':'after';
+    if(el.dataset.unplaced) return 'inside';
+    return y<0.25 ? 'before' : (y>0.75 ? 'after' : 'inside');
+  };
+  /* 이 자리에 놓아도 되나 — 서버도 다시 본다 */
+  const allowed=(el, zone)=>{
+    const D=_trDrag; if(!D) return false;
+    if(D.kind==='doc'){ return true; }
+    if(el.classList.contains('tr-doc') || el.dataset.unplaced) return false;     // 분류를 문서 줄·'분류 없음'에 놓을 수 없다
+    const tid=Number(el.dataset.node); if(tid===D.id) return false;
+    const newParent = zone==='inside' ? tid : (T.byId[tid].parent_id==null ? null : T.byId[tid].parent_id);
+    if(newParent!=null && (newParent===D.id || nodeIsUnder(newParent, D.id))) return false;   // 순환
+    const pd = newParent==null ? 0 : T.byId[newParent].depth;
+    if(pd + nodeHeight(D.id) > TREE_MAX_DEPTH) return false;                    // 깊이
+    const sib=(T.kids[newParent==null?0:newParent]||[]);
+    if(sib.some(n=>n.id!==D.id && n.name.toLowerCase()===T.byId[D.id].name.toLowerCase())) return false;   // 같은 이름
+    return true;
+  };
+  box.querySelectorAll('.tr-node, .tr-doc').forEach(el=>{
+    el.addEventListener('dragover', e=>{
+      if(!_trDrag) return;
+      const z=zoneOf(el, e); clear();
+      if(!allowed(el, z)){ el.classList.add('dz-no'); return; }
+      e.preventDefault(); try{ e.dataTransfer.dropEffect='move'; }catch(_){}
+      el.classList.add('dz-'+z);
+    });
+    el.addEventListener('dragleave', ()=>{ el.classList.remove('dz-before','dz-after','dz-inside','dz-no'); });
+    el.addEventListener('drop', async e=>{
+      e.preventDefault();
+      const D=_trDrag; const z=zoneOf(el, e); clear();
+      const okDrop = !!D && allowed(el, z);                 // ★allowed는 _trDrag를 본다 — 비우기 전에 판정
+      _trDrag=null;
+      if(!okDrop) return;
+      if(D.kind==='node'){
+        const tid=Number(el.dataset.node);
+        if(z==='inside'){ await treeCall('tree_node_move', { p_id:D.id, p_parent:tid, p_index:null, p_version:T.version }); return; }
+        const par=T.byId[tid].parent_id==null?null:T.byId[tid].parent_id;
+        const sib=(T.kids[par==null?0:par]||[]).filter(n=>n.id!==D.id);
+        const idx=sib.findIndex(n=>n.id===tid)+(z==='after'?1:0);
+        await treeCall('tree_node_move', { p_id:D.id, p_parent:par, p_index:idx, p_version:T.version });
+        return;
+      }
+      // 문서
+      if(el.dataset.unplaced){ await treeCall('doc_place_set', { p_key:D.id, p_node:null, p_index:null }); return; }
+      if(el.classList.contains('tr-doc')){
+        const tk=el.dataset.doc; const nid=docNodeOf(tk);
+        if(nid==null){ await treeCall('doc_place_set', { p_key:D.id, p_node:null, p_index:null }); return; }
+        const list=Object.values(T.place).filter(p=>p.node_id===nid && p.key!==D.id).sort((a,b)=>(a.sort-b.sort)||a.key.localeCompare(b.key));
+        const idx=list.findIndex(p=>p.key===tk)+(z==='after'?1:0);
+        await treeCall('doc_place_set', { p_key:D.id, p_node:nid, p_index:idx });
+        return;
+      }
+      await treeCall('doc_place_set', { p_key:D.id, p_node:Number(el.dataset.node), p_index:null });
+    });
+  });
+}
+
+/* ================== 물리실 도면 · 위치 · 상태 (121 · 세션 CP) ==================
+   ★보관 위치는 글이 아니라 도면 위의 붉은 점이다. 좌표는 % — 사진 해상도·화면 크기와 무관.
+   ★자리(보관함)를 먼저 찍어 두고 문서는 그 자리 + 칸 설명("위에서 두 번째 칸")으로 놓는 게 기본,
+     자리가 없으면 도면 위 아무 점도 된다.
+   ★도면을 다시 그리면 새 판으로 올린다. 이전 판의 자리가 복사되고 문서 위치도 따라온다(서버 121).
+   ★상태는 네 가지(정상 · 고장 · 부족 · 없어짐)뿐 — 개수는 적지 않는다(사용자 결정).
+   ★121 미적용이면 위치·상태 칸이 아예 나오지 않는다(state.lab === null). */
+const DOC_STATUS = { ok:{ t:'정상', c:'ok' }, broken:{ t:'고장', c:'bad' }, low:{ t:'부족', c:'warn' }, missing:{ t:'없어짐', c:'bad' } };
+const LABMAP_DIM = 2400;
+async function loadLabMap(){
+  try{
+    const [m, s] = await Promise.all([
+      sb.from('lab_maps').select('id,name,version,image_url,width,height,active,created_at').order('version',{ascending:false}),
+      sb.from('lab_spots').select('id,map_id,name,x,y'),
+    ]);
+    if(m.error) throw m.error;
+    const maps=m.data||[], spots=(s.data||[]);
+    const byId={}; maps.forEach(x=>{ byId[x.id]=x; });
+    const spotById={}; spots.forEach(x=>{ spotById[x.id]=x; });
+    state.lab={ maps, byId, active: maps.find(x=>x.active) || null, spots, spotById };
+  }catch(e){ state.lab=null; }
+  return state.lab;
+}
+async function loadDocLocs(){
+  try{
+    const [l, st] = await Promise.all([
+      sb.from('doc_locations').select('doc_key,map_id,spot_id,x,y,note'),
+      sb.from('doc_status').select('doc_key,status,note,updated_at'),
+    ]);
+    if(l.error) throw l.error;
+    const loc={}; (l.data||[]).forEach(r=>{ loc[r.doc_key]=r; });
+    const sts={}; (st.data||[]).forEach(r=>{ sts[r.doc_key]=r; });
+    state.docLoc=loc; state.docStatus=sts;
+  }catch(e){ state.docLoc=null; state.docStatus=null; }
+}
+/* 위치 한 줄 → { map, x, y, label } */
+function docLocInfo(key){
+  const L=(state.docLoc||{})[key]; const lab=state.lab; if(!L || !lab) return null;
+  const sp = L.spot_id!=null ? lab.spotById[L.spot_id] : null;
+  const map = lab.byId[sp ? sp.map_id : L.map_id] || null;
+  if(!map) return null;
+  const x = sp ? sp.x : L.x, y = sp ? sp.y : L.y;
+  if(x==null || y==null) return null;
+  const label = [sp ? sp.name : '', L.note||''].filter(Boolean).join(' · ') || '도면 위 표시';
+  return { map, x, y, label, spot:sp };
+}
+function statusBadgeHTML(key){
+  const s=(state.docStatus||{})[key]; if(!s || !DOC_STATUS[s.status]) return '';
+  const d=DOC_STATUS[s.status];
+  return `<span class="st-badge st-${d.c}" title="${escapeAttr((s.note?s.note+' · ':'')+'바뀐 때 '+fmtKST(s.updated_at))}">${escapeHtml(d.t)}</span>`;
+}
+/* 도면 그림 + 점들. dots: [{x,y,cls,label,id,title}] */
+function labMapHTML(map, dots, opts){
+  opts=opts||{};
+  const ar = (map.width && map.height) ? `${map.width} / ${map.height}` : '16 / 10';
+  const ratio = (map.width && map.height) ? (map.width/map.height) : 1.6;
+  /* ★높이를 줄일 땐 너비로 줄인다 — 높이만 자르면 사진과 점의 기준 상자가 어긋난다 */
+  const mw = opts.maxH ? `;max-width:calc(${opts.maxH} * ${ratio.toFixed(4)})` : '';
+  return `<div class="lm-wrap${opts.cls?' '+opts.cls:''}" style="aspect-ratio:${ar}${mw}" data-map="${map.id}">
+    <img class="lm-img" src="${escapeAttr(map.image_url)}" alt="${escapeAttr(map.name+' 도면')}" draggable="false">
+    ${dots.map(d=>`<span class="lm-dot ${d.cls||''}" style="left:${Number(d.x)}%;top:${Number(d.y)}%"${d.id!=null?` data-spot="${d.id}"`:''}${d.title?` title="${escapeAttr(d.title)}"`:''}>${d.label?`<span class="lm-lab">${escapeHtml(d.label)}</span>`:''}</span>`).join('')}
+  </div>`;
+}
+/* 문서 화면: 보관 위치 카드 + 상태 */
+async function paintDocPlace(key, _nav){
+  if(isMemberDocKey(key)) return;
+  if(state.lab===undefined) await loadLabMap();
+  if(state.docLoc===undefined) await loadDocLocs();
+  if(_nav!==_navSeq) return;
+  const head=$('#doc').querySelector('.doc-head h1');
+  const sbh=statusBadgeHTML(key);
+  if(head && sbh && !head.querySelector('.st-badge')) head.insertAdjacentHTML('beforeend', sbh);
+  const slot=$('#docPlaceSlot'); if(!slot || !state.lab) return;
+  const L=docLocInfo(key);
+  if(!L){ slot.innerHTML=''; return; }
+  slot.innerHTML=`<div class="lm-card">
+      <div class="lm-card-h"><b>보관 위치</b> <span>${escapeHtml(L.label)}</span>
+        <a class="lm-more" href="#//labmap/${encodeURIComponent(key)}">도면 크게 보기 →</a></div>
+      ${labMapHTML(L.map, [{ x:L.x, y:L.y, cls:'glow', title:L.label }], { cls:'small', maxH:'240px' })}
+      ${L.map.active?'':'<div class="lm-old">예전 판 도면에 찍힌 위치예요.</div>'}
+    </div>`;
+}
+/* 위치 고르기 팝업 — 자리를 누르거나 도면 아무 곳을 눌러 점을 찍는다. 저장은 바로 서버로 */
+async function openLocPicker(key){
+  if(state.lab===undefined) await loadLabMap();
+  if(state.docLoc===undefined) await loadDocLocs();
+  const lab=state.lab;
+  if(!lab || !lab.active){ toast(isAdmin() ? '먼저 [물리실 도면]에서 도면을 올려 주세요.' : '아직 도면이 없어요. 관리자에게 부탁해 주세요.'); return; }
+  const map=lab.active;
+  const cur=(state.docLoc||{})[key]||null;
+  let pickSpot = cur && cur.spot_id!=null && lab.spotById[cur.spot_id] && lab.spotById[cur.spot_id].map_id===map.id ? cur.spot_id : null;
+  let pt = (!pickSpot && cur && cur.map_id===map.id && cur.x!=null) ? { x:cur.x, y:cur.y } : null;
+  const spots=lab.spots.filter(s=>s.map_id===map.id);
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box lm-picker" style="max-width:860px;text-align:left">
+    <div class="modal-msg">보관 위치 고르기</div>
+    <div class="modal-sub">보관함 점을 누르거나, 도면 아무 곳을 눌러 점을 찍으세요.</div>
+    <div id="lpMap"></div>
+    ${spots.length?`<div class="lp-spots">${spots.map(s=>`<button type="button" class="tag-chip big" data-ps="${s.id}">${escapeHtml(s.name)}</button>`).join('')}</div>`:''}
+    <label class="nd-label">칸 설명 <span class="hint">(선택 · 예: 위에서 두 번째 칸)</span></label>
+    <input class="he-input" id="lpNote" maxlength="60" value="${escapeAttr((cur&&cur.note)||'')}">
+    <div class="he-msg" id="lpMsg"></div>
+    <div class="modal-btns">${cur?'<button class="modal-cancel" id="lpClear">위치 지우기</button>':''}<button class="modal-cancel" id="lpX">취소</button><button class="modal-ok" id="lpOk">저장</button></div></div>`;
+  document.body.appendChild(ov);
+  const draw=()=>{
+    const dots=spots.map(s=>({ x:s.x, y:s.y, id:s.id, cls: s.id===pickSpot ? 'glow' : 'spot', label:s.name }));
+    if(pt) dots.push({ x:pt.x, y:pt.y, cls:'glow' });
+    $('#lpMap').innerHTML=labMapHTML(map, dots, { cls:'pick', maxH:'56vh' });
+    ov.querySelectorAll('[data-ps]').forEach(b=>b.classList.toggle('on', Number(b.dataset.ps)===pickSpot));
+    const wrap=ov.querySelector('.lm-wrap');
+    wrap.onclick=e=>{
+      const d=e.target.closest('.lm-dot[data-spot]');
+      if(d){ pickSpot=Number(d.dataset.spot); pt=null; draw(); return; }
+      const r=wrap.getBoundingClientRect();
+      pt={ x:Math.round(((e.clientX-r.left)/r.width)*1000)/10, y:Math.round(((e.clientY-r.top)/r.height)*1000)/10 };
+      pt.x=Math.min(100,Math.max(0,pt.x)); pt.y=Math.min(100,Math.max(0,pt.y));
+      pickSpot=null; draw();
+    };
+  };
+  draw();
+  ov.querySelectorAll('[data-ps]').forEach(b=>b.onclick=()=>{ pickSpot=Number(b.dataset.ps); pt=null; draw(); });
+  const close=()=>ov.remove();
+  ov.querySelector('#lpX').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const save=async(args)=>{
+    const m=ov.querySelector('#lpMsg');
+    try{ const { error } = await sb.rpc('doc_loc_set', args); if(error) throw error;
+      await loadDocLocs(); close(); toast('위치를 저장했어요.'); paintEditorLoc(key); }
+    catch(e){ m.className='he-msg err'; m.textContent=docErrMsg(e, '저장하지 못했어요: '); }
+  };
+  ov.querySelector('#lpOk').onclick=()=>{
+    if(pickSpot==null && !pt){ const m=ov.querySelector('#lpMsg'); m.className='he-msg err'; m.textContent='자리를 고르거나 도면을 눌러 점을 찍어 주세요.'; return; }
+    save({ p_key:key, p_spot:pickSpot, p_x:pt?pt.x:null, p_y:pt?pt.y:null, p_note:ov.querySelector('#lpNote').value });
+  };
+  const clr=ov.querySelector('#lpClear'); if(clr) clr.onclick=()=>save({ p_key:key, p_spot:null, p_x:null, p_y:null, p_note:null });
+}
+/* 편집기의 '위치 · 상태' 줄 */
+function editorPlaceHTML(key){
+  if(isMemberDocKey(key) || !state.lab || !canEdit()) return '';
+  const s=(state.docStatus||{})[key];
+  return `<div class="wk-row3 wk-place">
+    <div><label>보관 위치 <span class="hint">(도면 위 붉은 점)</span></label>
+      <div class="wk-loc"><span id="e-loc">-</span><button type="button" class="tr-b" id="e-locbtn">도면에서 고르기</button></div></div>
+    <div><label>상태</label>
+      <div class="wk-st"><span class="usel"><select id="e-status">
+        <option value="">— 적지 않음</option>
+        ${Object.entries(DOC_STATUS).map(([k,v])=>`<option value="${k}"${s&&s.status===k?' selected':''}>${v.t}</option>`).join('')}
+      </select></span><input id="e-stnote" maxlength="80" placeholder="메모 (예: 렌즈에 금)" value="${escapeAttr((s&&s.note)||'')}"></div></div>
+  </div>`;
+}
+function paintEditorLoc(key){
+  const el=$('#e-loc'); if(!el) return;
+  const L=docLocInfo(key);
+  el.textContent = L ? L.label : '아직 없음';
+  el.classList.toggle('muted', !L);
+}
+/* ── 물리실 도면 화면 (#//labmap[/문서키]) ── */
+const labView = { q:'', sel:null, edit:false };
+async function renderLabMap(focusKey){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="doc-head"><h1>물리실 도면</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  await Promise.all([loadLabMap(), loadDocLocs(), state.docs && state.docs.length ? null : loadDocs()]);
+  if(_nav!==_navSeq) return;
+  labView.sel=null; labView.edit=false; labView.q='';
+  if(focusKey){ labView.focus=focusKey; } else labView.focus=null;
+  paintLabMap();
+  railReserve(false);
+  window.scrollTo(0,0);
+}
+function paintLabMap(){
+  const lab=state.lab; const admin=isAdmin();
+  if(!lab){ $('#doc').innerHTML=`<div class="doc-head"><h1>물리실 도면</h1></div><div class="notice">도면 기능이 아직 준비되지 않았어요 (121_lab_map.sql 실행 필요).</div>`; return; }
+  const map=lab.active;
+  const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title; });
+  const locs=Object.keys(state.docLoc||{}).filter(k=>titleOf[k]!==undefined).map(k=>({ key:k, info:docLocInfo(k) })).filter(r=>r.info && map && r.info.map.id===map.id);
+  const atSpot=id=>locs.filter(r=>r.info.spot && r.info.spot.id===id);
+  const q=normTitle(labView.q).toLowerCase();
+  const hits = q ? locs.filter(r=>String(titleOf[r.key]||'').toLowerCase().includes(q) || docAddr(r.key).toLowerCase()===q) : [];
+  const focus = labView.focus ? locs.find(r=>r.key===labView.focus) : null;
+  const spots=map ? lab.spots.filter(s=>s.map_id===map.id) : [];
+  const lit=new Set([...(focus?[focus]:[]), ...hits].map(r=>r.info.spot?('s'+r.info.spot.id):('k'+r.key)));
+  const dots=[];
+  spots.forEach(s=>{ const n=atSpot(s.id).length; dots.push({ x:s.x, y:s.y, id:s.id, cls:(lit.has('s'+s.id)?'glow':'spot')+(labView.sel===s.id?' sel':''), label:s.name+(n?` · ${n}`:'') }); });
+  locs.filter(r=>!r.info.spot).forEach(r=>{ dots.push({ x:r.info.x, y:r.info.y, cls: lit.has('k'+r.key)?'glow':'free', title:titleOf[r.key] }); });
+  const selSpot = labView.sel!=null ? lab.spotById[labView.sel] : null;
+  const listFor = selSpot ? atSpot(selSpot.id) : (focus ? [focus] : hits);
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>물리실 도면${map?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(map.name)} · ${map.version}판</span>`:''}</h1>
+      <div class="tabs"><button id="lmDocs">${ic('docs')}문서 목록</button></div></div>
+    <div class="lm-tools">
+      <input class="docs-q" id="lmQ" placeholder="물건 이름으로 찾기 — 붉게 빛나요" value="${escapeAttr(labView.q)}" autocomplete="off">
+      ${admin?`<button class="btn ghost" id="lmUp" style="width:auto">${map?'새 도면 올리기':'도면 올리기'}</button>
+        ${map?`<button class="btn ${labView.edit?'primary':'ghost'}" id="lmEdit" style="width:auto">${labView.edit?'자리 편집 끝':'자리 편집'}</button>`:''}
+        ${lab.maps.length>1?`<span class="usel"><select class="docs-sel" id="lmVer">${lab.maps.map(m=>`<option value="${m.id}"${m.active?' selected':''}>${m.version}판${m.active?' (지금)':''}</option>`).join('')}</select></span>`:''}
+        <input type="file" id="lmFile" accept="image/*" hidden>`:''}
+    </div>
+    ${labView.edit?'<div class="notice">자리 편집 중 — 빈 곳을 누르면 새 자리, 점을 끌면 옮기기, 점을 누르면 이름 바꾸기·지우기예요.</div>':''}
+    ${map ? labMapHTML(map, dots, { cls:'big'+(labView.edit?' editing':''), maxH:'72vh' }) : `<div class="notice">아직 도면이 없어요.${admin?' [도면 올리기]로 물리실 도면 사진을 올려 주세요.':''}</div>`}
+    <div class="lm-list" id="lmList">
+      ${selSpot?`<div class="lm-list-h"><b>${escapeHtml(selSpot.name)}</b> <span class="muted">${listFor.length}개</span></div>`:''}
+      ${listFor.map(r=>`<a class="lm-item" href="${docHash(r.key)}"><b>${escapeHtml(titleOf[r.key]||'')}</b> ${statusBadgeHTML(r.key)}<span class="muted">${escapeHtml(r.info.label)}</span></a>`).join('')
+        || (q ? '<div class="muted">찾는 물건의 위치가 아직 없어요.</div>' : (selSpot?'<div class="muted">이 자리에 놓인 문서가 없어요.</div>':''))}
+    </div>`;
+  $('#lmDocs').onclick=()=>{ location.hash='#//docs'; };
+  const qi=$('#lmQ'); if(qi){ qi.oninput=()=>{ labView.q=qi.value; labView.sel=null; labView.focus=null; const pos=qi.selectionStart; paintLabMap(); const n=$('#lmQ'); if(n){ n.focus(); try{ n.selectionStart=n.selectionEnd=pos; }catch(e){} } }; }
+  const up=$('#lmUp'), fi=$('#lmFile'); if(up && fi){ up.onclick=()=>fi.click(); fi.onchange=()=>{ const f=fi.files&&fi.files[0]; fi.value=''; if(f) uploadLabMap(f); }; }
+  const ed=$('#lmEdit'); if(ed) ed.onclick=()=>{ labView.edit=!labView.edit; paintLabMap(); };
+  const vs=$('#lmVer'); if(vs) vs.onchange=async()=>{
+    if(!await confirmModal('이 판의 도면을 지금 도면으로 쓸까요?', '문서 위치는 각자 찍힌 판의 도면에 그대로 남아요.', '바꾸기')){ vs.value=String(map.id); return; }
+    const { error } = await sb.rpc('lab_map_activate', { p_id:Number(vs.value) });
+    if(error) toast('바꾸지 못했어요: '+error.message);
+    await loadLabMap(); paintLabMap(); };
+  const wrap=$('#doc').querySelector('.lm-wrap.big'); if(!wrap) return;
+  if(labView.edit) bindSpotEditing(wrap, map);
+  else wrap.onclick=e=>{ const d=e.target.closest('.lm-dot[data-spot]'); labView.sel = d ? Number(d.dataset.spot) : null; labView.focus=null; paintLabMap(); };
+}
+/* 관리자 자리 편집 — 빈 곳 누르기 = 새 자리 / 끌기 = 옮기기 / 누르기 = 이름·지우기 */
+function bindSpotEditing(wrap, map){
+  const pct=e=>{ const r=wrap.getBoundingClientRect(); return { x:Math.min(100,Math.max(0,Math.round(((e.clientX-r.left)/r.width)*1000)/10)), y:Math.min(100,Math.max(0,Math.round(((e.clientY-r.top)/r.height)*1000)/10)) }; };
+  let drag=null;
+  wrap.addEventListener('pointerdown', e=>{
+    const d=e.target.closest('.lm-dot[data-spot]'); if(!d) return;
+    e.preventDefault(); drag={ id:Number(d.dataset.spot), el:d, moved:false, sx:e.clientX, sy:e.clientY };
+    try{ d.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  wrap.addEventListener('pointermove', e=>{
+    if(!drag) return;
+    if(Math.abs(e.clientX-drag.sx)+Math.abs(e.clientY-drag.sy) > 4) drag.moved=true;
+    if(!drag.moved) return;
+    const p=pct(e); drag.el.style.left=p.x+'%'; drag.el.style.top=p.y+'%'; drag.p=p;
+  });
+  wrap.addEventListener('pointerup', async e=>{
+    const D=drag; drag=null;
+    if(D){
+      const s=state.lab.spotById[D.id];
+      if(D.moved && D.p){
+        const { error } = await sb.rpc('lab_spot_save', { p_id:D.id, p_map:map.id, p_name:s.name, p_x:D.p.x, p_y:D.p.y });
+        if(error) toast('옮기지 못했어요: '+error.message);
+        await loadLabMap(); paintLabMap(); return;
+      }
+      const act=await selectModal(`'${s.name}'`, '', [{ value:'ren', label:'이름 바꾸기' }, { value:'del', label:'지우기 (놓인 문서는 같은 자리의 점으로 남아요)' }]);
+      if(act==='ren'){
+        const nm=await promptModal('자리 이름', '', s.name, '바꾸기', v=>normTitle(v)?null:{ level:'err', msg:'' });
+        if(nm!=null){ const { error } = await sb.rpc('lab_spot_save', { p_id:D.id, p_map:map.id, p_name:normTitle(nm), p_x:s.x, p_y:s.y }); if(error) toast(error.message); }
+      }else if(act==='del'){
+        if(await confirmModal(`'${s.name}' 자리를 지울까요?`, '이 자리에 놓인 문서는 위치를 잃지 않고 같은 곳의 점으로 남아요.', '지우기')){
+          const { error } = await sb.rpc('lab_spot_delete', { p_id:D.id }); if(error) toast(error.message); else { await loadDocLocs(); }
+        }
+      }
+      await loadLabMap(); paintLabMap(); return;
+    }
+    if(e.target.closest('.lm-dot')) return;
+    const p=pct(e);
+    const nm=await promptModal('새 자리 이름', '예: 보관함 A · 레이저 선반 · 3번 서랍장', '', '만들기', v=>normTitle(v)?null:{ level:'err', msg:'' });
+    if(nm==null) return;
+    const { error } = await sb.rpc('lab_spot_save', { p_id:null, p_map:map.id, p_name:normTitle(nm), p_x:p.x, p_y:p.y });
+    if(error) toast('만들지 못했어요: '+error.message);
+    await loadLabMap(); paintLabMap();
+  });
+}
+async function uploadLabMap(file){
+  if(!/^image\//.test(file.type||'')){ toast('이미지 파일만 올릴 수 있어요.'); return; }
+  const prev=state.lab && state.lab.active;
+  let copy=true;
+  if(prev){ copy = await confirmModal('새 도면 올리기', '이전 판의 보관함 자리를 그대로 복사할까요? (문서 위치도 따라와요. 자리가 어긋나면 [자리 편집]에서 끌어 맞추면 돼요)', '자리 복사'); }
+  showBlockingLoader('도면 올리는 중…');
+  try{
+    const out=await compressImage(file, { mode:'contain', dim:LABMAP_DIM, target:700*1024, minQuality:0.7 });
+    const ext = out.type==='image/webp' ? 'webp' : 'jpg';
+    const path = `plan/${Date.now()}.${ext}`;
+    const up = await sb.storage.from('labmap').upload(path, out.blob, { contentType:out.type, cacheControl:'31536000', upsert:false });
+    if(up.error) throw up.error;
+    const url = sb.storage.from('labmap').getPublicUrl(path).data.publicUrl;
+    const { error } = await sb.rpc('lab_map_add', { p_name:(prev&&prev.name)||'물리실', p_url:url, p_path:path, p_w:out.width, p_h:out.height, p_copy:copy });
+    if(error) throw error;
+    await Promise.all([loadLabMap(), loadDocLocs()]);
+    toast('새 도면을 올렸어요.');
+    paintLabMap();
+  }catch(e){ toast('올리지 못했어요: '+((e&&e.message)||'')); }
+  finally{ hideBlockingLoader(); }
+}
+
+/* ================== QR 신고 · 주문 신청 (122 · 세션 CP) ==================
+   ★QR을 찍으면 문서가 열린다(로그인 필요). 물건 문서에는 [고장났어요 · 없어졌어요 · 다 떨어졌어요 · 주문 신청] 줄이 있다.
+   ★신고는 물품 상태를 바로 바꾸고(정상일 때만) 관리자에게 알린다. 같은 신고가 열려 있으면 '+1'.
+   ★주문: 신청 → 승인/반려 → 주문함 → 도착(상태 '정상' + 알림). 7일 멈추면 관리자에게 하루 한 번 알림(서버 cron).
+   ★122 미적용이면 이 줄과 화면이 나오지 않는다. */
+const REPORT_KIND = { broken:'고장났어요', missing:'없어졌어요', low:'다 떨어졌어요' };
+const REPORT_WORD = { broken:'고장', missing:'없어짐', low:'다 떨어짐' };
+const ORDER_STEP = { requested:'신청', approved:'승인', rejected:'반려', ordered:'주문함', arrived:'도착', cancelled:'취소' };
+let _reportsOn = null;                          // null=모름 · false=122 없음
+function isItemDoc(key, doc){
+  if(isMemberDocKey(key)) return false;
+  if((state.docLoc||{})[key] || (state.docStatus||{})[key]) return true;
+  if(doc && doc.infobox && doc.infobox.sub==='기자재') return true;
+  const nid=docNodeOf(key); return !!(nid!=null && nodeTemplate(nid)==='gear');
+}
+async function paintDocItem(key, doc, _nav){
+  if(_reportsOn===false || !isItemDoc(key, doc)) return;
+  let open=[];
+  try{ const { data, error } = await sb.rpc('report_list', { p_key:key }); if(error) throw error; open=data||[]; _reportsOn=true; }
+  catch(e){ if(isMissingFn(e)) _reportsOn=false; return; }
+  if(_nav!==_navSeq) return;
+  const slot=$('#docItemSlot'); if(!slot) return;
+  slot.innerHTML=`<div class="item-bar">
+      <span class="item-q">이 물건에 문제가 있나요?</span>
+      ${Object.entries(REPORT_KIND).map(([k,t])=>`<button type="button" class="item-b" data-rep="${k}">${t}</button>`).join('')}
+      <button type="button" class="item-b ord" id="itemOrder">${ic('plus')}주문 신청</button>
+    </div>
+    ${open.length?`<div class="item-open">${open.map(r=>`<div class="item-rep"><b>${escapeHtml(REPORT_WORD[r.kind]||r.kind)} 신고</b>${r.count>1?` <span class="muted">· ${r.count}명</span>`:''}
+      <span class="muted">${escapeHtml(fmtKST(r.last_at))}${r.note?' · '+escapeHtml(r.note):''}</span>
+      ${canEdit()?`<span class="item-rep-acts"><button class="tr-b" data-res="${r.id}">해결됨</button><button class="tr-b" data-dis="${r.id}">잘못된 신고</button></span>`:''}</div>`).join('')}</div>`:''}`;
+  slot.querySelectorAll('[data-rep]').forEach(b=>b.onclick=()=>reportItem(key, doc && doc.title, b.dataset.rep));
+  $('#itemOrder').onclick=()=>openOrderModal(key, doc && doc.title);
+  slot.querySelectorAll('[data-res]').forEach(b=>b.onclick=()=>resolveReport(Number(b.dataset.res), 'resolved', key));
+  slot.querySelectorAll('[data-dis]').forEach(b=>b.onclick=()=>resolveReport(Number(b.dataset.dis), 'dismissed', key));
+}
+async function reportItem(key, title, kind){
+  const note=await promptModal(`'${title||'이 물건'}' — ${REPORT_KIND[kind]}`, '무엇이 어떤지 한 줄 남겨 주면 고치는 사람이 빨라요. (비워도 돼요)', '', '신고하기', v=>[...String(v)].length>200?{ level:'err', msg:'200자까지예요.' }:null);
+  if(note==null) return;
+  try{
+    const { data, error } = await sb.rpc('report_add', { p_key:key, p_kind:kind, p_note:note.trim()||null });
+    if(error) throw error;
+    toast(data && data.dup ? '방금 같은 신고를 했어요.' : (data && data.joined ? `같은 신고가 이미 있어서 +1 했어요 (${data.count}명).` : '신고했어요. 관리자에게 알렸어요.'));
+    await loadDocLocs();
+    if(kind==='low' && !(data && data.dup)){
+      if(await confirmModal('주문도 신청할까요?', '다 떨어진 물건이면 바로 주문 신청을 남길 수 있어요.', '주문 신청')) openOrderModal(key, title);
+    }
+    if(location.hash===docHash(key)) route();
+  }catch(e){ toast(docErrMsg(e, '신고하지 못했어요: ')); }
+}
+async function resolveReport(id, action, key){
+  const note = action==='resolved' ? await promptModal('해결됐나요?', '어떻게 해결했는지 한 줄(선택)', '', '해결됨', null) : '';
+  if(note==null) return;
+  if(action==='dismissed' && !await confirmModal('잘못된 신고로 닫을까요?', '이 신고가 바꾼 물품 상태도 되돌려요.', '닫기')) return;
+  try{ const { error } = await sb.rpc('report_resolve', { p_id:id, p_action:action, p_note:note||null }); if(error) throw error;
+    toast(action==='resolved'?'해결로 닫았어요.':'잘못된 신고로 닫았어요.'); await loadDocLocs(); route(); }
+  catch(e){ toast(docErrMsg(e, '처리하지 못했어요: ')); }
+}
+function openOrderModal(key, title){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:460px;text-align:left">
+    <div class="modal-msg">주문 신청</div>
+    <div class="modal-sub">관리자가 보고 승인 → 주문 → 도착 순서로 알려 드려요.</div>
+    <label class="nd-label">무엇을</label><input class="he-input" id="orItem" maxlength="80" value="${escapeAttr(title||'')}">
+    <label class="nd-label">얼마나 · 어떤 규격 <span class="hint">(선택)</span></label><input class="he-input" id="orDetail" maxlength="300" placeholder="예: AA 배터리 20개">
+    <label class="nd-label">왜 <span class="hint">(선택)</span></label><input class="he-input" id="orReason" maxlength="300" placeholder="예: 다음 주 실험에 필요">
+    <label class="nd-label">살 곳 주소 <span class="hint">(선택)</span></label><input class="he-input" id="orLink" maxlength="500" placeholder="https://">
+    <div class="he-msg" id="orMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">신청하기</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  const ok=ov.querySelector('.modal-ok');
+  ok.onclick=async()=>{
+    const v=id=>ov.querySelector(id).value.trim();
+    const m=ov.querySelector('#orMsg');
+    if(!v('#orItem')){ m.className='he-msg err'; m.textContent='무엇을 살지 적어 주세요.'; return; }
+    if(v('#orLink') && !/^https?:\/\//i.test(v('#orLink'))){ m.className='he-msg err'; m.textContent='주소는 http(s)://로 시작해야 해요.'; return; }
+    ok.disabled=true;
+    try{ const { error } = await sb.rpc('order_add', { p_key:key||null, p_item:v('#orItem'), p_detail:v('#orDetail')||null, p_reason:v('#orReason')||null, p_link:v('#orLink')||null });
+      if(error) throw error; close(); toast('주문을 신청했어요. 진행은 [주문·신고]에서 볼 수 있어요.'); }
+    catch(e){ ok.disabled=false; m.className='he-msg err'; m.textContent=docErrMsg(e, '신청하지 못했어요: '); }
+  };
+  ov.querySelector('#orItem').focus();
+}
+/* 주문·신고 화면 (#//orders) */
+async function renderOrders(){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  let orders=null, reports=null;
+  try{ const [o, r] = await Promise.all([ sb.rpc('order_list'), sb.rpc('report_list', { p_key:null }) ]);
+    if(o.error) throw o.error; orders=o.data||[]; reports=(r.error?[]:(r.data||[])); }
+  catch(e){ if(_nav!==_navSeq) return; $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><div class="notice">아직 준비되지 않았어요 (122_reports_orders.sql 실행 필요).</div>`; return; }
+  if(_nav!==_navSeq) return;
+  const admin=isAdmin();
+  const NEXT = { requested:[['approved','승인'],['rejected','반려']], approved:[['ordered','주문했어요'],['cancelled','취소']], ordered:[['arrived','도착했어요']], rejected:[['requested','다시 신청 단계로']] };
+  const row=o=>`<div class="or-row st-${o.status}${o.stale?' stale':''}">
+      <div class="or-main"><b>${escapeHtml(o.item)}</b>${o.detail?` <span class="muted">· ${escapeHtml(o.detail)}</span>`:''}
+        ${o.doc_key&&(state.docs||[]).some(d=>d.key===o.doc_key)?` <a href="${docHash(o.doc_key)}" class="or-doc">${escapeHtml(docAddr(o.doc_key))}</a>`:''}
+        <div class="or-sub">${escapeHtml(o.who||'')} · ${escapeHtml(fmtKST(o.created_at))}${o.reason?' · '+escapeHtml(o.reason):''}${o.link?` · <a href="${escapeAttr(o.link)}" target="_blank" rel="noopener">살 곳</a>`:''}
+          ${o.decision_note?`<br>관리자: ${escapeHtml(o.decision_note)}`:''}</div></div>
+      <span class="or-step">${escapeHtml(ORDER_STEP[o.status]||o.status)}${o.stale?' · 7일째 멈춤':''}</span>
+      <span class="or-acts">${admin?(NEXT[o.status]||[]).map(([s,t])=>`<button class="tr-b${s==='rejected'||s==='cancelled'?' danger':''}" data-os="${o.id}" data-to="${s}">${t}</button>`).join(''):''}
+        ${!admin && o.mine && o.status==='requested'?`<button class="tr-b danger" data-os="${o.id}" data-to="cancelled">신청 취소</button>`:''}</span>
+    </div>`;
+  const live=orders.filter(o=>['requested','approved','ordered'].includes(o.status));
+  const done=orders.filter(o=>!['requested','approved','ordered'].includes(o.status));
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>주문 · 신고</h1>
+      <div class="tabs"><button id="orNew">${ic('plus')}주문 신청</button><button id="orDocs">${ic('docs')}문서 목록</button></div></div>
+    <div class="doc-meta">${admin?'모든 주문 신청이 보여요(관리자).':'내가 신청한 주문이 보여요.'} 물건 문서의 [주문 신청]으로도 신청할 수 있어요.</div>
+    ${reports.length?`<h2 class="or-h">열린 신고 <span class="tr-cnt">${reports.length}</span></h2>
+      <div class="or-list">${reports.map(r=>`<div class="or-row"><div class="or-main"><b>${escapeHtml(r.title||'')}</b> <span class="st-badge st-${r.kind==='low'?'warn':'bad'}">${escapeHtml(REPORT_WORD[r.kind]||'')}</span>
+        <div class="or-sub">${escapeHtml(r.who||'')}${r.count>1?` 외 ${r.count-1}명`:''} · ${escapeHtml(fmtKST(r.last_at))}${r.note?' · '+escapeHtml(r.note):''}</div></div>
+        <span class="or-acts"><a class="tr-b" href="${docHash(r.doc_key)}">문서</a>${canEdit()?`<button class="tr-b" data-res="${r.id}">해결됨</button><button class="tr-b" data-dis="${r.id}">잘못된 신고</button>`:''}</span></div>`).join('')}</div>`:''}
+    <h2 class="or-h">진행 중인 주문 <span class="tr-cnt">${live.length}</span></h2>
+    <div class="or-list">${live.map(row).join('') || '<div class="muted">진행 중인 주문이 없어요.</div>'}</div>
+    ${done.length?`<details class="or-done"><summary>끝난 주문 ${done.length}</summary><div class="or-list">${done.map(row).join('')}</div></details>`:''}`;
+  $('#orDocs').onclick=()=>{ location.hash='#//docs'; };
+  $('#orNew').onclick=()=>openOrderModal(null, '');
+  $('#doc').querySelectorAll('[data-os]').forEach(b=>b.onclick=async()=>{
+    const to=b.dataset.to;
+    let note=null;
+    if(to==='rejected' || to==='approved'){ note=await promptModal(to==='rejected'?'반려 이유':'승인 메모', '신청한 사람에게 같이 알려 줘요. (선택)', '', to==='rejected'?'반려':'승인', null); if(note==null) return; }
+    else if(!await confirmModal(`'${ORDER_STEP[to]}'(으)로 바꿀까요?`, to==='arrived'?'물건 문서의 상태가 정상으로 바뀌고, 신청한 사람에게 알려요.':'', '바꾸기')) return;
+    try{ const { error } = await sb.rpc('order_set', { p_id:Number(b.dataset.os), p_status:to, p_note:note||null }); if(error) throw error; toast('바꿨어요.'); }
+    catch(e){ toast(docErrMsg(e, '바꾸지 못했어요: ')); }
+    if(to==='arrived') await loadDocLocs();
+    renderOrders();
+  });
+  $('#doc').querySelectorAll('[data-res]').forEach(b=>b.onclick=()=>resolveReport(Number(b.dataset.res), 'resolved'));
+  $('#doc').querySelectorAll('[data-dis]').forEach(b=>b.onclick=()=>resolveReport(Number(b.dataset.dis), 'dismissed'));
+  railReserve(false);
+  window.scrollTo(0,0);
+}
+
+/* ================== 분야 담당자 · 인수인계 · 학기 재고 점검 (123 · 세션 CP) ==================
+   ★분류마다 그해 담당자 — "2026년 역학 담당". 배정은 최고관리자만. 문서의 담당 = 놓인 분류의 담당, 없으면 위 분류.
+   ★인수인계 메모는 분류 × 연도. 다음 해 담당자는 지난해 메모를 이어받아 본다.
+   ★재고 점검이 열려 있으면 물건 문서에 [있음 · 고장 · 부족 · 없음] 버튼. 점검 화면에서 분류별 진행률과 남은 물건.
+   ★123 미적용이면 담당·점검 표시가 아예 없다. */
+function thisYearKST(){ return new Date(Date.now()+9*3600*1000).getUTCFullYear(); }
+const AUDIT_BTN = { ok:'있음 · 정상', broken:'고장', low:'부족', missing:'없음' };
+async function loadOwners(){
+  try{ const { data, error } = await sb.rpc('owner_list', { p_year:thisYearKST() }); if(error) throw error;
+    const m={}; (data||[]).forEach(r=>{ (m[r.node_id]=m[r.node_id]||[]).push(r); }); state.owners=m; }
+  catch(e){ state.owners=null; }
+  return state.owners;
+}
+/* 이 분류(없으면 위로)의 담당 → { node, list } */
+function nodeOwnersEff(id){
+  const T=state.tree; let n=T && T.byId[id]; let g=0;
+  while(n && g++<30){ const l=(state.owners||{})[n.id]; if(l && l.length) return { node:n, list:l }; n=T.byId[n.parent_id]; }
+  return null;
+}
+function ownerLineHTML(key){
+  if(!state.owners || !treeOn()) return '';
+  const nid=docNodeOf(key); if(nid==null) return '';
+  const e=nodeOwnersEff(nid); if(!e) return '';
+  return `<div class="own-line">${thisYearKST()}년 ${escapeHtml(e.node.name)} 담당 · ${e.list.map(o=>`<a href="#//member/${encodeURIComponent(o.uid)}">${escapeHtml(o.name)}</a>`).join(', ')}</div>`;
+}
+/* 다중 선택 팝업 (회원 고르기) */
+async function pickMembersModal(title, sub, selected){
+  let members=[];
+  try{ const { data } = await sb.from('members_public').select('id,name,handle'); members=(data||[]).filter(m=>m.name||m.handle); }catch(e){}
+  members.sort((a,b)=>String(a.name||a.handle).localeCompare(String(b.name||b.handle),'ko'));
+  const sel=new Set(selected||[]);
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box" style="max-width:440px;text-align:left">
+      <div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}
+      <input class="he-input" id="pmQ" placeholder="이름으로 찾기" autocomplete="off">
+      <div class="sm-list" id="pmL"></div>
+      <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">정하기</button></div></div>`;
+    document.body.appendChild(ov);
+    const draw=()=>{ const q=normTitle(ov.querySelector('#pmQ').value).toLowerCase();
+      ov.querySelector('#pmL').innerHTML=members.filter(m=>!q || String(m.name||'').toLowerCase().includes(q) || String(m.handle||'').toLowerCase().includes(q))
+        .map(m=>`<label class="sm-opt pm-opt"><span><input type="checkbox" value="${escapeAttr(m.id)}"${sel.has(m.id)?' checked':''}> ${escapeHtml(m.name||m.handle)}</span><span class="sm-hint">@${escapeHtml(m.handle||'')}</span></label>`).join('')
+        || '<div class="muted" style="padding:8px">찾는 회원이 없어요.</div>';
+      ov.querySelectorAll('#pmL input').forEach(c=>c.onchange=()=>{ if(c.checked) sel.add(c.value); else sel.delete(c.value); }); };
+    ov.querySelector('#pmQ').oninput=draw; draw();
+    const done=v=>{ ov.remove(); resolve(v); };
+    ov.querySelector('.modal-cancel').onclick=()=>done(null);
+    ov.querySelector('.modal-ok').onclick=()=>done([...sel]);
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(null); });
+  });
+}
+async function treeOwners(id){
+  const n=state.tree.byId[id]; const y=thisYearKST();
+  const cur=((state.owners||{})[id]||[]).map(o=>o.uid);
+  const v=await pickMembersModal(`${y}년 ${n.name} 담당`, '여러 명 고를 수 있어요(6명까지). 맡은 사람에게 알림이 가요.', cur);
+  if(v==null) return;
+  try{ const { error } = await sb.rpc('owner_set', { p_node:id, p_year:y, p_uids:v }); if(error) throw error; toast('담당을 정했어요.'); }
+  catch(e){ toast(docErrMsg(e, '정하지 못했어요: ')); }
+  await loadOwners(); paintDocTree();
+}
+async function treeHandover(id){
+  const n=state.tree.byId[id]; const y=thisYearKST();
+  let h=null;
+  try{ const { data, error } = await sb.rpc('handover_get', { p_node:id, p_year:y }); if(error) throw error; h=data; }catch(e){ toast(docErrMsg(e,'불러오지 못했어요: ')); return; }
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:560px;text-align:left">
+    <div class="modal-msg">${escapeHtml(n.name)} 인수인계</div>
+    ${h.prev?`<div class="ho-prev"><div class="ho-h">${h.prev.year}년 담당이 남긴 메모 <span class="muted">· ${escapeHtml(h.prev.who||'')} · ${escapeHtml(fmtKST(h.prev.updated_at))}</span></div>
+      <div class="ho-body">${escapeHtml(h.prev.notes)}</div></div>`:'<div class="muted" style="margin:6px 0 10px">지난해 메모가 없어요.</div>'}
+    <div class="ho-h">${y}년 메모 ${h.this?`<span class="muted">· ${escapeHtml(h.this.who||'')} · ${escapeHtml(fmtKST(h.this.updated_at))}</span>`:''}</div>
+    <textarea id="hoTa" class="ho-ta" maxlength="5000" placeholder="다음 해 담당에게: 소모품 주문처, 자주 고장 나는 곳, 빌려 간 물건 …"${h.can_edit?'':' readonly'}>${escapeHtml((h.this&&h.this.notes)||'')}</textarea>
+    <div class="he-msg" id="hoMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button>${h.can_edit?'<button class="modal-ok">저장</button>':''}</div></div>`;
+  document.body.appendChild(ov);
+  ov.querySelector('.modal-cancel').onclick=()=>ov.remove();
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  const ok=ov.querySelector('.modal-ok');
+  if(ok) ok.onclick=async()=>{
+    try{ const { error } = await sb.rpc('handover_set', { p_node:id, p_year:y, p_notes:ov.querySelector('#hoTa').value }); if(error) throw error; ov.remove(); toast('인수인계 메모를 저장했어요.'); }
+    catch(e){ const m=ov.querySelector('#hoMsg'); m.className='he-msg err'; m.textContent=docErrMsg(e,'저장하지 못했어요: '); }
+  };
+}
+/* 점검 */
+let _audit=undefined;                               // undefined=모름 · null=123 없음
+async function loadAudit(){
+  try{ const { data, error } = await sb.rpc('audit_status'); if(error) throw error; _audit=data||{ round:null }; }
+  catch(e){ _audit=null; }
+  return _audit;
+}
+async function paintDocAudit(key, doc, _nav){
+  if(!isItemDoc(key, doc)) return;
+  if(_audit===undefined) await loadAudit();
+  if(_nav!==_navSeq || !_audit || !_audit.round || !_audit.round.open || !_audit.can_check) return;
+  const slot=$('#docAuditSlot'); if(!slot) return;
+  const it=(_audit.items||[]).find(x=>x.key===key);
+  slot.innerHTML=`<div class="aud-bar"><b>${escapeHtml(_audit.round.name)}</b>
+      <span class="muted">${it&&it.result?`확인함: ${escapeHtml(AUDIT_BTN[it.result])} · ${escapeHtml(it.who||'')}`:'아직 확인 안 함'}</span>
+      <span class="aud-btns">${Object.entries(AUDIT_BTN).map(([k,t])=>`<button class="item-b${it&&it.result===k?' on':''}" data-aud="${k}">${t}</button>`).join('')}</span></div>`;
+  slot.querySelectorAll('[data-aud]').forEach(b=>b.onclick=()=>auditCheck(key, b.dataset.aud, ()=>{ if(location.hash===docHash(key)) route(); }));
+}
+async function auditCheck(key, result, after){
+  let note=null;
+  if(result!=='ok'){ note=await promptModal(`${AUDIT_BTN[result]} — 한 줄 메모`, '(선택) 예: 전원선 없음', '', '확인', null); if(note==null) return; }
+  try{ const { error } = await sb.rpc('audit_check', { p_key:key, p_result:result, p_note:note||null }); if(error) throw error;
+    await Promise.all([loadAudit(), loadDocLocs()]); toast('확인했어요.'); if(after) after(); }
+  catch(e){ toast(docErrMsg(e, '저장하지 못했어요: ')); }
+}
+async function renderAudit(){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="doc-head"><h1>재고 점검</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  await Promise.all([loadAudit(), loadOwners(), state.tree===undefined?loadTree():null]);
+  if(_nav!==_navSeq) return;
+  if(_audit===null){ $('#doc').innerHTML=`<div class="doc-head"><h1>재고 점검</h1></div><div class="notice">아직 준비되지 않았어요 (123_owners_audit.sql 실행 필요).</div>`; return; }
+  const admin=isAdmin(); const R=_audit.round;
+  const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title; });
+  const items=(_audit.items||[]).filter(i=>titleOf[i.key]!==undefined);
+  const top=id=>{ const T=state.tree; let n=T&&T.byId[id]; let g=0; while(n && n.parent_id!=null && T.byId[n.parent_id] && g++<30) n=T.byId[n.parent_id]; return n; };
+  const groups={}; items.forEach(i=>{ const t=i.node_id!=null?top(i.node_id):null; const g=t?t.name:'분류 없음'; (groups[g]=groups[g]||{ node:t, list:[] }).list.push(i); });
+  const done=items.filter(i=>i.result).length;
+  const pct=items.length?Math.round(done*100/items.length):0;
+  const head=`<div class="doc-head"><h1>재고 점검${R?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(R.name)}${R.open?'':' · 닫힘'}</span>`:''}</h1>
+      <div class="tabs">${admin && (!R || !R.open)?`<button id="auStart">${ic('plus')}점검 시작</button>`:''}${admin && R && R.open?`<button id="auClose">점검 닫기</button>`:''}<button id="auDocs">${ic('docs')}문서 목록</button></div></div>`;
+  if(!R){ $('#doc').innerHTML=head+`<div class="notice">아직 연 점검이 없어요.${admin?' [점검 시작]으로 학기 점검을 열면 담당자에게 알림이 가요.':''}</div>`; }
+  else{
+    $('#doc').innerHTML=head+`
+      <div class="aud-prog"><div class="aud-bar-fill" style="width:${pct}%"></div></div>
+      <div class="doc-meta">${done} / ${items.length} 확인 (${pct}%) · 시작 ${escapeHtml(fmtKST(R.started_at))}${R.closed_at?' · 닫음 '+escapeHtml(fmtKST(R.closed_at)):''}</div>
+      ${Object.entries(groups).map(([g,o])=>{ const d=o.list.filter(i=>i.result).length; const eff=o.node?nodeOwnersEff(o.node.id):null;
+        const left=o.list.filter(i=>!i.result), bad=o.list.filter(i=>i.result && i.result!=='ok');
+        return `<section class="aud-sec"><h2 class="or-h">${escapeHtml(g)} <span class="tr-cnt">${d}/${o.list.length}</span>
+            ${eff?`<span class="muted" style="font-size:12px;font-weight:400">담당 ${eff.list.map(x=>escapeHtml(x.name)).join(', ')}</span>`:''}</h2>
+          ${left.map(i=>`<div class="or-row"><div class="or-main"><a href="${docHash(i.key)}"><b>${escapeHtml(titleOf[i.key])}</b></a> <span class="muted">${escapeHtml(docAddr(i.key))}</span></div>
+            ${R.open && _audit.can_check?`<span class="or-acts">${Object.entries(AUDIT_BTN).map(([k,t])=>`<button class="tr-b" data-ak="${escapeAttr(i.key)}" data-ar="${k}">${t}</button>`).join('')}</span>`:''}</div>`).join('')}
+          ${bad.length?`<div class="aud-bad">${bad.map(i=>`<a href="${docHash(i.key)}">${escapeHtml(titleOf[i.key])}</a> <span class="st-badge st-${i.result==='low'?'warn':'bad'}">${escapeHtml(AUDIT_BTN[i.result])}</span>${i.note?` <span class="muted">${escapeHtml(i.note)}</span>`:''}`).join('<br>')}</div>`:''}
+          ${!left.length?'<div class="muted" style="font-size:13px">이 분류는 다 확인했어요 ✓</div>':''}
+        </section>`; }).join('') || '<div class="muted">점검할 물건이 없어요. 물건 문서에 위치·상태를 넣거나 분류에 기자재 틀을 정하면 대상이 돼요.</div>'}`;
+  }
+  const st=$('#auStart'); if(st) st.onclick=async()=>{
+    const m=new Date(Date.now()+9*3600*1000).getUTCMonth()+1;
+    const nm=await promptModal('점검 시작', '담당자들에게 알림이 가요.', `${thisYearKST()}-${m<=7?1:2}학기 점검`, '시작', v=>normTitle(v)?null:{ level:'err', msg:'' });
+    if(nm==null) return;
+    try{ const { error } = await sb.rpc('audit_start', { p_name:normTitle(nm) }); if(error) throw error; toast('점검을 시작했어요.'); }catch(e){ toast(docErrMsg(e,'시작하지 못했어요: ')); }
+    renderAudit(); };
+  const cl=$('#auClose'); if(cl) cl.onclick=async()=>{
+    if(!await confirmModal('점검을 닫을까요?', `확인 ${done} / ${items.length}. 닫은 뒤에도 결과는 남아요.`, '닫기')) return;
+    const { error } = await sb.rpc('audit_close', { p_id:R.id }); if(error) toast(error.message); renderAudit(); };
+  $('#auDocs').onclick=()=>{ location.hash='#//docs'; };
+  $('#doc').querySelectorAll('[data-ak]').forEach(b=>b.onclick=()=>auditCheck(b.dataset.ak, b.dataset.ar, renderAudit));
+  railReserve(false); window.scrollTo(0,0);
+}
+
+/* ================== 10초 변경 확인 (124 · 세션 CP) ==================
+   ★페이지를 통째로 새로고침하지 않는다. 10초마다 서버의 '맥박'(개수·마지막 시각·판 번호) 하나만 받아,
+     바뀐 부분만 다시 읽고 지금 화면을 제자리(스크롤 유지)에서 다시 그린다.
+   ★멈추는 때: 탭이 숨었을 때 · 편집 화면 · 팝업이 떠 있을 때 · 입력칸에 글을 쓰는 중 · 끌기 중 · 글자를 고른 중.
+     (읽던 자리가 흔들리거나 쓰던 글이 날아가면 안 되므로) 멈춘 동안 바뀐 것은 다음 박자에 한꺼번에 반영된다.
+   ★저장한 사람 본인 화면은 저장 직후에 이미 바뀌어 있다 — 이건 '남이 바꾼 것'을 보여 주는 장치다.
+   ★124 미적용이면 문서 목록의 마지막 수정 시각만 본다(가벼운 대체). */
+const PULSE_MS = 10000;
+let _pulseTimer=null, _pulseSig=null, _pulseBusy=false, _pulseFallback=false;
+function pulseBusyNow(){
+  if(document.hidden) return true;
+  if(!state.user || $('#app').style.display==='none') return true;
+  const h=location.hash||'';
+  if(/^#\/\/(edit\/|me$|password|system|admin|health|community|lab(\/|$)|dm\/|inbox|kypt|seminar)/.test(h)) return true;   // 편집·입력 위주 화면
+  if(document.querySelector('.modal-ov, .rw-overlay, #wkSelBar, #wkCtx, .block-ov')) return true;
+  const a=document.activeElement;
+  if(a && (a.tagName==='TEXTAREA' || a.isContentEditable || (a.tagName==='INPUT' && !/^(button|checkbox|radio|submit)$/i.test(a.type||'')) || a.tagName==='SELECT')) return true;
+  if(_trDrag) return true;
+  const s=window.getSelection && window.getSelection(); if(s && String(s).length) return true;
+  if(typeof labView!=='undefined' && labView.edit) return true;
+  return false;
+}
+async function pulseRead(){
+  if(!_pulseFallback){
+    try{ const { data, error } = await sb.rpc('anda_pulse'); if(error) throw error; return data||{}; }
+    catch(e){ if(isMissingFn(e)) _pulseFallback=true; else return null; }
+  }
+  try{
+    const { data, error } = await sb.from('documents').select('updated_at').order('updated_at',{ ascending:false }).limit(1);
+    if(error) return null;
+    return { docs:{ m:(data&&data[0]&&data[0].updated_at)||null, n:(state.docs||[]).length } };
+  }catch(e){ return null; }
+}
+async function pulseTick(){
+  if(_pulseBusy || pulseBusyNow()) return;
+  _pulseBusy=true;
+  try{
+    const p=await pulseRead(); if(!p) return;
+    const sig={}; Object.keys(p).forEach(k=>{ sig[k]=JSON.stringify(p[k]); });
+    if(!_pulseSig){ _pulseSig=sig; return; }
+    const changed=new Set(Object.keys(sig).filter(k=>sig[k]!==_pulseSig[k]));
+    _pulseSig=sig;
+    if(!changed.size) return;
+    if(pulseBusyNow()) { _pulseSig=null; return; }       // 읽는 사이 사용자가 쓰기 시작 → 다음 박자에 처음부터
+    await pulseApply(changed);
+  }finally{ _pulseBusy=false; }
+}
+async function pulseApply(changed){
+  const jobs=[];
+  if(changed.has('docs'))                          jobs.push(loadDocs());
+  if(changed.has('tree') || changed.has('place'))  jobs.push(loadTree());
+  if(changed.has('tags'))                          jobs.push(loadDocTags());
+  if(changed.has('st') || changed.has('loc'))      jobs.push(loadDocLocs());
+  if(changed.has('spots'))                         jobs.push(loadLabMap());
+  if(changed.has('aud'))                           jobs.push(loadAudit());
+  await Promise.all(jobs.map(j=>Promise.resolve(j).catch(()=>{})));
+  if(pulseBusyNow()) return;
+  const h=location.hash||'#//main';
+  const onlyLocks = [...changed].every(k=>k==='locks');
+  const y=window.scrollY;
+  const keep=async(fn)=>{ await fn(); requestAnimationFrame(()=>window.scrollTo(0,y)); };
+  if(/^#\/\/docs$/.test(h)) return keep(renderDocsPage);
+  if(/^#\/\/doctree$/.test(h)){ paintDocTree(); return; }
+  if(/^#\/\/labmap/.test(h)){ paintLabMap(); return; }
+  if(/^#\/\/orders$/.test(h)) return keep(renderOrders);
+  if(/^#\/\/audit$/.test(h)) return keep(renderAudit);
+  if(!/^#\/\//.test(h) && state.key){                        // 문서 화면
+    if(onlyLocks){ paintDocLockBadge(state.key, _navSeq); return; }
+    if(!(state.docs||[]).some(d=>d.key===state.key)){ route(); return; }   // 방금 지워졌다 → 자리 표시로
+    return keep(()=>renderDoc(state.key));
+  }
+}
+function startPulse(){
+  stopPulse();
+  _pulseSig=null;
+  _pulseTimer=setInterval(pulseTick, PULSE_MS);
+}
+function stopPulse(){ if(_pulseTimer){ clearInterval(_pulseTimer); _pulseTimer=null; } }
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden && _pulseTimer) setTimeout(pulseTick, 300); });   // 돌아오면 바로 한 번
 
 const DOCCAT_LS='anda_doccat';                      // 접어둔 분류 기억(기기별)
 function docCatClosed(){ try{ const v=JSON.parse(localStorage.getItem(DOCCAT_LS)||'null');
   return Array.isArray(v)? v : [DOC_G_MEMBER]; }catch(e){ return [DOC_G_MEMBER]; } }
 function saveDocCatClosed(a){ try{ localStorage.setItem(DOCCAT_LS, JSON.stringify(a)); }catch(e){} }
 
-const docsPage = { sort:'abc', q:'', stub:false };   // ★기본 정렬 '가나다' — 이름으로 찾는 화면이니까
+const docsPage = { sort:'abc', q:'', stub:false, tag:'', ops:'' };   // ★기본 정렬 '가나다' — 이름으로 찾는 화면이니까
 
 async function renderDocsPage(){
   const _nav=_navSeq;                     // ★네비 세대 캡처(경합 방지)
@@ -5801,8 +6938,9 @@ async function renderDocsPage(){
   const _s=(p,fb)=>Promise.resolve(p).then(r=>r).catch(()=>fb);
   const [likes, stats] = await Promise.all([
     _s(loadLikeCounts(true), {}), _s(fetchDocStats(), []),
-    _s(loadStrata(null), null),                       // ★지층(86) — 미적용이면 null
+    _s(loadTree(), null), _s(loadDocTags(), null),          // ★분류 나무·태그(120)
   ]);
+  if(isAdmin()) await _s(loadAuditFlags(), null);            // ★운영 태그 자동 4종 — 관리자만
   if(_nav!==_navSeq) return;               // ★낡은 렌더 폐기
   const lenOf={}; (stats||[]).forEach(d=>{ lenOf[d.key]=Number(d.len)||0; });
   const lc=k=>((likes||{})[k]&&likes[k].cnt)||0;
@@ -5811,12 +6949,16 @@ async function renderDocsPage(){
   const isStub=k=>(!isMemberDocKey(k) && lenOf[k]!==undefined && lenOf[k] < STUB_LEN);
   const stubCount=rows.filter(d=>isStub(d.key)).length;
 
+  /* ★운영 태그(관리자끼리만): 손으로 단 것 + 자동 계산 */
+  const opsTags=k=>isAdmin() ? [...docTagsOf(k,'admin'), ...(((state.audit||{})[k])||[]).map(f=>AUTO_TAG_NAMES[f])] : [];
   const rowHTML=d=>`
     <a class="dl2${isStub(d.key)?' stub':''}${d.hidden?' hid':''}" href="${docHash(d.key)}">
-      ${strataHTML(d.key,'bar')}
       <span class="dl2-main">
         <span class="dl2-t">${escapeHtml(d.title||d.key)}</span>
-        <span class="dl2-k">${escapeHtml(isMemberDocKey(d.key)? d.key : '/'+d.key)}${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자">짧음</span>`:''}</span>
+        <span class="dl2-k">${escapeHtml(docAddr(d.key))}${isStub(d.key)?`<span class="dl2-dot" title="아직 짧은 문서예요 — ${lenOf[d.key]||0}자">짧음</span>`:''}${statusBadgeHTML(d.key)}</span>
+        ${(docTagsOf(d.key,'field').length || opsTags(d.key).length) ? `<span class="dl2-tags">${
+          docTagsOf(d.key,'field').map(t=>`<span class="tag-chip">#${escapeHtml(t)}</span>`).join('')}${
+          opsTags(d.key).map(t=>`<span class="ops-chip">${escapeHtml(t)}</span>`).join('')}</span>` : ''}
       </span>
       ${canEdit()?`<button class="dl2-e" data-edit="${escapeAttr(d.key)}" title="편집">${ic('edit')}</button>`:''}
       <span class="dl2-go" aria-hidden="true">→</span>
@@ -5827,8 +6969,11 @@ async function renderDocsPage(){
     const q=docsPage.q.trim().toLowerCase();
     let list=rows.filter(d=>{
       if(docsPage.stub && !isStub(d.key)) return false;
+      if(docsPage.tag && !docTagsOf(d.key,'field').includes(docsPage.tag)) return false;
+      if(docsPage.ops && !opsTags(d.key).includes(docsPage.ops)) return false;
       if(!q) return true;
-      return (String(d.title||'')+' '+String(d.key||'')+' '+String(d.eng||'')).toLowerCase().includes(q);
+      return (String(d.title||'')+' '+(docNoOf(d.key)==null ? String(d.key||'') : '')+' '+docAddr(d.key)+' '+String(d.eng||'')
+        +' '+docTagsOf(d.key,'field').join(' ')).toLowerCase().includes(q);
     });
     list.sort((a,b)=>{
       if(docsPage.sort==='recent') return new Date(b.updated_at||0)-new Date(a.updated_at||0);
@@ -5852,6 +6997,7 @@ async function renderDocsPage(){
     const cnt=$('#dpCount'); if(cnt) cnt.textContent = list.length+'개';
     const empty=$('#dpEmpty'); if(empty) empty.style.display = list.length ? 'none' : 'block';
     const sb2=$('#dpStub'); if(sb2) sb2.classList.toggle('on', docsPage.stub);
+    document.querySelectorAll('#dpTags [data-tag]').forEach(b=>b.classList.toggle('on', b.dataset.tag===docsPage.tag));
     if(box){
       box.querySelectorAll('.dgrp-h').forEach(h=>{
         h.onclick=()=>{
@@ -5873,7 +7019,13 @@ async function renderDocsPage(){
   $('#doc').innerHTML = `
     <div class="docs-head">
       <h1>문서 <span class="muted" id="dpCount" style="font-size:14px;font-weight:400">${rows.length}개</span></h1>
-      ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+      <span class="docs-head-btns">
+        ${canEdit() || Object.values(state.owners||{}).some(l=>l.some(o=>o.me)) ? `<button class="btn ghost" id="dpAudit" style="width:auto;padding:8px 12px" title="학기 재고 점검">재고 점검</button>` : ''}
+        <button class="btn ghost" id="dpOrders" style="width:auto;padding:8px 12px" title="주문 신청 · 물품 신고">주문 · 신고</button>
+        ${state.lab?`<button class="btn ghost" id="dpMap" style="width:auto;padding:8px 12px" title="물리실 도면에서 물건 찾기">물리실 도면</button>`:''}
+        ${canEdit()?`<button class="btn ghost" id="dpTree" style="width:auto;padding:8px 12px" title="분류 나무 — 끌어서 정리">분류 나무</button>`:''}
+        ${canEdit()?`<button class="btn primary" id="dpNew" style="width:auto;padding:8px 14px">${ic('plus')} 새 문서</button>`:''}
+      </span>
     </div>
     <div class="docs-tools">
       <input class="docs-q" id="dpQ" type="text" placeholder="문서 이름으로 찾기…" autocomplete="off" spellcheck="false" value="${escapeAttr(docsPage.q)}">
@@ -5884,7 +7036,13 @@ async function renderDocsPage(){
         <option value="likes">좋아요순</option>
       </select>
       ${stubCount?`<button class="docs-chip${docsPage.stub?' on':''}" id="dpStub" type="button" title="본문이 ${STUB_LEN}자보다 짧은 문서">✏ 도움 필요 ${stubCount}</button>`:''}
+      ${isAdmin() && state.audit ? `<select class="docs-sel" id="dpOps" title="운영 태그 (관리자끼리만 보여요)">
+        <option value="">운영 태그 전체</option>
+        ${[...ADMIN_TAGS, ...Object.values(AUTO_TAG_NAMES)].map(t=>{ const n=rows.filter(d=>opsTags(d.key).includes(t)).length;
+          return `<option value="${escapeAttr(t)}"${docsPage.ops===t?' selected':''}>${escapeHtml(t)} ${n}</option>`; }).join('')}
+      </select>` : ''}
     </div>
+    ${allFieldTags().length?`<div class="docs-tags" id="dpTags">${allFieldTags().map(t=>`<button type="button" class="tag-chip big${docsPage.tag===t?' on':''}" data-tag="${escapeAttr(t)}">#${escapeHtml(t)}</button>`).join('')}</div>`:''}
     <div class="qb-empty" id="dpEmpty" style="display:none">찾는 문서가 없어요. 다른 낱말로 찾아보세요.</div>
     ${featOn('tasks')?'<section class="dpb" id="dpBoard"></section>':''}
     <div id="dpList"></div>`;
@@ -5897,20 +7055,40 @@ async function renderDocsPage(){
   const stEl=$('#dpStub');
   if(stEl) stEl.onclick=()=>{ docsPage.stub=!docsPage.stub; paint(); };
   const nw=$('#dpNew'); if(nw) nw.onclick=openNewDocModal;
+  const tr=$('#dpTree'); if(tr) tr.onclick=()=>{ location.hash='#//doctree'; };
+  const mp=$('#dpMap'); if(mp) mp.onclick=()=>{ location.hash='#//labmap'; };
+  const od=$('#dpOrders'); if(od) od.onclick=()=>{ location.hash='#//orders'; };
+  const au=$('#dpAudit'); if(au) au.onclick=()=>{ location.hash='#//audit'; };
+  const op=$('#dpOps'); if(op) op.onchange=()=>{ docsPage.ops=op.value; paint(); };
+  document.querySelectorAll('#dpTags [data-tag]').forEach(b=>b.onclick=()=>{ docsPage.tag = docsPage.tag===b.dataset.tag ? '' : b.dataset.tag; paint(); });
   paint();
   window.scrollTo(0,0);
 }
 
 async function loadDocs(){
+  /* ★번호(118)는 문서 목록과 동시에 읽는다 — 왕복 한 번 시간에 끝난다 */
+  const noP = loadDocNumbers();
   let { data, error } = await sb.from('documents').select('key,title,hidden');   // ★숨김(80)
   if(error){                                                                      // 80 미적용 → 예전 컬럼
     const r = await sb.from('documents').select('key,title');
     data = r.data; error = r.error;
   }
+  await noP;
   if(error){ $('#doc').innerHTML='<p>문서 목록을 불러오지 못했습니다: '+escapeHtml(error.message)+'</p>'; return; }
   const rank = k => { const i=ORDER.indexOf(k); return i<0 ? 999 : i; };
   state.docs = (data||[]).sort((a,b)=> rank(a.key)-rank(b.key) || a.key.localeCompare(b.key));
+  state.docs.forEach(d=>{ d.no = docNoOf(d.key); });
   buildNav();
+}
+/* 키 ↔ 번호 지도. 118 미적용·실패면 빈 지도 → 화면은 예전 키 주소로 돈다 */
+async function loadDocNumbers(){
+  try{
+    const { data, error } = await sb.from('doc_numbers').select('no,doc_key').is('deleted_at', null);
+    if(error) throw error;
+    const byKey={}, byNo={};
+    (data||[]).forEach(r=>{ byKey[r.doc_key]=r.no; byNo[r.no]=r.doc_key; });
+    state.docNo=byKey; state.noKey=byNo;
+  }catch(e){ if(!state.docNo){ state.docNo={}; state.noKey={}; } }
 }
 function buildNav(active){
   const nav=$('#nav'); if(!nav) return;   // 좌측 문서 목록 제거됨 → 호출돼도 안전하게 무시
@@ -6002,23 +7180,39 @@ async function renderDoc(key){
   $('#doc').innerHTML = `
     <div class="doc-head"><h1>${escapeHtml(doc.title||'')}</h1>
       <div class="tabs">${tabs.join('')}</div></div>
-    <div class="doc-meta">${doc.hidden?'<span class="hid-badge">👁 숨김 — owner에게만 보입니다</span> · ':''}${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
+    <div class="doc-meta">${docNoOf(key)!=null?`<span class="doc-no" title="이 문서의 고정 주소 — 제목을 바꿔도 그대로예요">${escapeHtml(docNoLabel(docNoOf(key)))}</span>${(doc.eng||doc.hidden)?' · ':' '}`:''}${doc.hidden?'<span class="hid-badge">👁 숨김 — owner에게만 보입니다</span> · ':''}${escapeHtml(doc.eng||'')} · 최근 수정: ${fmtKST(doc.updated_at)}${
       (String(doc.body||'').length < STUB_LEN && canEdit())
         ? `<span class="stub-badge">${ic('edit')} 아직 짧은 문서예요 — 이어 써주세요</span>` : ''}</div>
     <div id="taskSlot"></div>
     <div id="likeSlot"></div>
     ${doc.notice?`<div class="notice">${doc.notice}</div>`:''}
     ${infoboxHtml}
+    <div id="docAuditSlot"></div>
+    <div id="docItemSlot"></div>
+    <div id="docPlaceSlot"></div>
     <div class="toc-slot"></div>
     <div class="doc-body">${renderDocBody(doc)}</div>
     <div class="footnotes-slot"></div>
-    ${cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:''}
+    ${(treeOn() && docNodeOf(key)!=null) ? `<div class="category"><b>분류:</b> <a class="new" href="#//doctree">${escapeHtml(nodePath(docNodeOf(key)))}</a></div>`
+      : (cat?`<div class="category"><b>분류:</b> ${cat.map(c=>`<a class="new">${escapeHtml(c)}</a>`).join(' | ')}</div>`:'')}
+    <div class="doc-tags" id="docTagSlot"></div>
+    <div id="docOwnerSlot">${ownerLineHTML(key)}</div>
   `;
   buildToc(); buildFootnotes(); buildNav(key);
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
   activateDynamic($('#doc').querySelector('.doc-body'), key);   // ★동적 블록(절차·그래프) 살리기
   renderLikeBar(key);
   if(featOn('tasks'))    renderTaskBar(key, _nav);     // 과제 바(77) — 없으면 아무것도 안 그린다 · ★기능 스위치(82)
+  paintDocLockBadge(key, _nav);                         // ★편집 잠금(119) — 누가 편집 중이면 한 줄 표시
+  paintDocPlace(key, _nav);                             // ★보관 위치 카드 · 상태 배지(121)
+  paintDocItem(key, doc, _nav);                         // ★QR 신고 · 주문 신청 줄(122)
+  paintDocAudit(key, doc, _nav);                        // ★학기 재고 점검 버튼(123)
+  (state.docTags===undefined ? loadDocTags() : Promise.resolve()).then(()=>{   // ★분야 태그(120)
+    if(_nav!==_navSeq) return; const slot=$('#docTagSlot'); if(!slot) return;
+    const ft=docTagsOf(key,'field');
+    slot.innerHTML=ft.map(t=>`<button type="button" class="tag-chip" data-tag="${escapeAttr(t)}">#${escapeHtml(t)}</button>`).join('');
+    slot.querySelectorAll('[data-tag]').forEach(b=>b.onclick=()=>{ docsPage.tag=b.dataset.tag; location.hash='#//docs'; });
+  });
   if(canEditThis) $('#editBtn').onclick=()=>{ location.hash='#//edit/'+encodeURIComponent(key); };
   $('#histBtn').onclick=()=>{ location.hash='#//hist/'+encodeURIComponent(key); };
   const _qrB=$('#qrBtn'); if(_qrB) _qrB.onclick=()=>openDocQR(key, doc.title||key);
@@ -6053,19 +7247,6 @@ async function renderDoc(key){
         if(el) el.textContent = String(Number(data)||0);
       }
     }catch(e){}
-  })();
-  /* ★지층(86) — 문서 상단. 본문을 이미 그린 뒤에 붙인다:
-     지층이 없거나 86 미적용이어도 문서는 정상적으로 열려야 하므로. */
-  (async()=>{
-    await loadStrata([key]);
-    if(_nav!==_navSeq) return;
-    const bar=strataHTML(key,'wide');
-    if(!bar) return;
-    const head=$('#doc').querySelector('.doc-head');
-    if(!head) return;
-    const lay=(STRATA||{})[key]||[];
-    head.insertAdjacentHTML('afterend',
-      `<div class="strata-row">${bar}<span class="strata-cap">${escapeHtml(strataLabel(lay))}</span></div>`);
   })();
   renderRightRail(await fetchRecent());
   window.scrollTo(0,0);
@@ -6167,6 +7348,8 @@ function wInline(s){
     const url=wUrl(u); const ext=/^https?:/i.test(url);
     return '<a href="'+url+'"'+(ext?' target="_blank" rel="noopener"':'')+'>'+t+'</a>';
   });
+  /* __밑줄__ (세션 CP) — 태그 밖 글자에만. 주소 속 __ 가 깨지지 않게 태그를 건너뛴다 */
+  s=s.split(/(<[^>]*>)/).map((p,i)=> i%2 ? p : p.replace(/__([^_\n][^\n]*?)__/g,'<u>$1</u>')).join('');
   s=s.replace(/\*\*([^*]+)\*\*/g,'<b>$1</b>');
   s=s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1<i>$2</i>');
   s=s.replace(/~~([^~]+)~~/g,'<s>$1</s>');
@@ -6253,6 +7436,7 @@ function wikiToHtml(src){
   while(i<lines.length){
     const L=lines[i]; let m;
     if(/^\s*$/.test(L)){ endPara(); endList(); i++; continue; }
+    if(m=L.match(/^####\s+(.+)/)){ endPara(); endList(); out.push('<h4>'+wInline(m[1])+'</h4>'); i++; continue; }   // 제목 3 (세션 CP)
     if(m=L.match(/^###\s+(.+)/)){ endPara(); endList(); out.push('<h3>'+wInline(m[1])+'</h3>'); i++; continue; }
     if(m=L.match(/^##\s+(.+)/)){ endPara(); endList(); out.push('<h2>'+wInline(m[1])+'</h2>'); i++; continue; }
     if(/^---+\s*$/.test(L)){ endPara(); endList(); out.push('<hr>'); i++; continue; }
@@ -6396,7 +7580,7 @@ async function renderQrSheet(){
       <div class="qs-list" id="qsList">
         ${docs.map(d=>`<label class="ta-item" data-t="${escapeAttr((d.title||'')+' '+d.key)}">
           <input type="checkbox" value="${escapeAttr(d.key)}" data-title="${escapeAttr(d.title||d.key)}">
-          <span>${escapeHtml(d.title||d.key)} <span class="muted">/${escapeHtml(d.key)}</span></span></label>`).join('')
+          <span>${escapeHtml(d.title||d.key)} <span class="muted">${escapeHtml(docAddr(d.key))}</span></span></label>`).join('')
           || '<div class="muted">문서가 없어요.</div>'}
       </div>
     </section>
@@ -6748,6 +7932,8 @@ function htmlToWiki(html){
   });
   s=s.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi,(m,t)=>'\n## '+strip(t)+'\n');
   s=s.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi,(m,t)=>'\n### '+strip(t)+'\n');
+  s=s.replace(/<h4[^>]*>([\s\S]*?)<\/h4>/gi,(m,t)=>'\n#### '+strip(t)+'\n');
+  s=s.replace(/<u>([\s\S]*?)<\/u>/gi,(m,t)=>'__'+strip(t)+'__');
   s=s.replace(/<span[^>]*data-note="([^"]*)"[^>]*>([\s\S]*?)<\/span>/gi,(m,n,t)=>'[['+strip(t)+'|'+n+']]');
   s=s.replace(/<(b|strong)[^>]*>([\s\S]*?)<\/\1>/gi,(m,x,t)=>'**'+strip(t)+'**');
   s=s.replace(/<(i|em)[^>]*>([\s\S]*?)<\/\1>/gi,(m,x,t)=>'*'+strip(t)+'*');
@@ -6963,7 +8149,16 @@ const TIP_FAQ = [
 function tipPaneHTML(){
   const row = (code, desc) =>
     `<tr><td><code>${escapeHtml(code)}</code></td><td class="rz">${wikiToHtml(code)}</td><td>${escapeHtml(desc)}</td></tr>`;
-  let h = '';
+  /* ★단축키 (세션 CP) — 구글 문서와 같다 */
+  const KEYS=[
+    [`${KMOD}+B · I · U`, '굵게 · 기울임 · 밑줄'], [IS_MAC?'⌘+Shift+X':'Alt+Shift+5', '취소선'],
+    [`${KMOD}+K`, '링크 (웹 주소 · D-번호 · 문서 제목)'], [`${KMOD}+${KALT}+F`, '각주'], [`${KMOD}+\\`, '서식 지우기'],
+    [`${KMOD}+${KALT}+0 / 1 / 2 / 3`, '본문 / 제목 1 / 2 / 3'], [`${KMOD}+Shift+7 / 8`, '번호 목록 / 글머리 목록'],
+    [`${KMOD}+Z / Y`, '되돌리기 / 다시'],
+  ];
+  let h = `<div class="tip-sec">단축키</div><table class="tip-tbl"><tr><th>누르면</th><th colspan="2">이렇게 돼요</th></tr>
+    ${KEYS.map(k=>`<tr><td><code>${escapeHtml(k[0])}</code></td><td colspan="2">${escapeHtml(k[1])}</td></tr>`).join('')}
+    <tr><td colspan="3">글자를 고르면 꾸미기 막대가 떠요. 오른쪽 클릭에도 같은 메뉴가 있어요(브라우저 메뉴는 Shift+오른쪽 클릭).</td></tr></table>`;
   for(const [sec, rows] of Object.entries(TIP_ROWS)){
     h += `<div class="tip-sec">${escapeHtml(sec)}</div>
       <table class="tip-tbl"><tr><th>이렇게 쓰면</th><th>이렇게 보입니다</th><th>설명</th></tr>
@@ -7255,7 +8450,11 @@ function bindWkUndo(ta){
   ta.addEventListener('keydown', e=>{
     const mod = e.ctrlKey || e.metaKey;
     if(!mod) return;
+    if(e.isComposing || e.keyCode===229) return;          // ★한글 조합 중에는 손대지 않는다
     const k=(e.key||'').toLowerCase();
+    const c=e.code||'';
+    if(c==='KeyZ' && k!=='z'){ e.preventDefault(); if(e.shiftKey) wkRedo(); else wkUndo(); return; }   // 한글 자판(ㅋ)에서도
+    if(c==='KeyY' && k!=='y'){ e.preventDefault(); wkRedo(); return; }
     if(k==='z'){ e.preventDefault(); if(e.shiftKey) wkRedo(); else wkUndo(); }
     else if(k==='y'){ e.preventDefault(); wkRedo(); }
   });
@@ -7274,17 +8473,288 @@ function wkInsert(before, after, ph){
   ta.setRangeText(before+sel+after, st, en, 'select');
   ta.focus(); wkRenderPreview(); wkAutosave(state.key);
 }
+/* ================== 편집기 개편 (세션 CP) ==================
+   ★층(제목)·목록은 '나누는 버튼'으로, 글자 꾸미기는 '고른 글자에서' 한다 — 구글 문서와 같은 손버릇.
+     · 위 도구 막대: 본문 · 제목 1~3 · 목록 · 번호 목록 · 표 · 사진 · 절차 · 구분선 (줄 단위)
+     · 글자를 고르면 떠오르는 막대 + 오른쪽 클릭 메뉴: 굵게 · 기울임 · 밑줄 · 취소선 · 링크 · 각주 · 수식 · 서식 지우기
+     · 단축키는 구글 문서와 같게 (아래 WK_KEYS). 한글 조합 중에는 단축키를 먹지 않는다.
+   ★모든 동작은 wkApply 한 곳을 지난다 → Ctrl+Z/Y 되돌리기 기록·미리보기·초안 저장이 빠짐없이 따라온다.
+   ★문법은 그대로다(## 제목, **굵게** …). 새로 생긴 것은 __밑줄__ 과 #### (제목 3) 뿐. */
+const IS_MAC = /Mac|iPhone|iPad/.test(navigator.platform||'') ;
+const KMOD = IS_MAC ? '⌘' : 'Ctrl';
+const KALT = IS_MAC ? '⌥' : 'Alt';
 const WK_TOOLBAR=[
-  ['제목',    '\n## ','\n','제목'],
-  ['소제목',  '\n### ','\n','소제목'],
-  ['굵게',    '**','**','굵은 글'],
-  ['기울임',  '*','*','기울인 글'],
-  ['목록',    '\n- ','','항목'],
-  ['표',      '\n| 항목 | 값 |\n| ',' |  |\n','내용'],
-  ['링크',    '[','](https://주소)','표시글자'],
-  ['각주',    '[[','|각주 설명]]','용어'],
-  ['수식',    '$','$','x^2'],
+  { act:'p',     label:'본문',      tip:`본문 글로 (${KMOD}+${KALT}+0)` },
+  { act:'h1',    label:'제목 1',    tip:`큰 제목 — 목차에 들어가요 (${KMOD}+${KALT}+1)` },
+  { act:'h2',    label:'제목 2',    tip:`중간 제목 (${KMOD}+${KALT}+2)` },
+  { act:'h3',    label:'제목 3',    tip:`작은 제목 (${KMOD}+${KALT}+3)` },
+  { sep:true },
+  { act:'ul',    label:'• 목록',    tip:`글머리 목록 (${KMOD}+Shift+8)` },
+  { act:'ol',    label:'1. 번호',   tip:`번호 목록 (${KMOD}+Shift+7)` },
+  { act:'table', label:'표',        tip:'표 넣기' },
+  { act:'image', label:'사진',      tip:'사진 올리기 (끌어다 놓기·붙여넣기도 돼요)', icon:'camera' },
+  { act:'steps', label:'절차',      tip:'따라 하기 체크리스트' },
+  { act:'hr',    label:'구분선',    tip:'가로 구분선' },
 ];
+const WK_SELACTS=[
+  { act:'bold',      label:'<b>B</b>',  name:'굵게',       key:`${KMOD}+B` },
+  { act:'italic',    label:'<i>I</i>',  name:'기울임',     key:`${KMOD}+I` },
+  { act:'underline', label:'<u>U</u>',  name:'밑줄',       key:`${KMOD}+U` },
+  { act:'strike',    label:'<s>S</s>',  name:'취소선',     key:IS_MAC?'⌘+Shift+X':'Alt+Shift+5' },
+  { sep:true },
+  { act:'link',      label:'링크',       name:'링크 달기',   key:`${KMOD}+K` },
+  { act:'note',      label:'각주',       name:'각주 달기',   key:`${KMOD}+${KALT}+F` },
+  { act:'math',      label:'수식',       name:'수식으로',    key:'' },
+  { sep:true },
+  { act:'clear',     label:'지우기',     name:'서식 지우기', key:`${KMOD}+\\` },
+];
+const WK_INLINE = { bold:['**','**','굵은 글'], italic:['*','*','기울인 글'], underline:['__','__','밑줄 글'],
+                    strike:['~~','~~','지운 글'], math:['$','$','x^2'] };
+function wkTa(){ return $('#e-body'); }
+/* 모든 편집 동작의 문 — 되돌리기 기록 → 바꾸기 → 기록 → 미리보기·초안 */
+function wkApply(start, end, text, selS, selE){
+  const ta=wkTa(); if(!ta) return;
+  wkPush(true);                                   // 지금까지의 타이핑을 한 스텝으로 확정
+  ta.setRangeText(text, start, end, 'preserve');
+  ta.focus();
+  try{ ta.selectionStart=selS; ta.selectionEnd=(selE==null?selS:selE); }catch(e){}
+  wkPush(true);
+  wkClearImgSel(); wkRenderPreview(); wkAutosave(state.key);
+}
+/* 고른 범위를 '줄 단위'로 넓힌다 */
+function wkLineRange(ta){
+  const v=ta.value; const s=ta.selectionStart; let e=ta.selectionEnd;
+  if(e>s && v[e-1]==='\n') e--;                 // 다음 줄 맨 앞까지 고른 경우 그 줄은 빼기
+  const ls=v.lastIndexOf('\n', s-1)+1;
+  let le=v.indexOf('\n', e); if(le<0) le=v.length;
+  return { ls, le, lines:v.slice(ls,le).split('\n'), collapsed: s===ta.selectionEnd };
+}
+const WK_BLOCK_RE=/^(#{2,4}\s+|-\s+|\d+[.)]\s+)/;
+function wkKindOf(L){
+  return /^####\s/.test(L)?'h3' : /^###\s/.test(L)?'h2' : /^##\s/.test(L)?'h1'
+       : /^-\s/.test(L)?'ul' : /^\d+[.)]\s/.test(L)?'ol' : 'p';
+}
+/* 줄 모양 바꾸기 — 같은 버튼을 다시 누르면 본문으로(토글) */
+function wkSetBlock(kind){
+  const ta=wkTa(); if(!ta) return;
+  const { ls, le, lines, collapsed } = wkLineRange(ta);
+  const filled=lines.filter(l=>l.trim());
+  const all = filled.length>0 && filled.every(l=>wkKindOf(l)===kind);
+  const target = (all && kind!=='p') ? 'p' : kind;
+  const PRE = { p:'', h1:'## ', h2:'### ', h3:'#### ', ul:'- ' };
+  let n=0;
+  let out;
+  if(!filled.length){ out=[ target==='ol' ? '1. ' : PRE[target] ]; }      // 빈 줄 → 머리표만 깔고 이어 쓰게
+  else out=lines.map(L=>{
+    if(!L.trim()) return L;
+    const body=L.replace(WK_BLOCK_RE,'');
+    if(target==='ol'){ n++; return n+'. '+body; }
+    return PRE[target]+body;
+  });
+  const text=out.join('\n');
+  if(collapsed) wkApply(ls, le, text, ls+text.length);
+  else wkApply(ls, le, text, ls, ls+text.length);
+}
+/* 글자 꾸미기 (굵게·기울임·밑줄·취소선·수식) — 이미 꾸며져 있으면 벗긴다 */
+function wkToggleInline(kind){
+  const ta=wkTa(); if(!ta) return;
+  const [A,B,PH]=WK_INLINE[kind];
+  const v=ta.value; const s=ta.selectionStart, e=ta.selectionEnd;
+  const sel=v.slice(s,e);
+  const single = kind==='italic';
+  const isWrapped=(t)=> t.length>=A.length+B.length && t.startsWith(A) && t.endsWith(B)
+    && (!single || (!t.startsWith('**') || t.startsWith('***')) && (!t.endsWith('**') || t.endsWith('***')));
+  if(sel && !sel.includes('\n') && isWrapped(sel)){
+    const inner=sel.slice(A.length, sel.length-B.length);
+    wkApply(s, e, inner, s, s+inner.length); return;
+  }
+  const outerOk = v.slice(s-A.length, s)===A && v.slice(e, e+B.length)===B
+    && (!single || (v[s-2]!=='*' && v[e+1]!=='*'));
+  if(!sel.includes('\n') && outerOk){
+    wkApply(s-A.length, e+B.length, sel, s-A.length, s-A.length+sel.length); return;
+  }
+  /* 여러 줄을 골랐으면 줄마다 따로 감싼다(한 줄을 넘는 꾸밈은 문법상 안 된다). 줄 머리표(## · - · 1.)는 밖에 둔다 */
+  const lineStart = (s===0 || v[s-1]==='\n');
+  const parts=(sel || PH).split('\n');
+  let caretS=null, caretE=null, acc='';
+  const out=parts.map((P,i)=>{
+    let pre='';
+    if((i>0 || (lineStart && sel)) ){ const m=P.match(WK_BLOCK_RE); if(m){ pre=m[0]; P=P.slice(pre.length); } }
+    if(!P.trim()){ acc+=pre+P+'\n'; return pre+P; }
+    const lead=P.match(/^\s*/)[0], trail=P.match(/\s*$/)[0];
+    const core=P.slice(lead.length, P.length-trail.length);
+    const piece=pre+lead+A+core+B+trail;
+    if(caretS==null){ caretS=s+acc.length+pre.length+lead.length+A.length; }
+    caretE=s+acc.length+pre.length+lead.length+A.length+core.length;
+    acc+=piece+'\n';
+    return piece;
+  });
+  const text=out.join('\n');
+  if(!sel) wkApply(s, e, text, caretS, caretE);                // 아무것도 안 골랐으면 예시 글자를 골라 둔다
+  else if(parts.length===1) wkApply(s, e, text, caretS, caretE);
+  else wkApply(s, e, text, s, s+text.length);
+}
+/* 링크 대상 — 웹 주소 · 문서 번호(D-0012) · 문서 제목 */
+function wkLinkTarget(raw){
+  const v=String(raw||'').trim(); if(!v) return null;
+  if(/^https?:\/\//i.test(v)) return { url:v.replace(/\s/g,'%20').replace(/\)/g,'%29'), label:v };
+  const no=parseDocNo(v.toUpperCase()) ?? (/^\d{1,7}$/.test(v) ? Number(v) : null);
+  if(no!=null){ const k=docKeyByNo(no); return { url:'#'+docNoLabel(no), label: k ? ((state.docs||[]).find(d=>d.key===k)||{}).title || docNoLabel(no) : docNoLabel(no), doc:!!k }; }
+  const d=(state.docs||[]).find(x=>normTitle(x.title)===normTitle(v));
+  if(d) return { url:docHash(d.key), label:d.title, doc:true };
+  if(/^[\w.-]+\.[a-z]{2,}(\/\S*)?$/i.test(v)) return { url:'https://'+v.replace(/\)/g,'%29'), label:v };
+  if(v.startsWith('#')) return { url:v, label:v };
+  return null;
+}
+async function wkLink(){
+  const ta=wkTa(); if(!ta) return;
+  const s=ta.selectionStart, e=ta.selectionEnd; const sel=ta.value.slice(s,e).replace(/\n/g,' ');
+  const raw=await promptModal('링크 달기', '웹 주소(https://…), 문서 번호(D-0012) 또는 문서 제목을 적어 주세요.', '', '달기', v=>{
+    if(!v.trim()) return null;
+    const t=wkLinkTarget(v);
+    if(!t) return { level:'err', msg:'웹 주소나 문서를 찾지 못했어요.' };
+    return { level:'info', msg: t.doc ? `→ 문서 '${t.label}'로 이어져요` : `→ ${t.url}` };
+  });
+  if(raw==null) { ta.focus(); return; }
+  const t=wkLinkTarget(raw); if(!t) return;
+  const label=(sel.trim() || t.label).replace(/[\[\]]/g,'');
+  const text='['+label+']('+t.url+')';
+  wkApply(s, e, text, s+1, s+1+label.length);
+}
+async function wkNote(){
+  const ta=wkTa(); if(!ta) return;
+  const s=ta.selectionStart, e=ta.selectionEnd; const sel=ta.value.slice(s,e).replace(/\n/g,' ').trim();
+  const raw=await promptModal('각주 달기', sel ? `'${sel}'에 붙일 설명` : '이 자리에 붙일 설명(※로 표시돼요)', '', '달기',
+    v=>v.trim() ? null : { level:'err', msg:'' });
+  if(raw==null){ ta.focus(); return; }
+  const note=raw.trim().replace(/\[/g,'(').replace(/\]/g,')').replace(/\|/g,'/');
+  const text = sel ? '[['+sel.replace(/[\[\]|]/g,'')+'|'+note+']]' : '[[각주: '+note+']]';
+  wkApply(s, e, text, s+text.length);
+}
+/* 서식 지우기 — 꾸밈·링크·각주를 벗기고 글자만 남긴다(사진·수식·줄 모양은 그대로) */
+function wkStripInline(t){
+  return String(t)
+    .replace(/\[\[각주:\s*[^\[\]]*\]\]/g,'')
+    .replace(/\[\[([^|\[\]]+)\|[^\[\]]+\]\]/g,'$1')
+    .replace(/(^|[^!])\[([^\]]+)\]\([^)\s]+\)/g,'$1$2')
+    .replace(/\*\*([^*\n]+)\*\*/g,'$1')
+    .replace(/__([^_\n]+)__/g,'$1')
+    .replace(/~~([^~\n]+)~~/g,'$1')
+    .replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1$2');
+}
+function wkClear(){
+  const ta=wkTa(); if(!ta) return;
+  let s=ta.selectionStart, e=ta.selectionEnd;
+  if(s===e){ const r=wkLineRange(ta); s=r.ls; e=r.le; }
+  const before=ta.value.slice(s,e); const after=wkStripInline(before);
+  if(after===before) return;
+  wkApply(s, e, after, s, s+after.length);
+}
+/* 덩어리 넣기 (표·절차·구분선) — 앞뒤를 빈 줄로 띄워 문단과 섞이지 않게 */
+function wkInsertBlock(kind){
+  const ta=wkTa(); if(!ta) return;
+  const BLK = {
+    table: { t:'| 항목 | 값 |\n|---|---|\n| 내용 |  |', sel:'내용' },
+    steps: { t:'[[절차]]\n- 첫 단계\n- 다음 단계\n[[/절차]]', sel:'첫 단계' },
+    hr:    { t:'---', sel:null },
+  }[kind];
+  if(!BLK) return;
+  const v=ta.value; const s=ta.selectionStart, e=ta.selectionEnd;
+  let pre='', post='';
+  const lineStart = s===0 || v[s-1]==='\n';
+  if(!lineStart) pre='\n\n'; else if(s>1 && v[s-2]!=='\n') pre='\n';
+  const nextCh=v[e];
+  if(nextCh==null) post='\n'; else if(nextCh!=='\n') post='\n\n'; else post='\n';
+  const text=pre+BLK.t+post;
+  if(BLK.sel){ const at=s+pre.length+BLK.t.indexOf(BLK.sel); wkApply(s, e, text, at, at+BLK.sel.length); }
+  else wkApply(s, e, text, s+text.length);
+}
+function wkDo(act){
+  hideWkSelUI();
+  switch(act){
+    case 'bold': case 'italic': case 'underline': case 'strike': case 'math': return wkToggleInline(act);
+    case 'link':  return wkLink();
+    case 'note':  return wkNote();
+    case 'clear': return wkClear();
+    case 'p': case 'h1': case 'h2': case 'h3': case 'ul': case 'ol': return wkSetBlock(act);
+    case 'table': case 'steps': case 'hr': return wkInsertBlock(act);
+    case 'image': return wkPickImage();
+    case 'cut': case 'copy': { const ta=wkTa(); if(ta){ ta.focus(); try{ document.execCommand(act); }catch(e){} if(act==='cut'){ wkPush(true); wkRenderPreview(); wkAutosave(state.key); } } return; }
+  }
+}
+/* 단축키 — 구글 문서와 같게. e.code로 본다(한글 자판에서도 같은 자리) */
+function bindWkKeys(ta){
+  if(!ta) return;
+  ta.addEventListener('keydown', e=>{
+    if(e.isComposing || e.keyCode===229) return;                  // ★한글 조합 중에는 손대지 않는다
+    const mod=e.ctrlKey||e.metaKey, c=e.code||'';
+    let act=null;
+    if(mod && !e.altKey && !e.shiftKey) act={ KeyB:'bold', KeyI:'italic', KeyU:'underline', KeyK:'link', Backslash:'clear' }[c];
+    else if(mod && e.altKey && !e.shiftKey) act={ Digit0:'p', Digit1:'h1', Digit2:'h2', Digit3:'h3',
+                                                 Numpad0:'p', Numpad1:'h1', Numpad2:'h2', Numpad3:'h3', KeyF:'note' }[c];
+    else if(mod && e.shiftKey && !e.altKey) act={ Digit7:'ol', Digit8:'ul', KeyX:'strike' }[c];
+    else if(e.altKey && e.shiftKey && !mod) act={ Digit5:'strike' }[c];
+    if(!act) return;
+    e.preventDefault(); e.stopPropagation();
+    wkDo(act);
+  });
+}
+/* 고른 글자 위에 떠오르는 막대 · 오른쪽 클릭 메뉴 */
+let _wkPtr='mouse';
+function wkSelBtns(withNames){
+  return WK_SELACTS.map(a=> a.sep ? '<span class="wk-sb-sep"></span>'
+    : `<button type="button" data-sel="${a.act}" title="${escapeAttr(a.name+(a.key?' ('+a.key+')':''))}">${withNames
+        ? `<span class="wk-cx-n">${escapeHtml(a.name)}</span><span class="wk-cx-k">${escapeHtml(a.key||'')}</span>` : a.label}</button>`).join('');
+}
+function hideWkSelUI(){ ['wkSelBar','wkCtx'].forEach(id=>{ const el=document.getElementById(id); if(el) el.remove(); }); }
+function wkPlace(el, x, y){
+  const r=el.getBoundingClientRect();
+  const W=window.innerWidth, H=window.innerHeight;
+  el.style.left=Math.max(8, Math.min(x, W-r.width-8))+'px';
+  el.style.top=Math.max(8, Math.min(y, H-r.height-8))+'px';
+}
+function wkWireSelUI(el){
+  el.addEventListener('mousedown', e=>e.preventDefault());       // 누를 때 편집칸의 선택이 풀리지 않게
+  el.querySelectorAll('[data-sel]').forEach(b=>b.onclick=()=>wkDo(b.dataset.sel));
+}
+function showWkSelBar(x, y){
+  hideWkSelUI();
+  const el=document.createElement('div'); el.id='wkSelBar'; el.className='wk-selbar'+(_wkPtr==='touch'?' dock':'');
+  el.innerHTML=wkSelBtns(false);
+  document.body.appendChild(el);
+  wkWireSelUI(el);
+  if(_wkPtr!=='touch') wkPlace(el, x-el.offsetWidth/2, y-el.offsetHeight-12);
+}
+function showWkCtx(x, y){
+  hideWkSelUI();
+  const el=document.createElement('div'); el.id='wkCtx'; el.className='wk-ctx';
+  el.innerHTML=`<button type="button" data-sel="cut"><span class="wk-cx-n">잘라내기</span><span class="wk-cx-k">${KMOD}+X</span></button>
+    <button type="button" data-sel="copy"><span class="wk-cx-n">복사</span><span class="wk-cx-k">${KMOD}+C</span></button>
+    <span class="wk-sb-sep"></span>${wkSelBtns(true)}
+    <div class="wk-cx-hint">Shift를 누른 채 오른쪽 클릭하면 브라우저 메뉴(붙여넣기·맞춤법)</div>`;
+  document.body.appendChild(el);
+  wkWireSelUI(el);
+  wkPlace(el, x, y);
+}
+function bindWkSelUI(ta){
+  if(!ta) return;
+  const hasSel=()=>ta.selectionStart!==ta.selectionEnd;
+  ta.addEventListener('pointerdown', e=>{ _wkPtr=e.pointerType||'mouse'; hideWkSelUI(); });
+  ta.addEventListener('mouseup', e=>{ setTimeout(()=>{ if(hasSel() && !document.getElementById('wkCtx')) showWkSelBar(e.clientX, e.clientY); }, 0); });
+  ta.addEventListener('select', ()=>{ if(_wkPtr==='touch' && hasSel()) showWkSelBar(0,0); });   // 폰: 손잡이로 고른 경우 → 아래쪽에 붙은 막대
+  ta.addEventListener('keydown', e=>{ if(!e.ctrlKey && !e.metaKey && !e.altKey && e.key!=='Shift') hideWkSelUI(); });
+  ta.addEventListener('contextmenu', e=>{
+    if(e.shiftKey || !hasSel()) return;                           // 고른 글자가 없으면 브라우저 메뉴(붙여넣기 등)
+    e.preventDefault();
+    showWkCtx(e.clientX, e.clientY);
+  });
+  ta.addEventListener('blur', ()=>{ setTimeout(()=>{ const a=document.activeElement;
+    if(!(a && (a.closest('#wkSelBar') || a.closest('#wkCtx'))) && document.activeElement!==ta) hideWkSelUI(); }, 120); });
+  ta.addEventListener('scroll', hideWkSelUI, { passive:true });
+}
+document.addEventListener('mousedown', e=>{ const t=e.target;
+  if(!(t && t.closest && (t.closest('#wkSelBar') || t.closest('#wkCtx') || t.closest('#e-body')))) hideWkSelUI(); }, true);
+window.addEventListener('scroll', ()=>{ const b=document.getElementById('wkSelBar'); if(b && !b.classList.contains('dock')) hideWkSelUI(); }, { passive:true });
 async function enterWikiEdit(doc, opts){
   opts=opts||{};
   state.editFmt='wiki';
@@ -7295,35 +8765,37 @@ async function enterWikiEdit(doc, opts){
   $('#doc').innerHTML=`
     <div class="wk-head">
       <h1>문서 편집</h1>
-      <div class="wk-keybox">
-        <label for="e-key" title="영문 소문자·숫자·-·_ · 중복 불가 · 변경 시 링크가 바뀝니다">주소 /</label>
-        <input id="e-key" value="${escapeAttr(doc.key||'')}" spellcheck="false"${isMemberDocKey(doc.key)?' disabled title="회원 문서의 주소는 회원번호로 고정됩니다"':''}>
+      <div class="wk-keybox" title="주소는 번호로 고정돼요 — 제목을 바꿔도 링크·QR은 그대로">
+        <span class="wk-addr">${escapeHtml(docAddr(doc.key))}</span>
       </div>
     </div>
+    <div class="notice lock-lost" id="e-lockmsg" hidden></div>
     <div class="editor">
       ${opts.converted?`<div class="notice"><b>이 문서는 예전 HTML 형식이라 자동으로 쉬운 문법으로 바꿔 열었어요.</b> 오른쪽 미리보기로 확인한 뒤 저장하면 변환이 확정됩니다. <b>저장하지 않고 나가면 원본 그대로</b>예요.</div>`:''}
       <div class="wk-row2">
-        <div><label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}"></div>
+        <div><label>제목</label><input id="e-title" value="${escapeAttr(doc.title||'')}" maxlength="${TITLE_MAX+20}"><div class="title-chk" id="e-title-chk"></div></div>
         <div><label>영문 부제 <span class="hint">(선택)</span></label><input id="e-eng" value="${escapeAttr(doc.eng||'')}"></div>
       </div>
       <div class="wk-row3">
         <div><label>안내상자 <span class="hint">(선택)</span></label><input id="e-notice" value="${escapeAttr(doc.notice||'')}"></div>
-        <div><label>분류 <span class="hint">(목록에서 이 이름으로 묶여요)</span></label>
-          <span class="usel block"><select id="e-cat">
-            <option value="">고르기…</option>
-            ${(()=>{ const cur=String(catStr||'').split(',')[0].trim();
-              const opts=docCategoryOptions();
-              /* ★예전 자유 입력으로 들어간 값도 목록에 남겨둔다 — 저장할 때 지워지면 안 된다 */
-              if(cur && !opts.includes(cur)) opts.push(cur);
-              return opts.map(c=>`<option value="${escapeAttr(c)}"${c===cur?' selected':''}>${escapeHtml(c)}</option>`).join('');
-            })()}
-          </select></span></div>
+        <div><label>분류 <span class="hint">(${treeOn()?'분류 나무에서 고르기':'목록에서 이 이름으로 묶여요'})</span></label>
+          ${docCatSelectHTML('e-cat', doc.key, catStr)}</div>
       </div>
+      ${(!isMemberDocKey(doc.key) && state.tree!==null && canEdit()) ? `<div class="wk-row3">
+        <div><label>분야 태그 <span class="hint">(쉼표로 여러 개 · 모두에게 보여요)</span></label>
+          <input id="e-ftags" list="e-ftags-dl" placeholder="예: 역학, 측정" autocomplete="off">
+          <datalist id="e-ftags-dl">${allFieldTags().map(t=>`<option value="${escapeAttr(t)}">`).join('')}</datalist></div>
+        ${isAdmin()?`<div><label>운영 태그 <span class="hint">(관리자끼리만 보여요)</span></label>
+          <div class="ops-pick" id="e-otags">${ADMIN_TAGS.map(t=>`<label class="ops-opt"><input type="checkbox" value="${escapeAttr(t)}"> ${escapeHtml(t)}</label>`).join('')}</div></div>`:''}
+      </div>` : ''}
+      ${editorPlaceHTML(doc.key)}
       <label style="display:flex;align-items:center;gap:8px">본문
         <span class="hint">— 버튼만 눌러도 작성돼요. 실수해도 [역사]에서 되돌릴 수 있습니다.</span>
         <button type="button" class="wk-tipbtn" id="wkTipBtn">${ic('book')}문서 작성 팁</button>
       </label>
-      <div class="wk-toolbar">${WK_TOOLBAR.map((b,i)=>`<button type="button" data-wk="${i}">${escapeHtml(b[0])}</button>`).join('')}<button type="button" id="wkImgBtn" title="사진 올리기 (드래그&드롭·Ctrl+V 도 가능)">${ic('camera')}사진</button></div>
+      <div class="wk-toolbar" role="toolbar" aria-label="문단 모양">${WK_TOOLBAR.map(b=> b.sep ? '<span class="wk-tb-sep"></span>'
+        : `<button type="button" data-wk="${b.act}" title="${escapeAttr(b.tip||b.label)}">${b.icon?ic(b.icon):''}${escapeHtml(b.label)}</button>`).join('')}
+        <span class="wk-tb-hint">글자를 고르면 꾸미기 막대가 떠요 · 오른쪽 클릭도 돼요</span></div>
       <div class="wk-upmsg" id="wkUpMsg"></div>
       <div class="wk-tabs"><button type="button" id="wkTabE" class="on">작성</button><button type="button" id="wkTabP">미리보기</button></div>
       <div class="wk-split" id="wkSplit">
@@ -7340,9 +8812,10 @@ async function enterWikiEdit(doc, opts){
         <span class="msg" id="e-msg" style="margin:0"></span>
       </div>
     </div>`;
-  document.querySelectorAll('[data-wk]').forEach(b=>{ b.onclick=()=>{ const t=WK_TOOLBAR[+b.dataset.wk]; wkInsert(t[1],t[2],t[3]); }; });
+  document.querySelectorAll('[data-wk]').forEach(b=>{
+    b.addEventListener('mousedown', e=>e.preventDefault());      // 누를 때 편집칸 선택이 풀리지 않게
+    b.onclick=()=>wkDo(b.dataset.wk); });
   $('#wkTipBtn').onclick=toggleTipPane;
-  $('#wkImgBtn').onclick=wkPickImage;
   wkBindImageDrop();
   bindInfoboxForm();
   $('#wkTabE').onclick=()=>{ $('#wkSplit').classList.remove('prev-mode'); $('#wkTabE').classList.add('on'); $('#wkTabP').classList.remove('on'); };
@@ -7350,9 +8823,28 @@ async function enterWikiEdit(doc, opts){
   const ta=$('#e-body');
   wkHistInit(ta.value);
   bindWkUndo(ta);
+  bindWkKeys(ta);                 // ★구글 문서 단축키 (세션 CP)
+  bindWkSelUI(ta);                // ★고른 글자 꾸미기 막대 · 오른쪽 클릭 메뉴
   ta.addEventListener('input', ()=>{ wkPush(); wkRenderPreview(); wkAutosave(doc.key); });
   $('#cancelBtn').onclick=()=>{ location.hash=docHash(doc.key); };
   $('#saveBtn').onclick=()=>saveDoc(doc.key);
+  /* ★제목 규칙(118) — 회원 문서는 대상 밖. 원래 제목 그대로면 검사하지 않는다(예전 규칙으로 지은 제목 보호) */
+  state.editOrigTitle = doc.title || '';
+  /* ★보관 위치·상태(121) — 위치는 고르는 즉시 저장, 상태는 [저장] 때 */
+  paintEditorLoc(doc.key);
+  { const lb=$('#e-locbtn'); if(lb) lb.onclick=()=>openLocPicker(doc.key); }
+  state.editStatus = ((state.docStatus||{})[doc.key]) || null;
+  /* ★분야·운영 태그(120) — 지금 값을 채워 둔다. 저장할 때 바뀐 것만 보낸다 */
+  state.editTags = null;
+  if($('#e-ftags')){
+    loadDocTags().then(()=>{
+      if(!$('#e-ftags')) return;
+      state.editTags = { field:docTagsOf(doc.key,'field').slice(), admin:docTagsOf(doc.key,'admin').slice() };
+      $('#e-ftags').value = state.editTags.field.join(', ');
+      document.querySelectorAll('#e-otags input').forEach(c=>{ c.checked = state.editTags.admin.includes(c.value); });
+    });
+  }
+  if(!isMemberDocKey(doc.key)) wireTitleCheck($('#e-title'), $('#e-title-chk'), doc.key, state.editOrigTitle);
   // 임시저장 복구: 저장 없이 닫혔던 초안이 문서보다 최신이면 제안
   if(!opts.converted){
     let d=null; try{ d=JSON.parse(localStorage.getItem(wkDraftKey(doc.key))||'null'); }catch(e){}
@@ -7367,11 +8859,205 @@ async function enterWikiEdit(doc, opts){
 }
 
 
+/* ================== 편집 잠금 (119 · 세션 CP) ==================
+   ★한 문서는 한 번에 한 사람만 편집한다. [편집]을 누르는 순간 잠금을 받고, 못 받으면 편집기를 열지 않는다.
+   ★20초마다 '아직 있어요'를 보낸다. 2분 동안 소식이 없으면 서버에서 저절로 풀린다(창 닫기·덮개 닫기·끊김).
+   ★10분 동안 입력이 없으면 "아직 편집 중인가요?"를 묻고, 1분 안에 답이 없으면 잠금을 내려놓는다.
+     쓰던 내용은 이미 이 기기에 초안으로 저장돼 있다(wkAutosave) — 다음에 [편집]을 누르면 이어 쓰기를 묻는다.
+   ★잠금을 잃으면(관리자 해제·다른 창이 넘겨받음) 저장 버튼을 잠그고 이유를 보여 준다. 서버도 저장을 거절한다.
+   ★119 미적용이면 예전처럼 잠금 없이 편집한다(우아한 실패). */
+const LOCK_BEAT_MS = 20000;
+const LOCK_IDLE_MS = 10*60*1000;
+const LOCK_IDLE_GRACE_S = 60;
+let EDIT_LOCK = null;                     // { key, token, timer, lastInput, asking }
+function isMissingFn(e){ return /PGRST202|Could not find the function|does not exist/i.test(String((e&&e.code)||'')+' '+String((e&&e.message)||'')); }
+function fmtSince(t){
+  const m=Math.max(0, Math.round((Date.now()-new Date(t).getTime())/60000));
+  return m<1 ? '방금 전부터' : (m<60 ? `${m}분 전부터` : `${Math.floor(m/60)}시간 ${m%60}분 전부터`);
+}
+/* 편집기에 들어가도 되나 → true(진행) | false(막혔고 안내까지 끝냄) */
+async function editLockEnter(key, take){
+  let r=null;
+  try{
+    const { data, error } = await sb.rpc('doc_lock_acquire', { p_key:key, p_take:!!take });
+    if(error) throw error;
+    r=data;
+  }catch(e){ EDIT_LOCK=null; return true; }            // 미적용·일시 오류 → 막지 않는다(저장은 서버가 지킨다)
+  if(!r || typeof r!=='object') return true;           // 예상 밖 응답 → 막지 않는다
+  if(r && r.ok){ editLockStart(key, r.token); return true; }
+  if(r && (r.reason==='no_perm' || r.reason==='no_doc')) return true;   // 권한·존재 판정은 기존 흐름에 맡긴다
+  if(r && r.reason==='mine'){
+    const go = await confirmModal('다른 창에서 이미 편집 중이에요',
+      '같은 계정으로 다른 창(또는 기기)에서 이 문서를 편집하고 있어요. 여기서 이어서 할까요? 그 창에서는 더 저장할 수 없게 돼요.',
+      '여기서 편집');
+    if(!go) return false;
+    return editLockEnter(key, true);
+  }
+  showDocLockedModal(key, r||{});
+  return false;
+}
+function editLockStart(key, token){
+  editLockStop();
+  EDIT_LOCK={ key, token, lastInput:Date.now(), asking:false, timer:null };
+  EDIT_LOCK.timer=setInterval(editLockBeat, LOCK_BEAT_MS);
+}
+function editLockStop(){
+  if(EDIT_LOCK && EDIT_LOCK.timer) clearInterval(EDIT_LOCK.timer);
+  EDIT_LOCK=null;
+}
+/* 입력 흔적 — 편집기 안의 키 입력·클릭이면 '활동 중' */
+document.addEventListener('keydown', ()=>{ if(EDIT_LOCK) EDIT_LOCK.lastInput=Date.now(); }, true);
+document.addEventListener('pointerdown', ()=>{ if(EDIT_LOCK) EDIT_LOCK.lastInput=Date.now(); }, true);
+async function editLockBeat(){
+  const L=EDIT_LOCK; if(!L) return;
+  if(!L.asking && Date.now()-L.lastInput > LOCK_IDLE_MS){ editLockAskIdle(); }
+  let r=null;
+  try{
+    const { data, error } = await sb.rpc('doc_lock_beat', { p_key:L.key, p_token:L.token,
+      p_active:(Date.now()-L.lastInput) < LOCK_BEAT_MS+5000 });
+    if(error) throw error;
+    r=data;
+  }catch(e){ return; }                                  // 일시 오류 — 다음 박자에 다시
+  if(EDIT_LOCK!==L) return;
+  if(r && r.ok) return;
+  if(r && r.lost){
+    if(r.free){                                         // 아무도 안 쥐었다(잠깐 끊겼다 돌아옴) → 조용히 다시 받는다
+      try{
+        const { data } = await sb.rpc('doc_lock_acquire', { p_key:L.key, p_take:false });
+        if(data && data.ok && EDIT_LOCK===L){ L.token=data.token; return; }
+        editLockLost(data||{});
+      }catch(e){}
+      return;
+    }
+    editLockLost(r);
+  }
+}
+function editLockLost(r){
+  const L=EDIT_LOCK; editLockStop();
+  const who = r.mine ? '같은 계정의 다른 창' : ((r.holder_name||'다른 회원')+'님');
+  const box=$('#e-lockmsg');
+  if(box){
+    box.hidden=false;
+    box.innerHTML=`<b>편집 잠금을 잃었어요.</b> 지금은 ${escapeHtml(who)}이(가) 편집하고 있어요. 저장하면 그 내용과 겹치므로 저장을 잠갔어요.
+      쓰던 내용은 이 기기에 초안으로 남아 있어요 — 그 편집이 끝난 뒤 다시 [편집]을 누르면 이어 쓸 수 있어요.`;
+  }
+  const sv=$('#saveBtn'); if(sv) sv.disabled=true;
+}
+async function editLockAskIdle(){
+  const L=EDIT_LOCK; if(!L || L.asking) return;
+  L.asking=true;
+  const ov=document.createElement('div'); ov.className='modal-ov'; ov.id='lockIdleOv';
+  ov.innerHTML=`<div class="modal-box" style="max-width:420px">
+    <div class="modal-msg">아직 편집 중인가요?</div>
+    <div class="modal-sub">10분 동안 입력이 없었어요. 다른 사람도 편집할 수 있게
+      <b><span id="lkIdleN">${LOCK_IDLE_GRACE_S}</span>초 뒤</b> 편집을 내려놓아요. 쓰던 내용은 이 기기에 초안으로 남아요.</div>
+    <div class="modal-btns"><button class="modal-cancel">그만두기</button><button class="modal-ok">계속 편집</button></div></div>`;
+  document.body.appendChild(ov);
+  let n=LOCK_IDLE_GRACE_S;
+  const tick=setInterval(()=>{ n--; const el=document.getElementById('lkIdleN'); if(el) el.textContent=String(Math.max(0,n)); if(n<=0) finish(false); }, 1000);
+  const finish=(keep)=>{
+    clearInterval(tick); ov.remove();
+    if(EDIT_LOCK!==L) return;
+    L.asking=false;
+    if(keep){ L.lastInput=Date.now(); editLockBeat(); return; }
+    /* 초안은 입력할 때마다 이미 저장돼 있다(wkAutosave). 여기서 다시 부르면 화면을 떠난 뒤 빈 본문을 쓸 수 있다 */
+    editLockRelease(false);
+    toast('편집을 내려놓았어요. 쓰던 내용은 초안으로 남아 있어요.');
+    location.hash=docHash(L.key);
+  };
+  ov.querySelector('.modal-ok').onclick=()=>finish(true);
+  ov.querySelector('.modal-cancel').onclick=()=>finish(false);
+}
+/* 내려놓기 — 저장 성공(saved=true)·취소·화면 이동. 실패해도 2분 뒤 서버에서 풀린다 */
+function editLockRelease(saved){
+  const L=EDIT_LOCK; if(!L) return;
+  editLockStop();
+  const ov=document.getElementById('lockIdleOv'); if(ov) ov.remove();
+  try{ sb.rpc('doc_lock_release', { p_key:L.key, p_token:L.token, p_saved:!!saved }).then(()=>{}, ()=>{}); }catch(e){}
+}
+/* 편집 경로를 떠나면 내려놓는다 (route()가 부른다) */
+function editLockLeaveIfNeeded(){
+  if(!EDIT_LOCK) return;
+  const h=location.hash||'';
+  if(h==='#//edit/'+encodeURIComponent(EDIT_LOCK.key)) return;     // 같은 편집 화면(새로 그리기)
+  editLockRelease(false);
+}
+/* 창을 닫을 때 — 비동기 호출은 취소될 수 있어 keepalive로 보낸다(go_offline과 같은 방식) */
+window.addEventListener('pagehide', ()=>{
+  const L=EDIT_LOCK; if(!L || !ACCESS_TOKEN) return;
+  try{
+    fetch(SUPABASE_URL + '/rest/v1/rpc/doc_lock_release', { method:'POST', keepalive:true,
+      headers:{ 'Content-Type':'application/json', 'apikey':SUPABASE_KEY, 'Authorization':'Bearer '+ACCESS_TOKEN },
+      body:JSON.stringify({ p_key:L.key, p_token:L.token, p_saved:false }) });
+  }catch(e){}
+});
+/* "○○님이 편집 중" 팝업 — [끝나면 알려 주세요] / 관리자 [잠금 풀기] */
+function showDocLockedModal(key, r){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  const render=()=>{
+    ov.innerHTML=`<div class="modal-box" style="max-width:440px">
+      <div class="modal-msg">${escapeHtml(r.holder_name||'다른 회원')}님이 편집 중이에요</div>
+      <div class="modal-sub">${r.since?escapeHtml(fmtSince(r.since))+' 편집하고 있어요. ':''}한 문서는 한 번에 한 사람만 편집할 수 있어요.
+        ${r.waiting?'<br><b>끝나면 쪽지함으로 알려 드릴게요.</b>':''}</div>
+      <div class="he-msg" id="lkMsg"></div>
+      <div class="modal-btns">
+        ${r.can_force?`<button class="modal-cancel" id="lkForce" title="편집하던 사람의 잠금을 풉니다 — 그 사람은 저장할 수 없게 돼요">잠금 풀기</button>`:''}
+        <button class="modal-cancel" id="lkClose">닫기</button>
+        <button class="modal-ok" id="lkWait">${r.waiting?'알림 취소':'끝나면 알려 주세요'}</button>
+      </div></div>`;
+    ov.querySelector('#lkClose').onclick=()=>ov.remove();
+    ov.querySelector('#lkWait').onclick=async()=>{
+      const b=ov.querySelector('#lkWait'); b.disabled=true;
+      try{
+        const { data, error } = await sb.rpc('doc_lock_wait', { p_key:key, p_on:!r.waiting });
+        if(error) throw error;
+        if(data && data.free){ ov.remove(); toast('방금 편집이 끝났어요 — 지금 편집할 수 있어요.'); return; }
+        r.waiting = !!(data && data.waiting);
+        render();
+      }catch(e){ const m=ov.querySelector('#lkMsg'); if(m){ m.className='he-msg err'; m.textContent='신청하지 못했어요: '+((e&&e.message)||''); } b.disabled=false; }
+    };
+    const f=ov.querySelector('#lkForce');
+    if(f) f.onclick=async()=>{
+      const ok=await confirmModal('편집 잠금을 풀까요?', `${r.holder_name||'편집하던 사람'}님은 더 저장할 수 없게 되고, 쪽지함으로 알림을 받아요. 그 사람이 쓰던 내용은 그 기기에 초안으로 남아요.`, '잠금 풀기');
+      if(!ok) return;
+      try{ const { error } = await sb.rpc('doc_lock_force', { p_key:key }); if(error) throw error;
+        ov.remove(); toast('잠금을 풀었어요. 이제 편집할 수 있어요.'); }
+      catch(e){ const m=ov.querySelector('#lkMsg'); if(m){ m.className='he-msg err'; m.textContent='풀지 못했어요: '+((e&&e.message)||''); } }
+    };
+  };
+  render();
+  ov.addEventListener('click',e=>{ if(e.target===ov) ov.remove(); });
+  document.body.appendChild(ov);
+}
+/* 문서 화면의 '✎ ○○님이 편집 중' 표시 (있을 때만) */
+async function paintDocLockBadge(key, _nav){
+  let s=null;
+  try{ const { data, error } = await sb.rpc('doc_lock_status', { p_key:key }); if(error) throw error; s=data; }catch(e){ return; }
+  if(_nav!==_navSeq) return;
+  const meta=$('#doc').querySelector('.doc-meta'); if(!meta) return;
+  const old=meta.querySelector('.lock-badge'); if(old) old.remove();
+  if(!s || !s.locked || s.mine) return;
+  meta.insertAdjacentHTML('afterbegin', `<span class="lock-badge" title="${escapeAttr(fmtSince(s.since)+' 편집 중')}">✎ ${escapeHtml(s.holder_name||'누군가')}님이 편집 중</span> · `);
+}
+
 /* 편집 화면을 '별도 경로'(#edit/<key>)로 — 새로고침해도 편집기가 유지되고,
    뒤로가기가 문서로 돌아간다. (예전엔 같은 해시에서 화면만 바뀌어 새로고침하면 날아갔다) */
 async function openEditRoute(key){
+  const _nav=_navSeq;
+  /* ★편집 잠금(119): 못 받으면 문서 화면으로 돌려보내고 안내만 띄운다 */
+  if(!(EDIT_LOCK && EDIT_LOCK.key===key)){
+    const go = await editLockEnter(key);
+    if(_nav!==_navSeq){ if(go) editLockRelease(false); return; }
+    if(!go){
+      const to=docHash(key);
+      try{ history.replaceState(null, '', to); }catch(e){}
+      route();
+      return;
+    }
+  }
   const { data: doc, error } = await sb.from('documents').select('*').eq('key', key).single();
-  if(error || !doc){ renderNotFound(key); return; }   // 삭제됐거나 없는 문서
+  if(error || !doc){ editLockRelease(false); renderNotFound(key); return; }   // 삭제됐거나 없는 문서
+  if(_nav!==_navSeq) return;
   state.key = key;
   enterEdit(doc);
 }
@@ -7400,9 +9086,16 @@ async function saveDoc(key){
   let infobox=null;
   try{ infobox=collectInfobox(); }
   catch(e){ msg.className='msg err'; msg.textContent=e.message; return; }
-  const cat=$('#e-cat').value.split(',').map(s=>s.trim()).filter(Boolean);
+  const catSel=docCatValue($('#e-cat').value);                   // ★분류 나무(120)면 node:<id>
+  const cat=catSel.name ? [catSel.name] : [];
+  /* ★제목 규칙(118): 바꾼 경우에만 미리 검사한다. 최종 판정은 서버 지킴이 트리거 */
+  const _t=$('#e-title').value;
+  if(!isMemberDocKey(key) && normTitle(_t)!==normTitle(state.editOrigTitle||'')){
+    const tp=titleProblem(_t, key);
+    if(tp && tp.level==='err'){ msg.className='msg err'; msg.textContent=tp.msg; $('#e-title').focus(); return; }
+  }
   const payload={
-    title:$('#e-title').value.trim(),
+    title: isMemberDocKey(key) ? _t.trim() : normTitle(_t),
     eng:$('#e-eng').value.trim()||null,
     notice:$('#e-notice').value.trim()||null,
     body:$('#e-body').value,
@@ -7442,26 +9135,44 @@ async function saveDoc(key){
     }catch(_){}   // 확인 실패 시엔 저장을 막지 않는다
   }
 
-  const { error } = await sb.from('documents').update(payload).eq('key', key);
+  /* ★저장된 줄을 돌려받아 0줄이면 실패로 본다 — RLS에 막히거나 그 사이 문서가 지워지면
+     오류 없이 '0줄 수정'으로 끝나 저장된 줄 알고 나가게 된다(초안까지 지워짐). */
+  const { data:saved, error } = await sb.from('documents').update(payload).eq('key', key).select('key');
   if(error){ $('#saveBtn').disabled=false;
     if(handleErr(error,'doc_edit')) return;
-    msg.className='msg err'; msg.textContent='저장 실패: '+error.message; return; }
-  // 주소(key) 변경: editor·admin·owner, 값이 바뀐 경우
-  let finalKey = key;
-  const keyEl = $('#e-key');
-  if(canEdit() && keyEl){
-    const newKey=(keyEl.value||'').trim().toLowerCase();
-    if(newKey && newKey!==key){
-      if(newKey.indexOf('/')>=0){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='문서 주소에는 슬래시(/)를 쓸 수 없어요.'; return; }
-      if(!/^[a-z0-9_-]+$/.test(newKey)){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
-      if((state.docs||[]).some(d=>d.key===newKey)){ $('#saveBtn').disabled=false; msg.className='msg err'; msg.textContent='이미 사용 중인 주소예요.'; return; }
-      const { error:rerr } = await sb.rpc('rename_document', { p_old:key, p_new:newKey });
-      if(rerr){ $('#saveBtn').disabled=false; const dup=/exist|taken|duplicate|unique|중복|이미/i.test(rerr.message||''); msg.className='msg err'; msg.textContent = dup ? '이미 사용 중인 주소예요.' : ('주소 변경 실패: '+rerr.message); return; }
-      finalKey=newKey;
-    }
+    msg.className='msg err'; msg.textContent=docErrMsg(error, '저장 실패: '); return; }
+  if(Array.isArray(saved) && saved.length===0){
+    $('#saveBtn').disabled=false;
+    msg.className='msg err';
+    msg.textContent='저장되지 않았어요 — 문서가 삭제됐거나 편집 권한이 없어요. 쓰던 내용은 이 기기에 초안으로 남아 있어요.';
+    return;
   }
+  /* ★주소는 번호로 고정(118) — 예전의 '주소 바꾸기'는 없앴다 */
+  const finalKey = key;
+  state.editOrigTitle = payload.title;
   $('#saveBtn').disabled=false;
   state.editBase = payload.updated_at;                            // 기준 시각 갱신
+  /* ★분류 나무 자리·태그(120) — 본문 저장과 따로 간다. 실패해도 본문은 이미 저장됐다 → 알리기만 */
+  const after=[];
+  { const se=$('#e-status'), sn=$('#e-stnote');                  // ★상태(121) — 바뀐 경우만
+    if(se && se.value){ const was=state.editStatus||{};
+      const note=(sn&&sn.value||'').trim();
+      if(se.value!==was.status || note!==(was.note||'')) after.push(sb.rpc('doc_status_set', { p_key:key, p_status:se.value, p_note:note||null }).then(r=>{ if(r.error) throw r.error; })); } }
+  if(catSel.nodeId!=null && docNodeOf(key)!==catSel.nodeId) after.push(placeDoc(key, catSel.nodeId, null));
+  if(state.editTags && $('#e-ftags')){
+    const nf=parseTagInput($('#e-ftags').value);
+    if(nf.join('|')!==state.editTags.field.join('|')) after.push(sb.rpc('doc_tag_set', { p_key:key, p_kind:'field', p_tags:nf }).then(r=>{ if(r.error) throw r.error; }));
+    const oa=[...document.querySelectorAll('#e-otags input:checked')].map(c=>c.value);
+    if(isAdmin() && $('#e-otags') && oa.slice().sort().join('|')!==state.editTags.admin.slice().sort().join('|'))
+      after.push(sb.rpc('doc_tag_set', { p_key:key, p_kind:'admin', p_tags:oa }).then(r=>{ if(r.error) throw r.error; }));
+  }
+  if(after.length){
+    const res=await Promise.allSettled(after);
+    const bad=res.find(r=>r.status==='rejected');
+    if(bad) toast('본문은 저장했지만 분류·태그를 바꾸지 못했어요: '+((bad.reason&&bad.reason.message)||''));
+    await Promise.all([loadTree(), loadDocTags(), loadDocLocs()]);
+  }
+  editLockRelease(true);                                          // ★편집 잠금(119) 내려놓기 → 기다리던 사람에게 '마쳤어요' 알림
   try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
   await loadDocs();
   location.hash = docHash(finalKey);   // 저장 후 문서 화면으로 (편집 경로에 머물지 않게)
@@ -7559,6 +9270,7 @@ const TPL_BASIC = ['free','person','event','concept','history','guide'];
 function openNewDocModal(prefill){
   if(!requirePerm('doc_create')) return;
   let pick='free';
+  let tplTouched=false;
   const ov=document.createElement('div'); ov.className='modal-ov';
   ov.innerHTML=`<div class="modal-box" style="max-width:480px">
     <div class="modal-msg">새 문서 만들기</div>
@@ -7573,28 +9285,26 @@ function openNewDocModal(prefill){
     <div class="tpl-desc" id="ndDesc">${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
     <button type="button" class="btn ghost nd-copy" id="ndCopy">${ic('docs')} 기존 문서로 사본 만들기</button>
     <div class="nd-copyinfo" id="ndCopyInfo" style="display:none"></div>
-    <label class="nd-label">문서 주소</label>
-    <input class="he-input" id="ndKey" type="text" maxlength="60" placeholder="예: history" autocomplete="off" value="${escapeAttr(typeof prefill==='string'?prefill:'')}">
-    <label class="nd-label">문서 제목</label>
-    <input class="he-input" id="ndTitle" type="text" maxlength="80" placeholder="예: 동아리 역사" autocomplete="off">
-    <label class="nd-label">분류 <span style="color:var(--text-dim);font-weight:400">(목록에서 이 이름으로 묶여요)</span></label>
-    <span class="usel block"><select class="he-input" id="ndCat">
-      <option value="">고르기…</option>
-      ${docCategoryOptions().map(c=>`<option value="${escapeAttr(c)}">${escapeHtml(c)}</option>`).join('')}
-    </select></span>
+    <label class="nd-label">문서 제목 <span style="color:var(--text-dim);font-weight:400">(주소는 번호로 자동 — 예: D-0078)</span></label>
+    <input class="he-input" id="ndTitle" type="text" maxlength="${TITLE_MAX+20}" placeholder="예: 아두이노 우노" autocomplete="off" value="${escapeAttr(typeof prefill==='string'?prefill:'')}">
+    <div class="title-chk" id="ndTitleChk"></div>
+    <label class="nd-label">분류 <span style="color:var(--text-dim);font-weight:400">(${treeOn()?'분류에 맞는 틀이 있으면 자동으로 골라져요':'목록에서 이 이름으로 묶여요'})</span></label>
+    ${docCatSelectHTML('ndCat', null, '', 'he-input')}
     <div class="he-msg" id="ndMsg"></div>
     <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">만들기</button></div>
   </div>`;
   document.body.appendChild(ov);
   const close=()=>ov.remove();
-  const key=ov.querySelector('#ndKey'), title=ov.querySelector('#ndTitle'),
+  const title=ov.querySelector('#ndTitle'),
         msg=ov.querySelector('#ndMsg'), okb=ov.querySelector('.modal-ok'), desc=ov.querySelector('#ndDesc');
-  key.focus();
+  const checkTitle = wireTitleCheck(title, ov.querySelector('#ndTitleChk'), null, null);
+  title.focus();
+  if(title.value) checkTitle();
   ov.querySelector('.modal-cancel').onclick=close;
   ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
   ov.querySelectorAll('.tpl-card').forEach(c=>{
     c.onclick=()=>{
-      pick=c.dataset.tpl;
+      pick=c.dataset.tpl; tplTouched=true;
       copySrc=null; renderCopyInfo();                 // 템플릿을 고르면 사본 모드 해제
       ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x===c));
       desc.textContent=DOC_TEMPLATES[pick].desc;
@@ -7615,8 +9325,8 @@ function openNewDocModal(prefill){
     info.style.display='block';
     info.innerHTML = `<span class="ncx" id="ndCopyX" title="사본 취소">×</span>
       <b>사본 만들기</b> — <b>${escapeHtml(copySrc.title||copySrc.key)}</b>
-      <span class="pick-key">/${escapeHtml(copySrc.key)}</span> 의 내용을 그대로 복사합니다.<br>
-      <span class="muted">아래에 <b>새 주소와 제목</b>을 입력하고 [만들기]를 누르세요.</span>`;
+      <span class="pick-key">${escapeHtml(docAddr(copySrc.key))}</span> 의 내용을 그대로 복사합니다.<br>
+      <span class="muted">아래에 <b>새 제목</b>을 입력하고 [만들기]를 누르세요.</span>`;
     const x=ov.querySelector('#ndCopyX'); if(x) x.onclick=()=>{ copySrc=null; renderCopyInfo(); };
     ov.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('on'));   // 템플릿 선택 해제
   }
@@ -7625,27 +9335,52 @@ function openNewDocModal(prefill){
       copySrc = doc;
       renderCopyInfo();
       if(!title.value) title.value = (doc.title||doc.key)+' (사본)';
-      key.focus();
+      checkTitle();
+      title.focus();
     });
   };
 
+  let _creating=false;
+  /* ★분류의 기본 틀(120): 사람이 틀을 직접 고르지 않았으면 분류를 고를 때 그 분류의 틀로 맞춘다 */
+  const ndCat=ov.querySelector('#ndCat');
+  if(ndCat) ndCat.addEventListener('change', ()=>{
+    if(tplTouched || copySrc) return;
+    const cs=docCatValue(ndCat.value); const t=cs.nodeId!=null ? nodeTemplate(cs.nodeId) : null;
+    const want=(t && DOC_TEMPLATES[t]) ? t : 'free';
+    pick=want;
+    ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x.dataset.tpl===want));
+    const card=ov.querySelector(`.tpl-card[data-tpl="${want}"]`);
+    if(card && card.classList.contains('tpl-more')){ const g=ov.querySelector('#ndTpl'); if(g) g.classList.add('show-more'); }
+    desc.textContent=DOC_TEMPLATES[want].desc;
+  });
   const doCreate=async()=>{
-    const k=key.value.trim().toLowerCase(), t=title.value.trim();
+    if(_creating) return;                               // ★Enter 연타·한글 조합 Enter로 두 번 만들지 않게
+    const t=normTitle(title.value);
     msg.className='he-msg';
-    if(k.indexOf('/')>=0){ msg.className='he-msg err'; msg.textContent='문서 주소에는 슬래시(/)를 쓸 수 없어요.'; return; }
-    if(!/^[a-z0-9_-]+$/.test(k)){ msg.className='he-msg err'; msg.textContent='주소는 영문 소문자·숫자·-·_ 만 가능해요.'; return; }
-    if(!t){ msg.className='he-msg err'; msg.textContent='문서 제목을 입력하세요.'; return; }
+    const tp=checkTitle();
+    if(tp && tp.level==='err'){ msg.className='he-msg err'; msg.textContent=tp.msg; title.focus(); return; }
     /* ★분류는 필수다 (세션 Y). 지금 3초 고르면 나중에 39개를 뒤지지 않아도 된다. */
     const catEl=ov.querySelector('#ndCat');
-    const cat=(catEl && catEl.value || '').trim();
+    const catSel=docCatValue(catEl && catEl.value);
+    const cat=catSel.name;
     if(!cat){ msg.className='he-msg err'; msg.textContent='분류를 골라주세요. 목록에서 이 이름으로 묶입니다.';
       if(catEl) catEl.focus(); return; }
-    okb.disabled=true; okb.textContent='만드는 중…';
+    _creating=true; okb.disabled=true; okb.textContent='만드는 중…';
+    let k=null;
     try{
-      const { data:ex } = await sb.from('documents').select('key').eq('key', k).maybeSingle();
-      if(ex){ throw { message:'address already exists' }; }
-      const { error } = await sb.rpc('create_document', { p_key:k, p_title:t });
-      if(error) throw error;
+      /* ★118: 제목 하나로 번호·내부 키·제목 검사를 서버 한 번에 */
+      const { data:cr, error } = await sb.rpc('doc_create', { p_title:t });
+      if(error && /PGRST202|Could not find the function|does not exist/i.test(String(error.code||'')+' '+String(error.message||''))){
+        /* 118 미적용 → 예전 함수로. 주소는 사람이 고르지 않으므로 겹치지 않는 영문 키를 만든다 */
+        k='doc-'+Date.now().toString(36);
+        const r2 = await sb.rpc('create_document', { p_key:k, p_title:t });
+        if(r2.error) throw r2.error;
+      }else if(error){ throw error; }
+      else{ k = cr && cr.key; if(!k) throw { message:'만든 문서를 찾지 못했어요' }; }
+      if(catSel.nodeId!=null){                          // ★분류 나무 자리(120)
+        try{ await placeDoc(k, catSel.nodeId, null); await loadTree(); }
+        catch(pe){ toast('문서는 만들었지만 분류에 넣지 못했어요: '+((pe&&pe.message)||'')); }
+      }
 
       if(copySrc){
         // ── 기존 문서의 사본 ──
@@ -7660,7 +9395,7 @@ function openNewDocModal(prefill){
           format: src.format || 'wiki'
         }).eq('key', k);
         if(cerr) throw cerr;
-        close(); await loadDocs(); location.hash='#'+k;   // 문서 열람 화면으로
+        close(); await loadDocs(); location.hash=docHash(k);   // 문서 열람 화면으로
         return;
       }
 
@@ -7675,17 +9410,22 @@ function openNewDocModal(prefill){
           .update({ body: tpl.body || '', infobox: info, format:'wiki', category:[cat] }).eq('key', k);
         if(uerr) throw uerr;   // 문서는 이미 생성됨 — 실패해도 빈 문서로 열림
       }else{
-        await sb.from('documents').update({ category:[cat] }).eq('key', k);   // 뼈대가 없는 템플릿
+        await sb.from('documents').update({ category:[cat], format:'wiki' }).eq('key', k);   // 뼈대가 없는 템플릿
       }
-      close(); await loadDocs(); location.hash='#'+k;
+      close(); await loadDocs(); location.hash=docHash(k);
     }catch(e){
-      const dup=/exist|taken|duplicate|unique|중복|이미/i.test(e.message||'');
-      msg.className='he-msg err'; msg.textContent = dup ? '이미 사용 중인 주소예요.' : ('생성 실패: '+(e.message||''));
-      okb.disabled=false; okb.textContent='만들기';
+      msg.className='he-msg err';
+      if(k){                                            // 문서는 이미 생겼고 뼈대 채우기만 실패 → 그 문서로 보낸다
+        close(); await loadDocs(); location.hash=docHash(k);
+        alert('문서는 만들었지만 기본 뼈대를 채우지 못했어요: '+((e&&e.message)||''));
+        return;
+      }
+      msg.textContent = docErrMsg(e, '만들지 못했어요: ');
+      _creating=false; okb.disabled=false; okb.textContent='만들기';
     }
   };
   okb.onclick=doCreate;
-  [key,title].forEach(inp=>inp.addEventListener('keydown',e=>{ if(e.key==='Enter') doCreate(); }));
+  title.addEventListener('keydown',e=>{ if(e.key==='Enter' && !e.isComposing) doCreate(); });
 }
 /* 문서 고르기 팝업 — 제목·주소·작성자 표에서 하나를 골라 [선택]을 누르면 콜백으로 돌려준다. */
 /* 문서 고르기 팝업 — 호출하는 쪽이 문구를 정한다(사본용 / 추천 문서 추가용 …) */
@@ -7732,7 +9472,7 @@ async function openDocPicker(onPick, opts){
         <tr><th>제목</th><th style="width:150px">주소</th><th style="width:110px">작성자</th></tr>
         ${list.map(r=>`<tr class="pk ${sel&&sel.key===r.key?'on':''}" data-k="${escapeAttr(r.key)}">
           <td><b>${escapeHtml(r.title||r.key)}</b></td>
-          <td class="pick-key">/${escapeHtml(r.key)}</td>
+          <td class="pick-key">${escapeHtml(docAddr(r.key))}</td>
           <td>${escapeHtml(r.who||'-')}</td></tr>`).join('')}
       </table>` : '<div class="ip-empty">검색 결과가 없습니다.</div>';
     ov.querySelectorAll('tr.pk').forEach(tr=>{
@@ -7756,10 +9496,12 @@ async function openDocPicker(onPick, opts){
 
 async function deleteDoc(doc){
   if(!requirePerm('doc_delete')) return;
-  if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`)) return;
+  const no=docNoOf(doc.key);
+  if(!confirm(`'${doc.title}' 문서를 휴지통으로 보낼까요? (휴지통에서 복원할 수 있어요)`
+    + (no!=null ? `\n번호 ${docNoLabel(no)}는 비워 둔 채 남아, 그 주소로 오면 '삭제된 문서입니다'가 보여요.` : ''))) return;
   const { error } = await sb.rpc('trash_document', { p_key: doc.key });
   if(error){ if(!handleErr(error,'doc_delete')) alert('삭제 실패: '+error.message); return; }
-  await loadDocs(); location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home';
+  await loadDocs(); location.hash = '#//docs';
 }
 
 /* ================== 문서 휴지통 (admin+) ================== */
@@ -7786,10 +9528,16 @@ async function renderTrash(){
   let rows=[];
   try{ const { data, error } = await sb.rpc('list_deleted_documents'); if(error) throw error; rows=data||[]; }
   catch(e){ $('#doc').innerHTML='<div class="doc-head"><h1>🗑 휴지통</h1></div><p>불러오지 못했습니다: '+escapeHtml(e.message||'')+' (23_document_trash.sql 실행 여부 확인)</p>'; buildNav(null); railReserve(false); return; }
+  /* ★118: 지운 문서의 번호(주소)를 같이 보여 준다 — 내부 키는 사람에게 의미가 없다 */
+  const trNo={};
+  if(rows.length){
+    try{ const { data } = await sb.from('doc_numbers').select('no,doc_key').in('doc_key', [...new Set(rows.map(r=>r.key))]);
+      (data||[]).forEach(x=>{ trNo[x.doc_key]=x.no; }); }catch(e){}
+  }
   const body = rows.length ? rows.map(r=>`
     <tr>
       <td class="y">${fmtKST(r.deleted_at)}</td>
-      <td><b>${escapeHtml(r.title||r.key)}</b> <span class="muted">(${escapeHtml(r.key)})</span></td>
+      <td><b>${escapeHtml(r.title||r.key)}</b> <span class="muted">(${escapeHtml(trNo[r.key]!=null ? docNoLabel(trNo[r.key]) : r.key)})</span></td>
       <td>${escapeHtml(r.deleter_handle||r.deleter_name||'-')}</td>
       <td style="white-space:nowrap">
         <span class="abtn-group">
@@ -7807,18 +9555,43 @@ async function renderTrash(){
       <tr><th style="width:150px">삭제 일시</th><th>문서</th><th style="width:120px">삭제한 사람</th><th style="width:150px"></th></tr>
       ${body}
     </table>`;
-  $('#trBack').onclick=()=>{ location.hash = state.docs[0] ? '#'+state.docs[0].key : '#home'; };
+  $('#trBack').onclick=()=>{ location.hash = '#//docs'; };
   $('#doc').querySelectorAll('[data-view]').forEach(b=>b.onclick=()=>{ location.hash='#//trash/'+b.dataset.view; });
   $('#doc').querySelectorAll('[data-restore]').forEach(b=>b.onclick=()=>restoreDoc(b.dataset.restore));
   buildNav(null); railReserve(false); window.scrollTo(0,0);
 }
 
-async function restoreDoc(id){
-  if(!confirm('이 문서를 복원할까요? 다시 정상 문서로 돌아갑니다.')) return;
-  const { error } = await sb.rpc('restore_document', { p_id: Number(id) });
-  if(error){ alert('복원 실패: '+error.message); return; }
+async function restoreDoc(id, opts){
+  opts=opts||{};
+  if(!confirm('이 문서를 복원할까요? 같은 번호로 다시 정상 문서가 됩니다.')) return;
+  /* ★118: 그 사이 같은 제목의 문서가 생겼으면 서버가 TITLE_TAKEN으로 거절한다 → 새 이름을 받아 다시 부른다.
+     새 이름은 제목 규칙을 모두 따른다(원래 제목 그대로 복원할 때만 예전 규칙 허용). */
+  let title=null, tries=0;
+  for(;;){
+    const args={ p_id: Number(id) };
+    if(title!=null) args.p_title = normTitle(title);
+    const { error } = await sb.rpc('restore_document', args);
+    if(!error) break;
+    const code=docErrCode(error);
+    if(/^TITLE_/.test(code) && tries<5){
+      tries++;
+      const nt = await promptModal('이름이 겹쳐요 — 새 이름을 정해 주세요',
+        code==='TITLE_TAKEN' ? '지운 사이에 같은 제목의 문서가 생겼어요. 복원할 문서의 새 제목을 적어 주세요.' : error.message,
+        title!=null ? title : '', '이 이름으로 복원', v=>titleProblem(v, null));
+      if(nt==null) return;
+      title=nt; continue;
+    }
+    alert('복원 실패: '+error.message); return;
+  }
   await loadDocs();
   document.body.classList.remove('trash-view');
+  if(opts.after==='doc' && opts.no!=null){
+    const k=docKeyByNo(opts.no);
+    const to = k ? docHash(k) : '#//docs';
+    if(location.hash===to) route();          // ★자리 표시 화면(#D-…)에서 복원 → 해시가 같아 hashchange가 안 뜬다
+    else location.hash = to;
+    return;
+  }
   location.hash='#//trash';
   renderTrash();   // 목록 갱신(해시가 이미 #trash면 hashchange가 안 뜨므로 직접 호출)
 }
@@ -7882,7 +9655,7 @@ async function showHistory(key){
     : '<p>아직 편집 이력이 없습니다. (문서를 한 번 수정하면 이전 버전이 여기에 쌓입니다.)</p>';
 
   $('#doc').innerHTML = `
-    <div class="doc-head"><h1>역사 · ${escapeHtml(key)}</h1>
+    <div class="doc-head"><h1>역사 · ${escapeHtml(((state.docs||[]).find(d=>d.key===key)||{}).title || docAddr(key))}</h1>
       <div class="tabs"><button id="backBtn">${ic('back')}문서로</button></div></div>
     <div class="doc-meta">30일 이내 버전만 되돌릴 수 있습니다. 되돌려도 과거 기록은 지워지지 않습니다. <b>[열람]</b>은 그 시점의 내용을 읽기 전용으로 보여줍니다.</div>
     <div class="history">${body}</div>`;
@@ -8713,7 +10486,16 @@ function healthTasks(){
       ['member_profile',              ()=>chkFn('member_profile','member_profile')],
       ['heartbeat / go_offline (26·42)', ()=>chkFn('heartbeat / go_offline (26·42)','heartbeat')],
       ['create_document (25)',        ()=>chkFn('create_document (25)','create_document')],
-      ['rename_document (25)',        ()=>chkFn('rename_document (25)','rename_document')],
+      ['rename_document (25 · 118부터 거절)', ()=>chkFn('rename_document (25 · 118부터 거절)','rename_document')],
+      ['doc_numbers — 문서 번호 (118)', ()=>chkTable('doc_numbers — 문서 번호 (118)', ()=>sb.from('doc_numbers').select('no,doc_key').limit(1))],
+      ['doc_create / deleted_doc_view (118)', ()=>chkFn('doc_create / deleted_doc_view (118)','doc_create','deleted_doc_view','deleted_rev_body')],
+      ['anda_pulse — 10초 변경 확인 (124)', ()=>chkFn('anda_pulse — 10초 변경 확인 (124)','anda_pulse')],
+      ['owner_set / handover / audit (123)', ()=>chkFn('owner_set / handover / audit (123)','owner_set','owner_list','handover_get','handover_set','audit_status','audit_check')],
+      ['report_add / order_add / order_set (122)', ()=>chkFn('report_add / order_add / order_set (122)','report_add','report_resolve','order_add','order_set','order_list')],
+      ['lab_maps · doc_locations · doc_status (121)', ()=>chkTable('lab_maps · doc_locations · doc_status (121)', ()=>sb.from('doc_locations').select('doc_key').limit(1))],
+      ['lab_map_add / doc_loc_set / doc_status_set (121)', ()=>chkFn('lab_map_add / doc_loc_set / doc_status_set (121)','lab_map_add','lab_spot_save','doc_loc_set','doc_status_set')],
+      ['분류 나무 · 태그 (120)', ()=>chkFn('분류 나무 · 태그 (120)','tree_get','tree_node_move','doc_place_set','doc_tag_set','doc_audit_flags')],
+      ['doc_lock_* — 편집 잠금 (119)', ()=>chkFn('doc_lock_* — 편집 잠금 (119)','doc_lock_acquire','doc_lock_beat','doc_lock_release','doc_lock_wait','doc_lock_status','doc_lock_force')],
       ['rollback_document',           ()=>chkFn('rollback_document','rollback_document')],
       ['trash / restore_document (23·45)', ()=>chkFn('trash / restore_document (23·45)','restore_document')],
       ['prune_revisions (33)',        ()=>chkFn('prune_revisions (33)','prune_revisions')],
@@ -8790,7 +10572,7 @@ function healthTasks(){
       ['get_rewind / set_rewind (리와인드)', ()=>chkFn('get_rewind / set_rewind (리와인드)','get_rewind')],
       ['request_withdraw / list_withdraw_requests / approve_withdraw (탈퇴)', ()=>chkFn('request_withdraw / list_withdraw_requests / approve_withdraw (탈퇴)','request_withdraw','approve_withdraw')],
       ['doc_task / task_board / my_tasks (과제)', ()=>chkFn('doc_task / task_board / my_tasks (과제)','task_board','my_tasks')],
-      ['doc_strata / set_doc_hidden',    ()=>chkFn('doc_strata / set_doc_hidden','doc_strata','set_doc_hidden')],
+      ['set_doc_hidden (문서 숨김)',      ()=>chkFn('set_doc_hidden (문서 숨김)','set_doc_hidden')],
       ['public_stats / public_tracks (소개 랜딩)', ()=>chkFn('public_stats / public_tracks (소개 랜딩)','public_stats','public_tracks')],
       ['toggle_question_like / bump_question_view', ()=>chkFn('toggle_question_like / bump_question_view','toggle_question_like')],
     ]},
@@ -9477,7 +11259,7 @@ async function renderSysLanding(){
     <div class="ld-item">
       <span class="ld-doc">
         <b>${escapeHtml(titleOf[it.key] || it.title || it.key)}</b>
-        <span class="pick-key">/${escapeHtml(it.key)}</span>
+        <span class="pick-key">${escapeHtml(docAddr(it.key))}</span>
         ${titleOf[it.key]===undefined?'<span class="ld-gone">없는 문서</span>':''}
       </span>
       <input class="ld-desc" data-si="${si}" data-ii="${ii}" value="${escapeAttr(it.desc||'')}" placeholder="한 줄 설명" maxlength="40">
@@ -9813,6 +11595,16 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-01', text:'[문서] 문서 주소가 번호로 바뀌었어요(예: D-0078). 제목을 고쳐도 링크·QR은 그대로이고, 지운 문서의 번호는 다시 쓰이지 않아 그 주소로 오면 "삭제된 문서입니다"와 30일 안의 기록이 보여요. 예전 주소로 들어와도 같은 문서가 열립니다.' },
+  { date:'2026-10-01', text:'[문서] 새 문서는 제목만 정하면 돼요. 같은 제목은 만들 수 없고, 띄어쓰기·대소문자만 다른 제목이 있으면 미리 알려 줘요. 제목에는 / 와 # , 그리고 문법에 쓰이는 말(절차·영상·그래프·포함·각주)은 쓸 수 없어요. 지운 문서를 되살릴 때 이름이 겹치면 새 이름을 물어봐요.' },
+  { date:'2026-10-01', text:'[문서] 문서 목록의 지층 막대를 뺐어요.' },
+  { date:'2026-10-01', text:'[문서] 다른 사람이 고친 내용이 10초 안에 화면에 반영돼요(읽던 자리 그대로). 글을 쓰는 중이거나 팝업이 떠 있을 땐 기다렸다가 반영해요.' },
+  { date:'2026-10-01', text:'[분류] 분류마다 그해 담당자를 둬요(예: 2026년 역학 담당 — 최고관리자가 정해요). 신고·주문 알림이 담당자에게도 가고, 분류마다 인수인계 메모를 남겨 다음 해 담당이 이어받아요. 학기마다 [재고 점검]을 열면 물건 문서에 [있음 · 고장 · 부족 · 없음] 버튼이 생기고 분류별 진행률이 보여요.' },
+  { date:'2026-10-01', text:'[물리실] 물건 문서(QR로 열리는 문서)에서 [고장났어요 · 없어졌어요 · 다 떨어졌어요]를 누르면 상태가 바로 바뀌고 관리자에게 알림이 가요. [주문 신청]은 승인 → 주문 → 도착까지 단계마다 알려 줘요. [문서 → 주문 · 신고]에서 모아 볼 수 있어요.' },
+  { date:'2026-10-01', text:'[물리실] 물리실 도면 위에 보관 위치를 붉게 빛나는 점으로 찍어요. 문서마다 [보관 위치]가 도면으로 보이고, [문서 → 물리실 도면]에서 물건 이름을 치면 그 자리가 빛나요. 상태는 정상 · 고장 · 부족 · 없어짐 넷만 적어요.' },
+  { date:'2026-10-01', text:'[문서] 분류가 나무가 됐어요 — 분류 안에 하위 분류(6단까지). [문서 → 분류 나무]에서 끌어서 정리해요(분류 모양은 관리자, 문서 옮기기는 편집자도). 분류마다 기본 틀을 정해 두면 새 문서에서 자동으로 골라져요. 분야 태그(#역학 등)로도 찾을 수 있어요.' },
+  { date:'2026-10-01', text:'[편집기] 위 막대는 줄 모양(본문 · 제목 1~3 · 목록 · 번호 목록 · 표 · 사진 · 절차 · 구분선)만 맡고, 글자 꾸미기는 글자를 고르면 떠오르는 막대나 오른쪽 클릭으로 해요. 단축키는 구글 문서와 같아요(Ctrl+B · Ctrl+K · Ctrl+Alt+1 …). __밑줄__이 새로 생겼어요.' },
+  { date:'2026-10-01', text:'[문서] 한 문서는 이제 한 번에 한 사람만 편집해요. 누가 편집 중이면 "○○님이 편집 중"이 뜨고, [끝나면 알려 주세요]를 누르면 끝났을 때 쪽지함으로 알려 줘요. 10분 동안 입력이 없으면 "아직 편집 중인가요?"를 묻고, 창을 닫으면 2분 안에 저절로 풀려요.' },
   { date:'2026-09-16', text:'[가입] 가입할 때 이메일 인증을 받아요 — 메일로 온 6자리 번호를 입력하거나 링크를 누르면 바로 들어갑니다.' },
   { date:'2026-09-16', text:'[개인정보] 회원의 이메일은 이제 본인 말고는 운영진 화면에도 보이지 않아요. 탈퇴는 프로필 맨 아래에서 바로 처리되고(승인 대기 없음), 로그인 계정까지 지워집니다. 로그인하지 않으면 사진·파일을 포함해 아무것도 열 수 없고, 가입할 때 이용약관·개인정보 처리방침 동의를 받습니다.' },
   { date:'2026-09-10', text:'[KYPT] 문제마다 [레퍼런스 키트] 탭이 생겼어요 — IYPT 2027 키트의 참고 문헌 550여 건이 문제별로 붙어 있고, 링크·[읽음] 표시(사람마다 커버색 점)·옆 칸의 공동 요약을 쓸 수 있어요. 문헌마다 나만의 별표를 달 수 있고, 참여자는 [고정]으로 맨 위에 꽂아 둘 수 있어요. 문제 상세엔 공식 문항 원문(영문)이 그대로 보이고, 탭은 ←→ 키로도 옮겨 다닙니다.' },
@@ -11027,9 +12819,9 @@ async function fetchActivity(){
   const born={}; docs.forEach(d=>{ born[d.key]=new Date(d.created_at).getTime(); });
   revs.forEach(r=>{
     if(born[r.doc_key] && Math.abs(new Date(r.edited_at).getTime()-born[r.doc_key])<120000) return;
-    out.push({ at:r.edited_at, uid:r.edited_by, html:`<b>${escapeHtml(nameOf[r.edited_by]||'누군가')}</b>님이 <b>${escapeHtml(titleOf[r.doc_key]||r.doc_key)}</b> 문서를 다듬었어요`, hash:'#'+r.doc_key });
+    out.push({ at:r.edited_at, uid:r.edited_by, html:`<b>${escapeHtml(nameOf[r.edited_by]||'누군가')}</b>님이 <b>${escapeHtml(titleOf[r.doc_key]||r.doc_key)}</b> 문서를 다듬었어요`, hash:docHash(r.doc_key) });
   });
-  docs.forEach(d=>{ out.push({ at:d.created_at, uid:null, html:`새 문서 <b>${escapeHtml(d.title||d.key)}</b>가 태어났어요`, hash:'#'+d.key }); });
+  docs.forEach(d=>{ out.push({ at:d.created_at, uid:null, html:`새 문서 <b>${escapeHtml(d.title||d.key)}</b>가 태어났어요`, hash:docHash(d.key) }); });
   qs.forEach(q=>{ out.push({ at:q.created_at, uid:q.author, html:`<b>${escapeHtml(nameOf[q.author]||'누군가')}</b>님이 <b>${escapeHtml(q.title||'질문')}</b>을 물어봤어요`, hash:'#//q/'+q.id }); });
   ans.forEach(a=>{ out.push({ at:a.created_at, uid:a.user_id, html:`<b>${escapeHtml(a.author_name||'누군가')}</b>님이 <b>${escapeHtml(qTitle[a.question_id]||'질문')}</b>에 답했어요`, hash:'#//q/'+a.question_id }); });
   out.sort((a,b)=>new Date(b.at)-new Date(a.at));
@@ -14172,7 +15964,7 @@ async function renderLanding(){
     const k=new Date(Date.now()+9*3600*1000); const seed=k.getUTCFullYear()*10000+(k.getUTCMonth()+1)*100+k.getUTCDate();
     const td=alldocs[seed % alldocs.length];
     todayHTML=`<div class="btd-title">${escapeHtml(td.title||td.key)}</div>
-      <div class="btd-key">/${escapeHtml(td.key)}</div>
+      <div class="btd-key">${escapeHtml(docAddr(td.key))}</div>
       <div class="btd-hint">매일 자정에 다른 문서가 뽑혀요 — 오늘 한 번 다시 읽어보세요.</div>`;
     todayHTML=`<div data-key="${escapeAttr(td.key)}" class="btd-wrap">`+todayHTML+`</div>`;
   } else todayHTML='<div class="act-empty">아직 문서가 없어요.</div>';
@@ -17501,8 +19293,8 @@ function hideBlockingLoader(){ const o=$('#blockOv'); if(o) o.remove(); }
 const SYS_PAGES = ['main','home','community','lab','questions','directory','inbox','docs',
                    'admin','health','system','system/limits','system/maint','system/perms',
                    'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
-                   'password','me','trash','notfound','board','qr','story'];
-const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/'];
+                   'password','me','trash','notfound','board','qr','story','doctree','labmap','orders','audit'];
+const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/','labmap/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
 /* ================== 탈퇴 회원 표시 (87 · 세션 AH) ==================
@@ -17522,7 +19314,70 @@ function isWithdrawn(m){ return !!(m && (m.withdrawn_at || (!m.name && !m.handle
 
 function isMemberDocKey(k){ return String(k||'').startsWith('#'); }
 function isMyMemberDoc(k){ return !!(state.user && state.member_no!=null && String(k)===('#'+state.member_no)); }
-function docHash(key){ return '#'+encodeURIComponent(key); }
+/* ================== 문서 번호 주소 (118 · 세션 CP) ==================
+   ★주소는 'D-0078'처럼 번호다. 제목·분류와 무관하고, 고쳐도 안 바뀌고, 지워도 다시 쓰이지 않는다.
+   ★내부 키(documents.key)는 그대로 둔다 — 이력·좋아요·과제 등 다른 표가 키로 문서를 가리키므로.
+     번호는 별도 표(doc_numbers)에서 키 ↔ 번호로 잇는다. 118 미적용이면 예전 키 주소 그대로(우아한 실패).
+   ★옛 키 주소(#arduino)로 들어와도 같은 문서가 열리고 주소창만 번호로 바뀐다(옛 QR·링크 보존).
+   ★회원 문서('#12')는 번호 대상이 아니다. */
+const DOC_NO_RE = /^D-(\d{1,7})$/;
+function docNoLabel(n){ n=Number(n); return 'D-'+(n<10000 ? String(n).padStart(4,'0') : String(n)); }
+function docNoOf(key){ const v=(state.docNo||{})[key]; return v==null ? null : v; }
+function docKeyByNo(n){ return (state.noKey||{})[Number(n)] || null; }
+function parseDocNo(k){ const m=DOC_NO_RE.exec(String(k||'')); return m ? Number(m[1]) : null; }
+function docHash(key){ const n=docNoOf(key); return n!=null ? '#'+docNoLabel(n) : '#'+encodeURIComponent(key); }
+/* 화면에 보이는 주소 한 줄 — 번호가 있으면 번호, 없으면(118 미적용·회원 문서) 예전 표기 */
+function docAddr(key){ const n=docNoOf(key); return n!=null ? docNoLabel(n) : (isMemberDocKey(key) ? String(key) : '/'+key); }
+
+/* ── 제목 규칙 (서버 118의 anda_norm_title / anda_check_title 과 같은 규칙) ──
+   서버가 최종 판정한다. 화면은 미리 알려 주는 역할 + 서버가 못 하는 '비슷한 제목' 경고. */
+const TITLE_RESERVED = ['절차','영상','그래프','포함','각주'];
+const TITLE_MAX = 80;
+function normTitle(s){
+  return String(s||'').normalize('NFC')
+    .replace(/[\u00AD\u200B-\u200F\u202A-\u202E\u2060-\u2064\uFEFF]/g,'')   // 보이지 않는 글자
+    .replace(/[\s\u00A0\u3000]/g,' ')                                               // 공백류 → 한 칸
+    .replace(/[\u0000-\u001F\u007F-\u009F]/g,'')                                   // 남은 제어문자
+    .replace(/ {2,}/g,' ').trim();
+}
+function looseTitle(s){ return normTitle(s).toLowerCase().replace(/ /g,''); }
+/* → null(문제 없음) | {level:'err'|'warn', msg} */
+function titleProblem(raw, selfKey){
+  const v=normTitle(raw);
+  if(!v) return { level:'err', msg:'제목을 입력하세요.' };
+  if([...v].length>TITLE_MAX) return { level:'err', msg:`제목은 ${TITLE_MAX}자까지예요.` };
+  if(/[\/#]/.test(v)) return { level:'err', msg:'제목에는 / 와 # 를 쓸 수 없어요.' };
+  const low=v.toLowerCase();
+  if(TITLE_RESERVED.includes(low) || TITLE_RESERVED.some(w=>new RegExp('^'+w+'\\s*:').test(v)))
+    return { level:'err', msg:`"${v}"은(는) 문서 문법에 쓰이는 말이라 제목으로 쓸 수 없어요.` };
+  const pool=(state.docs||[]).filter(d=>d.key!==selfKey && !isMemberDocKey(d.key));
+  const same=pool.find(d=>normTitle(d.title)===v);
+  if(same) return { level:'err', msg:`같은 제목의 문서가 이미 있어요 — ${docAddr(same.key)}` };
+  const near=pool.find(d=>looseTitle(d.title)===looseTitle(v));
+  if(near) return { level:'warn', msg:`'${near.title}'(${docAddr(near.key)})와 띄어쓰기·대소문자만 달라요. 같은 것이면 그 문서를 고쳐 주세요.` };
+  return null;
+}
+/* 서버 오류 → 사람 말. 118의 오류는 hint에 코드가 실린다(TITLE_TAKEN 등) — 메시지는 이미 한국어 */
+function docErrCode(err){ return String((err && err.hint) || ''); }
+function docErrMsg(err, fallback){
+  const h=docErrCode(err);
+  if(h) return (err && err.message) || h;
+  return (fallback||'')+((err && err.message) || String(err||''));
+}
+/* 제목 입력칸 아래에 실시간 안내를 단다. 돌려주는 함수 = 지금 막아야 하나(err) */
+function wireTitleCheck(input, out, selfKey, origTitle){
+  const run=()=>{
+    const changed = origTitle==null || normTitle(input.value)!==normTitle(origTitle);
+    const p = changed ? titleProblem(input.value, selfKey) : null;
+    if(out){
+      out.className='title-chk'+(p?(' '+p.level):'');
+      out.textContent = p ? p.msg : '';
+    }
+    return p;
+  };
+  input.addEventListener('input', run);
+  return run;
+}
 function isSysKey(k){
   k=String(k||'');
   return SYS_PAGES.includes(k) || SYS_PREFIXES.some(p=>k.startsWith(p));
@@ -17644,16 +19499,116 @@ function renderNotFound(raw){
       <div class="nf-btns">
         <button class="btn primary" id="nfHome" style="width:auto;padding:9px 18px">${ic('home')} 대문으로</button>
         <button class="btn ghost" id="nfDocs" style="width:auto;padding:9px 18px">${ic('docs')} 문서 목록</button>
-        ${canEdit()?`<button class="btn ghost" id="nfNew" style="width:auto;padding:9px 18px">${ic('plus')} 이 주소로 문서 만들기</button>`:''}
+        ${canEdit()?`<button class="btn ghost" id="nfNew" style="width:auto;padding:9px 18px">${ic('plus')} 새 문서 만들기</button>`:''}
         ${canEdit()?`<button class="btn ghost" id="nfTrash" style="width:auto;padding:9px 18px">${ic('trash')} 휴지통 확인</button>`:''}
       </div>
     </div>`;
   $('#nfHome').onclick=()=>{ location.hash='#//main'; };
   $('#nfDocs').onclick=()=>{ location.hash='#//docs'; };
-  const nw=$('#nfNew');   if(nw) nw.onclick=()=>openNewDocModal(addr);
+  const nw=$('#nfNew');   if(nw) nw.onclick=()=>openNewDocModal(parseDocNo(addr)!=null ? '' : addr);   // 번호는 직접 고를 수 없다 → 제목 칸에만 채운다
   const tr=$('#nfTrash'); if(tr) tr.onclick=()=>{ location.hash='#//trash'; };
   renderRightRail([]);
   window.scrollTo(0,0);
+}
+
+/* ================== 번호로 찾기 · 삭제된 문서 자리 (118) ==================
+   ★번호는 지워져도 남는다. 지운 문서의 번호로 들어오면 404가 아니라 '삭제된 문서입니다'를 보여 준다.
+   ★30일 안이면 삭제 직전 내용과 최근 이력을 읽기 전용으로 볼 수 있다(휴지통 30일 정리와 같은 기한).
+   ★숨김 문서였다면 편집 권한이 없는 회원에게는 제목·내용을 주지 않는다(서버가 판단). */
+async function renderDocByNo(n, raw){
+  const _nav=_navSeq;
+  let v=null;
+  try{
+    const { data, error } = await sb.rpc('deleted_doc_view', { p_no: n });
+    if(error) throw error;
+    v=data;
+  }catch(e){ v=null; }                                   // 118 미적용 → 그냥 없는 주소
+  if(_nav!==_navSeq) return;
+  if(!v){ renderNotFound(raw); return; }
+  if(v.live){                                            // 살아 있는데 내 목록이 낡았다 → 다시 읽고 연다
+    await loadDocs();
+    if(_nav!==_navSeq) return;
+    if((state.docs||[]).some(d=>d.key===v.key)){ renderDoc(v.key); return; }
+    renderNotFound(raw); return;
+  }
+  renderDeletedDoc(v);
+}
+function renderDeletedDoc(v){
+  const label=docNoLabel(v.no);
+  const when=v.deleted_at ? fmtKST(v.deleted_at) : '';
+  const title=v.title || '';
+  let inner='';
+  if(v.hidden){
+    inner=`<p class="dd-note">숨김 문서였기 때문에 내용은 최고관리자만 볼 수 있어요.</p>`;
+  }else if(v.expired){
+    inner=`<p class="dd-note">삭제된 지 30일이 지나 내용과 기록이 정리됐어요. 번호는 다른 문서에 다시 쓰이지 않아요.</p>`;
+  }else{
+    const revs=(v.revs||[]);
+    inner=`
+      <div class="dd-sec">
+        <div class="dd-sec-h">기록 <span class="muted">· 삭제 전 30일 · 읽기 전용</span></div>
+        <div class="history">
+          <div class="rev"><div class="meta"><span class="rev-badge">삭제 직전</span> <b>${escapeHtml(when)}</b></div>
+            <div class="rev-btns"><button class="abtn" data-ddv="last">${ic('history')}열람</button></div></div>
+          ${revs.map(r=>`<div class="rev"><div class="meta"><b>${escapeHtml(fmtKST(r.edited_at))}</b> · ${escapeHtml(r.title||'')} · 편집자 ${escapeHtml(r.who||'알 수 없음')}</div>
+            <div class="rev-btns"><button class="abtn" data-ddv="${Number(r.i)}">${ic('history')}열람</button></div></div>`).join('')}
+        </div>
+      </div>
+      <div class="trash-doc dd-view" id="ddView" hidden></div>`;
+  }
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>${title?escapeHtml(title):'삭제된 문서'}</h1>
+      <div class="tabs">${v.can_restore && v.trash_id ? `<button id="ddRestore">${ic('restore')}복원</button>` : ''}<button id="ddDocs">${ic('docs')}문서 목록</button></div></div>
+    <div class="dd-banner"><b>삭제된 문서입니다.</b> <span class="dd-no">${escapeHtml(label)}</span>${when?` · ${escapeHtml(when)} 삭제`:''}</div>
+    ${inner}`;
+  $('#ddDocs').onclick=()=>{ location.hash='#//docs'; };
+  const rb=$('#ddRestore'); if(rb) rb.onclick=()=>restoreDoc(v.trash_id, { after:'doc', no:v.no });
+  const view=$('#ddView');
+  $('#doc').querySelectorAll('[data-ddv]').forEach(b=>b.onclick=async()=>{
+    if(!view) return;
+    let d=null;
+    if(b.dataset.ddv==='last'){ d={ title:(v.doc||{}).title, body:(v.doc||{}).body, format:(v.doc||{}).format, at:v.deleted_at, who:null }; }
+    else{
+      b.disabled=true;
+      try{ const { data, error } = await sb.rpc('deleted_rev_body', { p_no:v.no, p_i:Number(b.dataset.ddv) });
+        if(!error && data) d={ title:data.title, body:data.body, format:null, at:data.edited_at, who:data.who }; }catch(e){}
+      b.disabled=false;
+    }
+    if(!d){ view.hidden=false; view.innerHTML='<p class="dd-note">이 버전을 불러오지 못했어요.</p>'; return; }
+    const fmt = d.format || (looksLikeHtmlBody(d.body) ? 'html' : 'wiki');
+    view.hidden=false;
+    view.innerHTML=`<div class="doc-meta">읽기 전용 · <b>${escapeHtml(fmtKST(d.at))}</b> 시점${d.who?` · 편집자 ${escapeHtml(d.who)}`:''}</div>
+      <h2 class="dd-vt">${escapeHtml(d.title||'')}</h2>
+      <div class="doc-body">${renderDocBody({ body:d.body||'', format:fmt })}</div>`;
+    renderMath(view.querySelector('.doc-body'));
+    view.scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+  renderRightRail([]);
+  window.scrollTo(0,0);
+}
+
+/* 한 줄 입력 팝업(Promise) — 취소하면 null. check(값) → null | {level,msg} (err면 확인 버튼 잠금) */
+function promptModal(title, sub, value, okLabel, check){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box" style="max-width:440px">
+      <div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}
+      <input class="he-input" id="pmIn" type="text" maxlength="${TITLE_MAX+20}" autocomplete="off" value="${escapeAttr(value||'')}">
+      <div class="title-chk" id="pmChk"></div>
+      <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">${escapeHtml(okLabel||'확인')}</button></div></div>`;
+    document.body.appendChild(ov);
+    const inp=ov.querySelector('#pmIn'), chk=ov.querySelector('#pmChk'), ok=ov.querySelector('.modal-ok');
+    const run=()=>{ const p=check ? check(inp.value) : null;
+      chk.className='title-chk'+(p?(' '+p.level):''); chk.textContent=p?p.msg:'';
+      ok.disabled=!!(p && p.level==='err'); return p; };
+    const done=v=>{ ov.remove(); resolve(v); };
+    inp.addEventListener('input', run);
+    inp.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.isComposing && !ok.disabled) done(inp.value); if(e.key==='Escape') done(null); });
+    ov.querySelector('.modal-cancel').onclick=()=>done(null);
+    ok.onclick=()=>{ if(!ok.disabled) done(inp.value); };
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(null); });
+    run(); inp.focus(); inp.select();
+  });
 }
 
 /* 페이지 전환 로딩 표시 (헤더 새로고침 아이콘 회전) */
@@ -17714,6 +19669,7 @@ function route(){
   clearTypeToFocus();      // 이전 화면의 '타이핑→포커스' 해제
   stopAdminPresence();     // 회원관리를 떠나면 상태 갱신 중지
   stopPresence();          // 접속 표시 갱신 중지 (해당 화면에서 다시 시작)
+  editLockLeaveIfNeeded(); // ★편집 경로를 떠나면 편집 잠금을 내려놓는다(119)
   document.body.classList.remove('trash-view');   // 휴지통 열람 모드는 경로 이동 시 해제
   const _bd=document.querySelector('.ib-backdrop'); if(_bd) _bd.remove();   // 쪽지 팝업 뒷배경 잔상 제거
   /* ★주소 체계 (2단계 개편)
@@ -17750,8 +19706,8 @@ function route(){
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','lab','lab/chat','lab/q','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt'];
-  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('community/') && !key.startsWith('seminars') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
+  const fullWidthPages=['community','lab','lab/chat','lab/q','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt','doctree','labmap','orders','audit'];
+  railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('labmap/') && !key.startsWith('community/') && !key.startsWith('seminars') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
                      admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
@@ -17799,6 +19755,10 @@ function route(){
     renderKyptPage(); return;
   }
   if(sys && key==='docs'){ renderDocsPage(); return; }
+  if(sys && key==='doctree'){ renderDocTree(); return; }                          // ★분류 나무(120)
+  if(sys && key==='orders'){ renderOrders(); return; }                            // ★주문·신고(122)
+  if(sys && key==='audit'){ renderAudit(); return; }                              // ★재고 점검(123)
+  if(sys && (key==='labmap' || key.startsWith('labmap/'))){ renderLabMap(key.startsWith('labmap/') ? decodeURIComponent(key.slice(7)) : null); return; }   // ★물리실 도면(121)
   if(sys && key==='questions'){ location.hash='#//lab/q'; return; }   // ★CK: 물리실 탭으로
   if(sys && key==='inbox'){ renderInbox(); return; }
   if(sys && isDm){ renderInbox(decodeURIComponent(key.slice(3))); return; }
@@ -17827,7 +19787,16 @@ function route(){
   if(sys && key==='password'){ renderPassword(); return; }
   if(sys && key==='me'){ renderMe(); return; }
   if(sys){ renderNotFound(raw); return; }                       // '//알수없는페이지'
+  const _no = parseDocNo(key);                                  // ★번호 주소 #D-0078 (118)
+  if(_no!=null){
+    const nk = docKeyByNo(_no);
+    if(nk && (state.docs||[]).some(d=>d.key===nk)){ renderDoc(nk); return; }
+    renderDocByNo(_no, raw); return;                            // 목록에 없음 → 삭제됐거나 목록이 낡았다
+  }
   if(!key || !(state.docs||[]).some(d=>d.key===key)){ renderNotFound(raw); return; }   // 없는 문서
+  /* ★옛 키 주소(#arduino)로 왔으면 주소창만 번호로 바꾼다 — replaceState는 hashchange를 안 일으킨다 */
+  const _canon = docHash(key);
+  if(_canon !== location.hash){ try{ history.replaceState(null, '', _canon); _lastGoodHash=_canon; }catch(e){} }
   renderDoc(key);
 }
 window.addEventListener('hashchange',()=>{ if($('#app').style.display!=='none') route(); });
@@ -18040,7 +20009,7 @@ $('#inboxBtn').onclick=()=>{ goHash('#//inbox'); };
 $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ location.hash='#//'+a.dataset.go; closeUserMenu(); });
 $('#dropFx').onclick=()=>{ location.hash='#//fx'; closeUserMenu(); };   // 화면 효과(세션 L)
 $('#dropLogout').onclick=async()=>{
-  closeUserMenu(); stopHeartbeat();
+  closeUserMenu(); stopHeartbeat(); stopPulse(); editLockRelease(false);
   try{ await sb.rpc('go_offline'); }catch(e){}      // '접속 중' 표시 즉시 제거
   await sb.auth.signOut();
   state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha();
@@ -18081,7 +20050,13 @@ function _jamo(str){ let out=''; for(const ch of String(str)){ const c=ch.charCo
     else out+=ch; } return out; }
 function _norm(s){ return _jamo(String(s).toLowerCase().replace(/\s+/g,'')); }   // 띄어쓰기 제거 + 자모 분해
 function searchDocs(q){ const nq=_norm(q); if(!nq) return [];
-  return (state.docs||[]).filter(d=> _norm(d.title||'').includes(nq) || _norm(d.key).includes(nq)).slice(0,8); }
+  /* ★번호로도 찾는다: 'D-0078' · 'd78' · '78' 모두 같은 문서 (118) */
+  const qn=String(q).trim().replace(/^d-?/i,'');
+  const byNo = /^\d{1,7}$/.test(qn) ? Number(qn) : null;
+  const hits=(state.docs||[]).filter(d=> _norm(d.title||'').includes(nq) || (docNoOf(d.key)==null && _norm(d.key).includes(nq))
+    || (byNo!=null && docNoOf(d.key)===byNo));
+  if(byNo!=null) hits.sort((a,b)=>(docNoOf(b.key)===byNo)-(docNoOf(a.key)===byNo));   // 번호가 딱 맞는 문서를 맨 위로
+  return hits.slice(0,8); }
 function randomDocs(n){ const a=[...(state.docs||[])];
   for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); const t=a[i]; a[i]=a[j]; a[j]=t; } return a.slice(0,n); }
 function closeSearchResults(){ const d=$('#searchResults'); if(d) d.remove(); }
