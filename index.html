@@ -6091,6 +6091,13 @@ function selectModal(title, sub, options, okLabel){
   });
 }
 /* 나무를 바꾸는 서버 호출 + 공통 오류 처리 (TREE_STALE이면 새로 불러온다) */
+/* 문서 탭의 세부 화면(분류 나무 · 도면 · 주문·신고 · 재고 점검) 왼쪽 위 '← 문서' — KYPT 화면과 같은 모양.
+   어떤 문서에서 왔으면(도면의 '위치 보기') 그 문서로 돌아간다. */
+function docsBackHTML(key){
+  if(key){ const d=(state.docs||[]).find(x=>x.key===key);
+    if(d) return `<a class="kp-back" href="${docHash(key)}">← ${escapeHtml(d.title||docAddr(key))}</a>`; }
+  return `<a class="kp-back" href="#//docs">← 문서</a>`;
+}
 async function treeCall(fn, args, okMsg){
   try{
     const { data, error } = await sb.rpc(fn, args);
@@ -6113,17 +6120,16 @@ function saveTreeClosed(s){ try{ localStorage.setItem(TREE_CLOSED_LS, JSON.strin
 
 async function renderDocTree(){
   const _nav=_navSeq;
-  $('#doc').innerHTML=`<div class="doc-head"><h1>문서 분류</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML=`${docsBackHTML()}<div class="doc-head"><h1>문서 분류</h1></div><p class="doc-meta">불러오는 중…</p>`;
   await Promise.all([ loadTree(), (state.docTags===undefined ? loadDocTags() : null), loadOwners() ]);
   if(_nav!==_navSeq) return;
   const admin=isAdmin();
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>문서 분류</h1>
-      <div class="tabs"><button id="trDocs">${ic('docs')}문서 목록</button></div></div>
+    ${docsBackHTML()}
+    <div class="doc-head"><h1>문서 분류</h1></div>
     <div class="doc-meta">${admin ? '분류와 문서를 끌어서 옮겨요. 분류 위에 놓으면 그 안으로, 위·아래 끝에 놓으면 그 앞·뒤로 들어가요.'
                                    : '문서를 끌어서 다른 분류로 옮길 수 있어요. 분류 자체는 관리자가 정해요.'}</div>
     <div id="trBody"></div>`;
-  $('#trDocs').onclick=()=>{ location.hash='#//docs'; };
   paintDocTree();
   railReserve(false);
   window.scrollTo(0,0);
@@ -6319,14 +6325,51 @@ function treeNameCheck(v){
   if(/[\/›#]/.test(s)) return { level:'err', msg:'/ › # 는 쓸 수 없어요.' };
   return null;
 }
+/* 쉼표로 여러 이름 — '전원, 신호원 ,  카메라' → ['전원','신호원','카메라'] (양끝 공백 제거 · 빈 칸 무시) */
+const TREE_ADD_MAX = 30;
+function splitNodeNames(v){
+  return String(v||'').split(/[,，、]/).map(s=>normTitle(s)).filter(Boolean);
+}
+function treeAddCheck(v, parent){
+  const T=state.tree; const names=splitNodeNames(v);
+  if(!names.length) return { level:'err', msg:'' };
+  if(names.length>TREE_ADD_MAX) return { level:'err', msg:`한 번에 ${TREE_ADD_MAX}개까지예요.` };
+  const sib=new Set((T.kids[parent==null?0:parent]||[]).map(n=>n.name.toLowerCase()));
+  const seen=new Set();
+  for(const nm of names){
+    const p=treeNameCheck(nm); if(p) return { level:'err', msg:(names.length>1?`'${nm}': `:'')+(p.msg||'이름을 확인해 주세요.') };
+    const k=nm.toLowerCase();
+    if(sib.has(k)) return { level:'err', msg:`'${nm}' — 같은 자리에 같은 이름이 있어요.` };
+    if(seen.has(k)) return { level:'err', msg:`'${nm}'을(를) 두 번 적었어요.` };
+    seen.add(k);
+  }
+  return names.length>1 ? { level:'info', msg:`${names.length}개를 만들어요: ${names.join(' · ')}` } : null;
+}
 async function treeAddNode(parent){
   const T=state.tree;
-  const name=await promptModal(parent==null ? '맨 위 분류 만들기' : `'${nodePath(parent)}' 아래에 분류 만들기`, '', '', '만들기', v=>{
-    const p=treeNameCheck(v); if(p) return p;
-    const sib=(T.kids[parent==null?0:parent]||[]); if(sib.some(n=>n.name.toLowerCase()===normTitle(v).toLowerCase())) return { level:'err', msg:'같은 자리에 같은 이름이 있어요.' };
-    return null; });
-  if(name==null) return;
-  await treeCall('tree_node_add', { p_parent:parent, p_name:normTitle(name), p_version:T.version });
+  const raw=await promptModal(parent==null ? '맨 위 분류 만들기' : `'${nodePath(parent)}' 아래에 분류 만들기`,
+    '쉼표(,)로 나누면 한 번에 여러 개를 만들어요.', '', '만들기', v=>treeAddCheck(v, parent), { max:1200 });
+  if(raw==null) return;
+  const names=splitNodeNames(raw);
+  if(!names.length) return;
+  if(names.length===1){ await treeCall('tree_node_add', { p_parent:parent, p_name:names[0], p_version:T.version }); return; }
+  // 여러 개 — 서버가 돌려주는 새 판 번호를 이어 받아 차례로 만든다(중간에 막히면 거기서 멈추고 알려 준다)
+  let ver=T.version, made=0, fail=null;
+  for(const nm of names){
+    try{
+      const { data, error } = await sb.rpc('tree_node_add', { p_parent:parent, p_name:nm, p_version:ver });
+      if(error) throw error;
+      ver=(data && data.version!=null) ? data.version : ver; made++;
+    }catch(e){
+      const h=docErrCode(e);
+      fail = h==='TREE_STALE' ? '다른 사람이 방금 분류를 바꿨어요' : ((e&&e.message)||'만들지 못했어요');
+      break;
+    }
+  }
+  if(fail) toast(made ? `${made}개 만들고 '${names[made]}'에서 멈췄어요 — ${fail}` : fail);
+  else toast(`분류 ${made}개를 만들었어요.`);
+  await loadTree();
+  if(/^#\/\/doctree/.test(location.hash||'')) paintDocTree();
 }
 async function treeRename(id){
   const T=state.tree; const n=T.byId[id]; if(!n) return;
@@ -6617,7 +6660,7 @@ function paintEditorLoc(key){
 const labView = { q:'', sel:null, edit:false };
 async function renderLabMap(focusKey){
   const _nav=_navSeq;
-  $('#doc').innerHTML=`<div class="doc-head"><h1>물리실 도면</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML=`${docsBackHTML(focusKey)}<div class="doc-head"><h1>물리실 도면</h1></div><p class="doc-meta">불러오는 중…</p>`;
   await Promise.all([loadLabMap(), loadDocLocs(), state.docs && state.docs.length ? null : loadDocs()]);
   if(_nav!==_navSeq) return;
   labView.sel=null; labView.edit=false; labView.q='';
@@ -6628,7 +6671,7 @@ async function renderLabMap(focusKey){
 }
 function paintLabMap(){
   const lab=state.lab; const admin=isAdmin();
-  if(!lab){ $('#doc').innerHTML=`<div class="doc-head"><h1>물리실 도면</h1></div><div class="notice">도면 기능이 아직 준비되지 않았어요 (121_lab_map.sql 실행 필요).</div>`; return; }
+  if(!lab){ $('#doc').innerHTML=`${docsBackHTML(focusKey)}<div class="doc-head"><h1>물리실 도면</h1></div><div class="notice">도면 기능이 아직 준비되지 않았어요 (121_lab_map.sql 실행 필요).</div>`; return; }
   const map=lab.active;
   const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title; });
   const locs=Object.keys(state.docLoc||{}).filter(k=>titleOf[k]!==undefined).map(k=>({ key:k, info:docLocInfo(k) })).filter(r=>r.info && map && r.info.map.id===map.id);
@@ -6644,8 +6687,8 @@ function paintLabMap(){
   const selSpot = labView.sel!=null ? lab.spotById[labView.sel] : null;
   const listFor = selSpot ? atSpot(selSpot.id) : (focus ? [focus] : hits);
   $('#doc').innerHTML=`
-    <div class="doc-head"><h1>물리실 도면${map?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(map.name)} · ${map.version}판</span>`:''}</h1>
-      <div class="tabs"><button id="lmDocs">${ic('docs')}문서 목록</button></div></div>
+    ${docsBackHTML(labView.focus)}
+    <div class="doc-head"><h1>물리실 도면${map?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(map.name)} · ${map.version}판</span>`:''}</h1></div>
     <div class="lm-tools">
       <input class="docs-q" id="lmQ" placeholder="물건 이름으로 찾기 — 붉게 빛나요" value="${escapeAttr(labView.q)}" autocomplete="off">
       ${admin?`<button class="btn ghost" id="lmUp" style="width:auto">${map?'새 도면 올리기':'도면 올리기'}</button>
@@ -6660,7 +6703,6 @@ function paintLabMap(){
       ${listFor.map(r=>`<a class="lm-item" href="${docHash(r.key)}"><b>${escapeHtml(titleOf[r.key]||'')}</b> ${statusBadgeHTML(r.key)}<span class="muted">${escapeHtml(r.info.label)}</span></a>`).join('')
         || (q ? '<div class="muted">찾는 물건의 위치가 아직 없어요.</div>' : (selSpot?'<div class="muted">이 자리에 놓인 문서가 없어요.</div>':''))}
     </div>`;
-  $('#lmDocs').onclick=()=>{ location.hash='#//docs'; };
   const qi=$('#lmQ'); if(qi){ qi.oninput=()=>{ labView.q=qi.value; labView.sel=null; labView.focus=null; const pos=qi.selectionStart; paintLabMap(); const n=$('#lmQ'); if(n){ n.focus(); try{ n.selectionStart=n.selectionEnd=pos; }catch(e){} } }; }
   const up=$('#lmUp'), fi=$('#lmFile'); if(up && fi){ up.onclick=()=>fi.click(); fi.onchange=()=>{ const f=fi.files&&fi.files[0]; fi.value=''; if(f) uploadLabMap(f); }; }
   const ed=$('#lmEdit'); if(ed) ed.onclick=()=>{ labView.edit=!labView.edit; paintLabMap(); };
@@ -6827,11 +6869,11 @@ function openOrderModal(key, title){
 /* 주문·신고 화면 (#//orders) */
 async function renderOrders(){
   const _nav=_navSeq;
-  $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML=`${docsBackHTML()}<div class="doc-head"><h1>주문 · 신고</h1></div><p class="doc-meta">불러오는 중…</p>`;
   let orders=null, reports=null, caps={ approve:can('order_approve'), staff:can('order_approve')||can('order_manage') };   // 서버 order_caps가 오면 그걸 쓴다
   try{ const [o, r, c] = await Promise.all([ sb.rpc('order_list'), sb.rpc('report_list', { p_key:null }), sb.rpc('order_caps') ]);
     if(o.error) throw o.error; orders=o.data||[]; reports=(r.error?[]:(r.data||[])); if(!c.error && c.data) caps=c.data; }
-  catch(e){ if(_nav!==_navSeq) return; $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><div class="notice">아직 준비되지 않았어요 (122_reports_orders.sql 실행 필요).</div>`; return; }
+  catch(e){ if(_nav!==_navSeq) return; $('#doc').innerHTML=`${docsBackHTML()}<div class="doc-head"><h1>주문 · 신고</h1></div><div class="notice">아직 준비되지 않았어요 (122_reports_orders.sql 실행 필요).</div>`; return; }
   if(_nav!==_navSeq) return;
   /* ★승인·반려는 owner·teacher만(사용자 결정). 주문함·도착 표시는 owner·teacher·관리자. 서버(122)가 최종 판정 */
   const admin=!!caps.staff;
@@ -6850,8 +6892,9 @@ async function renderOrders(){
   const live=orders.filter(o=>['requested','approved','ordered'].includes(o.status));
   const done=orders.filter(o=>!['requested','approved','ordered'].includes(o.status));
   $('#doc').innerHTML=`
+    ${docsBackHTML()}
     <div class="doc-head"><h1>주문 · 신고</h1>
-      <div class="tabs"><button id="orNew">${ic('plus')}주문 신청</button><button id="orDocs">${ic('docs')}문서 목록</button></div></div>
+      <div class="tabs"><button id="orNew">${ic('plus')}주문 신청</button></div></div>
     <div class="doc-meta">${admin?'모든 주문 신청이 보여요.':'내가 신청한 주문이 보여요.'} ${caps.approve?'승인·반려 권한이 있어요.':'승인·반려는 owner와 teacher가 해요 — 결정되면 알림이 가요.'}</div>
     ${reports.length?`<h2 class="or-h">열린 신고 <span class="tr-cnt">${reports.length}</span></h2>
       <div class="or-list">${reports.map(r=>`<div class="or-row"><div class="or-main"><b>${escapeHtml(r.title||'')}</b> <span class="st-badge st-${r.kind==='low'?'warn':'bad'}">${escapeHtml(REPORT_WORD[r.kind]||'')}</span>
@@ -6860,7 +6903,6 @@ async function renderOrders(){
     <h2 class="or-h">진행 중인 주문 <span class="tr-cnt">${live.length}</span></h2>
     <div class="or-list">${live.map(row).join('') || '<div class="muted">진행 중인 주문이 없어요.</div>'}</div>
     ${done.length?`<details class="or-done"><summary>끝난 주문 ${done.length}</summary><div class="or-list">${done.map(row).join('')}</div></details>`:''}`;
-  $('#orDocs').onclick=()=>{ location.hash='#//docs'; };
   $('#orNew').onclick=()=>openOrderModal(null, '');
   $('#doc').querySelectorAll('[data-os]').forEach(b=>b.onclick=async()=>{
     const to=b.dataset.to;
@@ -6987,10 +7029,10 @@ async function auditCheck(key, result, after){
 }
 async function renderAudit(){
   const _nav=_navSeq;
-  $('#doc').innerHTML=`<div class="doc-head"><h1>재고 점검</h1></div><p class="doc-meta">불러오는 중…</p>`;
+  $('#doc').innerHTML=`${docsBackHTML()}<div class="doc-head"><h1>재고 점검</h1></div><p class="doc-meta">불러오는 중…</p>`;
   await Promise.all([loadAudit(), loadOwners(), state.tree===undefined?loadTree():null]);
   if(_nav!==_navSeq) return;
-  if(_audit===null){ $('#doc').innerHTML=`<div class="doc-head"><h1>재고 점검</h1></div><div class="notice">아직 준비되지 않았어요 (123_owners_audit.sql 실행 필요).</div>`; return; }
+  if(_audit===null){ $('#doc').innerHTML=`${docsBackHTML()}<div class="doc-head"><h1>재고 점검</h1></div><div class="notice">아직 준비되지 않았어요 (123_owners_audit.sql 실행 필요).</div>`; return; }
   const admin=isAdmin(); const R=_audit.round;
   const titleOf={}; (state.docs||[]).forEach(d=>{ titleOf[d.key]=d.title; });
   const items=(_audit.items||[]).filter(i=>titleOf[i.key]!==undefined);
@@ -6998,8 +7040,8 @@ async function renderAudit(){
   const groups={}; items.forEach(i=>{ const t=i.node_id!=null?top(i.node_id):null; const g=t?t.name:'분류 없음'; (groups[g]=groups[g]||{ node:t, list:[] }).list.push(i); });
   const done=items.filter(i=>i.result).length;
   const pct=items.length?Math.round(done*100/items.length):0;
-  const head=`<div class="doc-head"><h1>재고 점검${R?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(R.name)}${R.open?'':' · 닫힘'}</span>`:''}</h1>
-      <div class="tabs">${admin && (!R || !R.open)?`<button id="auStart">${ic('plus')}점검 시작</button>`:''}${admin && R && R.open?`<button id="auClose">점검 닫기</button>`:''}<button id="auDocs">${ic('docs')}문서 목록</button></div></div>`;
+  const head=`${docsBackHTML()}<div class="doc-head"><h1>재고 점검${R?` <span class="muted" style="font-size:13px;font-weight:400">${escapeHtml(R.name)}${R.open?'':' · 닫힘'}</span>`:''}</h1>
+      <div class="tabs">${admin && (!R || !R.open)?`<button id="auStart">${ic('plus')}점검 시작</button>`:''}${admin && R && R.open?`<button id="auClose">점검 닫기</button>`:''}</div></div>`;
   if(!R){ $('#doc').innerHTML=head+`<div class="notice">아직 연 점검이 없어요.${admin?' [점검 시작]으로 학기 점검을 열면 담당자에게 알림이 가요.':''}</div>`; }
   else{
     $('#doc').innerHTML=head+`
@@ -7024,7 +7066,6 @@ async function renderAudit(){
   const cl=$('#auClose'); if(cl) cl.onclick=async()=>{
     if(!await confirmModal('점검을 닫을까요?', `확인 ${done} / ${items.length}. 닫은 뒤에도 결과는 남아요.`, '닫기')) return;
     const { error } = await sb.rpc('audit_close', { p_id:R.id }); if(error) toast(error.message); renderAudit(); };
-  $('#auDocs').onclick=()=>{ location.hash='#//docs'; };
   $('#doc').querySelectorAll('[data-ak]').forEach(b=>b.onclick=()=>auditCheck(b.dataset.ak, b.dataset.ar, renderAudit));
   railReserve(false); window.scrollTo(0,0);
 }
@@ -11814,6 +11855,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-02', text:'[문서] 분류를 만들 때 쉼표(,)로 나누면 한 번에 여러 개가 만들어져요(예: "전원, 신호원, 카메라" — 양끝 띄어쓰기는 알아서 지워요). 분류 나무 · 물리실 도면 · 주문·신고 · 재고 점검 화면 왼쪽 위에 "← 문서"가 생겼어요.' },
   { date:'2026-10-02', text:'[안내] 개인정보 처리방침과 이용약관이 2026년 11월 1일부터 v1.3으로 바뀌어요. 바뀌는 점: 물품 관리(보관 위치·상태, 고장·분실 신고, 주문 신청, 재고 점검, 분야 담당·인수인계)와 편집 중 표시·문서 열람 기록을 처리 항목에 적고, 주문 신청·신고·점검 기록은 1년 뒤 지운다는 보유 기간을 정했어요. 선생님(teacher)·편집자 등급과 권한 설정을 약관에 넣었고, 인증 메일 발송 사업자를 Google(Gmail)로 바로잡았어요. 그 전까지는 v1.2가 적용돼요. 각 문서 맨 아래 [변경 이력]에서 이전 버전을 볼 수 있어요.' },
   { date:'2026-10-02', text:'[문서] 분류 나무가 가지 그림으로 바뀌었어요 — 맨 위 분류마다 색이 있고, 하위 분류가 선으로 이어져요. 분류를 지울 수 있게 됐어요(안에 든 문서는 \'분류 없음\'으로 옮겨져요). 분야 태그도 [문서] 목록에서 × 로 지울 수 있어요.' },
   { date:'2026-10-01', text:'[주문] 주문 신청의 승인·반려는 기본으로 owner와 teacher가 해요([시스템 → 권한]의 "주문 신청 승인 · 반려"에서 등급별로 바꿀 수 있고, 서버도 그 표를 따라요). owner는 [회원 관리]에서 teacher 등급을 주고 뺄 수 있어요. 끝난 주문·닫힌 신고·재고 점검 기록은 1년 뒤 자동으로 지워져요.' },
@@ -19811,12 +19853,13 @@ function renderDeletedDoc(v){
 }
 
 /* 한 줄 입력 팝업(Promise) — 취소하면 null. check(값) → null | {level,msg} (err면 확인 버튼 잠금) */
-function promptModal(title, sub, value, okLabel, check){
+function promptModal(title, sub, value, okLabel, check, opts){
+  opts=opts||{};
   return new Promise(resolve=>{
     const ov=document.createElement('div'); ov.className='modal-ov';
     ov.innerHTML=`<div class="modal-box" style="max-width:440px">
       <div class="modal-msg">${escapeHtml(title)}</div>${sub?`<div class="modal-sub">${escapeHtml(sub)}</div>`:''}
-      <input class="he-input" id="pmIn" type="text" maxlength="${TITLE_MAX+20}" autocomplete="off" value="${escapeAttr(value||'')}">
+      <input class="he-input" id="pmIn" type="text" maxlength="${opts.max||(TITLE_MAX+20)}" autocomplete="off" value="${escapeAttr(value||'')}">
       <div class="title-chk" id="pmChk"></div>
       <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">${escapeHtml(okLabel||'확인')}</button></div></div>`;
     document.body.appendChild(ov);
