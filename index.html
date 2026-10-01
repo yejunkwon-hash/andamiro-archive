@@ -38,6 +38,7 @@
   --accent-3:#8B5CF6;             /* 소프트 퍼플 — 보조 강조 */
   --cover-default:#9AA3B8;        /* 커버 미선택 회원의 기본색 — 브랜드색과 분리 */
   --ok:#00875A; --warn:#C77D0A; --info:#1E6BE0; --danger:#C0392B; --teacher:#8B5CF6;
+  --br0:#B23A3A; --br1:#2F7D6D; --br2:#3A5BA0; --br3:#A06A1F; --br4:#7A4E9C; --br5:#4F7A2A;   /* 분류 나무 가지 색(세션 CP-2) */
   /* ★위험(danger)과 브랜드(accent)가 둘 다 빨강이므로 danger를 살짝 어둡고 탁하게 두어
      '삭제'가 '브랜드 강조'로 오해되지 않게 한다. */
   /* 텍스트 · 선 */
@@ -78,6 +79,7 @@ body.dark{
   --accent-2:#3FBF7F; --accent-3:#A78BFA;
   --cover-default:#6B7488;
   --ok:#3FBF7F; --warn:#E6A23C; --info:#6BA4FF; --danger:#E0645B; --teacher:#A78BFA;
+  --br0:#E07070; --br1:#5CC2AB; --br2:#7C9BE0; --br3:#D9A35A; --br4:#B48AD6; --br5:#8DBF63;
   --text:#EDE8E8; --text-dim:#A79FA0;
   --border:#393234; --border-strong:#4E4547;
   --link:#6BA4FF; --link-red:#FF6B6B;
@@ -1071,6 +1073,67 @@ button.tag-chip{cursor:pointer;}
 .dz-before{box-shadow:inset 0 3px 0 var(--accent);}
 .dz-after{box-shadow:inset 0 -3px 0 var(--accent);}
 .dz-no{cursor:not-allowed;}
+/* ═══ 분류 나무 — 가지 그림 (세션 CP-2) ═══
+   뿌리(문서) → 맨 위 분류 → 하위 분류가 왼쪽에서 오른쪽으로 갈라진다.
+   맨 위 분류마다 가지 색(--br)이 정해지고, 그 아래 상자 테두리·연결선이 같은 색을 물려받는다. */
+.tg-scroll{overflow:auto;padding:6px 2px 14px;margin:0 -4px;-webkit-overflow-scrolling:touch;}
+.tg{position:relative;display:inline-block;min-width:100%;padding:8px 12px 8px 4px;}
+.tg-wires{position:absolute;left:0;top:0;pointer-events:none;overflow:visible;z-index:0;}
+.tg-wire{fill:none;stroke-width:2;stroke-linecap:round;opacity:.55;transition:opacity .2s, stroke-width .2s;}
+.tg-wires.focus .tg-wire{opacity:.18;}
+.tg-wires.focus .tg-wire.hot{opacity:1;stroke-width:3;}
+.tg-wire.grow{animation:tgGrow .7s cubic-bezier(.3,.7,.2,1) forwards;}
+@keyframes tgGrow{ to{ stroke-dashoffset:0; } }
+.tg-row{display:flex;align-items:center;position:relative;z-index:1;}
+.tg-kids{display:flex;flex-direction:column;gap:10px;margin-left:54px;padding:4px 0;}
+.tg-hub{flex:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;
+  width:76px;height:76px;border-radius:50%;background:var(--accent);color:#fff;font-size:12.5px;font-weight:700;
+  box-shadow:0 0 0 6px color-mix(in srgb, var(--accent) 14%, transparent);}
+.tg-hub b{font-size:20px;line-height:1;font-family:var(--mono);}
+.tg-box.tr-node{position:relative;display:block;flex:none;min-width:150px;max-width:280px;padding:9px 12px 9px 13px;
+  border:1.5px solid color-mix(in srgb, var(--br) 55%, var(--border));border-radius:14px;background:var(--card);
+  box-shadow:0 1px 0 color-mix(in srgb, var(--br) 18%, transparent);transition:border-color .15s, box-shadow .15s, transform .15s;outline:none;}
+.tg-box.tr-node.top{border-width:2px;border-color:var(--br);background:color-mix(in srgb, var(--br) 6%, var(--card));}
+.tg-box.tr-node:hover, .tg-box.tr-node:focus-visible, .tg-box.tr-node.hot{border-color:var(--br);box-shadow:0 0 0 3px color-mix(in srgb, var(--br) 18%, transparent);}
+.tg-box.tr-node:focus-visible{box-shadow:0 0 0 3px color-mix(in srgb, var(--br) 35%, transparent);}
+.tg-box[draggable="true"]{cursor:grab;}
+.tg-head{display:flex;align-items:center;gap:6px;}
+.tg-head .tr-name{font-size:14px;font-weight:800;color:var(--text);white-space:normal;line-height:1.3;}
+.tg-box.top .tr-name{font-size:15px;}
+.tg-more{margin-left:auto;background:transparent;border:0;color:var(--text-dim);font-size:16px;line-height:1;padding:2px 4px;border-radius:6px;cursor:pointer;}
+.tg-more:hover, .tg-more:focus-visible{background:var(--box-bg);color:var(--br);}
+.tg-meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 8px;margin-top:4px;font-size:11.5px;color:var(--text-dim);}
+.tg-count{font:inherit;font-weight:700;color:var(--br);background:color-mix(in srgb, var(--br) 10%, transparent);border:0;border-radius:999px;padding:1px 8px;cursor:pointer;}
+.tg-count.on{background:var(--br);color:#fff;}
+.tg-count.none{background:transparent;color:var(--text-dim);font-weight:400;padding:0;cursor:default;}
+.tg-tpl{white-space:nowrap;}
+.tg-fold{position:absolute;right:-12px;top:50%;transform:translateY(-50%);min-width:22px;height:22px;padding:0 5px;border-radius:999px;
+  border:1.5px solid var(--br);background:var(--card);color:var(--br);font-size:11px;font-weight:800;cursor:pointer;line-height:1;z-index:2;}
+.tg-fold:hover, .tg-fold:focus-visible{background:var(--br);color:#fff;}
+.tg-docs{display:flex;flex-direction:column;gap:3px;margin-top:8px;padding-top:7px;border-top:1px dashed color-mix(in srgb, var(--br) 40%, var(--border));}
+.tg-doc.tr-doc{margin:0;padding:4px 6px;border-radius:8px;font-size:12.5px;gap:4px;}
+.tg-doc .tr-dt{font-weight:600;}
+.tg-mini{margin-left:auto;background:transparent;border:0;color:var(--text-dim);cursor:pointer;font-size:12px;padding:0 4px;border-radius:5px;opacity:0;}
+.tg-doc:hover .tg-mini, .tg-mini:focus-visible{opacity:1;}
+@media(hover:none){ .tg-mini{opacity:1;} }
+.tg-unplaced{margin-top:6px;border:1.5px dashed var(--border-strong);border-radius:14px;padding:6px 10px 10px;}
+.tg-unplaced .tr-un-h{border:0;margin:0;padding:6px 2px;}
+.tg-unplaced .tg-docs{border-top:0;margin-top:0;padding-top:0;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px;}
+.tg-unplaced .tg-doc{border:1px solid var(--border);background:var(--card);}
+.tg-box.dz-inside{border-color:var(--accent) !important;box-shadow:0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent) !important;transform:scale(1.02);}
+.tg-box.dz-before{box-shadow:0 -4px 0 0 var(--accent) !important;}
+.tg-box.dz-after{box-shadow:0 4px 0 0 var(--accent) !important;}
+.tg-row.closed > .tg-box{box-shadow:4px 4px 0 -1px var(--card), 4px 4px 0 0 color-mix(in srgb, var(--br) 45%, var(--border));}   /* 접힌 분류 = 겹친 카드 */
+@media (prefers-reduced-motion: reduce){ .tg-wire.grow{animation:none;stroke-dashoffset:0 !important;} .tg-box.tr-node{transition:none;} }
+body.fx-flat .tg-wire.grow{animation:none;stroke-dashoffset:0 !important;}
+@media(max-width:640px){ .tg-kids{margin-left:34px;} .tg-hub{width:58px;height:58px;font-size:11px;} .tg-hub b{font-size:16px;} .tg-box.tr-node{min-width:128px;} }
+.tr-tools{flex-wrap:wrap;}
+.tr-tools .btn{white-space:nowrap;}
+@media(max-width:640px){ .tr-tools .btn{padding:7px 10px !important;font-size:13px;} }
+.tag-wrap{display:inline-flex;align-items:center;margin:0 6px 6px 0;}
+.tag-wrap .tag-chip.big{margin:0;}
+.tag-x{background:transparent;border:0;color:var(--text-dim);font-size:14px;line-height:1;padding:0 4px;cursor:pointer;opacity:.5;border-radius:5px;}
+.tag-x:hover, .tag-x:focus-visible{opacity:1;color:var(--accent);}
 /* 물리실 도면 · 위치 · 상태 (121) */
 .lm-wrap{position:relative;width:100%;border-radius:10px;overflow:hidden;background:var(--box-bg);border:1px solid var(--border);user-select:none;}
 .lm-img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:block;pointer-events:none;}
@@ -4061,7 +4124,12 @@ sb.auth.onAuthStateChange((_e, session)=>{ ACCESS_TOKEN = (session && session.ac
 
 /* ===== 법적 고지 (116 · 세션 CM) =====
    약관·처리방침은 index.html 옆의 terms.html / privacy.html (로그인 없이 공개 — 개인정보 보호법 제30조 제2항). */
-const LEGAL_VERSION = '2026-09-16';
+/* ★세션 CP: 약관·처리방침 v1.3은 2026-11-01(한국 시각) 시행 — 처리방침 제18조(중요 변경 30일 전 공지)를 지키려고 날짜로 갈아탄다.
+     가입 때 메타데이터에 남는 동의 버전이 그날부터 자동으로 v1.3이 된다. */
+const LEGAL_V13_AT = Date.parse('2026-11-01T00:00:00+09:00');
+const LEGAL_VERSION = Date.now() >= LEGAL_V13_AT ? '2026-11-01' : '2026-09-16';
+/* 푸시 국외 이전 동의 문구는 v1.3에서 바뀌지 않았다 → 기존 동의를 그대로 인정(다시 묻지 않는다) */
+const PUSH_CONSENT_VERSION = '2026-09-16';
 function signupConsentOk(){
   const ids=['su-agree-terms','su-agree-privacy','su-agree-age'];
   return ids.every(id=>{ const el=document.getElementById(id); return !!(el && el.checked); });
@@ -4656,6 +4724,10 @@ const PERM_CAPS = [
     ['signup_review','회원 가입 알림 수신'],
     ['feedback_read','피드백 검토 열람'],
   ]},
+  { sec:'물리실 · 주문', items:[
+    ['order_approve', '주문 신청 승인 · 반려 (★서버도 이 표를 따라요 — 122)'],
+    ['order_manage',  '주문 진행 표시(주문했어요 · 도착했어요) · 모든 주문 신청 보기 (122)'],
+  ]},
   { sec:'연구 · 연혁', items:[
     ['kypt_manage',  'KYPT 관리 — 연도·문제 넣기·참여자 지정·마감·자료 정리 (★서버 정책은 admin·owner만 통과시켜요 — 여기서는 admin에게서 거둘 수만 있습니다)'],
     ['history_edit', '연혁 편집 — 타임라인·사진 (106_history_admin.sql 필요 · 서버도 admin·owner까지 허용)'],
@@ -4671,7 +4743,8 @@ const PERM_CAPS = [
 const PERM_ROLES = ['viewer','teacher','editor','admin'];   // owner는 항상 전권이라 표에 없음
 const DEFAULT_PERMS = {
   viewer: { doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
-  teacher:{ doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
+  teacher:{ doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1,
+            order_approve:1, order_manage:1 },                  // ★세션 CP: 주문 승인은 teacher 기본(서버 anda_perm_of와 같게)
   editor: { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
             chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
   admin:  { doc_read:1, doc_edit:1, doc_create:1, doc_delete:1, trash:1,
@@ -4679,7 +4752,8 @@ const DEFAULT_PERMS = {
             admin_access:1, admin_role:1, admin_club:1,
             club_read:1, club_edit:1, track_read:1, track_edit:1,
             signup_review:1, feedback_read:1,
-            system_access:1, kypt_manage:1, history_edit:1 },     // ★시스템 탭 진입은 admin도 (안의 항목은 각자 권한대로 필터)
+            system_access:1, kypt_manage:1, history_edit:1,
+            order_manage:1 },     // ★시스템 탭 진입은 admin도 (안의 항목은 각자 권한대로 필터) · 주문 진행 표시는 admin도(승인은 아님)
 };
 let PERMS = null;                       // 서버에서 불러온 매트릭스(없으면 기본값)
 function permsFor(role){
@@ -6025,7 +6099,9 @@ async function treeCall(fn, args, okMsg){
     return data || { ok:true };
   }catch(e){
     const h=docErrCode(e);
-    toast(h==='TREE_STALE' ? '다른 사람이 방금 분류를 바꿨어요 — 새로 불러왔어요.' : ((e&&e.message)||'바꾸지 못했어요'));
+    toast(h==='TREE_STALE' ? '다른 사람이 방금 분류를 바꿨어요 — 새로 불러왔어요.'
+      : (isMissingFn(e) && fn==='tree_node_delete') ? '분류 지우기 설정이 아직이에요 — 126_tree_delete.sql을 실행해 주세요.'
+      : ((e&&e.message)||'바꾸지 못했어요'));
     return null;
   }finally{
     await loadTree();
@@ -6064,7 +6140,7 @@ function paintDocTree(){
   const live=(state.docs||[]).filter(d=>!isMemberDocKey(d.key));
   if(!T.nodes.length){
     box.innerHTML = admin
-      ? `<div class="tr-seed"><b>분류 나무가 비어 있어요.</b><p>지금 문서 목록에 보이는 분류(${escapeHtml(docCategoryOptions().join(' · '))} …)로 나무를 시작할 수 있어요. 시작한 뒤 끌어서 마음대로 고치면 돼요.</p>
+      ? `<div class="tr-seed"><b>분류 나무가 비어 있어요.</b><p>지금 문서 목록에 보이는 분류(${escapeHtml(docCategoryOptions().join(', '))} …)로 나무를 시작할 수 있어요. 시작한 뒤 끌어서 마음대로 고치면 돼요.</p>
          <button class="btn primary" id="trSeed" style="width:auto">지금 목록으로 시작하기</button>
          <button class="btn ghost" id="trAddRoot0" style="width:auto">빈 나무에서 시작</button></div>`
       : `<div class="notice">아직 분류 나무가 없어요. 관리자가 만들면 여기에 보여요.</div>`;
@@ -6077,62 +6153,164 @@ function paintDocTree(){
     const a0=$('#trAddRoot0'); if(a0) a0.onclick=()=>treeAddNode(null);
     return;
   }
+  /* ★가지 그림(세션 CP-2): 왼쪽 '문서' 뿌리에서 오른쪽으로 갈라지는 나무.
+     · 맨 위 분류마다 가지 색이 하나씩 — 그 아래 분류와 연결선이 같은 색을 물려받아 어느 갈래인지 한눈에 보인다.
+     · 연결선은 SVG 곡선. 처음 그릴 때 한 번만 뿌리에서부터 그어지고(움직임 줄이기 설정이면 바로), 접기·펼치기 때 다시 맞춘다.
+     · 분류 상자에 마우스를 올리면 뿌리까지의 길이 진해진다.
+     · 끌어 놓기·[⋯] 메뉴는 예전과 같은 data-node / data-doc 를 쓴다(bindTreeDnD 그대로). */
   const closed=treeClosed();
+  const docOpen=treeDocsOpen();
   const titleOf={}; live.forEach(d=>{ titleOf[d.key]=d.title||d.key; });
   const docsIn=id=>Object.values(T.place).filter(p=>p.node_id===id && titleOf[p.key]!==undefined)
                      .sort((a,b)=>(a.sort-b.sort)||a.key.localeCompare(b.key));
-  const docRow=(key, depth)=>{
-    const ft=docTagsOf(key,'field');
-    return `<div class="tr-doc" data-doc="${escapeAttr(key)}"${editor?' draggable="true"':''} style="--d:${(depth||0)+1}">
-      <a href="${docHash(key)}" class="tr-dt">${escapeHtml(titleOf[key])}</a><span class="tr-addr">${escapeHtml(docAddr(key))}</span>
-      ${ft.map(t=>`<span class="tag-chip">#${escapeHtml(t)}</span>`).join('')}
-      ${editor?`<button class="tr-b" data-mvdoc="${escapeAttr(key)}" title="다른 분류로 옮기기">옮기기</button>`:''}</div>`;
-  };
+  const docPill=key=>`<div class="tr-doc tg-doc" data-doc="${escapeAttr(key)}"${editor?' draggable="true"':''}>
+      <a href="${docHash(key)}" class="tr-dt">${escapeHtml(titleOf[key])}</a>
+      ${docTagsOf(key,'field').map(t=>`<span class="tag-chip">#${escapeHtml(t)}</span>`).join('')}
+      ${editor?`<button class="tg-mini" data-mvdoc="${escapeAttr(key)}" title="다른 분류로 옮기기" aria-label="옮기기">⇄</button>`:''}</div>`;
+  const branchOf=n=>{ let x=n, g=0; while(x && x.parent_id!=null && T.byId[x.parent_id] && g++<30) x=T.byId[x.parent_id]; return (T.kids[0]||[]).indexOf(x); };
   const nodeHTML=n=>{
-    const kids=T.kids[n.id]||[]; const docs=docsIn(n.id); const isClosed=closed.has(n.id);
+    const kids=T.kids[n.id]||[]; const docs=docsIn(n.id); const isClosed=closed.has(n.id) && kids.length>0;
     const tpl=n.template && DOC_TEMPLATES[n.template] ? DOC_TEMPLATES[n.template] : null;
-    return `<div class="tr-item${isClosed?' closed':''}" data-item="${n.id}">
-      <div class="tr-node" data-node="${n.id}"${admin?' draggable="true"':''} style="--d:${n.depth}">
-        <button class="tr-cv" data-tog="${n.id}" aria-label="펼치기/접기">▾</button>
-        <span class="tr-name">${escapeHtml(n.name)}</span>
-        <span class="tr-cnt" title="이 분류와 그 아래 문서 수">${nodeDocCount(n.id, true)}</span>
-        ${state.owners && (admin || ((state.owners||{})[n.id]||[]).some(o=>o.me)) ? `<button class="tr-b tr-ho" data-ho="${n.id}" title="인수인계 메모">인수인계</button>` : ''}
-        ${tpl?`<span class="tr-tpl" title="이 분류에서 새 문서를 만들면 고르는 틀">${tpl.icon} ${escapeHtml(tpl.name)}</span>`:''}
-        ${((state.owners||{})[n.id]||[]).length?`<span class="tr-own${(state.owners[n.id]).some(o=>o.me)?' me':''}" title="${thisYearKST()}년 담당">👤 ${state.owners[n.id].map(o=>escapeHtml(o.name)).join(', ')}</span>`:''}
-        ${admin?`<span class="tr-acts">
-          <button class="tr-b" data-addsub="${n.id}"${n.depth>=TREE_MAX_DEPTH?' disabled title="6단까지만 만들 수 있어요"':''}>+ 하위</button>
-          <button class="tr-b" data-ren="${n.id}">이름</button>
-          <button class="tr-b" data-tpl="${n.id}">틀</button>
-          ${isOwner() && state.owners?`<button class="tr-b" data-own="${n.id}">담당</button>`:''}
-          <button class="tr-b" data-mvnode="${n.id}">옮기기</button>
-          <button class="tr-b danger" data-del="${n.id}">지우기</button></span>`:''}
+    const own=((state.owners||{})[n.id]||[]);
+    const deep=nodeDocCount(n.id, true);
+    const showDocs=docOpen.has(n.id) && docs.length>0;
+    return `<div class="tg-row${isClosed?' closed':''}" data-item="${n.id}" style="--br:var(--br${branchOf(n)%6})">
+      <div class="tg-box tr-node${n.depth===1?' top':''}" data-node="${n.id}"${admin?' draggable="true"':''} tabindex="0">
+        <div class="tg-head">
+          <span class="tr-name">${escapeHtml(n.name)}</span>
+          ${(admin||editor)?`<button class="tg-more" data-menu="${n.id}" aria-label="${escapeAttr(n.name)} 메뉴" title="메뉴">⋯</button>`:''}
+        </div>
+        <div class="tg-meta">
+          ${docs.length?`<button class="tg-count${showDocs?' on':''}" data-docs="${n.id}" title="이 분류에 바로 든 문서 펼치기">문서 ${docs.length}</button>`
+                        :`<span class="tg-count none">${deep?`아래에 ${deep}`:'비어 있음'}</span>`}
+          ${tpl?`<span class="tg-tpl" title="새 문서 기본 틀">${tpl.icon} ${escapeHtml(tpl.name)}</span>`:''}
+          ${own.length?`<span class="tr-own${own.some(o=>o.me)?' me':''}" title="${thisYearKST()}년 담당">${own.map(o=>escapeHtml(o.name)).join(', ')}</span>`:''}
+        </div>
+        ${showDocs?`<div class="tg-docs">${docs.map(p=>docPill(p.key)).join('')}</div>`:''}
+        ${kids.length?`<button class="tg-fold" data-tog="${n.id}" aria-label="${isClosed?'하위 분류 펼치기':'하위 분류 접기'}" title="${isClosed?`하위 ${kids.length}개 펼치기`:'접기'}">${isClosed?'+'+kids.length:'−'}</button>`:''}
       </div>
-      <div class="tr-kids">${kids.map(nodeHTML).join('')}${docs.map(p=>docRow(p.key, n.depth)).join('')}</div>
+      ${kids.length && !isClosed?`<div class="tg-kids">${kids.map(nodeHTML).join('')}</div>`:''}
     </div>`;
   };
   const unplaced=live.filter(d=>docNodeOf(d.key)==null).sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
   box.innerHTML=`
-    ${admin?`<div class="tr-tools"><button class="btn ghost" id="trAddRoot" style="width:auto">${ic('plus')} 맨 위 분류</button>
-      <span class="muted">나무 판 ${escapeHtml(String(T.version))}</span></div>`:''}
-    <div class="tr-tree" id="trTree">${(T.kids[0]||[]).map(nodeHTML).join('')}</div>
-    <div class="tr-item tr-unplaced" data-unplaced="1">
+    <div class="tr-tools">
+      ${admin?`<button class="btn ghost" id="trAddRoot" style="width:auto">${ic('plus')} 맨 위 분류</button>`:''}
+      <button class="btn ghost" id="trExpand" style="width:auto">모두 펼치기</button>
+      <button class="btn ghost" id="trCollapse" style="width:auto">맨 위만 보기</button>
+    </div>
+    <div class="tg-scroll" id="tgScroll">
+      <div class="tg" id="tgRoot">
+        <svg class="tg-wires" id="tgWires" aria-hidden="true"></svg>
+        <div class="tg-row root">
+          <div class="tg-hub" id="tgHub"><span>문서</span><b>${live.length}</b></div>
+          <div class="tg-kids">${(T.kids[0]||[]).map(nodeHTML).join('')}</div>
+        </div>
+      </div>
+    </div>
+    <div class="tr-item tr-unplaced tg-unplaced" data-unplaced="1">
       <div class="tr-node tr-un-h" data-unplaced="1"><span class="tr-name">분류 없음</span><span class="tr-cnt">${unplaced.length}</span>
         <span class="muted" style="margin-left:8px;font-size:12px">여기 놓으면 분류에서 빠져요</span></div>
-      <div class="tr-kids">${unplaced.map(d=>docRow(d.key, 0)).join('') || '<div class="tr-empty">모든 문서가 분류에 들어 있어요 👍</div>'}</div>
+      <div class="tg-docs open">${unplaced.map(d=>docPill(d.key)).join('') || '<div class="tr-empty">모든 문서가 분류에 들어 있어요.</div>'}</div>
     </div>`;
   const ar=$('#trAddRoot'); if(ar) ar.onclick=()=>treeAddNode(null);
-  box.querySelectorAll('[data-tog]').forEach(b=>b.onclick=()=>{
+  $('#trExpand').onclick=()=>{ saveTreeClosed(new Set()); paintDocTree(); };
+  $('#trCollapse').onclick=()=>{ saveTreeClosed(new Set((T.kids[0]||[]).map(n=>n.id))); paintDocTree(); };
+  box.querySelectorAll('[data-tog]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
     const id=Number(b.dataset.tog); const s=treeClosed(); if(s.has(id)) s.delete(id); else s.add(id); saveTreeClosed(s);
-    b.closest('.tr-item').classList.toggle('closed'); });
-  box.querySelectorAll('[data-addsub]').forEach(b=>b.onclick=()=>treeAddNode(Number(b.dataset.addsub)));
-  box.querySelectorAll('[data-ren]').forEach(b=>b.onclick=()=>treeRename(Number(b.dataset.ren)));
-  box.querySelectorAll('[data-tpl]').forEach(b=>b.onclick=()=>treeTemplate(Number(b.dataset.tpl)));
-  box.querySelectorAll('[data-own]').forEach(b=>b.onclick=()=>treeOwners(Number(b.dataset.own)));
-  box.querySelectorAll('[data-ho]').forEach(b=>b.onclick=()=>treeHandover(Number(b.dataset.ho)));
-  box.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>treeDelete(Number(b.dataset.del)));
-  box.querySelectorAll('[data-mvnode]').forEach(b=>b.onclick=()=>treeMoveNodePick(Number(b.dataset.mvnode)));
-  box.querySelectorAll('[data-mvdoc]').forEach(b=>b.onclick=()=>treeMoveDocPick(b.dataset.mvdoc));
+    _tgGrow=id; paintDocTree(); });
+  box.querySelectorAll('[data-docs]').forEach(b=>b.onclick=e=>{
+    e.stopPropagation();
+    const id=Number(b.dataset.docs); const s=treeDocsOpen(); if(s.has(id)) s.delete(id); else s.add(id); saveTreeDocsOpen(s);
+    paintDocTree(); });
+  box.querySelectorAll('[data-menu]').forEach(b=>b.onclick=e=>{ e.stopPropagation(); treeNodeMenu(Number(b.dataset.menu)); });
+  box.querySelectorAll('[data-mvdoc]').forEach(b=>b.onclick=e=>{ e.preventDefault(); e.stopPropagation(); treeMoveDocPick(b.dataset.mvdoc); });
+  /* 마우스를 올리면 뿌리까지의 길이 진해진다 */
+  box.querySelectorAll('.tg-box[data-node]').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>tgLineage(Number(el.dataset.node), true));
+    el.addEventListener('mouseleave', ()=>tgLineage(null, false));
+    el.addEventListener('focus', ()=>tgLineage(Number(el.dataset.node), true));
+    el.addEventListener('blur', ()=>tgLineage(null, false));
+  });
   bindTreeDnD(box);
+  tgDrawWires(!_tgDrawn);
+  _tgDrawn=true;
+  if(!_tgRO && window.ResizeObserver){
+    _tgRO=new ResizeObserver(()=>{ if(document.getElementById('tgRoot')) tgDrawWires(false); });
+  }
+  if(_tgRO){ _tgRO.disconnect(); const r=$('#tgRoot'); if(r) _tgRO.observe(r); }
+}
+let _tgDrawn=false, _tgRO=null, _tgGrow=null;
+const TREE_DOCS_LS='anda_tree_docs_open';
+function treeDocsOpen(){ try{ return new Set(JSON.parse(localStorage.getItem(TREE_DOCS_LS)||'[]')); }catch(e){ return new Set(); } }
+function saveTreeDocsOpen(s){ try{ localStorage.setItem(TREE_DOCS_LS, JSON.stringify([...s])); }catch(e){} }
+/* 연결선 — 부모 상자 오른쪽 가운데 → 자식 상자 왼쪽 가운데, 부드러운 곡선 */
+function tgDrawWires(animate){
+  const root=$('#tgRoot'), svg=$('#tgWires'); if(!root || !svg) return;
+  const R=root.getBoundingClientRect();
+  svg.setAttribute('width', root.scrollWidth); svg.setAttribute('height', root.scrollHeight);
+  svg.setAttribute('viewBox', `0 0 ${root.scrollWidth} ${root.scrollHeight}`);
+  const pt=(el, side)=>{ const r=el.getBoundingClientRect(); return { x:(side==='r'?r.right:r.left)-R.left, y:r.top+r.height/2-R.top }; };
+  const out=[];
+  root.querySelectorAll('.tg-row').forEach(row=>{
+    const from=row.querySelector(':scope > .tg-box, :scope > .tg-hub'); if(!from) return;
+    const kids=row.querySelector(':scope > .tg-kids'); if(!kids) return;
+    const a=pt(from,'r');
+    kids.querySelectorAll(':scope > .tg-row').forEach(k=>{
+      const to=k.querySelector(':scope > .tg-box'); if(!to) return;
+      const b=pt(to,'l'); const dx=Math.max(18, (b.x-a.x)*0.55);
+      const id=to.dataset.node;
+      out.push(`<path class="tg-wire${(animate || (_tgGrow!=null && String(_tgGrow)===String(row.dataset.item)))?' grow':''}" data-to="${id}" data-from="${row.dataset.item||'root'}" style="stroke:${getComputedStyle(k).getPropertyValue('--br')||'var(--border-strong)'}"
+        d="M${a.x.toFixed(1)} ${a.y.toFixed(1)} C${(a.x+dx).toFixed(1)} ${a.y.toFixed(1)}, ${(b.x-dx).toFixed(1)} ${b.y.toFixed(1)}, ${b.x.toFixed(1)} ${b.y.toFixed(1)}"/>`);
+    });
+  });
+  svg.innerHTML=out.join('');
+  _tgGrow=null;
+  svg.querySelectorAll('.tg-wire.grow').forEach((p,i)=>{
+    let L=0; try{ L=p.getTotalLength(); }catch(e){}
+    if(!L || document.body.classList.contains('fx-flat') || (window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches)){ p.classList.remove('grow'); return; }
+    p.style.strokeDasharray=L; p.style.strokeDashoffset=L;
+    p.style.animationDelay=(Math.min(i,24)*18)+'ms';
+  });
+}
+/* 뿌리까지의 길 강조 */
+function tgLineage(id, on){
+  const svg=$('#tgWires'); if(!svg) return;
+  svg.classList.toggle('focus', !!on);
+  svg.querySelectorAll('.tg-wire.hot').forEach(p=>p.classList.remove('hot'));
+  document.querySelectorAll('.tg-box.hot').forEach(b=>b.classList.remove('hot'));
+  if(!on || id==null) return;
+  const T=state.tree; let n=T.byId[id]; let g=0;
+  while(n && g++<30){
+    const p=svg.querySelector(`.tg-wire[data-to="${n.id}"]`); if(p) p.classList.add('hot');
+    const b=document.querySelector(`.tg-box[data-node="${n.id}"]`); if(b) b.classList.add('hot');
+    n=T.byId[n.parent_id];
+  }
+}
+/* [⋯] 메뉴 — 폰·키보드에서도 같은 일을 한다 */
+async function treeNodeMenu(id){
+  const T=state.tree; const n=T.byId[id]; if(!n) return;
+  const admin=isAdmin();
+  const opts=[];
+  if(admin){
+    opts.push({ value:'add', label:'하위 분류 만들기', disabled:n.depth>=TREE_MAX_DEPTH, hint:n.depth>=TREE_MAX_DEPTH?'6단까지':'' });
+    opts.push({ value:'ren', label:'이름 바꾸기' });
+    opts.push({ value:'tpl', label:'새 문서 기본 틀 정하기' });
+    opts.push({ value:'mv',  label:'다른 분류 아래로 옮기기' });
+  }
+  if(isOwner() && state.owners) opts.push({ value:'own', label:`${thisYearKST()}년 담당 정하기` });
+  if(state.owners && (admin || ((state.owners||{})[id]||[]).some(o=>o.me))) opts.push({ value:'ho', label:'인수인계 메모' });
+  if(admin) opts.push({ value:'del', label:'지우기' });
+  if(!opts.length) return;
+  const v=await selectModal(n.name, nodePath(id), opts);
+  if(v==='add') return treeAddNode(id);
+  if(v==='ren') return treeRename(id);
+  if(v==='tpl') return treeTemplate(id);
+  if(v==='mv')  return treeMoveNodePick(id);
+  if(v==='own') return treeOwners(id);
+  if(v==='ho')  return treeHandover(id);
+  if(v==='del') return treeDelete(id);
 }
 function treeNameCheck(v){
   const s=normTitle(v);
@@ -6167,12 +6345,27 @@ async function treeTemplate(id){
   if(v==null) return;
   await treeCall('tree_node_template', { p_id:id, p_template:v||null, p_version:T.version });
 }
+/* ★분류 지우기(126) — 안에 든 문서는 '분류 없음'으로 옮긴다(문서 자체는 지우지 않는다).
+   하위 분류가 있으면 [하위까지 모두 지우기] / [이 분류만 지우기(하위는 한 단 위로)] 중 고른다. */
 async function treeDelete(id){
   const T=state.tree; const n=T.byId[id]; if(!n) return;
-  const kids=(T.kids[id]||[]).length, docs=nodeDocCount(id,false);
-  if(kids || docs){ toast(`비어 있지 않은 분류는 지울 수 없어요 (하위 분류 ${kids}개 · 문서 ${docs}개). 먼저 옮겨 주세요.`); return; }
-  if(!await confirmModal(`'${n.name}' 분류를 지울까요?`, '빈 분류만 지울 수 있어요.', '지우기')) return;
-  await treeCall('tree_node_delete', { p_id:id, p_version:T.version });
+  const kids=(T.kids[id]||[]).length, here=nodeDocCount(id,false), deep=nodeDocCount(id,true);
+  let mode='subtree';
+  if(kids){
+    const v=await selectModal(`'${n.name}' 분류를 지울까요?`, `하위 분류 ${kids}개가 있어요. 문서는 지우지 않고 '분류 없음'으로 옮겨요.`, [
+      { value:'subtree', label:`하위 분류까지 모두 지우기`, hint:`문서 ${deep}개 → 분류 없음` },
+      { value:'lift',    label:`이 분류만 지우기 (하위 분류는 한 단 위로)`, hint: here?`문서 ${here}개 → 분류 없음`:'' },
+    ]);
+    if(v==null) return;
+    mode=v;
+  }
+  const moved = mode==='subtree' ? deep : here;
+  const ok=await confirmModal(`'${n.name}' 분류를 지울까요?`,
+    (moved ? `이 분류에 든 문서 ${moved}개는 '분류 없음'으로 옮겨져요. 문서는 지워지지 않아요.` : '빈 분류예요.')
+    + (mode==='lift' && kids ? ` 하위 분류 ${kids}개는 한 단 위로 올라가요.` : (kids ? ` 하위 분류 ${kids}개도 함께 지워져요.` : '')), '지우기');
+  if(!ok) return;
+  const r=await treeCall('tree_node_delete', { p_id:id, p_version:T.version, p_mode:mode });
+  if(r && !r.already) toast(moved ? `지웠어요. 문서 ${moved}개는 '분류 없음'으로 옮겼어요.` : '지웠어요.');
 }
 /* 끌지 않고 옮기기 (폰·키보드) */
 async function treeMoveNodePick(id){
@@ -6635,13 +6828,16 @@ function openOrderModal(key, title){
 async function renderOrders(){
   const _nav=_navSeq;
   $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><p class="doc-meta">불러오는 중…</p>`;
-  let orders=null, reports=null;
-  try{ const [o, r] = await Promise.all([ sb.rpc('order_list'), sb.rpc('report_list', { p_key:null }) ]);
-    if(o.error) throw o.error; orders=o.data||[]; reports=(r.error?[]:(r.data||[])); }
+  let orders=null, reports=null, caps={ approve:can('order_approve'), staff:can('order_approve')||can('order_manage') };   // 서버 order_caps가 오면 그걸 쓴다
+  try{ const [o, r, c] = await Promise.all([ sb.rpc('order_list'), sb.rpc('report_list', { p_key:null }), sb.rpc('order_caps') ]);
+    if(o.error) throw o.error; orders=o.data||[]; reports=(r.error?[]:(r.data||[])); if(!c.error && c.data) caps=c.data; }
   catch(e){ if(_nav!==_navSeq) return; $('#doc').innerHTML=`<div class="doc-head"><h1>주문 · 신고</h1></div><div class="notice">아직 준비되지 않았어요 (122_reports_orders.sql 실행 필요).</div>`; return; }
   if(_nav!==_navSeq) return;
-  const admin=isAdmin();
-  const NEXT = { requested:[['approved','승인'],['rejected','반려']], approved:[['ordered','주문했어요'],['cancelled','취소']], ordered:[['arrived','도착했어요']], rejected:[['requested','다시 신청 단계로']] };
+  /* ★승인·반려는 owner·teacher만(사용자 결정). 주문함·도착 표시는 owner·teacher·관리자. 서버(122)가 최종 판정 */
+  const admin=!!caps.staff;
+  const NEXT = { requested:[...(caps.approve?[['approved','승인'],['rejected','반려']]:[]), ['cancelled','취소']],
+                 approved:[['ordered','주문했어요'],['cancelled','취소']], ordered:[['arrived','도착했어요']],
+                 rejected: caps.approve ? [['requested','다시 신청 단계로']] : [] };
   const row=o=>`<div class="or-row st-${o.status}${o.stale?' stale':''}">
       <div class="or-main"><b>${escapeHtml(o.item)}</b>${o.detail?` <span class="muted">· ${escapeHtml(o.detail)}</span>`:''}
         ${o.doc_key&&(state.docs||[]).some(d=>d.key===o.doc_key)?` <a href="${docHash(o.doc_key)}" class="or-doc">${escapeHtml(docAddr(o.doc_key))}</a>`:''}
@@ -6656,7 +6852,7 @@ async function renderOrders(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>주문 · 신고</h1>
       <div class="tabs"><button id="orNew">${ic('plus')}주문 신청</button><button id="orDocs">${ic('docs')}문서 목록</button></div></div>
-    <div class="doc-meta">${admin?'모든 주문 신청이 보여요(관리자).':'내가 신청한 주문이 보여요.'} 물건 문서의 [주문 신청]으로도 신청할 수 있어요.</div>
+    <div class="doc-meta">${admin?'모든 주문 신청이 보여요.':'내가 신청한 주문이 보여요.'} ${caps.approve?'승인·반려 권한이 있어요.':'승인·반려는 owner와 teacher가 해요 — 결정되면 알림이 가요.'}</div>
     ${reports.length?`<h2 class="or-h">열린 신고 <span class="tr-cnt">${reports.length}</span></h2>
       <div class="or-list">${reports.map(r=>`<div class="or-row"><div class="or-main"><b>${escapeHtml(r.title||'')}</b> <span class="st-badge st-${r.kind==='low'?'warn':'bad'}">${escapeHtml(REPORT_WORD[r.kind]||'')}</span>
         <div class="or-sub">${escapeHtml(r.who||'')}${r.count>1?` 외 ${r.count-1}명`:''} · ${escapeHtml(fmtKST(r.last_at))}${r.note?' · '+escapeHtml(r.note):''}</div></div>
@@ -7042,7 +7238,7 @@ async function renderDocsPage(){
           return `<option value="${escapeAttr(t)}"${docsPage.ops===t?' selected':''}>${escapeHtml(t)} ${n}</option>`; }).join('')}
       </select>` : ''}
     </div>
-    ${allFieldTags().length?`<div class="docs-tags" id="dpTags">${allFieldTags().map(t=>`<button type="button" class="tag-chip big${docsPage.tag===t?' on':''}" data-tag="${escapeAttr(t)}">#${escapeHtml(t)}</button>`).join('')}</div>`:''}
+    ${allFieldTags().length?`<div class="docs-tags" id="dpTags">${allFieldTags().map(t=>`<span class="tag-wrap"><button type="button" class="tag-chip big${docsPage.tag===t?' on':''}" data-tag="${escapeAttr(t)}">#${escapeHtml(t)}</button>${canEdit()?`<button type="button" class="tag-x" data-tagdel="${escapeAttr(t)}" title="이 태그를 모든 문서에서 지우기" aria-label="#${escapeAttr(t)} 태그 지우기">×</button>`:''}</span>`).join('')}</div>`:''}
     <div class="qb-empty" id="dpEmpty" style="display:none">찾는 문서가 없어요. 다른 낱말로 찾아보세요.</div>
     ${featOn('tasks')?'<section class="dpb" id="dpBoard"></section>':''}
     <div id="dpList"></div>`;
@@ -7061,6 +7257,15 @@ async function renderDocsPage(){
   const au=$('#dpAudit'); if(au) au.onclick=()=>{ location.hash='#//audit'; };
   const op=$('#dpOps'); if(op) op.onchange=()=>{ docsPage.ops=op.value; paint(); };
   document.querySelectorAll('#dpTags [data-tag]').forEach(b=>b.onclick=()=>{ docsPage.tag = docsPage.tag===b.dataset.tag ? '' : b.dataset.tag; paint(); });
+  /* ★태그 지우기(126) — 그 태그가 달린 문서들은 태그 없음이 된다(문서는 그대로) */
+  document.querySelectorAll('#dpTags [data-tagdel]').forEach(b=>b.onclick=async()=>{
+    const t=b.dataset.tagdel; const n=rows.filter(d=>docTagsOf(d.key,'field').includes(t)).length;
+    if(!await confirmModal(`#${t} 태그를 지울까요?`, `이 태그가 달린 문서 ${n}개에서 태그가 빠져요. 문서는 지워지지 않아요.`, '지우기')) return;
+    try{ const { error } = await sb.rpc('doc_tag_remove_all', { p_kind:'field', p_tag:t }); if(error) throw error;
+      if(docsPage.tag===t) docsPage.tag='';
+      toast(`#${t} 태그를 지웠어요.`); await loadDocTags(); renderDocsPage(); }
+    catch(e){ toast(isMissingFn(e) ? '태그 지우기 설정이 아직이에요 — 126_tree_delete.sql을 실행해 주세요.' : docErrMsg(e,'지우지 못했어요: ')); }
+  });
   paint();
   window.scrollTo(0,0);
 }
@@ -7367,8 +7572,10 @@ function wTable(rows){
 function wVideo(u){
   const url=String(u||'').trim();
   const yt=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
-  if(yt) return '<div class="wk-video"><iframe src="https://www.youtube.com/embed/'+wAttr(yt[1])+
-    '" title="영상" loading="lazy" allowfullscreen frameborder="0"></iframe></div>';
+  /* ★개인정보(세션 CP): 쿠키를 심지 않는 youtube-nocookie 주소로 넣는다 — 재생 전에는 추적 쿠키가 생기지 않는다.
+     referrerpolicy로 우리 문서 주소(번호)가 YouTube로 넘어가지 않게 한다. */
+  if(yt) return '<div class="wk-video"><iframe src="https://www.youtube-nocookie.com/embed/'+wAttr(yt[1])+
+    '" title="영상" loading="lazy" allowfullscreen frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
   const safe=wUrl(url);
   if(/\.(mp4|webm|ogg)(\?|$)/i.test(safe))
     return '<div class="wk-video"><video src="'+wAttr(safe)+'" controls preload="metadata" playsinline></video></div>';
@@ -9718,8 +9925,8 @@ function avaCellHTML(name, handle, url){
 function segStyle(r){ return `--rc:${ROLE_COLOR[r]||'var(--text-dim)'}`; }
 function memberSeg(m){
   const base=['viewer','editor','admin'];
-  // teacher는 관리 계층이 아니라 별도 트랙 → 일반 세그먼트에 뜨지 않고, 그 회원에게만 단독 표시
-  if(m.role==='teacher'){
+  // teacher는 관리 계층이 아니라 별도 트랙. ★세션 CP(125): owner는 화면에서 teacher를 주고 뺄 수 있다.
+  if(m.role==='teacher' && !isOwner()){
     return `<div class="seg seg-locked seg-teacher" title="teacher는 별도 등급입니다 (등급 조정은 DB에서)">`
          + `<button class="seg-opt on" style="${segStyle('teacher')}" disabled>teacher</button></div>`;
   }
@@ -9733,7 +9940,7 @@ function memberSeg(m){
     const btns=base.map(r=>btn(r,'',' disabled')).join('');
     return `<div class="seg seg-locked" title="admin은 viewer·editor 회원만 변경할 수 있어요">${btns}</div>`;
   }
-  const list = isOwner() ? [...base,'owner'] : ['viewer','editor'];   // admin은 viewer·editor로만 변경(승격 불가)
+  const list = isOwner() ? [...base,'teacher','owner'] : ['viewer','editor'];   // admin은 viewer·editor로만 변경(승격 불가) · teacher는 owner만
   const btns=list.map(r=>btn(r,'',` data-role="${r}"${r==='owner'?' title="owner 양도"':''}`)).join('');
   return `<div class="seg" data-id="${m.id}">${btns}</div> <span class="ck" data-for="${m.id}" style="font-size:11px;margin-left:6px"></span>`;
 }
@@ -10209,7 +10416,19 @@ async function setRole(id, role){
     return;
   }
   if(note){ note.textContent='변경 중…'; note.style.color='var(--text-dim)'; }
-  const { error } = await sb.rpc('set_member_role', { p_target:id, p_role:role });
+  /* ★teacher(125): 주고 빼는 건 set_member_teacher. teacher → 다른 등급은 먼저 teacher를 빼고(→viewer) 그 등급으로 */
+  const segEl=$('#doc').querySelector('.seg[data-id="'+id+'"]');
+  const wasTeacher = !!(segEl && segEl.querySelector('.seg-opt.on[data-role="teacher"]'));
+  let error=null;
+  if(role==='teacher' || wasTeacher){
+    const r1 = await sb.rpc('set_member_teacher', { p_target:id, p_on: role==='teacher' });
+    error = r1.error;
+    if(!error && role!=='teacher' && role!=='viewer'){ const r2 = await sb.rpc('set_member_role', { p_target:id, p_role:role }); error=r2.error; }
+    if(error && isMissingFn(error)) error={ message:'125_teacher_role.sql을 먼저 실행해 주세요.' };
+  }else{
+    const r = await sb.rpc('set_member_role', { p_target:id, p_role:role });
+    error = r.error;
+  }
   if(error){ if(note){ note.textContent='실패: '+error.message; note.style.color='var(--link-red)'; } return; }
   const seg=$('#doc').querySelector('.seg[data-id="'+id+'"]');
   if(seg) seg.querySelectorAll('.seg-opt').forEach(b=>b.classList.toggle('on', b.dataset.role===role));
@@ -11595,6 +11814,10 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-02', text:'[안내] 개인정보 처리방침과 이용약관이 2026년 11월 1일부터 v1.3으로 바뀌어요. 바뀌는 점: 물품 관리(보관 위치·상태, 고장·분실 신고, 주문 신청, 재고 점검, 분야 담당·인수인계)와 편집 중 표시·문서 열람 기록을 처리 항목에 적고, 주문 신청·신고·점검 기록은 1년 뒤 지운다는 보유 기간을 정했어요. 선생님(teacher)·편집자 등급과 권한 설정을 약관에 넣었고, 인증 메일 발송 사업자를 Google(Gmail)로 바로잡았어요. 그 전까지는 v1.2가 적용돼요. 각 문서 맨 아래 [변경 이력]에서 이전 버전을 볼 수 있어요.' },
+  { date:'2026-10-02', text:'[문서] 분류 나무가 가지 그림으로 바뀌었어요 — 맨 위 분류마다 색이 있고, 하위 분류가 선으로 이어져요. 분류를 지울 수 있게 됐어요(안에 든 문서는 \'분류 없음\'으로 옮겨져요). 분야 태그도 [문서] 목록에서 × 로 지울 수 있어요.' },
+  { date:'2026-10-01', text:'[주문] 주문 신청의 승인·반려는 기본으로 owner와 teacher가 해요([시스템 → 권한]의 "주문 신청 승인 · 반려"에서 등급별로 바꿀 수 있고, 서버도 그 표를 따라요). owner는 [회원 관리]에서 teacher 등급을 주고 뺄 수 있어요. 끝난 주문·닫힌 신고·재고 점검 기록은 1년 뒤 자동으로 지워져요.' },
+  { date:'2026-10-01', text:'[개인정보] 문서에 넣은 YouTube 영상은 쿠키를 남기지 않는 주소(youtube-nocookie)로 열려요.' },
   { date:'2026-10-01', text:'[문서] 문서 주소가 번호로 바뀌었어요(예: D-0078). 제목을 고쳐도 링크·QR은 그대로이고, 지운 문서의 번호는 다시 쓰이지 않아 그 주소로 오면 "삭제된 문서입니다"와 30일 안의 기록이 보여요. 예전 주소로 들어와도 같은 문서가 열립니다.' },
   { date:'2026-10-01', text:'[문서] 새 문서는 제목만 정하면 돼요. 같은 제목은 만들 수 없고, 띄어쓰기·대소문자만 다른 제목이 있으면 미리 알려 줘요. 제목에는 / 와 # , 그리고 문법에 쓰이는 말(절차·영상·그래프·포함·각주)은 쓸 수 없어요. 지운 문서를 되살릴 때 이름이 겹치면 새 이름을 물어봐요.' },
   { date:'2026-10-01', text:'[문서] 문서 목록의 지층 막대를 뺐어요.' },
@@ -13368,7 +13591,7 @@ function pushPrefCardBind(root){
 /* ★116: 웹 푸시는 브라우저 제조사의 국외 서버를 거친다 → 켜기 전에 이전 사항을 알리고 동의를 받는다(제28조의8 제2항). 기기마다 한 번. */
 const PUSH_CONSENT_KEY = 'anda_push_consent';
 function pushConsentOk(){
-  try{ if(localStorage.getItem(PUSH_CONSENT_KEY)===LEGAL_VERSION) return true; }catch(e){ /* 저장소 차단 — 매번 묻는다 */ }
+  try{ if(localStorage.getItem(PUSH_CONSENT_KEY)===PUSH_CONSENT_VERSION) return true; }catch(e){ /* 저장소 차단 — 매번 묻는다 */ }
   const ok = confirm('[알림 수신 · 개인정보 국외 이전 동의]\n\n'
     + '· 이전 항목: 알림 구독 주소·암호화 키, 알림 제목·내용(암호화 전송)\n'
     + '· 이전받는 자·국가: 이 브라우저의 푸시 서비스 — Google LLC(미국), Apple Inc.(미국), Mozilla Corporation(미국) 중 해당 사업자\n'
@@ -13377,7 +13600,7 @@ function pushConsentOk(){
     + '· 보유 기간: 알림을 끄거나 탈퇴할 때까지(사업자 서버에는 전달 즉시 삭제가 원칙)\n'
     + '· 거부 방법·효과: [취소]를 누르면 알림만 오지 않고 다른 기능은 그대로 쓸 수 있어요. 켠 뒤에도 프로필에서 언제든 끌 수 있어요.\n\n'
     + '동의하고 알림을 켤까요?');
-  if(ok){ try{ localStorage.setItem(PUSH_CONSENT_KEY, LEGAL_VERSION); }catch(e){ /* 저장소 차단 — 다음에 다시 묻는다 */ } }
+  if(ok){ try{ localStorage.setItem(PUSH_CONSENT_KEY, PUSH_CONSENT_VERSION); }catch(e){ /* 저장소 차단 — 다음에 다시 묻는다 */ } }
   return ok;
 }
 async function pushSubscribeSelf(){
