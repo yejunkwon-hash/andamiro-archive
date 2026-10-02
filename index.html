@@ -808,6 +808,16 @@ body.dark .chat-preview .msg-bubble{background:#3a2626;border-color:#5a3a3a;}
 .hs-badge{font-size:11px;font-weight:800;border-radius:99px;padding:2px 9px;}
 .hs-badge.ok{background:rgba(46,158,91,.14);color:#2e9e5b;}
 .hs-badge.bad{background:rgba(204,43,43,.13);color:var(--link-red);}
+/* ★CQ: 주의 배지 · 자동 확인 불가(na) · 적용 현황 칩 */
+.hs-badge.warn{background:color-mix(in srgb, var(--warn) 18%, transparent);color:var(--text);}
+.hs-ic.na{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:var(--box-bg);color:var(--text-dim);font-weight:800;font-size:12px;line-height:1;vertical-align:middle;}
+.hs-table tr.hs-na td{color:var(--text-dim);}
+.mg-grid{display:flex;flex-wrap:wrap;gap:6px;margin:2px 0 8px;}
+.mg-chip{display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 4px;border-radius:99px;border:1px solid var(--border);background:var(--card);font-size:12.5px;color:var(--text);}
+.mg-chip b{display:inline-grid;place-items:center;min-width:30px;height:20px;border-radius:99px;font-size:11.5px;color:#fff;background:#2e9e5b;}
+.mg-chip.bad{border-color:var(--link-red);background:rgba(204,43,43,.06);}
+.mg-chip.bad b{background:var(--link-red);}
+.mg-chip.na b{background:var(--text-dim);}
 .hs-table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:13px;}
 .hs-table th{background:var(--table-head);color:var(--text-dim);font-size:11.5px;font-weight:800;text-align:left;padding:7px 10px;border-bottom:1px solid var(--border);}
 .hs-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;color:var(--text);}
@@ -951,6 +961,25 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .perm-table tr:last-child td{border-bottom:none;}
 .perm-sec td{background:var(--box-bg);font-weight:800;color:var(--accent);font-size:12px;}
 .pseg{display:inline-flex;border:1px solid var(--border-strong);border-radius:99px;overflow:hidden;}
+/* ★CQ: 초기 설정과 다른 칸(점) · 저장 안 한 칸(테두리) · 새 항목 · 표 밖 규칙 · 저장 전 확인 */
+.pseg.pdiff{position:relative;overflow:visible;}
+.pseg.pdiff::after{content:'';position:absolute;top:-3px;right:-3px;width:7px;height:7px;border-radius:50%;background:var(--warn);box-shadow:0 0 0 2px var(--card);}
+.pseg.pchg{outline:2px solid var(--accent);outline-offset:2px;}
+.perm-dot-demo{width:14px;height:10px;border:none;vertical-align:middle;}
+.perm-new{display:inline-block;font-size:11px;font-weight:800;padding:1px 7px;border-radius:99px;background:color-mix(in srgb, var(--info) 14%, transparent);color:var(--info);vertical-align:1px;}
+.perm-legend{font-size:12.5px;color:var(--text-dim);margin:10px 2px 0;line-height:1.7;}
+.perm-pend{font-size:12.5px;font-weight:800;color:var(--accent);}
+.perm-fixed{margin-top:16px;border:1px solid var(--border);border-radius:10px;background:var(--card);padding:10px 14px;font-size:13px;}
+.perm-fixed summary{cursor:pointer;font-weight:800;color:var(--text);}
+.perm-fixed .pf-g{margin-top:10px;}
+.perm-fixed ul{margin:4px 0 0;padding-left:20px;color:var(--text);line-height:1.65;}
+.perm-cf{max-width:520px;}
+.pcf-list{list-style:none;margin:10px 0 4px;padding:0;max-height:46vh;overflow:auto;text-align:left;font-size:13px;}
+.pcf-list li{padding:6px 4px;border-bottom:1px solid var(--border);}
+.pcf-list li.risky{background:color-mix(in srgb, var(--warn) 10%, transparent);}
+.pcf-role{display:inline-block;min-width:54px;text-align:center;border-radius:99px;padding:1px 8px;font-size:11.5px;background:var(--rc);color:#fff;}
+.pcf-to{font-weight:800;margin:0 4px;} .pcf-to.on{color:var(--ok);} .pcf-to.off{color:var(--danger);}
+.pcf-warn{color:var(--text);}
 .pseg button{border:none;background:var(--card);color:var(--text-dim);font-size:11px;font-weight:700;padding:3px 10px;cursor:pointer;transition:background .12s,color .12s;}
 .pseg button:hover{background:var(--box-bg);}
 .pseg button.allow.on{background:#2e9e5b;color:#fff;}     /* 허용 = 초록 */
@@ -3130,6 +3159,170 @@ body.has-botnav .compose{ bottom:calc(66px + env(safe-area-inset-bottom)); right
 .sem-tile.cur{ outline:2px dashed color-mix(in srgb, var(--accent) 50%, transparent); outline-offset:1px; }
 .sem-x{ color:var(--accent); font-weight:900; margin-right:2px; }
 .sem-tools{ display:flex; flex-wrap:wrap; gap:6px; padding:8px 10px 2px; }
+/* ===== ★세션 CR: 채팅 파일 · 영상 ===== */
+.cfile-btn svg{ transform:rotate(-12deg); }
+.cf-tray{ display:flex; flex-wrap:wrap; gap:6px; padding:6px 10px 0; }
+.cf-chip{ display:inline-flex; align-items:center; gap:6px; max-width:100%; padding:4px 6px 4px 8px; border:1px solid var(--border); border-radius:8px; background:var(--card); font-size:12.5px; color:var(--text); }
+.cf-chip .cf-n{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:220px; font-weight:600; }
+.cf-chip small{ color:var(--text-dim); }
+.cf-x{ border:none; background:none; color:var(--text-dim); font-size:15px; line-height:1; cursor:pointer; padding:0 2px; } .cf-x:hover{ color:var(--accent); }
+.chat.aops.cf-over{ outline:2px dashed var(--accent); outline-offset:-6px; }
+.msg-files{ display:flex; flex-direction:column; gap:6px; margin:4px 0 2px; max-width:min(520px, 100%); }
+.mf{ border:1px solid var(--border); border-radius:10px; background:var(--card); overflow:hidden; }
+.mf video, .mf-image img{ display:block; width:100%; max-height:360px; background:#000; object-fit:contain; }
+.mf-image img{ background:var(--box-bg); cursor:zoom-in; }
+.mf audio{ display:block; width:100%; }
+.mf-cap{ display:flex; align-items:center; gap:7px; padding:7px 10px; font-size:12.5px; color:var(--text); min-width:0; }
+.mf-cap .mf-n{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+.mf-cap small{ color:var(--text-dim); flex:none; }
+.mf-dl{ flex:none; font-size:12px; font-weight:700; color:var(--accent); text-decoration:none; padding:2px 8px; border:1px solid color-mix(in srgb, var(--accent) 35%, transparent); border-radius:99px; }
+.mf-card{ display:block; text-decoration:none; } .mf-card:hover{ border-color:var(--accent); }
+.mf-open{ flex:none; font-size:12px; font-weight:700; color:#fff; background:var(--accent); border-radius:99px; padding:2px 9px; text-decoration:none; }
+.msg-embeds{ margin:6px 0 2px; max-width:min(560px, 100%); }
+.mf-yt{ border:1px solid var(--border); border-radius:10px; overflow:hidden; background:var(--card); }
+.mf-yt.on{ aspect-ratio:16/9; background:#000; } .mf-yt iframe{ width:100%; height:100%; border:0; display:block; }
+.mf-ytb{ display:flex; align-items:center; gap:12px; width:100%; padding:10px 12px; border:none; background:none; cursor:pointer; text-align:left; color:var(--text); font:inherit; }
+.mf-ytb b{ display:block; font-size:13.5px; } .mf-ytb small{ color:var(--text-dim); font-size:12px; }
+.mf-play{ flex:none; display:grid; place-items:center; width:40px; height:28px; border-radius:8px; background:#e62117; color:#fff; font-size:13px; }
+.mf-ytb:hover{ background:var(--box-bg); }
+
+/* ===== ★세션 CR: 세미나 준비 화면 ===== */
+.sp-wrap{ max-width:1240px; margin:0 auto; }
+.sp-head h1 .sp-name{ font-weight:600; color:var(--text-dim); font-size:.72em; margin-left:6px; }
+.sp-go{ text-decoration:none; padding:8px 16px !important; }
+.sp-sum{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 16px; padding:10px 14px; border:1px solid var(--border); border-radius:12px; background:var(--card); font-size:13.5px; color:var(--text-dim); margin:4px 0 12px; }
+.sp-sum b{ color:var(--text); font-size:15px; } .sp-sum .sp-when{ margin-left:auto; }
+.sp-firedn{ color:var(--text); display:inline-flex; align-items:center; gap:8px; }
+.sp-tools{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; justify-content:space-between; margin-bottom:12px; position:sticky; top:var(--topbar-h,56px); z-index:5; background:var(--card); padding:6px 0; }
+.sp-tg{ display:flex; flex-wrap:wrap; gap:6px; }
+.sp-add{ display:inline-flex; align-items:center; gap:6px; padding:7px 12px; border:1px solid var(--border-strong,var(--border)); border-radius:99px; background:var(--card); font:inherit; font-size:13.5px; font-weight:700; color:var(--text); cursor:pointer; }
+.sp-add span{ font-size:14px; } .sp-add:hover:not(:disabled){ border-color:var(--accent); color:var(--accent); } .sp-add:disabled{ opacity:.45; cursor:not-allowed; }
+.sp-grid{ display:grid; grid-template-columns:minmax(0,1fr) 320px; gap:16px; align-items:start; }
+.sp-side{ position:sticky; top:calc(var(--topbar-h,56px) + 58px); display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 140px); overflow:auto; }
+.sp-card{ border:1px solid var(--border); border-radius:12px; background:var(--card); padding:12px; font-size:13px; }
+.sp-ch{ font-weight:800; font-size:14px; margin-bottom:8px; }
+.sp-auto{ display:flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-dim); margin-bottom:8px; }
+.sp-up{ display:inline-block; padding:7px 14px !important; }
+.sp-fh{ display:flex; align-items:center; gap:6px; margin:12px 0 6px; font-size:12.5px; } .sp-fh b{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .sp-fh small{ color:var(--text-dim); }
+.sp-thumbs{ display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; }
+.sp-th{ position:relative; padding:0; border:1px solid var(--border); border-radius:6px; overflow:hidden; background:var(--box-bg); cursor:pointer; aspect-ratio:4/3; }
+.sp-th img{ width:100%; height:100%; object-fit:contain; display:block; } .sp-th span{ position:absolute; left:3px; bottom:3px; font-size:10.5px; font-weight:800; background:rgba(0,0,0,.6); color:#fff; border-radius:4px; padding:0 4px; }
+.sp-th:hover{ border-color:var(--accent); } .sp-th.used{ outline:2px solid color-mix(in srgb, var(--accent) 55%, transparent); outline-offset:-2px; }
+.sp-help ul{ margin:0; padding-left:18px; line-height:1.7; color:var(--text); } .sp-help kbd, .sp-help code{ font-family:var(--mono); font-size:11px; border:1px solid var(--border); border-radius:3px; padding:0 4px; background:var(--box-bg); }
+.sp-help details{ margin-top:8px; } .sp-help summary{ cursor:pointer; font-weight:700; }
+.sp-syn{ font-family:var(--mono); font-size:11.5px; line-height:1.55; white-space:pre-wrap; background:var(--box-bg); border-radius:8px; padding:8px 10px; margin:6px 0 0; }
+.sp-empty{ border:1.5px dashed var(--border); border-radius:12px; padding:28px 20px; text-align:center; color:var(--text-dim); } .sp-empty b{ color:var(--text); font-size:15px; }
+.sp-plan{ display:flex; flex-direction:column; gap:6px; }
+.sp-it{ display:grid; grid-template-columns:18px 26px 26px minmax(0,1fr) auto; gap:8px; align-items:start; padding:10px 10px 10px 6px; border:1px solid var(--border); border-radius:10px; background:var(--card); position:relative; }
+.sp-it.sel{ border-color:color-mix(in srgb, var(--accent) 55%, var(--border)); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 10%, transparent); }
+.sp-it.fired{ opacity:.6; }
+.sp-it.drag{ opacity:.35; } .sp-it.over-top{ box-shadow:0 -3px 0 var(--accent); } .sp-it.over-bot{ box-shadow:0 3px 0 var(--accent); }
+.sp-grip{ cursor:grab; color:var(--text-dim); font-size:13px; letter-spacing:-2px; padding-top:6px; user-select:none; text-align:center; }
+.sp-no{ font-size:12px; font-weight:800; color:var(--text-dim); padding-top:7px; text-align:right; font-variant-numeric:tabular-nums; }
+.sp-k{ font-size:15px; padding-top:4px; text-align:center; }
+.sp-main{ min-width:0; display:flex; flex-direction:column; gap:6px; }
+.sp-ta, .sp-in, .sp-sec-in, .sp-note{ width:100%; box-sizing:border-box; font:inherit; font-size:14px; line-height:1.55; color:var(--text); background:transparent; border:1px solid transparent; border-radius:7px; padding:5px 8px; resize:none; }
+.sp-ta:hover, .sp-in:hover, .sp-sec-in:hover, .sp-note:hover{ border-color:var(--border); }
+.sp-ta:focus, .sp-in:focus, .sp-sec-in:focus, .sp-note:focus{ outline:none; border-color:var(--accent); background:var(--card); }
+.sp-ta.sm{ font-size:13px; }
+.sp-it.k-section{ background:color-mix(in srgb, var(--accent) 6%, var(--card)); border-color:color-mix(in srgb, var(--accent) 30%, var(--border)); margin-top:10px; }
+.sp-it.k-section .sp-k{ font-weight:900; color:var(--accent); }
+.sp-sec-in{ font-size:16.5px; font-weight:800; }
+.sp-it.k-pause .sp-pause{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13.5px; font-weight:700; color:var(--text-dim); border:1.5px dashed var(--border); border-radius:8px; padding:6px 10px; }
+.sp-it.k-pause .sp-in{ flex:1; min-width:180px; font-weight:400; font-size:13px; }
+.sp-note{ font-size:13px; background:color-mix(in srgb, var(--warn) 9%, transparent); border-color:color-mix(in srgb, var(--warn) 30%, transparent); }
+.sp-slide{ display:flex; gap:10px; align-items:flex-start; } .sp-slide img{ width:150px; aspect-ratio:4/3; object-fit:contain; border:1px solid var(--border); border-radius:6px; background:var(--box-bg); flex:none; }
+.sp-slr{ flex:1; min-width:0; display:flex; flex-direction:column; gap:4px; } .sp-slr b{ font-size:13px; padding:4px 8px 0; }
+.sp-miss{ width:150px; aspect-ratio:4/3; display:grid; place-content:center; text-align:center; border:1.5px dashed var(--border); border-radius:6px; color:var(--text-dim); font-size:12px; flex:none; } .sp-miss small{ display:block; font-size:10.5px; }
+.sp-poll{ display:flex; flex-direction:column; gap:6px; } .sp-poll .sp-in{ font-weight:700; } .sp-pk{ align-self:flex-start; }
+.sp-hintl{ font-size:11.5px; color:var(--text-dim); padding:0 8px; }
+.sp-file{ display:flex; flex-direction:column; gap:6px; } .sp-fchips{ display:flex; flex-wrap:wrap; gap:6px; align-items:center; padding:0 4px; }
+.sp-meta{ display:flex; flex-direction:column; align-items:flex-end; gap:6px; min-width:108px; }
+.sp-est{ width:72px; text-align:right; font:inherit; font-size:13px; font-variant-numeric:tabular-nums; border:1px solid var(--border); border-radius:6px; padding:4px 7px; background:var(--card); color:var(--text); }
+.sp-est.bad{ border-color:var(--danger); }
+.sp-sect{ font-size:12px; font-weight:700; color:var(--accent); white-space:nowrap; }
+.sp-it.k-section .sp-meta{ flex-direction:row; align-items:center; gap:10px; padding-top:4px; }
+.sp-fired{ font-size:11px; font-weight:800; color:var(--text-dim); border:1px solid var(--border); border-radius:99px; padding:1px 7px; }
+.sp-saved{ font-size:11px; color:var(--text-dim); opacity:0; transition:opacity .2s; min-height:14px; } .sp-saved.on{ opacity:1; }
+.sp-acts{ display:flex; gap:2px; opacity:.35; transition:opacity .15s; } .sp-it:hover .sp-acts, .sp-it.sel .sp-acts, .sp-it:focus-within .sp-acts{ opacity:1; }
+.sp-ib{ width:26px; height:26px; border:1px solid transparent; border-radius:6px; background:none; cursor:pointer; color:var(--text-dim); font-size:13px; line-height:1; }
+.sp-ib:hover{ border-color:var(--border); color:var(--text); } .sp-ib.on{ color:var(--text); background:color-mix(in srgb, var(--warn) 14%, transparent); } .sp-ib.danger:hover{ color:var(--danger); }
+.sp-textbox{ max-width:760px; width:min(760px, 94vw); text-align:left; }
+.sp-textbox textarea{ width:100%; box-sizing:border-box; min-height:46vh; font-family:var(--mono); font-size:13px; line-height:1.6; border:1px solid var(--border); border-radius:8px; padding:10px 12px; background:var(--card); color:var(--text); resize:vertical; margin-top:8px; }
+.sp-textbox code{ font-family:var(--mono); font-size:11.5px; background:var(--box-bg); border-radius:3px; padding:0 4px; }
+.sp-tprev{ font-size:12.5px; color:var(--text-dim); margin-top:6px; }
+.sp-keep{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:22px; padding:12px 14px; border:1px dashed var(--border); border-radius:12px; font-size:13px; color:var(--text-dim); }
+.sp-keep .sp-del{ margin-left:auto; color:var(--danger); }
+.sar-keep{ font-size:12.5px; color:var(--text-dim); margin:6px 0 10px; }
+.sp-textbox .modal-btns{ flex-wrap:wrap; }
+@media(max-width:980px){ .sp-grid{ grid-template-columns:minmax(0,1fr); } .sp-side{ position:static; max-height:none; } }
+@media(max-width:640px){
+  .sp-it{ grid-template-columns:16px 20px minmax(0,1fr); padding:8px 8px 8px 4px; }
+  .sp-k{ display:none; } .sp-meta{ grid-column:2 / -1; flex-direction:row; align-items:center; flex-wrap:wrap; min-width:0; }
+  .sp-acts{ opacity:1; margin-left:auto; } .sp-slide{ flex-direction:column; } .sp-slide img, .sp-miss{ width:100%; }
+  .sp-sum .sp-when{ margin-left:0; }
+}
+
+/* ===== ★세션 CR: 발표자 보기 ===== */
+.hub.room-view.sem-hostv{ grid-template-columns:minmax(0,1fr) 340px; }
+.sem-sp.pv{ padding:12px; border-color:color-mix(in srgb, var(--accent) 35%, var(--border)); }
+.pv-top{ display:flex; align-items:baseline; gap:6px; flex-wrap:wrap; }
+.pv-clock{ font-size:24px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.5px; }
+.pv-plan{ font-size:12.5px; color:var(--text-dim); }
+.pv-pace{ font-size:11.5px; font-weight:800; border-radius:99px; padding:1px 8px; } .pv-pace.ok{ color:var(--ok); background:color-mix(in srgb, var(--ok) 12%, transparent); } .pv-pace.late{ color:var(--danger); background:color-mix(in srgb, var(--danger) 12%, transparent); } .pv-pace.early{ color:var(--info); background:color-mix(in srgb, var(--info) 12%, transparent); }
+.pv-planl{ margin-left:auto; font-size:12px; font-weight:700; color:var(--text-dim); text-decoration:none; } .pv-planl:hover{ color:var(--accent); }
+.pv-bar{ height:4px; border-radius:99px; background:var(--box-bg); margin:8px 0 10px; overflow:hidden; } .pv-bar span{ display:block; height:100%; background:var(--accent); transition:width .3s; }
+.pv-sec{ font-size:12.5px; font-weight:800; color:var(--accent); margin-bottom:6px; }
+.pv-next{ border:2px solid var(--accent); border-radius:10px; padding:10px; background:color-mix(in srgb, var(--accent) 4%, var(--card)); }
+.pv-lab{ font-size:11.5px; font-weight:800; color:var(--accent); margin-bottom:6px; } .pv-lab small{ color:var(--text-dim); font-weight:600; margin-left:4px; }
+.pv-txt{ font-size:14.5px; line-height:1.55; color:var(--text); white-space:pre-wrap; word-break:break-word; max-height:220px; overflow:auto; }
+.pv-sub{ font-size:12.5px; color:var(--text-dim); margin-top:4px; }
+.pv-slide img{ display:block; width:100%; border-radius:6px; border:1px solid var(--border); background:var(--box-bg); }
+.pv-note{ margin-top:8px; font-size:13px; line-height:1.5; background:color-mix(in srgb, var(--warn) 12%, transparent); border-radius:7px; padding:6px 9px; white-space:pre-wrap; }
+.pv-btns{ display:flex; gap:6px; margin:10px 0 8px; }
+.pv-go{ flex:1; padding:12px; border:none; border-radius:10px; background:var(--accent); color:#fff; font:inherit; font-size:16px; font-weight:800; cursor:pointer; }
+.pv-go kbd{ font-family:var(--mono); font-size:11px; background:rgba(255,255,255,.22); border-radius:4px; padding:1px 5px; margin-left:6px; vertical-align:2px; }
+.pv-go:disabled{ opacity:.4; cursor:default; } .pv-go:not(:disabled):active{ transform:translateY(1px); }
+.pv-skip{ padding:0 12px; border:1px solid var(--border); border-radius:10px; background:var(--card); color:var(--text-dim); font:inherit; font-size:12.5px; cursor:pointer; } .pv-skip:hover:not(:disabled){ color:var(--text); }
+.pv-after, .pv-last{ font-size:12.5px; color:var(--text-dim); padding:3px 0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .pv-after span, .pv-last span{ font-weight:800; margin-right:6px; color:var(--text); }
+.pv-empty{ font-size:13px; color:var(--text-dim); line-height:1.6; }
+.sem-plan-l{ margin-left:8px; font-size:12px; font-weight:700; color:var(--text-dim); text-decoration:none; } .sem-plan-l:hover{ color:var(--accent); }
+a.sem-tb{ text-decoration:none; }
+.sem-sc.k-section{ font-weight:800; color:var(--accent); border-style:solid; background:color-mix(in srgb, var(--accent) 5%, var(--card)); }
+.sem-nowbar{ display:none; }
+@media(max-width:1100px){
+  .hub.room-view.sem-hostv{ grid-template-columns:minmax(0,1fr); }
+  .sem-nowbar{ display:flex; align-items:center; gap:8px; padding:7px 10px; margin:6px 8px 0; border:1.5px solid var(--accent); border-radius:10px; background:color-mix(in srgb, var(--accent) 5%, var(--card)); font-size:13px; }
+  .sem-nowbar .nb-clock{ font-weight:800; font-variant-numeric:tabular-nums; flex:none; }
+  .sem-nowbar .nb-next{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color:var(--text); } .sem-nowbar .nb-next b{ color:var(--accent); margin-right:4px; }
+  .nb-go{ flex:none; border:none; border-radius:8px; background:var(--accent); color:#fff; font:inherit; font-weight:800; padding:8px 14px; cursor:pointer; } .nb-go:disabled{ opacity:.4; }
+  .nb-more{ flex:none; border:1px solid var(--border); border-radius:8px; background:var(--card); padding:7px 10px; cursor:pointer; color:var(--text); }
+}
+
+/* ===== ★세션 CR: 학생 화면 — 지금 화면 · 진행자 말 ===== */
+.hub.room-view.sem-stuv{ grid-template-columns:minmax(0,1.25fr) minmax(360px,1fr); }
+.hub.room-view.sem-stuv > .hub-side{ display:none; }
+.hub.room-view.sem-stuv.show-side{ grid-template-columns:minmax(0,1.25fr) minmax(360px,1fr) 250px; } .hub.room-view.sem-stuv.show-side > .hub-side{ display:block; }
+.sem-stage{ border:1px solid var(--border); border-radius:12px; background:var(--card); overflow:hidden; align-self:start; position:sticky; top:calc(var(--topbar-h,56px) + 10px); }
+.stg-h{ display:flex; align-items:center; gap:8px; padding:8px 12px; border-bottom:1px solid var(--border); font-size:12.5px; }
+.stg-live{ font-weight:800; color:var(--accent); display:inline-flex; align-items:center; gap:6px; } .stg-live::before{ content:''; width:8px; height:8px; border-radius:50%; background:var(--accent); }
+.stg-t{ color:var(--text-dim); } .stg-tog{ margin-left:auto; border:1px solid var(--border); border-radius:99px; background:var(--card); color:var(--text-dim); font:inherit; font-size:12px; padding:2px 10px; cursor:pointer; }
+.stg-body img{ display:block; width:100%; max-height:calc(100vh - 200px); object-fit:contain; background:var(--box-bg); cursor:zoom-in; }
+.stg-cap{ padding:9px 12px; font-size:15px; line-height:1.55; border-top:1px solid var(--border); white-space:pre-wrap; }
+.sem-stage.closed .stg-body{ display:none; }
+#semPin.dup{ display:none; }
+.hub.room-view.sem-stuv .chat.aops .sem-slidemsg .msg-imgs img{ max-height:88px; width:auto; }
+.chat.aops .msg.sem-host .msg-bubble{ font-size:14.5px; color:var(--text); }
+.chat.aops .msg.sem-host .msg-who{ font-weight:800; }
+.sem-wait.done span{ color:var(--text-dim); font-style:italic; }
+.stu-wait{ display:inline-block; margin-left:6px; color:var(--accent); font-weight:800; }
+@media(max-width:1100px){
+  .hub.room-view.sem-stuv{ grid-template-columns:minmax(0,1fr); }
+  .sem-stage{ position:static; }
+  .stg-body img{ max-height:42vh; }
+}
+@media(max-width:640px){ .stg-body img{ max-height:34vh; } .stg-cap{ font-size:14px; } }
+
 .sem-tb{ font:inherit; font-size:12px; font-weight:700; padding:5px 11px; border-radius:var(--r-round); border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; }
 .sem-tb:hover{ border-color:var(--accent); } .sem-tb.on{ background:var(--accent); border-color:var(--accent); color:#fff; }
 .sem-tb.danger{ color:var(--accent); } .sem-tb.dim{ color:var(--text-dim); cursor:default; border-style:dashed; }
@@ -3885,6 +4078,23 @@ body.fx-flat .story-pane{transition:none;}
   background:var(--accent-soft) !important; color:#fff !important; }
 .topbar .navbtn.navkypt .nbi{ color:#fff; }
 .bn-item.navkypt{ color:var(--accent); font-weight:700; }
+/* ★세션 CS: 태블릿(769~1279px) 상단바 — 버튼 글자가 칸에 눌려 '문/서'처럼 세로로 쪼개졌다.
+   글자는 줄바꿈 금지, 1365px 이하에선 아이콘만(글자는 화면 읽기용으로 남김 + 마우스를 올리면 이름), 검색 칸이 남는 폭을 쓴다. */
+.topbar .navbtn, .topbar .mode{ white-space:nowrap; flex:none; }
+@media (min-width:769px) and (max-width:1365px){
+  .topbar{ gap:6px; padding:0 12px; }
+  .topbar .search{ flex:1 1 160px; min-width:120px; max-width:400px; }
+  .topbar .spacer{ flex:1 1 0; min-width:4px; }
+  .topbar .navbtn:not(.navkypt), .topbar .mode{ width:36px; height:36px; padding:0 !important; justify-content:center; gap:0; position:relative; }
+  .topbar .navbtn:not(.navkypt) .nbt, .topbar .mode .mode-t{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .topbar .navbtn .nbi, .topbar .mode .ic16{ width:18px; height:18px; }
+  .topbar .navbtn .nav-badge{ position:absolute; top:-3px; right:-3px; }
+  .topbar .navbtn.navkypt{ padding:6px 18px 6px 10px; margin-right:6px; }
+  .topbar #userlabel{ display:none; }
+}
+@media (min-width:769px) and (max-width:900px){
+  .topbar .brand-text, .topbar .logo > span:not(.mark){ display:none; }
+}
 
 .kypt-wrap{ max-width:900px; }
 .kp-top{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:2px 0 6px; }
@@ -5354,9 +5564,9 @@ const PERM_CAPS = [
     ['trash',      '휴지통 접근'],
   ]},
   { sec:'소통', items:[
-    ['chat',     '커뮤니티 채팅'],
-    ['q_ask',    '질문 게시판 — 질문 게시'],
-    ['q_answer', '질문 게시판 — 답변'],
+    ['chat',     '채팅 — 물리실 [채팅] 탭 · 방 (세미나 방 포함)'],
+    ['q_ask',    '질문 게시판(물리실 [질문] 탭) — 열람 · 질문 게시'],
+    ['q_answer', '질문 게시판(물리실 [질문] 탭) — 답변'],
     ['dm',       '쪽지함 채팅'],
     ['msg_delete','자기보다 낮은 등급 회원의 메시지 삭제 (쪽지 제외)'],
   ]},
@@ -5389,6 +5599,22 @@ const PERM_CAPS = [
   ]},
 ];
 const PERM_ROLES = ['viewer','teacher','editor','admin'];   // owner는 항상 전권이라 표에 없음
+/* ★세션 CQ: 표에 없는 권한 — 등급으로 고정돼 있다. 서버도 같은 기준이라 표에 넣으면 '거짓 버튼'이 되므로(세션 BN 원칙)
+   새 키를 만들지 않고 [권한 설정] 아래에 안내로만 보여 준다. 바꾸려면 서버 함수부터 고쳐야 한다. */
+const PERM_FIXED_RULES = [
+  ['owner만', ['기능 켜기/끄기 · 권한 설정 · 가입 설정 · 사이트 정보 · 대문 추천 · 넛지 · 연구 집중 기간',
+               'teacher · owner 등급 주기, owner 넘기기', '분야 담당 배정(연도별)', '문서 숨기기(나에게만 보이게)', '회원 문서 삭제']],
+  ['owner · admin', ['회원 관리 화면(admin은 viewer ↔ editor만 바꿀 수 있음)', '방(채팅방) 만들기 · 설정 · 지우기, 새 세미나', '동아리 색',
+               '분류 만들기 · 이름 · 기본 틀 · 옮기기 · 지우기, 한꺼번에 만들기', '물리실 도면 올리기 · 자리 편집', '재고 점검 시작 · 닫기',
+               '운영 태그 · 자동 운영 태그 보기', '문서 삭제 단추(표의 \'문서 삭제\'도 함께 있어야 함)', '과제 내기(지금은 화면에서 보류)',
+               'KYPT 관리 · 연혁 편집의 서버 한도(표에서는 admin에게서 거두는 것만 됨)']],
+  ['편집 권한(표의 \'문서 편집\')', ['문서를 다른 분류로 끌어 옮기기', '사진 창고에서 문서에 사진 넣기', 'QR 라벨 인쇄', '휴지통 화면(표의 \'휴지통 접근\'도 함께)']],
+  ['누구나(로그인)', ['물품 신고 · 주문 신청', '피드백 보내기 · 운영 일지 보기 · 화면 효과', '본인 회원 문서 편집']],
+];
+/* 저장 전 확인에서 ⚠를 붙이는 기준 — 낮은 등급에게 운영 권한을 열거나, 기본 열람을 닫는 변경 */
+const PERM_RISKY_GRANT = ['doc_delete','trash','msg_delete','admin_access','admin_role','admin_club','club_edit','track_edit',
+  'signup_review','feedback_read','order_approve','order_manage','kypt_manage','history_edit','system_access','system_limits','system_maint','system_health','contact_recv'];
+const PERM_RISKY_REVOKE = ['doc_read','dm','chat','dir_read'];
 const DEFAULT_PERMS = {
   viewer: { doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1 },
   teacher:{ doc_read:1, chat:1, q_ask:1, q_answer:1, dm:1, dir_read:1, club_read:1, track_read:1,
@@ -8398,7 +8624,7 @@ async function uploadLabMap(file){
   if(prev){ copy = await confirmModal('새 도면 올리기', '이전 판의 보관함 자리를 그대로 복사할까요? (문서 위치도 따라와요. 자리가 어긋나면 [자리 편집]에서 끌어 맞추면 돼요)', '자리 복사'); }
   showBlockingLoader('도면 올리는 중…');
   try{
-    const out=await compressImage(file, { mode:'contain', dim:LABMAP_DIM, target:700*1024, minQuality:0.7 });
+    const out=await compressImage(file, { mode:'contain', dim:LABMAP_DIM, target:(Number(LIMITS.lim_labmap_img_kb)||700)*1024, minQuality:0.7 });   // ★CQ: [상한]에서 조절
     const ext = out.type==='image/webp' ? 'webp' : 'jpg';
     const path = `plan/${Date.now()}.${ext}`;
     const up = await sb.storage.from('labmap').upload(path, out.blob, { contentType:out.type, cacheControl:'31536000', upsert:false });
@@ -12418,7 +12644,7 @@ function icWarn(){ return `<svg class="hs-ic warn" viewBox="0 0 20 20" aria-labe
   <path d="M10 2.6 L18.4 17 L1.6 17 Z" fill="currentColor" fill-opacity=".14" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
   <path d="M10 7.4 V11.6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
   <circle cx="10" cy="14.4" r="1.15" fill="currentColor"/></svg>`; }
-function hsIcon(st){ return st==='ok' ? icOk() : (st==='warn' ? icWarn() : icBad()); }
+function hsIcon(st){ return st==='ok' ? icOk() : st==='warn' ? icWarn() : st==='na' ? '<span class="hs-ic na" role="img" aria-label="자동 확인 불가">–</span>' : icBad(); }   // ★CQ: na = 이름·표로 구별할 수 없어 사람이 확인
 
 function fmtBytes(b){
   b=Number(b)||0;
@@ -12570,9 +12796,10 @@ async function autoCleanChatImages(force){
   try{
     const files = await listBucketAll('chat-images');
     const cutoff = now - CHAT_IMG_KEEP_DAYS*86400*1000;
+    const keep = (await seminarKeptSet()).set;                 // ★CS: 세미나 사진은 영구 보존 — 목록을 못 얻으면 예외로 빠져 아무것도 안 지운다
     const old = files.filter(f=>{
       const t = f.created_at ? new Date(f.created_at).getTime() : NaN;
-      return !isNaN(t) && t < cutoff;
+      return !isNaN(t) && t < cutoff && !keep.has('chat-images:'+f.path);
     });
     let bytes = 0;
     if(old.length){
@@ -12584,8 +12811,62 @@ async function autoCleanChatImages(force){
       }
     }
     try{ localStorage.setItem(CHAT_GC_KEY, String(now)); }catch(e){}
-    return { deleted: old.length, bytes, scanned: files.length };
+    return { deleted: old.length, bytes, scanned: files.length, kept: files.filter(f=>keep.has('chat-images:'+f.path)).length };
   }catch(e){ return { error: (e&&e.message)||String(e) }; }
+}
+
+/* ★세션 CS: 세미나 기록은 영구 보존(사용자 결정) — 세미나를 연 사람이 세미나를 지울 때만 사라진다.
+   · 자동 정리(채팅 사진 30일)와 [유지 보수]의 채팅 파일 정리는 세미나가 쓰는 파일을 건너뛴다.
+   · 목록은 서버 131 seminar_kept_paths()가 준다(진행자만 보이는 대기 · 기각 답의 첨부까지).
+     131이 없으면 화면에서 보이는 세미나 메시지 · 대본 · 보관 기록으로 대신 모으고, 그마저 실패하면 정리를 하지 않는다(지우는 쪽이 아니라 남기는 쪽으로 실패). */
+async function seminarKeptSet(){
+  const set=new Set(); const add=(b,p)=>{ if(!p) return; let x=String(p).split('?')[0]; try{ x=decodeURIComponent(x); }catch(_){} set.add(b+':'+x); };
+  const r=await sb.rpc('seminar_kept_paths');
+  if(!r.error){ (r.data||[]).forEach(x=>add(x.bucket, x.path)); return { set, full:true }; }
+  const pick=(txt)=>{ const re=/\/(chat-images|chat-files)\/([^\s"')\\?]+)/g; let m; while((m=re.exec(String(txt||'')))) add(m[1], m[2]); };
+  const ch=await sb.from('channels').select('id,kind'); if(ch.error) throw ch.error;
+  const ids=(ch.data||[]).filter(c=>c.kind==='seminar').map(c=>c.id);
+  if(ids.length){
+    let m=await sb.from('messages').select('images,files').in('channel_id', ids);
+    if(m.error) m=await sb.from('messages').select('images').in('channel_id', ids);
+    if(m.error) throw m.error;
+    (m.data||[]).forEach(x=>{ (x.images||[]).forEach(pick); (Array.isArray(x.files)?x.files:[]).forEach(f=>add('chat-files', f.path)); });
+    const sc=await sb.from('seminar_script').select('payload').in('channel_id', ids);
+    (sc.data||[]).forEach(x=>(((x.payload||{}).files)||[]).forEach(f=>add('chat-files', f.path)));
+  }
+  const a=await sb.from('seminar_archive').select('record'); (a.data||[]).forEach(x=>pick(JSON.stringify(x.record||{})));
+  return { set, full:false };
+}
+function semCanDelete(c){ return !!(c && (isOwner() || (state.user && c.created_by===state.user.id))); }
+/* 세미나 통째로 지우기 — 연 사람(과 owner)만. target: {channel, archive, name} */
+async function semDeleteFlow(target){
+  const name=String(target.name||'세미나');
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box" style="max-width:430px">
+    <div class="modal-msg">세미나 지우기</div>
+    <div class="modal-sub"><b>${escapeHtml(name)}</b>의 대화 · 슬라이드 · 올린 파일 · 투표 · 참석 · 대본 · 보관 기록이 <b>모두 영구히</b> 지워져요. 되돌릴 수 없어요.<br>세미나 기록은 원래 영구 보존돼요 — 정말 필요할 때만 지우세요.</div>
+    <label class="nd-label">확인을 위해 세미나 이름을 그대로 입력하세요</label>
+    <input class="he-input" id="sdName" type="text" placeholder="${escapeAttr(name)}" autocomplete="off">
+    <div class="he-msg" id="sdMsg"></div>
+    <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok danger">영구히 지우기</button></div></div>`;
+  document.body.appendChild(ov);
+  const close=()=>ov.remove(); ov.querySelector('.modal-cancel').onclick=close; ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+  setTimeout(()=>ov.querySelector('#sdName').focus(), 30);
+  ov.querySelector('.modal-ok').onclick=async()=>{
+    const msg=ov.querySelector('#sdMsg');
+    if((ov.querySelector('#sdName').value||'').trim()!==name.trim()){ msg.className='msg err'; msg.textContent='이름이 일치하지 않아요.'; return; }
+    const btn=ov.querySelector('.modal-ok'); btn.disabled=true; msg.className='msg'; msg.textContent='지우는 중…';
+    const { data, error } = await sb.rpc('seminar_delete', { p_channel: target.channel ?? null, p_archive: target.archive ?? null });
+    if(error){ btn.disabled=false; msg.className='msg err';
+      msg.textContent = /SEMINAR_OWNER_ONLY/.test(String(error.hint||'')+String(error.message||'')) ? '세미나는 연 사람만 지울 수 있어요.'
+        : isMissingFn(error) ? '세미나 지우기는 131_seminar_keep.sql이 필요해요.' : '지우지 못했어요: '+(error.message||''); return; }
+    // 저장소 파일 — 내가 지울 수 있는 것만(남은 것은 어디에도 안 쓰이게 되어 [유지 보수]에서 정리된다)
+    const paths=((data&&data.paths)||[]); const by={}; paths.forEach(p=>{ if(p && p.bucket && p.path) (by[p.bucket]=by[p.bucket]||[]).push(p.path); });
+    for(const [b,list] of Object.entries(by)){ for(let i=0;i<list.length;i+=100){ try{ await sb.storage.from(b).remove(list.slice(i,i+100)); }catch(_){} } }
+    close(); toast(`세미나를 지웠어요 — 메시지 ${Number((data&&data.messages)||0)}개.`);
+    try{ await loadChannels(); }catch(_){}
+    location.hash='#//lab';
+  };
 }
 
 /* ── 용량 게이지 ── */
@@ -12614,6 +12895,104 @@ async function capacityHTML(){
   }catch(e){
     return `<table class="hs-table">${hsRow('capacity_usage (용량 조회)','bad','미배포 또는 권한 없음 · '+String((e&&e.message)||e))}</table>`;
   }
+}
+
+/* ★세션 CQ: 새 검사기 — 전부 '읽기만' 한다(쓰기·실행 없음). */
+/* 줄 만들기 도우미: 라벨을 한 번만 적게 한다 */
+function hsT(label, table, sel){ return [label, ()=>chkTable(label, ()=>sb.from(table).select(sel||'*').limit(1))]; }
+function hsF(label, ...names){ return [label, ()=>chkFn(label, ...names)]; }
+function hsV(label, fn){ return [label, ()=>chkValue(label, fn)]; }
+function hsB(label, bucket){ return [label, ()=>chkBucket(label, bucket)]; }
+function hsNA(label, detail){ return [label, async()=>hsRow(label, 'na', detail)]; }
+/* Edge Function 존재 확인 — OPTIONS(사전 요청)만 보낸다. 브라우저가 부르는 함수는 OPTIONS를 본문 실행 없이
+   돌려줘야 하므로(그래야 실제 호출의 사전 요청이 통과) 부작용이 없다. ★POST로 부르지 마라(withdraw-self는 탈퇴다). */
+async function chkEdgeFn(label, name){
+  try{
+    const r=await fetch(`${SUPABASE_URL}/functions/v1/${name}`, { method:'OPTIONS', cache:'no-store', credentials:'omit' });
+    if(r.status===404) return hsRow(label, 'bad', `[함수 없음] Edge Function '${name}' 미배포 — supabase functions deploy ${name}`);
+    return hsRow(label, 'ok', `배포됨 (응답 ${r.status} · 실행하지 않고 존재만 확인)`);
+  }catch(e){ return hsRow(label, 'warn', `[확인 불가] 브라우저가 응답을 읽지 못했어요(CORS) — Supabase → Edge Functions 목록에 '${name}'이 있는지 직접 확인`); }
+}
+/* 로그인하지 않은 사람(anon)이 표를 읽을 수 있는지 — 116 ⑤ 이후 전부 막혀 있어야 정상 */
+async function chkAnonRead(label, table, sel){
+  try{
+    const r=await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=${encodeURIComponent(sel||'*')}&limit=1`, { headers:{ apikey:SUPABASE_KEY }, cache:'no-store', credentials:'omit' });
+    let body=null; try{ body=await r.json(); }catch(_){}
+    if(r.ok && Array.isArray(body) && body.length) return hsRow(label, 'bad', '[RLS 정책] 로그인 없이 읽혀요 — 116_privacy_lockdown.sql ⑤(anon 회수)를 다시 실행');
+    if(r.ok) return hsRow(label, 'ok', '로그인 없이 0줄 (정책이 막음)');
+    if(r.status===401 || r.status===403) return hsRow(label, 'ok', `로그인 없이 거부됨 (${r.status})`);
+    if(r.status===404) return hsRow(label, 'ok', '표가 없음 — 해당 없음');
+    return hsRow(label, 'warn', `응답 ${r.status} ${String((body&&body.message)||'')}`);
+  }catch(e){ return hsErr(label, e); }
+}
+/* 버킷이 비공개인지 — 파일 하나의 '공개 주소'를 로그인 없이 열어 본다(첫 1바이트만). 116 ⑥ 이후 전부 막혀 있어야 정상 */
+async function hsFirstFile(bucket, prefix, depth){
+  const { data, error } = await sb.storage.from(bucket).list(prefix||'', { limit:30 });
+  if(error) throw error;
+  const f=(data||[]).find(it=>it.id && it.metadata);
+  if(f) return (prefix?prefix+'/':'')+f.name;
+  if(depth<=0) return null;
+  for(const d of (data||[]).filter(it=>!it.metadata).slice(0,3)){
+    const p=await hsFirstFile(bucket, (prefix?prefix+'/':'')+d.name, depth-1); if(p) return p;
+  }
+  return null;
+}
+async function chkBucketPrivate(label, bucket){
+  let path=null;
+  try{ path=await hsFirstFile(bucket, '', 3); }catch(e){ return hsErr(label, e); }
+  if(!path) return hsRow(label, 'ok', '파일이 없어 확인할 것이 없음');
+  try{
+    const url=`${SUPABASE_URL}/storage/v1/object/public/${bucket}/${path.split('/').map(encodeURIComponent).join('/')}`;
+    const r=await fetch(url, { cache:'no-store', credentials:'omit', headers:{ Range:'bytes=0-0' } });
+    return r.ok ? hsRow(label, 'bad', `[공개 버킷] 주소만 알면 로그인 없이 열려요 — 116 ⑥(버킷 비공개)를 다시 실행 · 예: ${path}`)
+                : hsRow(label, 'ok', `비공개 (로그인 없이 ${r.status})`);
+  }catch(e){ return hsRow(label, 'warn', '[네트워크] 확인 불가 — '+String((e&&e.message)||e)); }
+}
+/* 같은 사이트의 파일이 올라가 있는지(처리방침·약관·서비스 워커·설치 목록) */
+async function chkSiteFile(label, file, why){
+  try{ const r=await fetch(file, { cache:'no-store' });
+    return r.ok ? hsRow(label, 'ok', '있음') : hsRow(label, 'bad', `HTTP ${r.status} — index.html 옆에 ${file}을 올릴 것${why?' · '+why:''}`); }
+  catch(e){ return hsErr(label, e); }
+}
+function hsJsonVal(v){ if(typeof v==='string'){ try{ return JSON.parse(v); }catch(_){ return null; } } return v; }
+
+/* ★세션 CQ: 적용 현황 한눈에 — 88(migration_status)의 서버 목록은 90번에서 멈춰 있을 수 있어서,
+   앱이 번호마다 '그 SQL만 만드는 표·칸·함수' 하나를 직접 찾아본다. 없는 번호(90 등)는 표식이 없어 뺐다.
+   probe: {t:'표', c:'칸'} 표·칸 읽기 · {f:'함수'} 카탈로그 확인 · {b:'버킷'} · {na:'이유'} 이름으로 구별 불가 */
+const MIG_LEDGER = [
+  ['89','대화방 공개 범위',{t:'channel_members',c:'channel_id'}], ['91','연혁 저장소',{b:'history'}], ['92','KYPT 연구 탭',{t:'kypt_problems',c:'id'}],
+  ['93','KYPT 실험 기록·자료함',{t:'kypt_entries',c:'id'}], ['94','KYPT 현황·할 일',{t:'kypt_todos',c:'id'}], ['95','KYPT 의견·검토',{t:'kypt_comments',c:'id'}],
+  ['96','KYPT 원어 제목',{t:'kypt_problems',c:'title_ko'}], ['97','가입 진단',{f:'signup_health'}], ['98','가입 경로 재구축',{f:'signup_last_error'}],
+  ['99','KYPT 피드백 탭',{na:'칸 값(target_kind)만 바뀌어 이름으로 구별 불가'}], ['100','연구일지 날짜',{t:'kypt_entries',c:'on_date'}], ['101','단계별 마감',{t:'kypt_milestones',c:'problem_id'}],
+  ['102','레퍼런스 키트·원문',{t:'kypt_problems',c:'statement_en'}], ['103','가입 문턱 수정',{f:'signup_precheck'}], ['104','기능 스위치 권한 재부여',{na:'실행 권한은 [기능 켜기/끄기] 저장으로 확인'}],
+  ['105','관리 도구',{f:'signup_gate_get'}], ['106','푸시 알림',{t:'push_prefs',c:'uid'}], ['107','알림은 폰에만',{na:'함수 본문만 바뀌어 구별 불가'}],
+  ['108','세미나',{t:'channels',c:'kind'}], ['109','슬라이드 용량',{t:'seminar_slides',c:'bytes'}], ['110','세미나 진행 콘솔',{t:'seminar_script',c:'channel_id'}],
+  ['111','세미나 보관 기록',{na:'함수 본문만 바뀌어 구별 불가'}], ['112','세미나 공개 시각',{t:'channels',c:'opens_at'}], ['113','세미나 발사 권한',{na:'시퀀스 권한 — 대본 발사가 되면 정상'}],
+  ['114','알림 예약',{f:'push_targets'}], ['115','과제',{t:'assignments',c:'id'}], ['116','개인정보 잠금',{f:'anda_withdraw_user'}],
+  ['117','보관 기간 자동 삭제',{f:'anda_purge_old'}], ['118','문서 번호 주소',{t:'doc_numbers',c:'no'}], ['119','편집 잠금',{f:'doc_lock_acquire'}],
+  ['120','분류 나무',{f:'tree_get'}], ['121','물리실 도면',{t:'doc_locations',c:'doc_key'}], ['122','QR 신고·주문',{f:'order_add'}],
+  ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
+  ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
+  ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}],
+];
+async function migProbe(p){
+  try{
+    if(p.na) return 'na';
+    if(p.f){ const r=await sb.rpc('rpc_exists', { p_name:p.f }); if(r.error) return 'na'; return r.data ? 'ok' : 'bad'; }
+    if(p.b){ const r=await sb.storage.from(p.b).list('', { limit:1 }); return r.error ? 'bad' : 'ok'; }
+    const r=await sb.from(p.t).select(p.c).limit(1);
+    if(!r.error) return 'ok';
+    const k=hsKind(r.error).k; return (k==='테이블 없음' || k==='컬럼 없음') ? 'bad' : 'na';   // 권한·정책으로 막힌 건 '있음'일 수도 있어 단정하지 않는다
+  }catch(e){ return 'na'; }
+}
+async function migLedgerHTML(){
+  const res=await Promise.all(MIG_LEDGER.map(([n,name,p])=>migProbe(p).then(st=>[n,name,p,st])));
+  const miss=res.filter(r=>r[3]==='bad');
+  const chip=([n,name,p,st])=>`<span class="mg-chip ${st}" title="${escapeAttr(name+(p.na?' — '+p.na:''))}"><b>${n}</b>${escapeHtml(name)}</span>`;
+  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 131) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
+    <div class="mg-grid">${res.map(chip).join('')}</div>
+    <div class="hs-note">초록 = 적용됨 · 빨강 = 그 번호의 SQL이 안 돌았어요(번호 순서대로 실행) · 회색 = 이름으로 구별할 수 없는 번호(아래 설명을 보고 사람이 확인).
+      ${miss.length?`<br><b>실행할 파일:</b> ${miss.map(r=>`<code>${escapeHtml(r[0])}_*.sql</code>`).join(' → ')}`:''}</div></section>`;
 }
 
 /* ── 검사 목록 (섹션 → 항목) ── */
@@ -12666,15 +13045,6 @@ function healthTasks(){
       ['heartbeat / go_offline (26·42)', ()=>chkFn('heartbeat / go_offline (26·42)','heartbeat')],
       ['create_document (25)',        ()=>chkFn('create_document (25)','create_document')],
       ['rename_document (25 · 118부터 거절)', ()=>chkFn('rename_document (25 · 118부터 거절)','rename_document')],
-      ['doc_numbers — 문서 번호 (118)', ()=>chkTable('doc_numbers — 문서 번호 (118)', ()=>sb.from('doc_numbers').select('no,doc_key').limit(1))],
-      ['doc_create / deleted_doc_view (118)', ()=>chkFn('doc_create / deleted_doc_view (118)','doc_create','deleted_doc_view','deleted_rev_body')],
-      ['anda_pulse — 10초 변경 확인 (124)', ()=>chkFn('anda_pulse — 10초 변경 확인 (124)','anda_pulse')],
-      ['owner_set / handover / audit (123)', ()=>chkFn('owner_set / handover / audit (123)','owner_set','owner_list','handover_get','handover_set','audit_status','audit_check')],
-      ['report_add / order_add / order_set (122)', ()=>chkFn('report_add / order_add / order_set (122)','report_add','report_resolve','order_add','order_set','order_list')],
-      ['lab_maps · doc_locations · doc_status (121)', ()=>chkTable('lab_maps · doc_locations · doc_status (121)', ()=>sb.from('doc_locations').select('doc_key').limit(1))],
-      ['lab_map_add / doc_loc_set / doc_status_set (121)', ()=>chkFn('lab_map_add / doc_loc_set / doc_status_set (121)','lab_map_add','lab_spot_save','doc_loc_set','doc_status_set')],
-      ['분류 나무 · 태그 (120)', ()=>chkFn('분류 나무 · 태그 (120)','tree_get','tree_node_move','doc_place_set','doc_tag_set','doc_audit_flags')],
-      ['doc_lock_* — 편집 잠금 (119)', ()=>chkFn('doc_lock_* — 편집 잠금 (119)','doc_lock_acquire','doc_lock_beat','doc_lock_release','doc_lock_wait','doc_lock_status','doc_lock_force')],
       ['rollback_document',           ()=>chkFn('rollback_document','rollback_document')],
       ['trash / restore_document (23·45)', ()=>chkFn('trash / restore_document (23·45)','restore_document')],
       ['prune_revisions (33)',        ()=>chkFn('prune_revisions (33)','prune_revisions')],
@@ -12703,13 +13073,16 @@ function healthTasks(){
       ['set_my_cover — 프로필 커버색 (64)', ()=>chkFn('set_my_cover — 프로필 커버색 (64)','set_my_cover')],
       ['set_landing_docs — 대문 추천 (63)', ()=>chkFn('set_landing_docs — 대문 추천 (63)','set_landing_docs')],
       ['submit_contact — 관리자 문의 (50·55)', ()=>chkFn('submit_contact — 관리자 문의 (50·55)','submit_contact')],
-      ['submit_contact — 관리자 문의 (50)', ()=>chkFn('submit_contact — 관리자 문의 (50)','submit_contact')],
     ]},
     { sec:'스토리지 버킷', items:[
       ['avatars (프로필 사진)',        ()=>chkBucket('avatars (프로필 사진)','avatars')],
       ['doc-images (문서 사진 37)',    ()=>chkBucket('doc-images (문서 사진 37)','doc-images')],
       ['chat-images (채팅 사진 38)',   ()=>chkBucket('chat-images (채팅 사진 38)','chat-images')],
       ['question-images (질문 사진 31)', ()=>chkBucket('question-images (질문 사진 31)','question-images')],
+      hsB('history (연혁 91)', 'history'),
+      hsB('kypt (KYPT 자료함 93)', 'kypt'),
+      hsB('seminar (세미나 슬라이드 108)', 'seminar'),
+      hsB('labmap (물리실 도면 121)', 'labmap'),
     ]},
     { sec:'가입 · 계정 (74 → 103)', items:[
       ['signup_gate_mode — 가입 모드 (76)',       ()=>chkValue('signup_gate_mode — 가입 모드 (76)', async()=>{ const r=await sb.rpc('signup_gate_mode'); if(r.error) throw r.error; return { ok:true, detail:'현재 모드: '+String(r.data) }; })],
@@ -12718,14 +13091,14 @@ function healthTasks(){
       ['handle_available — 활동명 중복 확인 (97)', ()=>chkFn('handle_available — 활동명 중복 확인 (97)','handle_available')],
       ['ensure_my_profile / repair_missing_profiles (97)', ()=>chkFn('ensure_my_profile / repair_missing_profiles (97)','ensure_my_profile','repair_missing_profiles')],
       ['signup_health — 가입 진단 (97)',          ()=>chkValue('signup_health — 가입 진단 (97)', async()=>{ const r=await sb.rpc('signup_health'); if(r.error) throw r.error; const d=r.data||{}; const o=Number(d.accounts_without_profile||0), dup=(d.duplicate_handles||[]).length; return { ok:!o && !dup, warn:true, detail:`프로필 없는 계정 ${o} · 중복 활동명 ${dup} · 트리거 ${(d.triggers_on_auth_users||[]).map(t=>t.trigger).join(', ')||'없음'}` }; })],
-      ['signup_log · signup_trigger_backup (98)', ()=>chkTable('signup_log · signup_trigger_backup (98)', ()=>sb.from('signup_log').select('id').limit(1))],
+      hsV('signup_log — 앱에서 안 읽혀야 정상 (98 → 116 ③)', async()=>{ const r=await sb.from('signup_log').select('id').limit(1); if(r.error){ const k=hsKind(r.error).k; if(k==='테이블 없음') return { ok:false, detail:'[테이블 없음] 98_signup_rebuild.sql' }; return { ok:true, detail:'앱 읽기 막힘 ('+k+') — 116 ③ 적용됨' }; } return (r.data||[]).length ? { ok:false, warn:true, detail:'가입 기록(이메일 포함)이 앱에서 읽혀요 — 116_privacy_lockdown.sql ③ 확인' } : { ok:true, detail:'0줄 (정책이 막음)' }; }),
       ['signup_gate_check / signup_last_error (98)', ()=>chkFn('signup_gate_check / signup_last_error (98)','signup_last_error')],
       ['signup_precheck — 가입 전 검사 (103)',    ()=>chkValue('signup_precheck — 가입 전 검사 (103)', async()=>{ const r=await sb.rpc('signup_precheck', { p_invite:'anda-health-wrong-code' }); if(r.error) throw r.error; const m=await sb.rpc('signup_gate_mode'); const mode=m.data||'open'; if(mode==='code') return { ok:!!r.data, detail: r.data ? '틀린 코드 거부 정상: '+String(r.data) : '★틀린 코드를 통과시킴 — 103을 다시 실행' }; return { ok:true, detail:'모드 '+mode+' — 코드 검사 없음' }; })],
       ['signup_gate_get — 현재 코드 읽기 (105)',   ()=>chkFn('signup_gate_get — 현재 코드 읽기 (105)','signup_gate_get')],
     ]},
     { sec:'시스템 · 설정 (82 → 105)', items:[
       ['set_features — 기능 스위치 (82)',        ()=>chkValue('set_features — 기능 스위치 (82)', async()=>{ const r=await sb.rpc('rpc_exists', { p_name:'set_features' }); if(r.error) throw r.error; if(!r.data) return { ok:false, detail:'[함수 없음] 82_feature_flags.sql' }; return { ok:true, detail:'배포됨 (실행 권한은 저장 버튼으로 확인 — 막히면 104)' }; })],
-      ['migration_status — 적용 현황 (88)',      ()=>chkValue('migration_status — 적용 현황 (88)', async()=>{ const r=await sb.rpc('migration_status'); if(r.error) throw r.error; const rows=Array.isArray(r.data)?r.data:[]; const miss=rows.filter(x=>x && x.applied===false).map(x=>x.name||x.id); return { ok:!miss.length, warn:true, detail: rows.length? (miss.length?'미적용: '+miss.join(', '):'모두 적용') : '목록 비어 있음' }; })],
+      ['migration_status — 적용 현황 (88)',      ()=>chkValue('migration_status — 적용 현황 (88)', async()=>{ const r=await sb.rpc('migration_status'); if(r.error) throw r.error; const d=hsJsonVal(r.data); /* ★CQ: 서버는 {missing:[…]} 객체 — 예전엔 배열로만 읽어 늘 '목록 비어 있음'이었다 */ let miss=[]; if(Array.isArray(d)) miss=d.filter(x=>x && x.applied===false).map(x=>x.name||x.id); else if(d && Array.isArray(d.missing)) miss=d.missing.filter(v=>v!=='88'); else return { ok:false, warn:true, detail:'응답 모양을 알 수 없음' }; return { ok:!miss.length, warn:true, detail: miss.length ? '서버 목록 기준 미적용: '+miss.join(', ') : '서버 목록 기준 모두 적용 (★서버 목록은 90번까지만 알 수 있어요 — 위 \'적용 현황 한눈에\'가 129까지 봅니다)' }; })],
       ['capacity_usage — 용량 (87)',            ()=>chkFn('capacity_usage — 용량 (87)','capacity_usage')],
       ['set_site_config / public_site_config (사이트 정보)', ()=>chkFn('set_site_config / public_site_config (사이트 정보)','set_site_config','public_site_config')],
       ['set_nudge_config (넛지)',                 ()=>chkFn('set_nudge_config (넛지)','set_nudge_config')],
@@ -12776,22 +13149,107 @@ function healthTasks(){
       ['kypt_feed / kypt_mark_read / kypt_digest (97·100)', ()=>chkFn('kypt_feed / kypt_mark_read / kypt_digest (97·100)','kypt_feed','kypt_mark_read','kypt_digest')],
       ['kypt_save_field (93 · 칸 저장)',    ()=>chkFn('kypt_save_field (93 · 칸 저장)','kypt_save_field')],
       ['kypt_review_done (99)',             ()=>chkFn('kypt_review_done (99)','kypt_review_done')],
-      ['kypt 버킷 (자료함 파일)',           ()=>chkBucket('kypt 버킷 (자료함 파일)','kypt')],
+    ]},
+    /* ★세션 CQ: 106 이후 새로 생긴 것들 */
+    { sec:'알림 · 앱 설치 (106 → 114)', items:[
       ['push_prefs — 연구 기간 알림 스위치 (106)', ()=>chkTable('push_prefs — 연구 기간 알림 스위치 (106)', ()=>sb.from('push_prefs').select('uid').limit(1))],
       ['push_subscriptions — 알림 구독 (106)', ()=>chkTable('push_subscriptions — 알림 구독 (106)', ()=>sb.from('push_subscriptions').select('id').limit(1))],
       ['VAPID 공개키 (index.html)',          ()=>chkValue('VAPID 공개키 (index.html)', async()=>({ ok:!!VAPID_PUBLIC_KEY, detail: VAPID_PUBLIC_KEY ? '설정됨' : '비어 있음 — npx web-push generate-vapid-keys 의 공개키를 VAPID_PUBLIC_KEY에 넣을 것' }))],
       ['sw.js (서비스 워커)',               ()=>chkValue('sw.js (서비스 워커)', async()=>{ if(!('serviceWorker' in navigator)) return { ok:false, warn:true, detail:'이 브라우저는 서비스 워커 미지원' }; const r=await fetch('sw.js', { cache:'no-store' }); return { ok:r.ok, detail: r.ok ? '있음' : 'HTTP '+r.status+' — index.html 옆에 sw.js를 올릴 것' }; })],
+      hsT('push_prefs.assignments · mentions — 항목별 알림 (114)', 'push_prefs', 'assignments,mentions'),
+      hsF('push_targets / push_queue_take / push_queue_done (114)', 'push_targets','push_queue_take','push_queue_done'),
+      hsF('kypt_nudge_targets / push_subscription_drop (106 · 107)', 'kypt_nudge_targets','push_subscription_drop'),
+      ['Edge push-send (114 · 알림 발송)', ()=>chkEdgeFn('Edge push-send (114 · 알림 발송)','push-send')],
+      ['Edge kypt-nudge (106 · 연구 기간 알림)', ()=>chkEdgeFn('Edge kypt-nudge (106 · 연구 기간 알림)','kypt-nudge')],
+      hsV('이 기기 알림 상태', async()=>{ if(!pushSupported()) return { ok:true, detail:'이 브라우저는 푸시 미지원 — 알림은 폰 설치 앱에서' }; const perm=(window.Notification&&Notification.permission)||'?'; const st=await pushThisDeviceState(); return { ok:perm!=='denied', warn:true, detail:`권한 ${perm==='granted'?'허용':perm==='denied'?'차단(브라우저 설정에서 풀어야 함)':'아직 안 물음'} · 이 기기 ${st==='sub'?'등록됨':'등록 안 됨'}${pushIsMobile()?'':' · 컴퓨터는 등록하지 않아요(알림은 폰에만, 107)'}` }; }),
+      ['anda-archive.webmanifest (앱 설치 목록)', ()=>chkSiteFile('anda-archive.webmanifest (앱 설치 목록)', 'anda-archive.webmanifest')],
+      hsNA('pg_cron 예약 (106 화 22:10 · 114 5분마다)', "앱에서는 볼 수 없어요 — SQL Editor에서 select jobname, schedule, active from cron.job where jobname like '%push%' or jobname like '%kypt%';"),
+    ]},
+    { sec:'세미나 (108 → 113)', items:[
+      hsT('channels.kind · join_code · hosts (108)', 'channels', 'kind,join_code,hosts,moderated,pinned,seminar_status'),
+      hsT('seminar_files · seminar_slides (108)', 'seminar_slides', 'id,file_id,page,path'),
+      hsT('seminar_polls · seminar_votes (108)', 'seminar_votes', 'poll_id'),
+      hsT('seminar_attendance — 참석 (108)', 'seminar_attendance', 'channel_id'),
+      hsT('seminar_archive — 보관함 (108)', 'seminar_archive', 'id'),
+      hsF('seminar_is_host / seminar_end / seminar_archive_now (108)', 'seminar_is_host','seminar_end','seminar_archive_now'),
+      hsT('seminar_slides.bytes — 장당 용량 (109)', 'seminar_slides', 'bytes'),
+      hsT('messages.status · parent_id · seq — 답 골라 내리기 (110)', 'messages', 'status,parent_id,seq'),
+      hsT('seminar_script — 대본 (110)', 'seminar_script', 'channel_id'),
+      hsT('channels.opens_at · unlisted — 공개 시각 (112)', 'channels', 'opens_at,unlisted'),
+      hsT('seminar_script.note · est_sec — 준비 화면 (130)', 'seminar_script', 'note,est_sec'),
+      hsT('messages.files — 채팅 파일 (130)', 'messages', 'files'),
+      hsB('chat-files (채팅 파일 130)', 'chat-files'),
+      hsF('seminar_kept_paths / seminar_delete — 세미나 영구 보존 (131)', 'seminar_kept_paths','seminar_delete','anda_seminar_can_delete'),
+      hsNA('111 보관 기록 · 113 발사 권한', '이름으로 구별할 수 없어요 — 대본 발사 때 "permission denied for sequence"가 나면 113, 보관 기록에 기각된 답이 섞이면 111을 실행'),
+    ]},
+    { sec:'과제 (115 · 지금은 화면에서 보류)', items:[
+      hsT('assignments — 과제 (115)', 'assignments', 'id'),
+      hsT('assignment_submissions — 제출 (115)', 'assignment_submissions', 'assignment_id'),
+      hsF('is_staff / assignment_targets / assignment_pending_uids / my_open_assignments (115)', 'is_staff','assignment_targets','assignment_pending_uids','my_open_assignments'),
+    ]},
+    { sec:'개인정보 · 보관 기간 (116 → 127)', items:[
+      hsV('profiles.email — 비어 있어야 정상 (116 ①)', async()=>{ const r=await sb.from('profiles').select('id',{ count:'exact', head:true }).not('email','is',null).neq('email',''); if(r.error){ if(hsKind(r.error).k==='컬럼 없음') return { ok:true, detail:'칸 자체가 없음 — 안전' }; throw r.error; } return (r.count||0) ? { ok:false, detail:`이메일이 남은 프로필 ${r.count}개 — 116 ① 트리거·비우기를 다시 실행` } : { ok:true, detail:'모두 비어 있음' }; }),
+      hsV('회원 관리 목록에 이메일 없음 (116 ②)', async()=>{ if(!isAdmin()) return { ok:true, detail:'관리자만 확인할 수 있어요 — 건너뜀' }; const r=await sb.rpc('admin_list_members'); if(r.error) throw r.error; const n=(r.data||[]).filter(m=>m && m.email).length; return n ? { ok:false, detail:`이메일이 실린 줄 ${n}개 — 116 ② 래퍼가 빠졌어요` } : { ok:true, detail:`${(r.data||[]).length}명 · 이메일 칸 없음` }; }),
+      ['로그인 없이 documents 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 documents 읽기 (116 ⑤)', 'documents', 'key')],
+      ['로그인 없이 profiles 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 profiles 읽기 (116 ⑤)', 'profiles', 'id')],
+      ['로그인 없이 members_public 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 members_public 읽기 (116 ⑤)', 'members_public', 'id')],
+      ['로그인 없이 messages 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 messages 읽기 (116 ⑤)', 'messages', 'id')],
+      ...['avatars','doc-images','chat-images','question-images','history','kypt','seminar','labmap','chat-files'].map(b=>[`버킷 ${b} 비공개 (116 ⑥)`, ()=>chkBucketPrivate(`버킷 ${b} 비공개 (116 ⑥)`, b)]),
+      hsF('anda_withdraw_user — 탈퇴 처리 (116 · 서버 전용)', 'anda_withdraw_user'),
+      ['Edge withdraw-self — 즉시 탈퇴 (116)', ()=>chkEdgeFn('Edge withdraw-self — 즉시 탈퇴 (116)','withdraw-self')],
+      hsF('anda_purge_old — 보관 기간 자동 삭제 (117)', 'anda_purge_old'),
+      hsF('anda_purge_items — 끝난 주문·신고·점검 1년 (122)', 'anda_purge_items'),
+      hsNA('자동 삭제 예약 (117 매일 04:10 · 122 04:20)', "앱에서는 볼 수 없어요 — SQL Editor에서 select jobname, schedule, active from cron.job where jobname like 'anda%'; 로 확인"),
+      hsNA('127 탈퇴 정리', '함수 본문만 바뀌어 이름으로 구별할 수 없어요 — 2026-10-02 이후 실행했는지 SQL 실행 기록으로 확인'),
+      ['privacy.html — 개인정보 처리방침', ()=>chkSiteFile('privacy.html — 개인정보 처리방침', 'privacy.html')],
+      ['terms.html — 이용약관', ()=>chkSiteFile('terms.html — 이용약관', 'terms.html')],
+      ['privacy-v1.2.html · 이전 버전 보관 (제18조③)', ()=>chkSiteFile('privacy-v1.2.html · 이전 버전 보관 (제18조③)', 'privacy-v1.2.html', '처리방침 v1.3과 함께 올리기로 한 보관본')],
+      ['terms-v1.2.html · 이전 버전 보관', ()=>chkSiteFile('terms-v1.2.html · 이전 버전 보관', 'terms-v1.2.html', '약관 v1.3과 함께 올리기로 한 보관본')],
+      hsV('가입 동의 문서 버전', async()=>({ ok:true, detail:`지금 가입하면 '${LEGAL_VERSION}' 판에 동의한 것으로 기록 (v1.3은 2026-11-01부터 자동) · 푸시 국외 이전 동의 '${PUSH_CONSENT_VERSION}'` })),
+    ]},
+    { sec:'문서 번호 · 잠금 · 분류 · 물품 (118 → 129)', items:[
+      ['doc_numbers — 문서 번호 (118)', ()=>chkTable('doc_numbers — 문서 번호 (118)', ()=>sb.from('doc_numbers').select('no,doc_key').limit(1))],
+      ['doc_create / deleted_doc_view (118)', ()=>chkFn('doc_create / deleted_doc_view (118)','doc_create','deleted_doc_view','deleted_rev_body')],
+      ['anda_pulse — 10초 변경 확인 (124)', ()=>chkFn('anda_pulse — 10초 변경 확인 (124)','anda_pulse')],
+      ['owner_set / handover / audit (123)', ()=>chkFn('owner_set / handover / audit (123)','owner_set','owner_list','handover_get','handover_set','audit_status','audit_check')],
+      ['report_add / order_add / order_set (122)', ()=>chkFn('report_add / order_add / order_set (122)','report_add','report_resolve','order_add','order_set','order_list')],
+      ['lab_maps · doc_locations · doc_status (121)', ()=>chkTable('lab_maps · doc_locations · doc_status (121)', ()=>sb.from('doc_locations').select('doc_key').limit(1))],
+      ['lab_map_add / doc_loc_set / doc_status_set (121)', ()=>chkFn('lab_map_add / doc_loc_set / doc_status_set (121)','lab_map_add','lab_spot_save','doc_loc_set','doc_status_set')],
+      ['분류 나무 · 태그 (120)', ()=>chkFn('분류 나무 · 태그 (120)','tree_get','tree_node_move','doc_place_set','doc_tag_set','doc_audit_flags')],
+      ['doc_lock_* — 편집 잠금 (119)', ()=>chkFn('doc_lock_* — 편집 잠금 (119)','doc_lock_acquire','doc_lock_beat','doc_lock_release','doc_lock_wait','doc_lock_status','doc_lock_force')],
+      hsF('doc_lock_list / doc_lock_sweep — 잠금 정리 (119)', 'doc_lock_list','doc_lock_sweep'),
+      hsF('anda_notify — 알림 공용 (119)', 'anda_notify'),
+      hsT('doc_tags — 분야·운영 태그 (120)', 'doc_tags', 'doc_key'),
+      hsF('tree_node_add / tree_node_template (120)', 'tree_node_add','tree_node_template'),
+      hsT('lab_maps · lab_spots — 도면 판·자리 (121)', 'lab_spots', 'id'),
+      hsT('doc_status — 물품 상태 4종 (121)', 'doc_status', 'doc_key'),
+      hsF('lab_map_activate / lab_spot_delete (121)', 'lab_map_activate','lab_spot_delete'),
+      hsF('report_list / order_list / order_caps (122)', 'report_list','order_list','order_caps'),
+      hsF('anda_perm_of — 서버가 권한표를 읽는 함수 (122 · 128)', 'anda_perm_of'),
+      hsV('order_caps — 서버가 본 내 주문 권한 (122)', async()=>{ const r=await sb.rpc('order_caps'); if(r.error) throw r.error; const c=hsJsonVal(r.data)||{}; const mine={ approve:can('order_approve'), staff:can('order_approve')||can('order_manage') }; const same=(!!c.approve===mine.approve) && (!!c.staff===mine.staff); return { ok:same, warn:true, detail:`서버: 승인 ${c.approve?'예':'아니오'} · 주문함 ${c.staff?'예':'아니오'}${same?' — 화면 판단과 같음':' — ★화면 판단(승인 '+(mine.approve?'예':'아니오')+' · 주문함 '+(mine.staff?'예':'아니오')+')과 달라요. 권한 표를 저장한 뒤 다시 검사'}` }; }),
+      hsF('audit_start / audit_close — 재고 점검 (123)', 'audit_start','audit_close'),
+      hsF('set_member_teacher — teacher 주고 빼기 (125)', 'set_member_teacher'),
+      hsF('tree_node_delete / doc_tag_remove_all — 지우기 (126)', 'tree_node_delete','doc_tag_remove_all'),
+      hsT('clubs.color — 동아리 색 (129)', 'clubs', 'color'),
+      hsF('set_club_color (129)', 'set_club_color'),
+    ]},
+    { sec:'권한 표 (53 → 128)', items:[
+      hsV('저장된 권한 표에 새 항목이 들어 있는지', async()=>{ const { data, error } = await sb.from('app_settings').select('value').eq('key','perms').maybeSingle(); if(error) throw error; const obj=hsJsonVal(data&&data.value); if(!obj || typeof obj!=='object') return { ok:true, detail:'저장된 표 없음 — 모든 등급이 기본값으로 동작(정상)' }; const all=PERM_CAPS.flatMap(g=>g.items.map(i=>i[0])); const miss=all.filter(c=>PERM_ROLES.some(r=>!(obj[r] && Object.prototype.hasOwnProperty.call(obj[r], c)))); return miss.length ? { ok:false, warn:true, detail:`아직 표에 저장 안 된 항목 ${miss.length}개(${miss.join(', ')}) — 지금은 기본값으로 동작해요(문제 아님). [권한 설정]에서 [저장]을 한 번 누르면 기록되고, 눌러도 남으면 53 set_perms가 새 키를 거르는 것` } : { ok:true, detail:`${all.length}개 항목 모두 저장됨` }; }),
+      hsV('내 등급과 화면 권한', async()=>({ ok:true, detail:`${state.role||'viewer'} · 허용 ${PERM_CAPS.flatMap(g=>g.items).filter(([c])=>can(c)).length}/${PERM_CAPS.flatMap(g=>g.items).length}개${isOwner()?' (owner는 언제나 전부)':''}` })),
     ]},
   ];
 }
 
 async function renderHealth(){
+  const _nav=_navSeq;                                            // ★CQ: 검사 도중 화면을 옮기면 그만둔다(규칙 12)
   const groups = healthTasks();
-  const total = groups.reduce((a,g)=>a+g.items.length, 0) + 1;   // +1 = 용량
+  const total = groups.reduce((a,g)=>a+g.items.length, 0) + 2;   // +1 = 용량 · +1 = 적용 현황
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템 검사</h1>
       <div class="tabs"><button id="hReload">${ic('refresh')}다시 검사</button><button id="hBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">테이블·컬럼·RPC·스토리지를 마이그레이션 번호별로 하나씩 검사합니다. 실패 줄의 [종류]가 곧 처방입니다 — 테이블·컬럼·함수 없음은 그 번호의 SQL 미적용, 권한(GRANT)은 재부여, RLS 정책은 정책 수정.</div>
+    <div class="doc-meta">테이블·컬럼·RPC·스토리지·Edge Function·개인정보 잠금을 마이그레이션 번호별로 검사합니다. <b>전부 읽기만 하고 아무것도 바꾸지 않아요.</b>
+      실패 줄의 [종류]가 곧 처방입니다 — 테이블·컬럼·함수 없음은 그 번호의 SQL 미적용, 권한(GRANT)은 재부여, RLS 정책은 정책 수정.
+      <span class="hs-ic na">–</span> 표시는 앱이 자동으로 확인할 수 없는 항목이라 집계에서 뺍니다.</div>
     <div class="hs-prog" id="hsProg">
       <div class="hs-prog-top"><b id="hsProgLabel">검사 준비 중…</b><span id="hsProgNum">0 / ${total}</span></div>
       <div class="hs-track"><div class="hs-fill" id="hsFill" style="width:0%"></div></div>
@@ -12801,7 +13259,7 @@ async function renderHealth(){
   $('#hBack').onclick=()=>{ location.hash='#//system'; };
   $('#hReload').onclick=()=>renderHealth();
 
-  let done=0, ok=0, bad=0;
+  let done=0, ok=0, bad=0, warn=0, na=0;
   const bump=(label)=>{
     done++;
     const pct = Math.round(done/total*100);
@@ -12817,22 +13275,36 @@ async function renderHealth(){
   body.insertAdjacentHTML('beforeend',
     `<section class="hs-sec"><h2>용량 (무료 한도)</h2>${capHtml}</section>`);
 
-  // 1~5) 섹션별 검사
+  // 0-1) 적용 현황 한눈에 (★CQ)
+  bump('적용 현황 확인 중…');
+  const ledger = await migLedgerHTML();
+  if(_nav!==_navSeq) return;
+  body.insertAdjacentHTML('afterbegin', ledger);
+
+  // 1~) 섹션별 검사 — ★CQ: 한 섹션 안에서 5개씩 동시에(순서는 그대로). 예전엔 하나씩이라 180개에 1분 넘게 걸렸다.
   for(const g of groups){
+    if(_nav!==_navSeq) return;
     const secId='sec_'+Math.random().toString(36).slice(2,8);
     body.insertAdjacentHTML('beforeend',
       `<section class="hs-sec"><h2>${escapeHtml(g.sec)} <span class="hs-cnt" id="${secId}_c"></span></h2>
         <table class="hs-table"><tbody id="${secId}"></tbody></table></section>`);
     const tb=document.getElementById(secId);
-    let sOk=0, sBad=0;
-    for(const [label, run] of g.items){
-      bump(label+' 검사 중…');
-      const row = await run();
-      if(/hs-ok/.test(row)) { ok++; sOk++; } else { bad++; sBad++; }
-      tb.insertAdjacentHTML('beforeend', row);
+    const rows=new Array(g.items.length); let next=0;
+    await Promise.all(Array.from({ length:Math.min(5, g.items.length) }, async()=>{
+      for(;;){ const i=next++; if(i>=g.items.length) return; const [label, run]=g.items[i]; bump(label+' 검사 중…');
+        try{ rows[i]=await run(); }catch(e){ rows[i]=hsErr(label, e); } }
+    }));
+    let sOk=0, sBad=0, sWarn=0;
+    for(const row of rows){
+      if(/class="hs-ok"/.test(row)) { ok++; sOk++; }
+      else if(/class="hs-warn"/.test(row)) { warn++; sWarn++; }
+      else if(/class="hs-na"/.test(row)) { na++; }
+      else { bad++; sBad++; }
     }
+    if(tb) tb.insertAdjacentHTML('beforeend', rows.join(''));
     const c=document.getElementById(secId+'_c');
-    if(c) c.innerHTML = sBad ? `<span class="hs-badge bad">문제 ${sBad}</span>` : `<span class="hs-badge ok">정상 ${sOk}</span>`;
+    if(c) c.innerHTML = sBad ? `<span class="hs-badge bad">문제 ${sBad}</span>${sWarn?` <span class="hs-badge warn">주의 ${sWarn}</span>`:''}`
+                     : sWarn ? `<span class="hs-badge warn">주의 ${sWarn}</span>` : `<span class="hs-badge ok">정상 ${sOk}</span>`;
   }
 
   // 요약
@@ -12840,9 +13312,9 @@ async function renderHealth(){
   const pl=$('#hsProgLabel'); if(pl) pl.textContent='검사 완료';
   const sum=$('#hsSummary'); if(!sum) return;      // ★검사 도중 화면을 떠났으면 그만둔다 (세션 R)
   sum.innerHTML = `<div class="hs-sum ${bad?'bad':'ok'}">
-    ${bad?icBad():icOk()}
-    <div><b>${bad ? `문제 ${bad}건 발견` : '모든 항목 정상'}</b>
-      <div class="hs-sum-sub">정상 ${ok} · 문제 ${bad} · 총 ${ok+bad}개 항목</div></div></div>`;
+    ${bad?icBad():warn?icWarn():icOk()}
+    <div><b>${bad ? `문제 ${bad}건 발견` : warn ? `문제 없음 · 주의 ${warn}건` : '모든 항목 정상'}</b>
+      <div class="hs-sum-sub">정상 ${ok} · 주의 ${warn} · 문제 ${bad}${na?` · 자동 확인 불가 ${na}`:''} · 총 ${ok+warn+bad+na}개 항목</div></div></div>`;
 
 }
 
@@ -12861,7 +13333,7 @@ async function renderMaintenance(target){
           <td><button class="abtn" id="gcDocBtn">${ic('broom')}찾기</button></td>
         </tr>
         <tr>
-          <td><b>채팅 사진 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요)</div></td>
+          <td><b>채팅 사진 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요). <b>세미나 사진은 건너뛰어요</b>(영구 보존)</div></td>
           <td id="gcChatMsg" class="hs-dt">${gcAt?('마지막 자동 정리: '+escapeHtml(fmtKST(new Date(gcAt).toISOString()))):'아직 자동 정리 기록이 없어요.'}</td>
           <td><button class="abtn" id="gcChatBtn">${ic('refresh')}지금 실행</button></td>
         </tr>
@@ -12880,9 +13352,38 @@ async function renderMaintenance(target){
           <td id="mtKyptMsg" class="hs-dt">아직 검사하지 않았어요.</td>
           <td><button class="abtn" id="mtKyptBtn">${ic('broom')}찾기</button></td>
         </tr>
+        <tr>
+          <td><b>채팅 파일 · 영상</b><div class="hs-note">📎로 올린 파일(chat-files, 130). 압축하지 않아 용량을 빨리 써요 — 일반 채팅방 파일만 오래된 것부터 지울 수 있어요. <b>세미나 파일은 영구 보존</b>이라 건너뛰어요.</div></td>
+          <td id="mtCfMsg" class="hs-dt">아직 보지 않았어요.</td>
+          <td><button class="abtn" id="mtCfBtn">${ic('broom')}용량 보기</button></td>
+        </tr>
+        <tr>
+          <td><b>물리실 도면 안 쓰는 사진</b><div class="hs-note">labmap 버킷에 있지만 어느 도면 판(lab_maps)에도 안 잡힌 사진 — 올리다 실패한 것 (121)</div></td>
+          <td id="mtMapMsg" class="hs-dt">아직 검사하지 않았어요.</td>
+          <td><button class="abtn" id="mtMapBtn">${ic('broom')}찾기</button></td>
+        </tr>
       </table>
       <div id="gcDocList"></div>
       <div id="mtKyptList"></div>
+      <div id="mtMapList"></div>
+    </section>
+    <section class="hs-sec">
+      <h2>자동으로 도는 정리 <span class="hs-note" style="font-weight:600">— 누를 것 없음 · 읽기 전용</span></h2>
+      <table class="hs-table maint-table">
+        <tr><th style="width:190px">무엇을</th><th>언제 · 어디서</th></tr>
+        ${[
+          ['채팅 사진 30일 (세미나 사진 제외)', '관리자가 앱을 열면 하루 한 번(이 브라우저)'],
+          ['세미나 기록 전부', '지우지 않음 — 세미나를 연 사람이 세미나를 지울 때만 (131)'],
+          ['가입 기록의 이메일', '1시간 뒤 서버가 지움 (116 · pg_cron)'],
+          ['가입 기록 · 푸시 기록 30일, 의견 · 문의 1년', '매일 04:10 서버가 지움 (117 anda_purge_old)'],
+          ['끝난 주문 · 닫힌 신고 · 닫힌 재고 점검 1년', '매일 04:20 서버가 지움 (122 anda_purge_items)'],
+          ['오래된 편집 잠금 · 대기 명단', '매분 서버가 정리 (119), 2분 소식 없으면 풀림'],
+          ['예약 알림 보내기', '5분마다 (114 push_queue → Edge push-send)'],
+          ['휴지통 30일', '30일이 지나면 복원 · 열람이 막힘 (62 purge_old_trash — 서버 예약 여부는 cron.job에서 확인)'],
+          ['사진 창고', '14일 지난 사진은 그 기기에서 자동으로 지움 (서버에 안 쌓임)'],
+        ].map(([a,b])=>`<tr><td><b>${escapeHtml(a)}</b></td><td class="hs-dt">${escapeHtml(b)}</td></tr>`).join('')}
+      </table>
+      <div class="hs-note">서버 예약이 실제로 돌고 있는지는 SQL Editor에서 <code>select jobname, schedule, active from cron.job order by jobname;</code> 으로 확인해요. [시스템 검사]의 '개인정보 · 보관 기간'에서 함수가 있는지도 봅니다.</div>
     </section>`);
 
   /* ★세션 BN: 그동안 더해진 시스템의 정리 항목 */
@@ -12923,6 +13424,46 @@ async function renderMaintenance(target){
     }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}`; }
   };
 
+  /* ★CQ: 도면 사진 — lab_maps는 모든 회원이 읽으므로(화면도 같은 표를 읽는다) '못 봐서 잘못 지우는' 일이 없다.
+     옛 판도 lab_maps에 남아 '사용 중'으로 친다(판을 되돌릴 수 있게). */
+  $('#mtCfBtn').onclick=async()=>{                                                           // ★CR
+    const msg=$('#mtCfMsg'); msg.textContent='chat-files를 세는 중…';
+    try{
+      const files=await listBucketAll('chat-files','');
+      const total=files.reduce((a,f)=>a+(f.size||0),0);
+      if(!files.length){ msg.innerHTML=`${icOk()} 올린 파일이 없어요.`; return; }
+      const keep=(await seminarKeptSet()).set;                                                 // ★CS: 세미나 파일은 영구 보존
+      const kept=files.filter(f=>keep.has('chat-files:'+f.path));
+      const old=d=>files.filter(f=>!keep.has('chat-files:'+f.path) && f.created_at && (Date.now()-new Date(f.created_at).getTime()) > d*86400000);
+      msg.innerHTML=`${icOk()} 파일 <b>${files.length}개</b> · ${escapeHtml(fmtBytes(total))}${kept.length?` · 세미나 파일 ${kept.length}개는 영구 보존(정리 대상 아님)`:''} <span class="sp-old">${[90,180,365].map(d=>{ const o=old(d); return o.length?`<button class="abtn" data-cfd="${d}">${d}일 지난 ${o.length}개 지우기 (${escapeHtml(fmtBytes(o.reduce((a,f)=>a+(f.size||0),0)))})</button>`:''; }).join(' ')}</span>`;
+      msg.querySelectorAll('[data-cfd]').forEach(b=>{ b.onclick=async()=>{ const d=Number(b.dataset.cfd), o=old(d);
+        const ok=await confirmModal(`${d}일 지난 채팅 파일 ${o.length}개를 지울까요?`, `${fmtBytes(o.reduce((a,f)=>a+(f.size||0),0))}. 채팅의 그 파일 카드는 열리지 않게 돼요. 되돌릴 수 없어요.`, '지우기'); if(!ok) return;
+        try{ for(let i=0;i<o.length;i+=100){ const { error } = await sb.storage.from('chat-files').remove(o.slice(i,i+100).map(f=>f.path)); if(error) throw error; } msg.innerHTML=`${icOk()} ${o.length}개 지웠어요.`; }
+        catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}`; } }; });
+    }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}${/bucket/i.test(String((e&&e.message)||''))?' (130_seminar_plan_files.sql)':''}`; }
+  };
+  $('#mtMapBtn').onclick=async()=>{
+    const msg=$('#mtMapMsg'), list=$('#mtMapList'); msg.textContent='labmap 버킷과 도면 판을 대조하는 중…'; list.innerHTML='';
+    try{
+      const files=await listBucketAll('labmap','');
+      const { data, error } = await sb.from('lab_maps').select('id,image_url'); if(error) throw error;
+      const urls=(data||[]).map(m=>String(m.image_url||'')).filter(Boolean);
+      const orphans=files.filter(f=>!urls.some(u=>u.includes(f.path) || u.includes(encodeURI(f.path))));
+      if(!orphans.length){ msg.innerHTML=`${icOk()} 사진 ${files.length}개 모두 도면 판에 쓰이고 있어요.`; return; }
+      const total=orphans.reduce((a,f)=>a+(f.size||0),0);
+      msg.innerHTML=`${icWarn()} 안 쓰는 사진 <b>${orphans.length}개</b> · ${escapeHtml(fmtBytes(total))} (전체 ${files.length}개 중)`;
+      list.innerHTML=`<table class="hs-table"><tr><th>경로</th><th style="width:90px">크기</th></tr>`
+        + orphans.slice(0,20).map(f=>`<tr><td class="hs-path">${escapeHtml(f.path)}</td><td class="y">${escapeHtml(fmtBytes(f.size||0))}</td></tr>`).join('')
+        + `</table><button class="abtn danger" id="mtMapDel" style="margin-top:8px">${ic('trash')}${orphans.length}개 삭제</button>`;
+      $('#mtMapDel').onclick=async()=>{
+        const ok=await confirmModal('안 쓰는 도면 사진을 삭제할까요?', `${orphans.length}개 · ${fmtBytes(total)}. 어느 도면 판에도 연결되지 않은 사진입니다.`, '삭제'); if(!ok) return;
+        msg.textContent='삭제 중…';
+        try{ const { error:de } = await sb.storage.from('labmap').remove(orphans.map(f=>f.path)); if(de) throw de; msg.innerHTML=`${icOk()} ${orphans.length}개 삭제했어요.`; list.innerHTML=''; }
+        catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}`; }
+      };
+    }catch(e){ msg.innerHTML=`${icBad()} ${escapeHtml(String((e&&e.message)||e))}${/bucket/i.test(String((e&&e.message)||''))?' (121_lab_map.sql)':''}`; }
+  };
+
   $('#gcDocBtn').onclick=async()=>{
     const msg=$('#gcDocMsg'), list=$('#gcDocList');
     msg.textContent='doc-images 버킷과 문서·리비전을 대조하는 중…'; list.innerHTML='';
@@ -12961,6 +13502,7 @@ async function renderMaintenance(target){
     msg.innerHTML = r.deleted
       ? `${icOk()} ${r.deleted}개 삭제 · ${escapeHtml(fmtBytes(r.bytes))} 회수 (전체 ${r.scanned}개 검사)`
       : `${icOk()} 30일 지난 사진이 없어요 (전체 ${r.scanned}개 검사)`;
+    if(r.kept) msg.innerHTML += ` · 세미나 사진 ${r.kept}개는 영구 보존`;
   };
 }
 /* ================== 시스템 (owner 전용) ==================
@@ -13175,15 +13717,15 @@ async function renderSysFeatures(){
   const GROUPS=[
     { name:'핵심 (기본 켬)', items:[
       ['tasks',     '과제 · 진행 보드', '문서 배정→작성→검토→완료 루프. 대문의 내 과제 타일, 문서의 과제 바가 함께 사라집니다.'],
-      ['questions', '질문 게시판',      '질문이 답변이 되고, 답변이 문서가 되는 루프.'],
-      ['inbox',     '쪽지 · 알림함',    '⚠ 답변·과제·일정 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요.'],
+      ['questions', '질문 게시판',      '질문이 답변이 되고, 답변이 문서가 되는 루프. 물리실의 [질문] 탭에 있어요(하단 메뉴 \'질문\'도).'],
+      ['inbox',     '쪽지 · 알림함',    '⚠ 답변 · 과제 · 편집 끝남 · 신고 · 주문 알림이 전부 이 통로로 옵니다. 끄면 알림 배지도 함께 숨어요. (폰 푸시 알림은 프로필의 알림 카드에서 따로)'],
       ['tags',      '분야 태그',        '문서마다 붙이는 색 태그(#광학 등). 끄면 문서 목록 · 문서 화면 · 편집기 · 새 문서 · 검색에서 태그가 모두 사라져요(태그로 찾기도 안 돼요). 붙여 둔 태그는 지우지 않아 다시 켜면 돌아와요. 관리자용 운영 태그는 그대로.'],
       ['directory', '회원',            '회원 목록과 프로필. (회원 문서 자체는 문서라서 남습니다)'],
       ['kypt',      'KYPT 연구',       '연도별 문제 목록과 문제별 참여자·자료·끄적임·일지. ★기본 켬(운영진 결정). 편집은 92_kypt.sql 필요, 문제 목록은 없이도 보여요.'],
       ['kypt_v2',   'KYPT 실험 기록 (v2)', '문제 안에서 실험 1회 = 기록 1건(8칸 템플릿, 자동 저장), 자료함(링크·파일). 끄면 예전 상세 화면. 93_kypt_v2.sql 필요.'],
     ]},
     { name:'부가', items:[
-      ['community',      '채팅 (방 · 작업 공간)', '★<b>채팅이 여기 있습니다.</b> 방마다 대화와 작업 공간(문서·자료·과제·회의 링크). 끄면 채팅이 통째로 사라져요.'],
+      ['community',      '물리실 — 세미나 · 채팅', '★<b>상단의 [물리실]이 이 스위치예요.</b> 세미나와 채팅 방(대화 · 작업 공간)이 함께 켜지고 꺼져요. 끄면 물리실에는 [질문] 탭만 남습니다(질문 게시판이 켜져 있을 때).'],
       ['qr',             'QR 라벨',                '기자재에 붙이는 문서 QR 스티커·라벨 시트 인쇄.'],
       ['nudges',         '참여 넛지',              '대문의 "짧은 문서" 배너와 우하단 안내 토스트. (세부 조정은 [넛지 설정])'],
       ['gamify',         '잔디 · 미션 · 리와인드', '기여 잔디, 월간 미션, 연말 리와인드 카드.'],
@@ -13235,6 +13777,7 @@ const MIG_NAMES = {
   '85':'대화방 작업 공간', '86':'지층 막대', '87':'회원 탈퇴', '88':'적용 상태 추적',
   '89':'대화방 공개 범위', '90':'대문 사진 벽',
 };
+MIG_LEDGER.forEach(([n,name])=>{ if(!MIG_NAMES[n]) MIG_NAMES[n]=name; });   // ★CQ: 91~129 이름은 적용 현황 표에서
 async function renderMigStatus(){
   const box=$('#migBox'); if(!box) return;
   let st=null;
@@ -13245,8 +13788,15 @@ async function renderMigStatus(){
   }catch(e){ box.innerHTML=''; return; }      // 88 미적용 → 조용히 안 그린다
   if(!st) { box.innerHTML=''; return; }
   const missing=(st.missing||[]).filter(v=>v!=='88');
+  /* ★CQ: 앱이 직접 확인한 미적용 번호(91~129)를 더한다 — owner만(요청 40여 개라 매번 모두에게 돌리지 않는다) */
+  if(isOwner()){
+    try{ const res=await Promise.all(MIG_LEDGER.map(([n,,p])=>migProbe(p).then(st2=>[n,st2])));
+      if(!box.isConnected) return;
+      res.forEach(([n,st2])=>{ if(st2==='bad' && !missing.includes(n)) missing.push(n); }); }catch(_){}
+    missing.sort((a,b)=>parseInt(a,10)-parseInt(b,10));
+  }
   if(!missing.length){
-    box.innerHTML=`<p class="mig-ok">데이터베이스 설정이 모두 적용돼 있어요.</p>`;
+    box.innerHTML=`<p class="mig-ok">데이터베이스 설정이 모두 적용돼 있어요.${isOwner()?'':' <span class="muted">(서버 목록 기준 — 자세한 건 [시스템 검사])</span>'}</p>`;
     return;
   }
   box.innerHTML=`
@@ -13268,20 +13818,20 @@ document.addEventListener('keydown', e=>{             // ★CP-7: 시스템 화�
 async function renderSystem(){
   if(!guardPage('system_access')) return;
   const items=[
-    { owner:true,          hash:'#//system/features', g:'set', ic:'check', t:'기능 켜기/끄기',        d:'커뮤니티·질문·쪽지·과제·KYPT 등 모듈을 개별로 켜고 끕니다. 끄면 화면에서만 사라지고 데이터는 남아요.' },
-    { cap:'system_limits', hash:'#//system/limits', g:'set', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지·문서·KYPT(끄적·요약·일지·자료 파일)·피드백의 글자수와 용량을 조정합니다.' },
-    { owner:true,          hash:'#//system/perms', g:'set',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다.' },
+    { owner:true,          hash:'#//system/features', g:'set', ic:'check', t:'기능 켜기/끄기',        d:'물리실(세미나·채팅)·질문·쪽지·과제·분야 태그·KYPT·연혁 등을 개별로 켜고 끕니다. 끄면 화면에서만 사라지고 데이터는 남아요.' },
+    { cap:'system_limits', hash:'#//system/limits', g:'set', ic:'edit',  t:'글자수 · 사진 용량 상한', d:'채팅·질문·쪽지·문서·KYPT·세미나 PDF·물리실 도면·프로필·연혁·피드백의 글자수와 용량을 조정합니다.' },
+    { owner:true,          hash:'#//system/perms', g:'set',  ic:'users', t:'권한 설정',              d:'등급별로 무엇을 할 수 있는지 정합니다. 초기 설정과 다른 칸이 점으로 보이고, 저장 전에 바뀌는 칸만 모아 확인해요.' },
     { owner:true,          hash:'#//system/landing', g:'set', ic:'home',  t:'대문 추천 문서',          d:'대문에 노출할 추천 문서를 고릅니다. 주소가 바뀌어도 링크는 유지됩니다.' },
     { owner:true,          hash:'#//system/site', g:'set',   ic:'home',  t:'사이트 정보',            d:'사이트 이름·소속·미션 문구. 소개 랜딩과 상단 로고 옆 이름에 쓰입니다.' },
     { owner:true,          hash:'#//system/nudges', g:'set', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
     { owner:true,          hash:'#//system/signup', g:'set', ic:'users', t:'가입 설정',              d:'누가 가입할 수 있는지 정합니다. 초대 코드 · 누구나 · 가입 중단.' },
     { owner:true,          hash:'#//system/focus', g:'set',  ic:'check', t:'연구 집중 기간',         d:'기간을 켜면 대문 맨 위에 남은 날짜와 과제 진행률이 뜹니다.' },
-    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'테이블·컬럼·RPC·스토리지를 마이그레이션 번호별로 전수 점검하고, 실패는 종류(테이블 없음·권한·정책…)까지 짚어 줍니다.' },
+    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'129번까지 적용 현황을 한눈에, 그리고 표·함수·버킷·Edge Function·개인정보 잠금(비로그인 차단·비공개 버킷)을 읽기만 해서 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin', g:'mem',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs', g:'mem',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
     { cap:'track_read',    hash:'#//system/tracks', g:'mem', ic:'edit',  t:'계열 목록',              d:'계열별 회원을 보고, 권한이 있으면 이름·색을 수정합니다.' },
     { cap:'feedback_read', hash:'#//feedback/review', g:'mem', ic:'heart', t:'피드백 검토',           d:'회원들이 보낸 별점·의견을 모아 봅니다.' },
-    { cap:'system_maint',  hash:'#//system/maint', g:'chk',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진·채팅 사진 정리, 프로필 없는 계정 복구, 가입 기록 정리, KYPT 자료함 안 쓰는 파일.' },
+    { cap:'system_maint',  hash:'#//system/maint', g:'chk',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진·KYPT 파일·도면 사진 정리, 프로필 없는 계정 복구, 가입 기록 정리, 서버가 알아서 하는 자동 정리 일정.' },
   ].filter(it => it.owner ? isOwner() : can(it.cap));
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>시스템</h1>
@@ -13320,6 +13870,7 @@ const LIMIT_FIELDS = [
     { title:'채팅 메시지',  note:'한 번에 보내는 메시지 한 개', controls:[ {key:'lim_chat_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_chat_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
     { title:'질문 본문',      note:'질문 게시판에 올리는 글', controls:[ {key:'lim_q_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m}, {key:'lim_q_img_kb', kind:'kb', label:'사진 합계(질문 1건)', presets:LIM_PRESETS.kb_m} ] },
     { title:'질문 답변',      note:'답변 한 개', controls:[ {key:'lim_ans_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_ans_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
+    { title:'채팅 파일 · 영상', note:'📎로 올리는 파일 1개(압축 없음). 서버 버킷 상한이 50MB라 그보다 크게는 올라가지 않아요(130). 긴 영상은 YouTube 링크로.', controls:[ {key:'lim_chat_file_kb', kind:'mb', label:'파일 1개', presets:[5, 10, 20, 30, 50], min:1, max:50} ] },
     { title:'쪽지',           note:'쪽지 한 통', controls:[ {key:'lim_dm_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_dm_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
   ]},
   { sec:'문서', items:[
@@ -13331,6 +13882,11 @@ const LIMIT_FIELDS = [
     { title:'실험 기록 한 칸',  note:'실험 기록 8칸 각각 (자동 저장)', controls:[ {key:'lim_kypt_field_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m, max:20000} ] },
     { title:'의견',             note:'피드백 탭·자료 의견 한 개', controls:[ {key:'lim_kypt_comment_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s} ] },
     { title:'자료함 파일',      note:'넘는 파일은 올라가지 않아요(압축 없음). 긴 영상은 YouTube 미등록 링크로.', controls:[ {key:'lim_kypt_file_kb', kind:'mb', label:'파일 1개', presets:LIM_PRESETS.mb, min:1, max:200} ] },
+  ]},
+  /* ★세션 CQ: 세미나(108)·물리실 도면(121)이 생긴 뒤 상한 화면에 빠져 있던 것 */
+  { sec:'세미나 · 물리실', items:[
+    { title:'세미나 PDF',       note:'진행자가 올리는 PDF 파일 1개. 쪽마다 사진으로 바뀌고, 쪽 사진 1장은 [문서 사진] 상한으로 압축돼요.', controls:[ {key:'lim_sem_pdf_kb', kind:'mb', label:'파일 1개', presets:LIM_PRESETS.mb, min:1, max:100} ] },
+    { title:'물리실 도면 사진', note:'[물리실 도면]에 올리는 도면 1장(긴 변 2400px로 줄인 뒤 이 용량으로 압축). 작은 글씨가 뭉개지면 올리세요.', controls:[ {key:'lim_labmap_img_kb', kind:'kb', label:'사진 1장', presets:[300, 500, 700, 1000, 1500], max:3000} ] },
   ]},
   { sec:'프로필 · 그 밖에', items:[
     { title:'프로필 사진',      note:'256px 정사각형으로 줄인 뒤 이 용량으로 압축', controls:[ {key:'lim_avatar_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s, max:500} ] },
@@ -13551,6 +14107,28 @@ async function loadPermsDefault(){
   return PERMS_DEFAULT;
 }
 /* 표에서 읽어온 현재 값 → 저장용 payload */
+/* ★세션 CQ: 권한 저장 전 확인 — 바뀌는 칸만, 위험한 것은 위로 */
+function permConfirmModal(pend){
+  return new Promise(resolve=>{
+    const list=pend.slice().sort((a,b)=>(b.risky-a.risky));
+    const risky=list.filter(x=>x.risky).length;
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box perm-cf">
+      <div class="modal-msg">권한 ${list.length}칸을 바꿔요</div>
+      <div class="modal-sub">${risky?`<b class="pcf-warn">⚠ ${risky}칸은 낮은 등급에 운영 권한을 열거나 기본 열람을 닫는 변경이에요.</b> 맞는지 한 번 더 봐 주세요.`:'아래만 바뀌고 나머지 칸은 그대로예요.'}</div>
+      <ul class="pcf-list">${list.map(x=>`<li class="${x.risky?'risky':''}">${x.risky?'⚠ ':''}<b style="${segStyle(x.role)}" class="pcf-role">${escapeHtml(x.role)}</b>
+        <span class="pcf-to ${x.on?'on':'off'}">${x.on?'허용':'차단'}</span> ${escapeHtml(x.label)}</li>`).join('')}</ul>
+      <div class="modal-btns"><button class="modal-cancel">취소</button><button class="modal-ok">저장</button></div></div>`;
+    document.body.appendChild(ov);
+    const done=v=>{ ov.remove(); document.removeEventListener('keydown', key, true); resolve(v); };
+    const key=e=>{ if(e.key==='Escape'){ e.preventDefault(); done(false); } };
+    document.addEventListener('keydown', key, true);
+    ov.querySelector('.modal-cancel').onclick=()=>done(false);
+    ov.querySelector('.modal-ok').onclick=()=>done(true);
+    ov.addEventListener('click',e=>{ if(e.target===ov) done(false); });
+    setTimeout(()=>{ const b=ov.querySelector(risky?'.modal-cancel':'.modal-ok'); if(b) b.focus(); }, 0);
+  });
+}
 function permPayload(cur){
   const out={};
   PERM_ROLES.forEach(r=>{
@@ -13565,12 +14143,23 @@ async function renderSysPerms(){
   await loadPermsDefault();
   const cur = {};
   PERM_ROLES.forEach(r=>{ cur[r] = Object.assign({}, permsFor(r)); });
+  /* ★CQ: 일일이 확인하지 않아도 되게 — ①초기 설정과 다른 칸에 점 ②저장된 표에 아직 없는 새 항목은 '새 항목'(기본값으로 동작 중)
+     ③바꾼 칸 수 ④저장 전에 바뀌는 것만 모아 보여 주고, 낮은 등급에 운영 권한을 여는 변경엔 ⚠ */
+  const saved = {}; PERM_ROLES.forEach(r=>{ saved[r]=Object.assign({}, cur[r]); });
+  const isDiffInit=(role,cap)=>!!cur[role][cap] !== !!(DEFAULT_PERMS[role]||{})[cap];
+  const isNewCap=(cap)=>!!PERMS && PERM_ROLES.some(r=>!(PERMS[r] && Object.prototype.hasOwnProperty.call(PERMS[r], cap)));
   const seg=(role,cap)=>{
     const on = !!cur[role][cap];
-    return `<span class="pseg" data-role="${role}" data-cap="${cap}">
+    const init = !!(DEFAULT_PERMS[role]||{})[cap];
+    return `<span class="pseg${isDiffInit(role,cap)?' pdiff':''}" data-role="${role}" data-cap="${cap}" title="초기 설정: ${init?'허용':'차단'}">
       <button class="allow ${on?'on':''}" data-v="1">허용</button>
       <button class="off ${on?'':'on'}" data-v="0">차단</button></span>`;
   };
+  const pendingList=()=>{ const out=[]; PERM_CAPS.forEach(g=>g.items.forEach(([cap,label])=>PERM_ROLES.forEach(r=>{
+    if(!!cur[r][cap] !== !!saved[r][cap]) out.push({ role:r, cap, label, on:!!cur[r][cap],
+      risky: cur[r][cap] ? (PERM_RISKY_GRANT.includes(cap) && r!=='admin') : PERM_RISKY_REVOKE.includes(cap) }); }))); return out; };
+  const diffInitN=()=>{ let n=0; PERM_CAPS.forEach(g=>g.items.forEach(([cap])=>PERM_ROLES.forEach(r=>{ if(isDiffInit(r,cap)) n++; }))); return n; };
+  const newCaps=PERM_CAPS.flatMap(g=>g.items.map(i=>i[0])).filter(isNewCap);
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>권한 설정</h1>
       <div class="tabs">
@@ -13585,14 +14174,18 @@ async function renderSysPerms(){
         ${PERM_CAPS.map(g=>`
           <tr class="perm-sec"><td colspan="${PERM_ROLES.length+1}">${escapeHtml(g.sec)}</td></tr>
           ${g.items.map(([cap,label])=>`
-            <tr><td>${escapeHtml(label)}</td>
+            <tr><td>${escapeHtml(label)}${isNewCap(cap)?' <span class="perm-new" title="저장된 표에 아직 없는 항목 — 지금은 초기 설정대로 동작해요. [저장]을 누르면 표에 기록됩니다.">새 항목</span>':''}</td>
               ${PERM_ROLES.map(r=>`<td>${seg(r,cap)}</td>`).join('')}
             </tr>`).join('')}
         `).join('')}
       </table>
     </div>
+    <div class="perm-legend"><span class="pseg pdiff perm-dot-demo"></span> 점 = 초기 설정과 다른 칸 (<b id="spInitN">${diffInitN()}</b>개)
+      ${newCaps.length?`<span id="spNewNote"> · <span class="perm-new">새 항목</span> ${newCaps.length}개는 아직 표에 저장되지 않아 <b>초기 설정대로</b> 동작 중이에요 — 그대로 두어도 괜찮아요.</span>`:''}
+      · 칸에 마우스를 올리면 초기 설정이 보여요.</div>
     <div class="sys-actions">
       <button class="btn primary" id="spSave" style="width:auto;padding:8px 18px">저장</button>
+      <span class="perm-pend" id="spPend" hidden></span>
       <button class="btn ghost" id="spSaveDefault" style="width:auto;padding:8px 16px">이 설정을 기본값으로 저장</button>
       <span class="hs-note" id="spMsg"></span>
     </div>
@@ -13600,7 +14193,12 @@ async function renderSysPerms(){
       <b>기본값</b>은 되돌리기용 프리셋이에요. [이 설정을 기본값으로 저장]을 누르면 지금 표의 상태가 기본값이 되고,
       [기본값으로 되돌리기]는 그 값으로 표를 되돌립니다(저장을 눌러야 실제 적용).
       ${PERMS_DEFAULT ? '' : '<br>아직 저장된 기본값이 없어 <b>초기 설정</b>으로 되돌아갑니다.'}
-    </div>`;
+      <br>표는 <b>화면</b>을 정합니다. '★서버도 이 표를 따라요'라고 적힌 항목만 서버가 같은 표로 다시 확인하고, 나머지는 서버가 등급으로 따로 막아요 — 그래서 표에서 넓혀도 서버가 막는 일은 여전히 막힙니다(안전한 방향).
+    </div>
+    <details class="perm-fixed"><summary>표에 없는 권한 — 등급으로 정해져 있어요 (읽기 전용)</summary>
+      ${PERM_FIXED_RULES.map(([who,list])=>`<div class="pf-g"><b>${escapeHtml(who)}</b><ul>${list.map(x=>`<li>${escapeHtml(x)}</li>`).join('')}</ul></div>`).join('')}
+      <div class="hs-note">이것들은 서버 함수가 등급으로 직접 확인해서, 표에 칸을 만들어도 실제로는 바뀌지 않아요. 바꾸고 싶으면 다음 작업에서 서버 함수와 함께 고칩니다.</div>
+    </details>`;
   $('#spBack').onclick=()=>{ location.hash='#//system'; };
   $('#doc').querySelectorAll('.pseg').forEach(sg=>{
     sg.querySelectorAll('button').forEach(b=>{
@@ -13608,6 +14206,10 @@ async function renderSysPerms(){
         const role=sg.dataset.role, cap=sg.dataset.cap, v=b.dataset.v==='1';
         cur[role][cap]= v ? 1 : 0;
         sg.querySelectorAll('button').forEach(x=>x.classList.toggle('on', x===b));
+        sg.classList.toggle('pdiff', isDiffInit(role,cap));                                   // ★CQ
+        sg.classList.toggle('pchg', !!cur[role][cap] !== !!saved[role][cap]);
+        const n=pendingList().length, pe=$('#spPend'); if(pe){ pe.hidden=!n; pe.textContent=`저장 안 한 변경 ${n}칸`; }
+        const ini=$('#spInitN'); if(ini) ini.textContent=diffInitN();
       };
     });
   });
@@ -13637,7 +14239,11 @@ async function renderSysPerms(){
     }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (56_perms_default.sql 실행 확인)'; }
   };
   $('#spSave').onclick=async()=>{
-    const msg=$('#spMsg'); msg.textContent='저장 중…';
+    const msg=$('#spMsg');
+    /* ★CQ: 저장 전 확인 — 바뀌는 칸만 모아 보여 준다. 새 항목만 기록하는 저장(바뀐 칸 0)은 확인 없이 */
+    const pend=pendingList();
+    if(pend.length && !(await permConfirmModal(pend))) return;
+    msg.textContent='저장 중…';
     const payload=permPayload(cur);
     try{
       const { error } = await sb.rpc('set_perms', { p_perms: payload });
@@ -13645,6 +14251,11 @@ async function renderSysPerms(){
       PERMS=payload;
       msg.innerHTML = icOk()+' 저장했어요. <span class="muted">회원들은 다음 접속부터 적용돼요.</span>';
       renderUserbox();
+      PERM_ROLES.forEach(r=>{ saved[r]=Object.assign({}, cur[r]); });                      // ★CQ: 저장한 상태가 새 기준
+      $('#doc').querySelectorAll('.pseg.pchg').forEach(x=>x.classList.remove('pchg'));
+      $('#doc').querySelectorAll('.perm-new').forEach(x=>{ if(!x.closest('.perm-legend')) x.remove(); });
+      { const nn=$('#spNewNote'); if(nn) nn.remove(); }
+      const pe=$('#spPend'); if(pe) pe.hidden=true;
     }catch(e){ msg.textContent='저장 실패: '+((e&&e.message)||e)+' (53_teacher_and_perms.sql 실행 확인)'; }
   };
   window.scrollTo(0,0);
@@ -13784,6 +14395,13 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-02', text:"[안내] 세미나 기록(대화 · 슬라이드 · 올린 사진과 파일 · 투표 · 참석 · 대본 · 보관 기록)은 이제 자동으로 지워지지 않고 영구 보존돼요. 지울 수 있는 사람은 그 세미나를 연 사람뿐이에요(준비 화면 맨 아래). 개인정보 처리방침 v1.3(11월 1일 시행) 제4조에 이 내용과 채팅방 첨부 사진 30일 · 첨부 파일 정리 기준을 더했어요." },
+  { date:'2026-10-02', text:"[안내] 태블릿 · 작은 노트북 화면에서 상단 메뉴 글자가 세로로 쪼개지던 것을 고쳤어요. 좁을 땐 아이콘만 보이고, 마우스를 올리면 이름이 떠요." },
+  { date:'2026-10-02', text:"[물리실] 세미나를 미리 짜 두는 [준비 화면]이 생겼어요. 말 · 장 · 슬라이드 · 투표 · 멈춤 · 파일을 순서대로 놓고, 항목마다 예상 시간과 진행자 메모를 적어요. PDF를 올리면 쪽마다 자동으로 들어가고, 메모장에 쓴 계획을 붙여 넣거나 지난 세미나 대본을 가져올 수도 있어요." },
+  { date:'2026-10-02', text:"[물리실] 진행 중에는 오른쪽에 '다음' 카드와 큰 [다음] 단추 · 시계(예정보다 빠름/늦음)가 보여요. 대본의 투표는 그 자리에서 열리고, 태블릿에선 채팅 위 한 줄 막대로 진행해요. 대본 발사가 안 되던 문제도 고쳤어요." },
+  { date:'2026-10-02', text:"[물리실] 세미나에 들어오면 방금 올라온 슬라이드가 '지금 화면'에 크게 떠요. 채팅에 📎로 PDF · 문서 · 영상 파일(1개 50MB)을 올릴 수 있고, YouTube 링크는 누르면 그 자리에서 재생돼요." },
+  { date:'2026-10-02', text:"[시스템] [시스템 검사]가 129번 설정까지 한눈에 보여 줘요(빠진 번호는 빨갛게). 로그인 없이 읽히는 곳이 없는지 · 사진 저장소가 비공개인지 · 알림과 탈퇴 기능이 올라가 있는지도 확인하고, 검사도 훨씬 빨라졌어요. [권한 설정]은 초기 설정과 다른 칸을 점으로 보여 주고, 저장하기 전에 바뀌는 칸만 모아 한 번 더 보여 줘요." },
+  { date:'2026-10-02', text:"[안내] 물리실 채팅을 꺼 둔 동안에는 물리실에 [질문] 탭만 보여요. 세미나 PDF 크기와 물리실 도면 사진 용량도 [시스템 → 상한]에서 바꿀 수 있어요." },
   { date:'2026-10-02', text:"[문서] 문서 탭 위쪽에 [목록 | 분류로 보기] 스위치가 생겼어요. 누르면 손잡이가 미끄러지며 분류 화면으로 가고, 분류 화면에도 같은 스위치가 있어 바로 돌아와요. 분류를 접을 때도 안의 줄이 차례로 걷히며 접혀요." },
   { date:'2026-10-02', text:"[문서] 분야 태그를 끌 수 있어요([시스템 → 기능 켜기/끄기]의 '분야 태그' · owner는 문서 탭의 [태그] 단추로 바로). 끄면 목록 · 문서 화면 · 편집기 · 새 문서 · 검색에서 태그가 모두 빠져요. 붙여 둔 태그는 지우지 않아 다시 켜면 돌아와요." },
   { date:'2026-10-02', text:"[안내] 동아리 색은 이제 owner · admin이 정해요(회원 화면 · 시스템 [동아리 목록]의 [동아리 색]). 정하지 않은 동아리는 회색이에요. 129_club_colors.sql이 필요해요." },
@@ -18508,6 +19126,116 @@ async function uploadChatImages(files, onMsg, targetBytes){
   toast(files.length>1 ? `사진 ${files.length}장을 각 ${kb}KB로 줄여 올렸어요.` : `사진을 ${kb}KB로 줄여 올렸어요.`);
   return out;
 }
+/* ================== ★세션 CR: 채팅 파일 · 영상 (130 chat-files) ==================
+   · 📎로 아무 파일이나(PDF·문서·영상·음성…) 한 번에 5개, 1개 [상한]의 lim_chat_file_kb(기본 50MB)까지. 압축하지 않는다.
+   · 저장소는 비공개 버킷 chat-files의 <내 uid>/… — 주소는 public 꼴로 넣고 서명 주소 계층(storageFixEl)이 1시간 주소로 바꾼다.
+   · 메시지에는 messages.files = [{path,name,size,type}]. 130이 없으면 버튼이 안내만 한다(우아한 실패).
+   · YouTube 링크는 본문에서 찾아 '누르면 이 자리에서 재생'(youtube-nocookie, 누르기 전엔 아무것도 불러오지 않는다).
+     .mp4/.webm 같은 영상 주소도 그 자리 플레이어로. */
+const CHAT_FILE_MAX_N = 5;
+let chatFilesPick = [];
+function chatFileMaxBytes(){ return (Number(LIMITS.lim_chat_file_kb)||51200)*1024; }
+function fileKindOf(name, type){
+  const t=String(type||''), n=String(name||'').toLowerCase();
+  if(/^video\//.test(t) || /\.(mp4|webm|mov|m4v|ogv)$/.test(n)) return 'video';
+  if(/^audio\//.test(t) || /\.(mp3|m4a|wav|ogg|aac|flac)$/.test(n)) return 'audio';
+  if(/^image\//.test(t) || /\.(png|jpe?g|gif|webp|svg|heic)$/.test(n)) return 'image';
+  if(t==='application/pdf' || /\.pdf$/.test(n)) return 'pdf';
+  if(/\.(hwp|hwpx|docx?|pptx?|xlsx?|csv|txt|md|key|pages|numbers)$/.test(n)) return 'doc';
+  if(/\.(zip|7z|rar|tar|gz)$/.test(n)) return 'zip';
+  return 'other';
+}
+const FILE_ICON = { video:'🎬', audio:'🎧', image:'🖼', pdf:'📄', doc:'📝', zip:'🗜', other:'📦' };
+function chatFileUrl(path){ try{ return sb.storage.from('chat-files').getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } }
+function chatFileSafeName(n){ const m=String(n||'file').match(/^(.*?)(\.[A-Za-z0-9]{1,8})?$/); const base=(m[1]||'file').normalize('NFKD').replace(/[^\w\-]+/g,'_').replace(/_+/g,'_').slice(0,60)||'file'; return base+(m[2]||'').toLowerCase(); }
+/* 파일들을 올리고 [{path,name,size,type}] — 실패하면 그때까지 올린 것을 지우고 던진다 */
+async function uploadChatFiles(files, onMsg){
+  const me=state.user&&state.user.id; if(!me) throw new Error('로그인이 필요해요');
+  const out=[];
+  try{
+    for(let i=0;i<files.length;i++){ const f=files[i];
+      if(onMsg) onMsg(`파일 올리는 중… ${i+1}/${files.length} · ${f.name} (${fmtBytes(f.size)})`);
+      const path=`${me}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}/${chatFileSafeName(f.name)}`;
+      const up=await sb.storage.from('chat-files').upload(path, f, { contentType:f.type||'application/octet-stream', cacheControl:'31536000', upsert:false });
+      if(up.error) throw up.error;
+      out.push({ path, name:String(f.name||'파일').slice(0,120), size:f.size||0, type:f.type||'' });
+    }
+  }catch(e){ if(out.length){ try{ await sb.storage.from('chat-files').remove(out.map(x=>x.path)); }catch(_){} } throw e; }
+  return out;
+}
+function chatFileErrMsg(e){
+  const m=String((e&&e.message)||e||'');
+  if(/bucket not found/i.test(m)) return '파일 공유는 아직 준비되지 않았어요 (130_seminar_plan_files.sql 필요).';
+  if(/files|column/i.test(m) && /does not exist|could not find/i.test(m)) return '파일 공유는 아직 준비되지 않았어요 (130_seminar_plan_files.sql 필요).';
+  if(/exceeded|too large|payload|413|size/i.test(m)) return `파일이 너무 커요 — 1개 ${fmtBytes(chatFileMaxBytes())}까지예요. 긴 영상은 YouTube(일부 공개) 링크를 붙여 주세요.`;
+  return '파일을 올리지 못했어요: '+m;
+}
+/* 고른 파일 검사 → chatFilesPick에 넣기. 반환: 경고 문구(없으면 '') */
+function addChatFiles(list){
+  const max=chatFileMaxBytes(); const warn=[];
+  for(const f of list){
+    if(chatFilesPick.length>=CHAT_FILE_MAX_N){ warn.push(`파일은 한 번에 ${CHAT_FILE_MAX_N}개까지예요.`); break; }
+    if(!f.size){ warn.push(`'${f.name}'은 빈 파일이에요.`); continue; }
+    if(f.size>max){ warn.push(`'${f.name}'(${fmtBytes(f.size)})은 ${fmtBytes(max)}를 넘어요.${fileKindOf(f.name,f.type)==='video'?' 긴 영상은 YouTube(일부 공개) 링크로 붙여 주세요.':''}`); continue; }
+    chatFilesPick.push(f);
+  }
+  drawChatFileTray();
+  return warn.join(' ');
+}
+function drawChatFileTray(){
+  const t=$('#chatFileTray'); if(!t) return;
+  t.style.display = chatFilesPick.length ? 'flex' : 'none';
+  t.innerHTML = chatFilesPick.map((f,i)=>{ const k=fileKindOf(f.name,f.type); return `<span class="cf-chip k-${k}"><span class="cf-ic">${FILE_ICON[k]}</span><span class="cf-n">${escapeHtml(f.name)}</span><small>${escapeHtml(fmtBytes(f.size))}</small><button type="button" class="cf-x" data-i="${i}" aria-label="빼기">×</button></span>`; }).join('');
+  t.querySelectorAll('.cf-x').forEach(b=>{ b.onclick=()=>{ chatFilesPick.splice(Number(b.dataset.i),1); drawChatFileTray(); }; });
+}
+function pickChatFiles(){
+  const inp=document.createElement('input'); inp.type='file'; inp.multiple=true;
+  inp.onchange=()=>{ const w=addChatFiles([...(inp.files||[])]); if(w) chatPasteMsg(w, false); };
+  inp.click();
+}
+/* 메시지 안의 파일 카드 */
+function msgFilesHTML(files, mine){
+  const arr=Array.isArray(files)?files:[]; if(!arr.length) return '';
+  return `<div class="msg-files${mine?' mine':''}">${arr.map(f=>{
+    const k=fileKindOf(f.name,f.type), url=chatFileUrl(f.path), dl=url+(url.includes('?')?'&':'?')+'download='+encodeURIComponent(f.name||'file');
+    const cap=`<span class="mf-cap"><span class="mf-ic">${FILE_ICON[k]}</span><span class="mf-n" title="${escapeAttr(f.name||'')}">${escapeHtml(f.name||'파일')}</span><small>${escapeHtml(fmtBytes(f.size||0))}</small><a class="mf-dl" href="${escapeAttr(dl)}" download="${escapeAttr(f.name||'file')}" title="내려받기">저장</a></span>`;
+    if(k==='video') return `<div class="mf mf-video"><video controls preload="metadata" playsinline src="${escapeAttr(url)}"></video>${cap}</div>`;
+    if(k==='audio') return `<div class="mf mf-audio"><audio controls preload="none" src="${escapeAttr(url)}"></audio>${cap}</div>`;
+    if(k==='image') return `<div class="mf mf-image"><img src="${escapeAttr(url)}" alt="" loading="lazy" data-full="${escapeAttr(url)}">${cap}</div>`;
+    if(k==='pdf') return `<div class="mf mf-card">${cap.replace('<span class="mf-cap">',`<span class="mf-cap"><a class="mf-open" href="${escapeAttr(url)}" target="_blank" rel="noopener">열기</a>`)}</div>`;   // 링크 안에 링크를 넣지 않는다
+    return `<div class="mf mf-card">${cap}</div>`;
+  }).join('')}</div>`;
+}
+/* 본문 속 영상 링크 → 누르면 그 자리에서 재생 */
+function ytIdOf(u){
+  try{ const x=new URL(u); const h=x.hostname.replace(/^www\.|^m\./,'');
+    if(h==='youtu.be') return { id:x.pathname.slice(1,12), t:x.searchParams.get('t') };
+    if(h==='youtube.com'||h==='youtube-nocookie.com'||h==='music.youtube.com'){
+      if(x.pathname==='/watch') return { id:x.searchParams.get('v'), t:x.searchParams.get('t') };
+      const m=x.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{11})/); if(m) return { id:m[1], t:x.searchParams.get('t') };
+    } }catch(e){}
+  return null;
+}
+function msgLinkEmbedsHTML(body){
+  const urls=String(body||'').match(/https?:\/\/[^\s<>"')]+/g); if(!urls) return '';
+  const out=[]; const seen=new Set();
+  for(const u of urls.slice(0,3)){
+    const yt=ytIdOf(u);
+    if(yt && /^[\w-]{11}$/.test(yt.id||'') && !seen.has(yt.id)){ seen.add(yt.id);
+      const t=parseInt(String(yt.t||'').replace(/s$/,''),10)||0;
+      out.push(`<div class="mf-yt" data-yt="${escapeAttr(yt.id)}" data-t="${t}"><button type="button" class="mf-ytb"><span class="mf-play">▶</span><span><b>YouTube 영상</b><small>누르면 이 자리에서 재생돼요${t?` · ${Math.floor(t/60)}:${String(t%60).padStart(2,'0')}부터`:''}</small></span></button></div>`); continue; }
+    if(/\.(mp4|webm|m4v|ogv)(\?|#|$)/i.test(u) && !seen.has(u)){ seen.add(u); out.push(`<div class="mf mf-video"><video controls preload="metadata" playsinline src="${escapeAttr(u)}"></video></div>`); }
+  }
+  return out.length ? `<div class="msg-embeds">${out.join('')}</div>` : '';
+}
+document.addEventListener('click', e=>{
+  const b=e.target.closest && e.target.closest('.mf-ytb'); if(!b) return;
+  const box=b.closest('.mf-yt'); const id=box.dataset.yt, t=Number(box.dataset.t)||0;
+  box.innerHTML=`<iframe src="https://www.youtube-nocookie.com/embed/${encodeURIComponent(id)}?autoplay=1&rel=0${t?'&start='+t:''}" title="YouTube 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+  box.classList.add('on');
+});
+document.addEventListener('click', e=>{ const im=e.target.closest && e.target.closest('.mf-image img'); if(im && im.dataset.full) openLightbox(im.dataset.full); });
+
 /* 첨부 트레이(썸네일+삭제) 렌더 */
 function drawPickTray(trayId, arr, onChange){
   const tray=document.getElementById(trayId); if(!tray) return;
@@ -19206,6 +19934,7 @@ async function renderQuestion(qid){
         <div class="typing-bar" id="typingBar"></div>
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="cimg-tray" id="chatTray" style="display:none"></div>
+        <div class="cf-tray" id="chatFileTray" style="display:none"></div>
         <div class="chat-input">
           <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습) · Ctrl 키로 켜기/끄기">
             <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
@@ -19482,8 +20211,8 @@ async function renderLab(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>디지털 물리실</h1></div>
     <div class="kp-tabs lab-tabs" id="labTabs">
-      <button class="kp-tab${tab==='seminar'?' on':''}" data-lt="seminar" aria-keyshortcuts="1">${ic('calendar')}세미나<span class="lt-n" id="ltnSem" hidden></span></button>
-      <button class="kp-tab${tab==='chat'?' on':''}" data-lt="chat" aria-keyshortcuts="2">${ic('chat')}채팅</button>
+      ${(featOn('community')||isOwner())?`<button class="kp-tab${tab==='seminar'?' on':''}" data-lt="seminar" aria-keyshortcuts="1">${ic('calendar')}세미나<span class="lt-n" id="ltnSem" hidden></span></button>
+      <button class="kp-tab${tab==='chat'?' on':''}" data-lt="chat" aria-keyshortcuts="2">${ic('chat')}채팅</button>`:''}
       ${featOn('questions')?`<button class="kp-tab${tab==='q'?' on':''}" data-lt="q" aria-keyshortcuts="3">${ic('help')}질문<span class="lt-n warn" id="ltnQ" hidden></span></button>`:''}
       <span class="kv2-soon">과제는 준비 중</span>
       <span class="kp-tabind" aria-hidden="true"></span>
@@ -19577,7 +20306,7 @@ async function renderRoomList(_nav, into){
   const when=(iso)=>{ if(!iso) return ''; const d=new Date(iso), now=new Date(); const same=d.toDateString()===now.toDateString(); return same ? d.toLocaleTimeString('ko-KR',{hour:'numeric',minute:'2-digit'}) : (d.getFullYear()===now.getFullYear() ? `${d.getMonth()+1}.${d.getDate()}` : `${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`); };
   const hue=(str)=>{ let h=0; for(const ch of String(str)) h=(h*31+ch.charCodeAt(0))>>>0; return h%360; };
   const row=(r)=>{ const k=r.id==null?'general':String(r.id); const m=last[k];
-    const prev = m ? ((m.body||'').trim() ? escapeHtml(String(m.body).replace(/\s+/g,' ').slice(0,60)) : (m.images&&m.images.length?'📷 사진':'')) : '<span class="muted">아직 말이 없어요</span>';
+    const prev = m ? ((m.body||'').trim() ? escapeHtml(String(m.body).replace(/\s+/g,' ').slice(0,60)) : (m.images&&m.images.length?'📷 사진':(Array.isArray(m.files)&&m.files.length?'📎 파일':''))) : '<span class="muted">아직 말이 없어요</span>';
     return `<a class="room" href="${roomHashOf(r.id)}">
       <span class="room-av" style="--h:${hue(r.name)}">${escapeHtml(String(r.name).slice(0,1))}</span>
       <span class="room-main"><span class="room-t"><span class="room-n">${escapeHtml(r.name)}</span>${r.kind==='seminar'?`<span class="sem-tag${r.seminar_status==='ended'?' end':''}${semNotYet(r)?' soon':''}">${r.seminar_status==='ended'?'세미나 · 끝남':semNotYet(r)?`세미나 · ${escapeHtml(semOpensLabel(r))}${r.unlisted?' · 비공개':''}`:'세미나 · LIVE'}</span>`:''}${r.visibility==='members'?`<span class="ch-lock" title="지정한 멤버와 운영진만">${ic('lock')}</span>`:''}<span class="room-when">${m?escapeHtml(when(m.created_at)):''}</span></span>
@@ -19602,6 +20331,7 @@ async function renderCommunity(){
   if(rk==null && community.chOk){ await renderRoomList(_nav); return; }          // 목록 화면
   community.ch = (rk==null || rk==='general') ? null : (Number(rk)||null);
   if(community.ch!=null && !community.channels.some(c=>String(c.id)===String(community.ch))){ location.hash='#//community'; return; }
+  { const sc=semCur(); if(/\/plan(?:[?#]|$)/.test(location.hash)){ if(semIs(sc) && semIsHost(sc)){ renderSemPlan(sc, _nav); return; } location.hash=roomHashOf(community.ch); return; } }   // ★CR: 준비 화면(진행자만)
   { const sc=semCur(); if(semNotYet(sc) && community.forceEnter!==sc.id){ renderSeminarTeaser(sc); return; } community.forceEnter=null; }   // ★CB: 공개 전엔 예고 화면
   { const m=location.hash.match(/\/a\/(\d+)/); if(m) setTimeout(()=>asgOpen(community.ch, Number(m[1])), 900); }                          // ★CH: 알림에서 온 과제
   $('#doc').innerHTML=`
@@ -19613,6 +20343,7 @@ async function renderCommunity(){
         <div class="typing-bar" id="typingBar"></div>
         <div class="chat-hint"><a class="latex-help" id="latexHelp">LaTeX 사용법이 궁금하신가요?</a></div>
         <div class="cimg-tray" id="chatTray" style="display:none"></div>
+        <div class="cf-tray" id="chatFileTray" style="display:none"></div>
         <div class="chat-input">
           <button class="eye-btn" id="eyeBtn" title="미리보기 (LaTeX 적용된 모습) · Ctrl 키로 켜기/끄기">
             <svg viewBox="0 0 48 34" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="42" height="30" aria-hidden="true">
@@ -19624,6 +20355,7 @@ async function renderCommunity(){
             </svg>
           </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능) · 1장 ${LIMITS.lim_chat_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
+          <button class="cimg-btn cfile-btn" id="chatFileBtn" title="파일 · 영상 첨부 (PDF · 문서 · 영상 · 음성 — 1개 ${Math.round(chatFileMaxBytes()/1024/1024)}MB까지, 한 번에 ${CHAT_FILE_MAX_N}개) · 채팅창에 끌어 놓아도 돼요" aria-label="파일 첨부"><svg class="ic20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5l-8.2 8.2a5 5 0 0 1-7.1-7.1l8.6-8.6a3.4 3.4 0 0 1 4.8 4.8l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg></button>
           <textarea id="chatText" maxlength="${LIMITS.lim_chat_chars}" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$) · 최대 ${LIMITS.lim_chat_chars}자"></textarea>
           <button id="chatSend">전송</button>
         </div>
@@ -19674,7 +20406,7 @@ async function renderCommunity(){
   $('#latexHelp').onclick=openLatexGuide;
   initChatSize();                                  // 저장된 채팅창 크기 복원 + 버튼 배선
   renderWorkspace(_nav);                          // ★방 작업 공간(85)
-  _semPending=[]; _semSel=null; if(semIs(semCur())){ try{ await kyptLoadPeople(); }catch(e){} }   // ★108: 진행자 이름·대기 답 준비
+  _semPending=[]; _semSel=null; _semStage=null; if(semIs(semCur())){ try{ await kyptLoadPeople(); }catch(e){} }   // ★108: 진행자 이름·대기 답 준비
   /* ★세션 CJ: 과제 띠는 보류(사용자 결정) — 채팅에 우겨 넣지 않는다. 표·카드·알림은 그대로 두었고 asgMount만 끊었다.
      되살리려면 이 줄의 주석을 풀면 된다: asgMount(community.ch, _nav); */
   await loadMessages();
@@ -19978,14 +20710,14 @@ function semNotYet(c){ return !!(c && c.kind==='seminar' && c.opens_at && new Da
 function semOpensLabel(c){ if(!c||!c.opens_at) return ''; const d=new Date(c.opens_at); const days=Math.ceil((d.getTime()-Date.now())/86400000); const wd=['일','월','화','수','목','금','토'][d.getDay()]; return `${d.getMonth()+1}/${d.getDate()}(${wd}) ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}${days>0?` · D-${days}`:''}`; }
 async function renderSeminarTeaser(c){
   const host=semIsHost(c); try{ await kyptLoadPeople(); }catch(e){}
-  $('#doc').innerHTML=`<div class="doc-head"><h1>${escapeHtml(c.name)}</h1><div class="tabs"><button id="stBack">${ic('back')}채팅</button></div></div>
+  $('#doc').innerHTML=`<div class="doc-head"><h1>${escapeHtml(c.name)}</h1><div class="tabs"><button id="stBack">${ic('back')}물리실</button></div></div>
     <div class="sem-teaser"><div class="sem-tt"><span class="sem-tag">세미나 · 예정</span> <b>${escapeHtml(semOpensLabel(c))}</b> 시작</div>
       <div class="sem-td">진행자 ${escapeHtml(semHostNames(c)||kyptName(c.created_by))}</div>
       ${c.description?`<div class="sem-tdesc">${escapeHtml(c.description)}</div>`:''}
       <p class="sem-tnote">${host?'진행자는 지금 들어가 대본과 슬라이드를 준비할 수 있어요. 부원들은 시작 시각에 들어옵니다.':'시작 시각이 되면 여기로 들어올 수 있어요. 입장 링크는 그때 열립니다.'}</p>
-      ${host?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary" id="stEnter" style="width:auto;padding:8px 16px">방으로 들어가기 (준비)</button><button class="btn" id="stOpenNow" style="width:auto;padding:8px 14px">지금 공개</button></div>`:''}
+      ${host?`<div style="display:flex;gap:8px;flex-wrap:wrap"><a class="btn primary" href="${roomHashOf(c.id)}/plan" style="width:auto;padding:8px 16px">📋 준비 화면</a><button class="btn" id="stEnter" style="width:auto;padding:8px 16px">방으로 들어가기</button><button class="btn" id="stOpenNow" style="width:auto;padding:8px 14px">지금 공개</button></div>`:''}
     </div>`;
-  $('#stBack').onclick=()=>{ location.hash='#//community'; };
+  $('#stBack').onclick=()=>{ location.hash='#//lab'; };   // ★CR: 세미나는 물리실에서 왔다
   const en=$('#stEnter'); if(en) en.onclick=()=>{ community.forceEnter=c.id; renderCommunity(); };
   const on=$('#stOpenNow'); if(on) on.onclick=async()=>{ const ok=await confirmModal('지금 공개할까요?', '부원들이 바로 들어올 수 있게 됩니다.', '공개'); if(!ok) return; const { error } = await sb.from('channels').update({ opens_at:new Date().toISOString() }).eq('id', c.id); if(error){ toast('공개하지 못했어요: '+(error.message||'')); return; } c.opens_at=new Date().toISOString(); toast('공개했어요.'); renderCommunity(); };
 }
@@ -19994,11 +20726,39 @@ function semIsHost(c){ c=c||semCur(); const me=state.user&&state.user.id; if(!c|
 function semHostNames(c){ return ((c&&c.hosts)||[]).map(u=>kyptName(u)).join(' · '); }
 function semSlideUrl(path){ try{ return sb.storage.from('seminar').getPublicUrl(path).data.publicUrl; }catch(e){ return ''; } }
 let _semPoll=null, _semVotes=[], _semSlides=[], _semSel=null, _semRt=null;
+function semHeadDraw(c){ c=c||semCur(); const hn=$('#chatHeadN'); if(hn && c) hn.textContent = `세미나 · 진행자 ${semHostNames(c)||kyptName(c.created_by)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':semNotYet(c)?` · ${semOpensLabel(c)} 공개 예정(준비 중)`:''}`; }
+/* ★세션 CR: 학생 화면 '지금 화면' — 방에 마지막으로 올라온 슬라이드를 크게. 넓은 화면은 왼쪽 큰 칸(채팅은 오른쪽),
+   좁은 화면은 채팅 위(접을 수 있음, 기기마다 기억). 진행자는 자기 패널이 있어 그리지 않는다.
+   ※자동 '고정'(channels.pinned)과는 다르다 — 서버에 아무것도 쓰지 않고, 각자 화면에서 마지막 슬라이드를 따라갈 뿐. */
+let _semStage=null;
+function semStageSet(m){ if(!m || !m.images || !m.images[0]) return; if(_semStage && _semStage.mid===m.id) return; _semStage={ url:m.images[0], body:m.body||'', at:m.created_at, mid:m.id }; semStageDraw(); }
+function semStageClosed(){ try{ return localStorage.getItem('anda_stage_closed')==='1'; }catch(e){ return false; } }
+function semStageDraw(){
+  const c=semCur(); const hub=document.querySelector('.hub.room-view'); if(!hub) return;
+  let st=$('#semStage');
+  if(!semIs(c) || semIsHost(c) || !_semStage){ if(st) st.remove(); hub.classList.remove('sem-stuv'); return; }
+  if(!st){ st=document.createElement('section'); st.id='semStage'; st.className='sem-stage'; hub.insertBefore(st, hub.firstChild); }
+  hub.classList.add('sem-stuv');
+  const closed=semStageClosed(); st.classList.toggle('closed', closed);
+  const S=_semStage;
+  st.innerHTML=`<div class="stg-h"><span class="stg-live">지금 화면</span><span class="stg-t">${escapeHtml(fmtKST(S.at)||'')}</span><button type="button" class="stg-tog" aria-expanded="${!closed}">${closed?'펼치기 ▾':'접기 ▴'}</button></div>
+    <div class="stg-body"><img src="${escapeAttr(S.url)}" alt="지금 슬라이드" data-full="${escapeAttr(S.url)}">${S.body?`<div class="stg-cap">${escapeHtml(S.body)}</div>`:''}</div>`;
+  st.querySelector('.stg-tog').onclick=()=>{ try{ localStorage.setItem('anda_stage_closed', semStageClosed()?'0':'1'); }catch(e){} semStageDraw(); };
+  st.querySelector('.stg-body img').onclick=()=>openLightbox(S.url);
+  const cap=st.querySelector('.stg-cap'); if(cap) renderMath(cap);
+  // 고정 상자가 같은 슬라이드면 두 번 보이지 않게
+  const pin=$('#semPin'); if(pin){ const p=c.pinned; pin.classList.toggle('dup', !!(p && p.type==='slide' && p.url===S.url)); }
+}
+/* 학생: 답 골라 내리기 방에서 '내 답 확인 중 n개' */
+function semStuNoteDraw(){
+  const n=$('#semStuNote'); if(!n) return; const k=document.querySelectorAll('#chatLog .sem-wait:not(.done)').length;
+  n.innerHTML=`이 방은 답을 진행자가 골라 올려요. 보낸 답은 먼저 진행자에게 가니 한 번만 보내 주세요. 수식은 $x^2$처럼.${k?` <b class="stu-wait">내 답 확인 중 ${k}</b>`:''}`;
+}
 /* 머리 + 고정 상자 + 슬라이드 탭 + 투표 카드 + 대기 답 타일 */
 async function semMount(_nav){
   const c=semCur(); if(!semIs(c)) return;
   const host=semIsHost(c);
-  const hn=$('#chatHeadN'); if(hn) hn.textContent = `세미나 · 진행자 ${semHostNames(c)||kyptName(c.created_by)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':semNotYet(c)?` · ${semOpensLabel(c)} 공개 예정(준비 중)`:''}`;
+  semHeadDraw(c);
   { const bk=$('#chatBack'); if(bk) bk.href='#//lab'; }        // ★CJ: 세미나는 물리실에서 왔다
   const head=document.querySelector('.chat-head');
   if(head && !head.querySelector('.sem-link')){ const b=document.createElement('button'); b.className='sem-link'; b.textContent='입장 링크 복사'; b.onclick=async()=>{ try{ await navigator.clipboard.writeText(semJoinUrl(c.join_code)); toast('입장 링크를 복사했어요.'); }catch(e){ toast(semJoinUrl(c.join_code)); } }; head.insertBefore(b, $('#chatMore')); }
@@ -20010,22 +20770,27 @@ async function semMount(_nav){
   if(host && chat && !$('#semTools')){ const d=document.createElement('div'); d.id='semTools'; d.className='sem-tools'; chat.insertBefore(d, $('#semPin')); }
   semToolsDraw();
   semDrawPin(); semQueueDraw();
-  if(!host && c.moderated && chat && !$('#semStuNote')){ const d=document.createElement('div'); d.id='semStuNote'; d.className='sem-stunote'; d.textContent='이 방은 답을 진행자가 골라 올려요. 보낸 답은 먼저 진행자에게 가니 한 번만 보내 주세요. 수식은 $x^2$처럼.'; chat.insertBefore(d, $('#chatPreview')); }
+  if(!host && c.moderated && chat && !$('#semStuNote')){ const d=document.createElement('div'); d.id='semStuNote'; d.className='sem-stunote'; chat.insertBefore(d, $('#chatPreview')); }
+  semStuNoteDraw(); semStageDraw();                                                         // ★CR
   // 참석
   try{ const me=state.user.id; await sb.from('seminar_attendance').upsert({ channel_id:c.id, uid:me, last_at:new Date().toISOString() }, { onConflict:'channel_id,uid' }); }catch(e){}
   // 슬라이드 탭 + 대본 큐(진행자)
   if(host){ const side=document.querySelector('.hub-side');
+    { const hv=document.querySelector('.hub.room-view'); if(hv) hv.classList.add('sem-hostv'); }                              // ★CR: 진행자는 오른쪽을 넓게
     if(side && !$('#semSlides')){ const d=document.createElement('section'); d.id='semSlides'; d.className='sem-sp'; side.insertBefore(d, side.firstChild); }
     if(side && !$('#semScript')){ const d=document.createElement('section'); d.id='semScript'; d.className='sem-sp'; side.insertBefore(d, side.firstChild); }
+    if(side && !$('#semNow')){ const d=document.createElement('section'); d.id='semNow'; d.className='sem-sp pv'; side.insertBefore(d, side.firstChild); }
+    if(chat && !$('#semNowBar')){ const d=document.createElement('div'); d.id='semNowBar'; d.className='sem-nowbar'; chat.insertBefore(d, $('#semPin')); }
     await semSlidesLoad(); semSlidesDraw(); await semScriptLoad(); semScriptDraw(); }
   // 투표
   await semPollLoad(); semPollDraw();
   // 실시간: 방 행(고정·모드·끝) · 투표 · 표
   if(_semRt){ try{ sb.removeChannel(_semRt); }catch(e){} }
   _semRt = sb.channel('sem-'+c.id)
-    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'channels', filter:'id=eq.'+c.id }, p=>{ Object.assign(c, p.new||{}); semDrawPin(); semToolsDraw(); const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)}${c.seminar_status==='ended'?' · 끝남(하루 뒤 보관함으로)':''}`; })
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'channels', filter:'id=eq.'+c.id }, p=>{ Object.assign(c, p.new||{}); semDrawPin(); semToolsDraw(); semHeadDraw(c); })
     .on('postgres_changes', { event:'*', schema:'public', table:'seminar_polls', filter:'channel_id=eq.'+c.id }, async()=>{ await semPollLoad(); semPollDraw(); })
     .on('postgres_changes', { event:'*', schema:'public', table:'seminar_votes' }, async p=>{ if(_semPoll && String((p.new||p.old||{}).poll_id)===String(_semPoll.id)){ await semPollLoad(); semPollDraw(); } })
+    .on('postgres_changes', { event:'*', schema:'public', table:'seminar_script', filter:'channel_id=eq.'+c.id }, ()=>{ if(!host || document.querySelector('.sem-sc.editing')) return; clearTimeout(window._semScT); window._semScT=setTimeout(async()=>{ await semScriptLoad(); semScriptDraw(); }, 250); })   // ★CR: 공동 진행자 화면도 같이
     .subscribe();
 }
 /* ★세션 CD: ⋯ 메뉴를 해체 — 진행자 도구를 머리 아래 띠에 전부 꺼내 둔다 */
@@ -20035,8 +20800,7 @@ function semToolsDraw(){
   box.innerHTML=`
     <button class="sem-tb${c.moderated?' on':''}" data-a="mod" title="켜면 부원의 답이 먼저 진행자에게 오고, 골라서 공개합니다">${c.moderated?'답 골라 내리기: 켬':'답 골라 내리기: 끔'}</button>
     <button class="sem-tb" data-a="poll">📊 투표 시작</button>
-    <button class="sem-tb" data-a="newline">＋ 대본 추가</button>
-    <button class="sem-tb" data-a="fire">▶ 대본 발사</button>
+    <a class="sem-tb" href="${roomHashOf(c.id)}/plan">📋 준비 화면</a>
     ${c.pinned?'<button class="sem-tb" data-a="unpin">📌 고정 해제</button>':'<span class="sem-tb dim" title="메시지의 📌나 슬라이드 올리기로 고정합니다">📌 고정 없음</span>'}
     ${semNotYet(c)?'<button class="sem-tb" data-a="opennow">지금 공개</button>':''}
     <button class="sem-tb" data-a="ws">작업 공간 · 접속 중</button>
@@ -20076,12 +20840,12 @@ async function semSlidesLoad(){
 }
 let _semSlSel=new Set();
 function semSlidesDraw(){
-  const box=$('#semSlides'); if(!box) return; const c=semCur();
+  const box=$('#semSlides'); if(!box){ if($('#spSide')) semPlanSideDraw(); return; } const c=semCur();   // ★CR: 준비 화면
   const files={}; _semSlides.forEach(s=>{ const f=s.seminar_files||{}; (files[s.file_id]=files[s.file_id]||{ name:f.name||'파일', pages:f.pages||0, slides:[] }).slides.push(s); });
-  const inScript=new Set(_semScript.filter(x=>x.kind==='slide').map(x=>String((x.payload||{}).page)));
+  const inScript=new Set(_semScript.filter(x=>x.kind==='slide').map(x=>{ const sl=semSlideOf(x.payload); return sl?String(sl.id):''; }));   // ★CR: 쪽 id로
   box.innerHTML=`<div class="sem-sph">🎞 파일 <small>진행자만</small></div><div class="sem-sphint">클릭 선택 · Shift/Ctrl 여러 개 · 더블클릭 = 대본에</div>
     ${Object.keys(files).length?Object.entries(files).map(([fid,f])=>{ const tot=f.slides.reduce((a,s)=>a+(s.bytes||0),0); return `<div class="sem-file"><b>PDF</b> ${escapeHtml(f.name)} <span>${f.slides.length}/${f.pages}쪽${tot?` · ${Math.round(tot/1024)}KB`:''}</span></div>
-      <div class="sem-thumbs">${f.slides.map(s=>`<button type="button" class="sem-th${_semSlSel.has(s.id)?' on':''}" data-sid="${s.id}" data-page="${s.page}" data-total="${f.pages}" data-path="${escapeAttr(s.path)}"><img src="${escapeAttr(semSlideUrl(s.path))}" alt="" loading="lazy"><span class="k">${s.page}${s.bytes?`<small>${Math.round(s.bytes/1024)}KB</small>`:''}</span>${inScript.has(String(s.page))?'<span class="st">대본</span>':''}</button>`).join('')}</div>`; }).join('')
+      <div class="sem-thumbs">${f.slides.map(s=>`<button type="button" class="sem-th${_semSlSel.has(s.id)?' on':''}" data-sid="${s.id}" data-page="${s.page}" data-total="${f.pages}" data-path="${escapeAttr(s.path)}"><img src="${escapeAttr(semSlideUrl(s.path))}" alt="" loading="lazy"><span class="k">${s.page}${s.bytes?`<small>${Math.round(s.bytes/1024)}KB</small>`:''}</span>${inScript.has(String(s.id))?'<span class="st">대본</span>':''}</button>`).join('')}</div>`; }).join('')
       :'<p class="sem-empty">아직 올린 파일이 없어요.</p>'}
     <div class="sem-spf"><label class="btn" style="width:auto;padding:6px 12px;cursor:pointer">PDF 올리기<input type="file" accept="application/pdf" id="semPdf" style="display:none"></label>
       ${_semSlides.length?`<button class="btn primary" id="semToScript" style="width:auto;padding:6px 12px"${_semSlSel.size?'':' disabled'}>선택 ${_semSlSel.size||''}쪽 대본에</button><button class="btn" id="semSlDel" style="width:auto;padding:6px 10px"${_semSlSel.size?'':' disabled'}>선택 삭제</button>`:''}</div>
@@ -20099,15 +20863,23 @@ function semSlidesDraw(){
   $('#semPdf').onchange=(e)=>{ const f=e.target.files&&e.target.files[0]; if(f) semUploadPdf(f); };
 }
 async function semSlidesToScript(){
-  const c=semCur(); const pages=_semSlides.filter(s=>_semSlSel.has(s.id)).map(s=>s.page).sort((a,b)=>a-b); if(!c||!pages.length) return;
-  semSnap(); let ord=_semScript.length; const rows=pages.map(p=>({ channel_id:c.id, ord:++ord, kind:'slide', payload:{ page:p } }));
+  const c=semCur(); const sel=_semSlides.filter(s=>_semSlSel.has(s.id)).sort((a,b)=>(a.file_id-b.file_id)||(a.page-b.page)); const pages=sel.map(s=>s.page); if(!c||!pages.length) return;
+  semSnap(); let ord=_semScript.length; const rows=sel.map(s=>({ channel_id:c.id, ord:++ord, kind:'slide', payload:{ page:s.page, file_id:s.file_id, sid:s.id } }));   // ★CR: 어느 파일의 쪽인지까지
   const { error } = await sb.from('seminar_script').insert(rows); if(error){ toast('대본에 넣지 못했어요: '+(error.message||'')); return; }
   _semSlSel.clear(); await semScriptLoad(); semScriptDraw(); semSlidesDraw(); toast(`${pages.length}쪽을 대본에 넣었어요.`);
 }
-async function semPostSlide(page){
-  const c=semCur(); const sl=[..._semSlides].reverse().find(s=>Number(s.page)===Number(page)); if(!c||!sl) return;
+/* ★CR: 대본 슬라이드 항목 → 실제 쪽. payload {sid, file_id, page}. 옛 항목은 page만 있어 '마지막에 올린 파일의 그 쪽' */
+function semSlideOf(pl){
+  pl = (typeof pl==='number') ? { page:pl } : (pl||{});
+  if(pl.sid!=null){ const s=_semSlides.find(x=>String(x.id)===String(pl.sid)); if(s) return s; }
+  if(pl.file_id!=null){ const s=_semSlides.find(x=>String(x.file_id)===String(pl.file_id) && Number(x.page)===Number(pl.page)); if(s) return s; }
+  return [..._semSlides].reverse().find(x=>Number(x.page)===Number(pl.page)) || null;
+}
+function semFileName(fid){ const s=_semSlides.find(x=>String(x.file_id)===String(fid)); return (s && s.seminar_files && s.seminar_files.name) || ''; }
+async function semPostSlide(pl, caption){
+  const c=semCur(); const sl=semSlideOf(pl); if(!c||!sl) return;
   const url=semSlideUrl(sl.path); const total=(sl.seminar_files||{}).pages||0;
-  const row={ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:'', question_id:null, images:[url], channel_id:c.id, kind:'slide' };
+  const row={ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:String(caption||''), question_id:null, images:[url], channel_id:c.id, kind:'slide' };   // ★CR: 한 줄 설명
   const { data, error } = await sb.from('messages').insert(row).select().single();
   if(error){ toast('올리지 못했어요: '+(error.message||'')); return; }
   /* 자동 고정은 하지 않는다(사용자 결정) — 고정은 메시지의 📌로 */
@@ -20120,10 +20892,11 @@ function loadPdfjs(){
   _pdfjsP=new Promise((res,rej)=>{ const s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js'; s.onload=()=>{ window.pdfjsLib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js'; res(window.pdfjsLib); }; s.onerror=()=>rej(new Error('pdf.js를 불러오지 못했어요')); document.head.appendChild(s); });
   return _pdfjsP;
 }
-const SEM_PDF_MAX = 20*1024*1024;
+const SEM_PDF_MAX = 20*1024*1024;                     // (기본값 — ★CQ: 실제 상한은 semPdfMax() = [상한]의 lim_sem_pdf_kb)
+function semPdfMax(){ return (Number(LIMITS.lim_sem_pdf_kb)||SEM_PDF_MAX/1024)*1024; }
 async function semUploadPdf(file){
   const c=semCur(); const m=$('#semMsg'); if(!c) return;
-  if(file.size > SEM_PDF_MAX){ m.className='msg err'; m.textContent=`파일은 20MB까지예요 (지금 ${(file.size/1024/1024).toFixed(1)}MB). PDF를 "축소된 크기"로 다시 저장해 주세요.`; return; }
+  if(file.size > semPdfMax()){ m.className='msg err'; m.textContent=`파일은 ${Math.round(semPdfMax()/1024/1024)}MB까지예요 (지금 ${(file.size/1024/1024).toFixed(1)}MB). PDF를 "축소된 크기"로 다시 저장해 주세요.`; return; }
   const prog=(i,n,txt)=>{ m.className='msg'; m.innerHTML=`<div class="sem-prog"><div class="sem-progb" style="width:${Math.round(i*100/Math.max(1,n))}%"></div></div><div class="sem-progt">${escapeHtml(txt)}</div>`; };
   try{
     prog(0,1,'PDF를 읽는 중…');
@@ -20160,6 +20933,338 @@ async function semUploadPdf(file){
     const mm=$('#semMsg'); if(mm){ mm.className = failed.length?'msg err':'msg'; mm.textContent = `${done}쪽 준비됐어요 · 합계 ${Math.round(total/1024)}KB · 장당 평균 ${done?Math.round(total/1024/done):0}KB${failed.length?` · 실패 ${failed.length}쪽 (${failed.slice(0,8).join(', ')}${failed.length>8?'…':''}) — 다시 올리면 채워져요`:''}`; }
   }catch(e){ m.className='msg err'; m.textContent='올리지 못했어요: '+((e&&e.message)||e); }
 }
+/* ================== ★세션 CR: 세미나 준비 화면  #//community/<방>/plan ==================
+   대본(seminar_script)을 넓은 화면에서 '계획'으로 짠다. 진행 화면의 대본 목록과 같은 표를 쓰므로 여기서 고치면 거기도 바뀐다.
+   종류: 말(text) · 장(section — 발사 안 됨, 진행 중 '지금 장' 표시) · 슬라이드(slide + 한 줄 설명) · 투표(poll — 발사하면 그 자리에서 열림)
+         · 멈춤(pause) · 파일(file — 발사하면 파일이 채팅에). 항목마다 진행자 메모(note — 진행 화면 '다음' 카드에만)와 예상 시간(est_sec).
+   장·투표·파일·메모·예상 시간은 130이 필요 — 없으면 말·슬라이드·멈춤만(우아한 실패). */
+const SEM_KINDS = {
+  text:   { ic:'💬', t:'말',     est:45 },
+  section:{ ic:'§',  t:'장',     est:0  },
+  slide:  { ic:'🎞', t:'슬라이드', est:60 },
+  poll:   { ic:'📊', t:'투표',    est:90 },
+  pause:  { ic:'⏸', t:'멈춤',    est:60 },
+  file:   { ic:'📎', t:'파일',    est:30 },
+};
+const SEM_POLL_KINDS = [['ox','O / X'],['scale5','1~5'],['mc','객관식'],['short','단답']];
+let _semPlanOk = null;                 // 130(note·est_sec·새 종류) 적용 여부
+let _planSel = null;                   // 고른 항목 — 새 항목은 그 뒤에 들어간다
+const _spNoteOpen = new Set();
+const _spTimers = {};
+function semEst(it){ return it.est_sec!=null ? Number(it.est_sec) : ((SEM_KINDS[it.kind]||{}).est||0); }
+function fmtDur(sec){ sec=Math.max(0,Math.round(Number(sec)||0)); const h=Math.floor(sec/3600), m=Math.floor(sec%3600/60), x=sec%60; return h ? `${h}:${String(m).padStart(2,'0')}:${String(x).padStart(2,'0')}` : `${m}:${String(x).padStart(2,'0')}`; }
+function parseDur(v){ v=String(v||'').trim().replace(/\s+/g,''); if(!v) return null; let m;
+  if((m=v.match(/^(\d+):(\d{1,2})$/))) return Number(m[1])*60+Number(m[2]);
+  if((m=v.match(/^(\d+(?:\.\d+)?)(분|m|min)?$/i))) return Math.round(Number(m[1])*60);
+  if((m=v.match(/^(\d+)(분|m)(\d+)(초|s)?$/i))) return Number(m[1])*60+Number(m[3]);
+  if((m=v.match(/^(\d+)(초|s|sec)$/i))) return Number(m[1]);
+  return undefined; }
+async function semPlanProbe(){
+  if(_semPlanOk!=null) return _semPlanOk;
+  try{ const r=await sb.from('seminar_script').select('note,est_sec').limit(1); _semPlanOk=!r.error; }catch(e){ _semPlanOk=false; }
+  return _semPlanOk;
+}
+function semNeeds130(row){ return ['section','poll','file'].includes(row.kind) || (row.note!=null && row.note!=='') || row.est_sec!=null; }
+/* 순서 저장 — 바뀐 줄만, 8개씩 동시에 */
+async function semPlanSetOrder(ids){
+  const cur=new Map(_semScript.map(x=>[x.id, x.ord])); const todo=[];
+  ids.forEach((id,i)=>{ if(cur.get(id)!==i+1) todo.push([id,i+1]); });
+  for(let i=0;i<todo.length;i+=8) await Promise.all(todo.slice(i,i+8).map(([id,ord])=>sb.from('seminar_script').update({ ord }).eq('id', id)));
+  await semScriptLoad();
+}
+/* 새 항목들 — 고른 항목 뒤(없으면 끝)에 */
+async function semPlanInsert(rows, afterId){
+  const c=semCur(); if(!c || !rows.length) return null;
+  if(rows.some(semNeeds130) && !(await semPlanProbe())){ toast('장 · 투표 · 파일 · 진행자 메모 · 예상 시간은 130_seminar_plan_files.sql이 필요해요.'); return null; }
+  const list=_semScript; const ref = afterId!==undefined ? afterId : _planSel;
+  let at = ref!=null ? list.findIndex(x=>x.id===ref)+1 : list.length; if(at<=0) at=list.length;
+  semSnap();
+  const ins=rows.map((r,i)=>Object.assign({ channel_id:c.id, ord:list.length+i+1 }, r));
+  const { data, error } = await sb.from('seminar_script').insert(ins).select();
+  if(error){ toast('넣지 못했어요: '+(error.message||'')); return null; }
+  const got=(data||[]).sort((a,b)=>a.ord-b.ord).map(x=>x.id);
+  await semPlanSetOrder([...list.slice(0,at).map(x=>x.id), ...got, ...list.slice(at).map(x=>x.id)]);
+  if(got.length) _planSel=got[got.length-1];
+  return data;
+}
+async function semPlanPatch(id, patch){
+  const it=_semScript.find(x=>x.id===id); if(!it) return false;
+  if(('note' in patch || 'est_sec' in patch) && !(await semPlanProbe())){ toast('진행자 메모 · 예상 시간은 130_seminar_plan_files.sql이 필요해요.'); return false; }
+  const { error } = await sb.from('seminar_script').update(patch).eq('id', id);
+  if(error){ toast('저장하지 못했어요: '+(error.message||'')); return false; }
+  Object.assign(it, patch); semPlanSumDraw(); return true;
+}
+function semPlanSave(id, patch, el){       // 글자 칸: 입력이 멈추면 저장
+  clearTimeout(_spTimers[id]);
+  const st=el && el.closest('.sp-it') && el.closest('.sp-it').querySelector('.sp-saved'); if(st){ st.textContent='저장 중…'; st.classList.add('on'); }
+  _spTimers[id]=setTimeout(async()=>{ const ok=await semPlanPatch(id, patch); if(st){ st.textContent = ok ? '저장됨' : '저장 실패'; setTimeout(()=>st.classList.remove('on'), 1200); } }, 600);
+}
+/* 텍스트 문법 — 붙여넣기·내보내기 둘 다 (빈 줄로 항목 구분)
+   # 장 제목 · --- 멈춤 · [파일 3] / [슬라이드 3] 그 쪽 · ? 질문  (O/X)  · ?1-5 질문 · ?단답 질문 · ? 질문 / A / B / C (객관식)
+   > 메모 (그 항목의 진행자 메모) · 첫 줄 끝 (2분) · (1:30) · (45초) = 예상 시간 */
+function semPlanParse(text){
+  const blocks=String(text||'').replace(/\r/g,'').split(/\n\s*\n/).map(b=>b.trim()).filter(Boolean);
+  const lastFile=_semSlides.length ? _semSlides[_semSlides.length-1].file_id : null;
+  const rows=[];
+  for(const b of blocks){
+    const lines=b.split('\n'); const notes=lines.filter(l=>/^>\s?/.test(l)).map(l=>l.replace(/^>\s?/,'')); let body=lines.filter(l=>!/^>\s?/.test(l)).join('\n').trim();
+    let est=null; const em=body.match(/\s*[(（]\s*(\d+(?::\d{1,2})?\s*(?:분|초|m|s|min)?(?:\s*\d+\s*초)?)\s*[)）]\s*$/m);
+    if(em && body.split('\n')[0].includes(em[0].trim())){ const d=parseDur(em[1]); if(d!=null && d!==undefined){ est=d; body=body.replace(em[0],'').trim(); } }
+    const row={};
+    let m;
+    if(body==='---' || body==='⏸'){ row.kind='pause'; }
+    else if((m=body.match(/^#\s+(.+)$/))) { row.kind='section'; row.body=m[1].trim().slice(0,80); }
+    else if((m=body.match(/^\[(?:파일|슬라이드|쪽)\s*(\d+)\](?:\s+([\s\S]+))?$/))) { row.kind='slide'; row.payload=lastFile!=null?{ page:Number(m[1]), file_id:lastFile }:{ page:Number(m[1]) }; if(m[2]) row.body=m[2].trim(); }
+    else if((m=body.match(/^\?(1-5|1~5|단답|ox|OX)?\s+([\s\S]+)$/))) {
+      const tag=(m[1]||'').toLowerCase(); let q=m[2].trim(); let pkind = tag==='1-5'||tag==='1~5' ? 'scale5' : tag==='단답' ? 'short' : 'ox'; let options=null;
+      if(!tag && q.includes(' / ')){ const parts=q.split(' / ').map(x=>x.trim()).filter(Boolean); q=parts.shift(); options=parts.slice(0,6); if(options.length>=2) pkind='mc'; else options=null; }
+      row.kind='poll'; row.payload={ pkind, question:q.slice(0,120), options };
+    }
+    else { row.kind='text'; row.body=body; }
+    if(notes.length) row.note=notes.join('\n').slice(0,2000);
+    if(est!=null) row.est_sec=est;
+    rows.push(row);
+  }
+  return rows;
+}
+function semPlanExport(){
+  return _semScript.map(it=>{ const pl=it.payload||{}; let t;
+    const tail = it.est_sec!=null ? ` (${fmtDur(it.est_sec)})` : '';
+    if(it.kind==='pause') t='---';
+    else if(it.kind==='section') t='# '+(it.body||'')+tail;
+    else if(it.kind==='slide') t=`[파일 ${pl.page||''}]${tail}${it.body?' '+it.body:''}`;
+    else if(it.kind==='poll') t = pl.pkind==='mc' ? `? ${pl.question||''} / ${(pl.options||[]).join(' / ')}${tail}` : `?${pl.pkind==='scale5'?'1-5':pl.pkind==='short'?'단답':''} ${pl.question||''}${tail}`;
+    else if(it.kind==='file') t=`${it.body||''}${tail}\n> (파일 ${(pl.files||[]).length}개 — 텍스트로는 옮겨지지 않아요)`.trim();
+    else t=(it.body||'')+tail;
+    if(it.note) t+='\n'+String(it.note).split('\n').map(l=>'> '+l).join('\n');
+    return t; }).join('\n\n');
+}
+function semPlanStats(){
+  const L=_semScript; const total=L.reduce((a,x)=>a+semEst(x),0);
+  return { n:L.filter(x=>x.kind!=='section').length, sec:L.filter(x=>x.kind==='section').length, total,
+    slides:L.filter(x=>x.kind==='slide').length, polls:L.filter(x=>x.kind==='poll').length, fired:L.filter(x=>x.fired_at).length };
+}
+function semPlanSumDraw(){
+  const box=$('#spSum'); if(!box) return; const c=semCur(); const st=semPlanStats();
+  box.innerHTML=`<span><b>${st.n}</b> 항목</span>${st.sec?`<span><b>${st.sec}</b> 장</span>`:''}<span>예상 <b>${fmtDur(st.total)}</b></span>${st.slides?`<span>🎞 ${st.slides}</span>`:''}${st.polls?`<span>📊 ${st.polls}</span>`:''}
+    <span class="sp-when">${c&&c.opens_at?(semNotYet(c)?'공개 '+escapeHtml(semOpensLabel(c)):'공개됨'):'바로 공개'}</span>
+    ${st.fired?`<span class="sp-firedn">발사된 항목 ${st.fired}개 <button class="btn" id="spReset" style="width:auto;padding:3px 10px">처음부터 다시</button></span>`:''}`;
+  const rb=$('#spReset'); if(rb) rb.onclick=semPlanReset;
+}
+async function semPlanReset(){
+  const c=semCur(); if(!c) return;
+  const ok=await confirmModal('대본을 처음부터 다시 쓸 수 있게 할까요?', '발사 표시만 지워요(리허설 뒤에). 이미 채팅에 올라간 메시지 · 슬라이드는 그대로 남아요.', '처음부터'); if(!ok) return;
+  const { error } = await sb.from('seminar_script').update({ fired_at:null, fired_msg_id:null }).eq('channel_id', c.id).not('fired_at','is',null);
+  if(error){ toast('되돌리지 못했어요: '+(error.message||'')); return; }
+  await semScriptLoad(); semScriptDraw(); semPlanDraw(); toast('처음부터 다시 발사할 수 있어요.');
+}
+function spPreviewMain(it){
+  const pl=it.payload||{};
+  if(it.kind==='section') return `<input class="sp-sec-in" data-f="body" value="${escapeAttr(it.body||'')}" placeholder="장 제목 — 예: 1. 문제 소개" maxlength="80">`;
+  if(it.kind==='slide'){ const sl=semSlideOf(pl);
+    return `<div class="sp-slide">${sl?`<img src="${escapeAttr(semSlideUrl(sl.path))}" alt="" loading="lazy">`:'<span class="sp-miss">쪽 없음<small>PDF를 올리면 이어져요</small></span>'}<div class="sp-slr"><b>${escapeHtml(semScriptItemLabel(it).replace(/^🎞\s*/,''))}</b>
+      <textarea class="sp-ta sm" data-f="body" rows="1" placeholder="(선택) 슬라이드와 함께 올릴 한 줄 설명">${escapeHtml(it.body||'')}</textarea></div></div>`; }
+  if(it.kind==='poll'){ const pk=pl.pkind||'ox';
+    return `<div class="sp-poll"><input class="sp-in" data-pf="question" value="${escapeAttr(pl.question||'')}" placeholder="투표 질문 — 예: 주기는 길이에 비례할까?" maxlength="120">
+      <span class="seg sp-pk">${SEM_POLL_KINDS.map(([k,l])=>`<button type="button" data-pk="${k}" class="${pk===k?'on':''}">${l}</button>`).join('')}</span>
+      ${pk==='mc'?`<input class="sp-in" data-pf="options" value="${escapeAttr((pl.options&&pl.options.length?pl.options:['A','B','C','D']).join(', '))}" placeholder="보기 — 쉼표로: A, B, C (최대 6개)">`:''}
+      <small class="sp-hintl">발사하면 그 자리에서 투표가 열려요. 결과는 [결과 공개]를 누를 때 부원에게 보여요.</small></div>`; }
+  if(it.kind==='pause') return `<div class="sp-pause">⏸ 여기서 멈추고 답을 기다려요<input class="sp-in" data-f="body" value="${escapeAttr(it.body||'')}" placeholder="(선택) 무엇을 기다리는지 — 진행자에게만 보여요" maxlength="120"></div>`;
+  if(it.kind==='file') return `<div class="sp-file"><div class="sp-fchips">${(pl.files||[]).map((f,i)=>{ const k=fileKindOf(f.name,f.type); return `<span class="cf-chip k-${k}"><span class="cf-ic">${FILE_ICON[k]}</span><span class="cf-n">${escapeHtml(f.name)}</span><small>${escapeHtml(fmtBytes(f.size||0))}</small><button type="button" class="cf-x" data-rmf="${i}" aria-label="빼기">×</button></span>`; }).join('')}
+      <button type="button" class="btn sp-addf" data-act="addfile" style="width:auto;padding:4px 10px">＋ 파일 고르기</button></div>
+      <textarea class="sp-ta sm" data-f="body" rows="1" placeholder="(선택) 파일과 함께 올릴 말 — 예: 실험 영상이에요. 3초쯤을 봐 주세요.">${escapeHtml(it.body||'')}</textarea></div>`;
+  return `<textarea class="sp-ta" data-f="body" rows="2" placeholder="채팅에 올릴 말 · 수식 $x^2$ · YouTube 링크를 넣으면 그 자리에서 재생돼요 · Ctrl+Enter = 아래에 새 말">${escapeHtml(it.body||'')}</textarea>`;
+}
+function semPlanDraw(){
+  const box=$('#spPlan'); if(!box) return;
+  const L=_semScript;
+  if(!L.length){ box.innerHTML=`<div class="sp-empty"><b>아직 대본이 없어요.</b><p>위의 [＋ 말]부터 시작하거나, 오른쪽에 PDF를 올리면 쪽마다 항목이 생겨요. 메모장에 써 둔 계획이 있으면 [글로 쓰기]에 붙여 넣으세요.</p></div>`; semPlanSumDraw(); return; }
+  // 장마다 예상 시간
+  const secT={}; let curSec=null; L.forEach(x=>{ if(x.kind==='section'){ curSec=x.id; secT[curSec]=0; } else if(curSec!=null) secT[curSec]+=semEst(x); });
+  let no=0;
+  box.innerHTML=L.map(it=>{ const K=SEM_KINDS[it.kind]||SEM_KINDS.text; const isSec=it.kind==='section'; if(!isSec) no++;
+    const noteOpen = !!it.note || _spNoteOpen.has(it.id);
+    return `<div class="sp-it k-${it.kind}${it.fired_at?' fired':''}${_planSel===it.id?' sel':''}" data-id="${it.id}">
+      <span class="sp-grip" draggable="true" title="끌어서 옮기기">⋮⋮</span>
+      <span class="sp-no">${isSec?'':no}</span>
+      <span class="sp-k" title="${escapeAttr(K.t)}">${K.ic}</span>
+      <div class="sp-main">${spPreviewMain(it)}
+        ${noteOpen?`<textarea class="sp-note" data-f="note" rows="1" placeholder="진행자 메모 — 진행 화면의 '다음' 카드에만 보여요 (부원에게 안 보임)">${escapeHtml(it.note||'')}</textarea>`:''}</div>
+      <div class="sp-meta">
+        ${isSec?`<span class="sp-sect">이 장 ${fmtDur(secT[it.id]||0)}</span>`:`<input class="sp-est" data-f="est" value="${it.est_sec!=null?escapeAttr(fmtDur(it.est_sec)):''}" placeholder="${escapeAttr(fmtDur(semEst(it)))}" title="예상 시간 — 1:30 · 2분 · 45초 (비우면 기본값)" inputmode="text">`}
+        ${it.fired_at?'<span class="sp-fired" title="진행 화면에서 이미 발사했어요">발사됨</span>':''}
+        <span class="sp-saved"></span>
+        <span class="sp-acts"><button type="button" class="sp-ib${noteOpen?' on':''}" data-act="note" title="진행자 메모">📝</button><button type="button" class="sp-ib" data-act="up" title="위로">↑</button><button type="button" class="sp-ib" data-act="down" title="아래로">↓</button><button type="button" class="sp-ib" data-act="dup" title="복제">⧉</button><button type="button" class="sp-ib danger" data-act="del" title="지우기 (Ctrl+Z로 되돌리기)">✕</button></span>
+      </div></div>`; }).join('');
+  semPlanSumDraw();
+  box.querySelectorAll('textarea.sp-ta, textarea.sp-note').forEach(autoGrow);
+  semPlanBind(box);
+}
+function semPlanBind(box){
+  const idOf=el=>Number(el.closest('.sp-it').dataset.id);
+  box.querySelectorAll('.sp-it').forEach(row=>{
+    row.addEventListener('focusin', ()=>{ const id=Number(row.dataset.id); if(_planSel!==id){ _planSel=id; box.querySelectorAll('.sp-it.sel').forEach(x=>x.classList.remove('sel')); row.classList.add('sel'); } });
+    row.addEventListener('click', e=>{ if(e.target.closest('input,textarea,button')) return; _planSel=Number(row.dataset.id); box.querySelectorAll('.sp-it.sel').forEach(x=>x.classList.remove('sel')); row.classList.add('sel'); });
+  });
+  box.querySelectorAll('[data-f]').forEach(el=>{
+    const id=idOf(el), f=el.dataset.f;
+    if(f==='est'){ el.addEventListener('change', ()=>{ const v=parseDur(el.value); if(v===undefined){ el.classList.add('bad'); toast('예상 시간은 1:30 · 2분 · 45초처럼 적어 주세요.'); return; } el.classList.remove('bad'); semPlanPatch(id, { est_sec:v }).then(ok=>{ if(ok){ el.value = v==null?'':fmtDur(v); semPlanDraw(); } }); }); return; }
+    el.addEventListener('input', ()=>{ if(el.tagName==='TEXTAREA') autoGrow(el); semPlanSave(id, { [f]: el.value }, el); });
+    el.addEventListener('keydown', e=>{ e.stopPropagation();
+      if(e.key==='Enter' && (e.ctrlKey||e.metaKey)){ e.preventDefault(); semPlanAdd('text', id); }
+      else if(e.key==='Enter' && el.tagName==='INPUT'){ e.preventDefault(); el.blur(); } });
+  });
+  box.querySelectorAll('[data-pf]').forEach(el=>{
+    const id=idOf(el), it=_semScript.find(x=>x.id===id);
+    el.addEventListener('input', ()=>{ const pl=Object.assign({}, it.payload||{}); if(el.dataset.pf==='options') pl.options=el.value.split(/[,，]/).map(x=>x.trim()).filter(Boolean).slice(0,6); else pl.question=el.value; it.payload=pl; semPlanSave(id, { payload:pl }, el); });
+    el.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter'){ e.preventDefault(); el.blur(); } });
+  });
+  box.querySelectorAll('.sp-pk button').forEach(b=>{ b.onclick=async()=>{ const id=idOf(b), it=_semScript.find(x=>x.id===id); const pl=Object.assign({}, it.payload||{}, { pkind:b.dataset.pk }); if(pl.pkind==='mc' && !(pl.options&&pl.options.length)) pl.options=['A','B','C','D']; if(await semPlanPatch(id, { payload:pl })) semPlanDraw(); }; });
+  box.querySelectorAll('[data-rmf]').forEach(b=>{ b.onclick=async()=>{ const id=idOf(b), it=_semScript.find(x=>x.id===id); const pl=Object.assign({}, it.payload||{}); pl.files=(pl.files||[]).filter((_,i)=>i!==Number(b.dataset.rmf)); if(await semPlanPatch(id, { payload:pl })) semPlanDraw(); }; });
+  box.querySelectorAll('[data-act]').forEach(b=>{ b.onclick=async(e)=>{ e.stopPropagation(); const id=idOf(b), a=b.dataset.act; const L=_semScript; const i=L.findIndex(x=>x.id===id); const it=L[i];
+    if(a==='note'){ if(_spNoteOpen.has(id) && !it.note) _spNoteOpen.delete(id); else _spNoteOpen.add(id); semPlanDraw(); const t=box.querySelector(`.sp-it[data-id="${id}"] .sp-note`); if(t) t.focus(); return; }
+    if(a==='up' || a==='down'){ const j=a==='up'?i-1:i+1; if(j<0||j>=L.length) return; const ids=L.map(x=>x.id); [ids[i],ids[j]]=[ids[j],ids[i]]; semSnap(); await semPlanSetOrder(ids); semPlanDraw(); const r=box.querySelector(`.sp-it[data-id="${id}"] .sp-ib[data-act="${a}"]`); if(r) r.focus(); return; }
+    if(a==='dup'){ const row={ kind:it.kind, body:it.body||null, payload:it.payload||null }; if(it.note) row.note=it.note; if(it.est_sec!=null) row.est_sec=it.est_sec; await semPlanInsert([row], id); semPlanDraw(); return; }
+    if(a==='del'){ semSnap(); const { error } = await sb.from('seminar_script').delete().eq('id', id); if(error){ toast('지우지 못했어요: '+(error.message||'')); return; } if(_planSel===id) _planSel = (L[i-1]||{}).id ?? null; await semScriptLoad(); semPlanDraw(); toast('지웠어요 · Ctrl+Z로 되돌려요.'); return; }
+    if(a==='addfile'){ const inp=document.createElement('input'); inp.type='file'; inp.multiple=true; inp.onchange=async()=>{ const fl=[...(inp.files||[])]; if(!fl.length) return; const max=chatFileMaxBytes(); const big=fl.filter(f=>f.size>max); if(big.length){ toast(`${big.map(f=>f.name).join(', ')} — 1개 ${fmtBytes(max)}까지예요.`); } const ok=fl.filter(f=>f.size && f.size<=max).slice(0, CHAT_FILE_MAX_N-((it.payload||{}).files||[]).length); if(!ok.length) return;
+        try{ showBlockingLoader('파일 올리는 중…'); const up=await uploadChatFiles(ok, t=>{ const tt=document.querySelector('#blockOv .block-text'); if(tt) tt.textContent=t; }); const pl=Object.assign({}, it.payload||{}); pl.files=[...(pl.files||[]), ...up]; if(await semPlanPatch(id, { payload:pl })) semPlanDraw(); }
+        catch(err){ toast(chatFileErrMsg(err)); } finally{ hideBlockingLoader(); } }; inp.click(); return; }
+  }; });
+  // 끌어서 옮기기 (손잡이)
+  let dragId=null;
+  box.querySelectorAll('.sp-grip').forEach(g=>{ const row=g.closest('.sp-it');
+    g.addEventListener('dragstart', e=>{ dragId=Number(row.dataset.id); row.classList.add('drag'); try{ e.dataTransfer.setData('text/plain', String(dragId)); e.dataTransfer.setDragImage(row, 20, 20); }catch(_){} });
+    g.addEventListener('dragend', ()=>{ row.classList.remove('drag'); dragId=null; box.querySelectorAll('.over-top,.over-bot').forEach(x=>x.classList.remove('over-top','over-bot')); }); });
+  box.querySelectorAll('.sp-it').forEach(row=>{
+    row.addEventListener('dragover', e=>{ if(dragId==null) return; e.preventDefault(); const r=row.getBoundingClientRect(); const top=e.clientY < r.top+r.height/2; row.classList.toggle('over-top', top); row.classList.toggle('over-bot', !top); });
+    row.addEventListener('dragleave', ()=>row.classList.remove('over-top','over-bot'));
+    row.addEventListener('drop', async e=>{ if(dragId==null) return; e.preventDefault(); const to=Number(row.dataset.id); const top=row.classList.contains('over-top'); row.classList.remove('over-top','over-bot'); if(to===dragId) return;
+      const ids=_semScript.map(x=>x.id).filter(x=>x!==dragId); let k=ids.indexOf(to); if(!top) k++; ids.splice(k,0,dragId); semSnap(); await semPlanSetOrder(ids); semPlanDraw(); });
+  });
+}
+async function semPlanAdd(kind, afterId){
+  const row={ kind };
+  if(kind==='poll') row.payload={ pkind:'ox', question:'' };
+  if(kind==='file') row.payload={ files:[] };
+  if(kind==='slide'){ const f=$('#spSide .sp-thumbs'); toast(_semSlides.length ? '오른쪽 쪽 그림을 누르면 고른 항목 뒤에 들어가요.' : '먼저 오른쪽에서 PDF를 올려 주세요.'); if(f) f.scrollIntoView({ block:'nearest', behavior:'smooth' }); return; }
+  const d=await semPlanInsert([row], afterId); if(!d) return;
+  semPlanDraw();
+  const el=document.querySelector(`.sp-it[data-id="${d[0].id}"] textarea, .sp-it[data-id="${d[0].id}"] input:not(.sp-est)`); if(el){ el.focus(); el.scrollIntoView({ block:'nearest' }); }
+}
+function semPlanSideDraw(){
+  const box=$('#spSide'); if(!box) return;
+  const files={}; _semSlides.forEach(s=>{ const f=s.seminar_files||{}; (files[s.file_id]=files[s.file_id]||{ name:f.name||'파일', pages:f.pages||0, slides:[] }).slides.push(s); });
+  const used=new Set(_semScript.filter(x=>x.kind==='slide').map(x=>{ const sl=semSlideOf(x.payload); return sl?sl.id:null; }));
+  box.innerHTML=`<section class="sp-card"><div class="sp-ch">🎞 슬라이드 PDF</div>
+      <label class="sp-auto"><input type="checkbox" id="spAuto" checked> 올리면 쪽마다 대본에 넣기</label>
+      <label class="btn primary sp-up" style="width:auto;cursor:pointer">PDF 올리기<input type="file" accept="application/pdf" id="spPdf" style="display:none"></label>
+      <div class="msg" id="semMsg"></div>
+      ${Object.entries(files).map(([fid,f])=>`<div class="sp-fh"><b title="${escapeAttr(f.name)}">${escapeHtml(f.name)}</b><small>${f.slides.length}/${f.pages}쪽</small><button type="button" class="btn" data-allf="${fid}" style="width:auto;padding:3px 9px">전부 넣기</button></div>
+        <div class="sp-thumbs">${f.slides.map(sl=>`<button type="button" class="sp-th${used.has(sl.id)?' used':''}" data-sid="${sl.id}" title="${sl.page}쪽 — 누르면 고른 항목 뒤에"><img src="${escapeAttr(semSlideUrl(sl.path))}" alt="" loading="lazy"><span>${sl.page}</span></button>`).join('')}</div>`).join('') || '<p class="sem-empty">파워포인트 · 한글은 PDF로 저장해서 올려 주세요.</p>'}
+    </section>
+    <section class="sp-card sp-help"><div class="sp-ch">⌨ 빠르게 짜기</div>
+      <ul><li>칸에서 <kbd>Ctrl</kbd>+<kbd>Enter</kbd> = 바로 아래에 새 말</li><li>⋮⋮을 끌어 순서 · ↑↓ 단추 · <kbd>Ctrl</kbd>+<kbd>Z</kbd> 되돌리기</li><li>📝 진행자 메모는 진행 화면의 '다음' 카드에만 보여요</li><li>예상 시간: <code>1:30</code> · <code>2분</code> · <code>45초</code></li></ul>
+      <details><summary>[글로 쓰기] 문법</summary><pre class="sp-syn"># 1. 문제 소개   ← 장
+오늘은 진자의 주기를 봅니다. (2분)
+> 여기서 학생 이름 불러 주기   ← 메모
+
+[파일 3] 이 그래프를 보세요   ← 그 쪽 + 설명
+
+? 주기는 길이에 비례할까?   ← O/X 투표
+?1-5 얼마나 확신하나요?
+? 무엇이 맞을까 / A / B / C   ← 객관식
+
+---   ← 멈추고 답 기다리기</pre></details></section>`;
+  const pdf=$('#spPdf'); if(pdf) pdf.onchange=async e=>{ const f=e.target.files&&e.target.files[0]; if(!f) return; const auto=$('#spAuto') && $('#spAuto').checked; const before=new Set(_semSlides.map(x=>x.file_id)); await semUploadPdf(f);
+    if(auto){ const nf=[...new Set(_semSlides.map(x=>x.file_id))].filter(x=>!before.has(x)); const sl=_semSlides.filter(x=>nf.includes(x.file_id)).sort((a,b)=>a.page-b.page); if(sl.length){ await semPlanInsert(sl.map(x=>({ kind:'slide', payload:{ page:x.page, file_id:x.file_id, sid:x.id } }))); toast(`${sl.length}쪽을 대본에 넣었어요.`); } }
+    semPlanDraw(); semPlanSideDraw(); };
+  box.querySelectorAll('.sp-th').forEach(b=>{ b.onclick=async()=>{ const sl=_semSlides.find(x=>x.id===Number(b.dataset.sid)); if(!sl) return; if(await semPlanInsert([{ kind:'slide', payload:{ page:sl.page, file_id:sl.file_id, sid:sl.id } }])){ semPlanDraw(); semPlanSideDraw(); const r=document.querySelector(`.sp-it[data-id="${_planSel}"]`); if(r) r.scrollIntoView({ block:'nearest', behavior:'smooth' }); } }; });
+  box.querySelectorAll('[data-allf]').forEach(b=>{ b.onclick=async()=>{ const sl=_semSlides.filter(x=>String(x.file_id)===b.dataset.allf).sort((a,b2)=>a.page-b2.page); if(await semPlanInsert(sl.map(x=>({ kind:'slide', payload:{ page:x.page, file_id:x.file_id, sid:x.id } })))){ semPlanDraw(); semPlanSideDraw(); toast(`${sl.length}쪽을 넣었어요.`); } }; });
+}
+function semPlanTextModal(){
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  const cur=semPlanExport();
+  ov.innerHTML=`<div class="modal-box sp-textbox"><div class="modal-msg">글로 쓰기</div>
+    <div class="modal-sub" style="text-align:left">메모장에 쓰듯 적고 빈 줄로 항목을 나눠요. <code># 장</code> · <code>---</code> 멈춤 · <code>[파일 3]</code> · <code>? 투표</code> · <code>&gt; 메모</code> · <code>(2분)</code>. 지금 대본이 미리 들어 있어요 — 복사해 두면 다른 세미나에도 그대로 쓸 수 있어요.</div>
+    <textarea id="spText" spellcheck="false">${escapeHtml(cur)}</textarea>
+    <div class="sp-tprev" id="spTPrev"></div>
+    <div class="modal-btns"><button class="modal-cancel">닫기</button><button class="btn" id="spTCopy" style="width:auto">복사</button><button class="btn" id="spTAppend" style="width:auto">끝에 붙이기</button><button class="modal-ok" id="spTReplace">이 글로 바꾸기</button></div></div>`;
+  document.body.appendChild(ov);
+  const ta=ov.querySelector('#spText');
+  const prev=()=>{ const rows=semPlanParse(ta.value); const cnt={}; rows.forEach(r=>{ cnt[r.kind]=(cnt[r.kind]||0)+1; }); ov.querySelector('#spTPrev').textContent = rows.length ? `${rows.length}개 항목 — `+Object.entries(cnt).map(([k,n])=>`${(SEM_KINDS[k]||{}).t||k} ${n}`).join(' · ') : '비어 있어요'; };
+  ta.addEventListener('input', prev); ta.addEventListener('keydown', e=>e.stopPropagation()); prev();
+  const close=()=>ov.remove();
+  ov.querySelector('.modal-cancel').onclick=close;
+  ov.addEventListener('click', e=>{ if(e.target===ov) close(); });
+  ov.querySelector('#spTCopy').onclick=async()=>{ try{ await navigator.clipboard.writeText(ta.value); toast('복사했어요.'); }catch(e){ ta.select(); } };
+  const go=async(replace)=>{
+    const rows=semPlanParse(ta.value); if(!rows.length){ toast('넣을 항목이 없어요.'); return; }
+    const c=semCur();
+    if(replace){ const keep=_semScript.filter(x=>x.fired_at).length; const ok=await confirmModal('대본을 이 글로 바꿀까요?', `아직 발사하지 않은 항목은 지우고 ${rows.length}개를 새로 넣어요.${keep?` 이미 발사한 ${keep}개는 남겨요.`:''} (Ctrl+Z로 되돌릴 수 있어요)`, '바꾸기'); if(!ok) return;
+      semSnap(); const del=_semScript.filter(x=>!x.fired_at).map(x=>x.id); if(del.length){ const { error } = await sb.from('seminar_script').delete().in('id', del); if(error){ toast('바꾸지 못했어요: '+(error.message||'')); return; } } await semScriptLoad(); _planSel=null; }
+    const d=await semPlanInsert(rows, replace ? (_semScript.length ? _semScript[_semScript.length-1].id : null) : (_semScript.length ? _semScript[_semScript.length-1].id : null));
+    if(d){ close(); semPlanDraw(); semPlanSideDraw(); toast(`${rows.length}개를 넣었어요.`); }
+  };
+  ov.querySelector('#spTAppend').onclick=()=>go(false);
+  ov.querySelector('#spTReplace').onclick=()=>go(true);
+  setTimeout(()=>ta.focus(), 30);
+}
+/* 다른 세미나 대본 가져오기 — 내가 진행자인(또는 운영진) 세미나 방 · 보관함 기록의 대본 */
+async function semPlanImport(){
+  const c=semCur(); if(!c) return;
+  const rooms=(community.channels||[]).filter(x=>x.kind==='seminar' && String(x.id)!==String(c.id) && semIsHost(x));
+  let arch=[]; try{ const r=await sb.from('seminar_archive').select('id,title,ended_at,record').order('ended_at',{ascending:false}).limit(30); arch=(r.data||[]).filter(a=>Array.isArray((a.record||{}).script) && a.record.script.length); }catch(e){}
+  const items=[...rooms.map(x=>({ value:'r:'+x.id, label:x.name, hint:x.archived?'보관된 방':(x.seminar_status==='ended'?'끝남':'방'), icon:'note' })),
+               ...arch.map(a=>({ value:'a:'+a.id, label:a.title, hint:'보관함 · '+String(a.ended_at||'').slice(0,10), icon:'stack' }))];
+  if(!items.length){ toast('가져올 다른 세미나 대본이 없어요.'); return; }
+  const pick=await selectModal('어느 세미나의 대본을 가져올까요?', '지금 대본 끝에 붙어요. 슬라이드는 이 방에 올린 PDF의 같은 쪽으로 이어져요.', items);
+  if(!pick) return;
+  let src=[];
+  if(pick.startsWith('r:')){ const r=await sb.from('seminar_script').select('*').eq('channel_id', Number(pick.slice(2))).order('ord'); if(r.error){ toast('읽지 못했어요: '+(r.error.message||'')); return; } src=r.data||[]; }
+  else { const a=arch.find(x=>'a:'+x.id===pick); src=(a.record.script||[]); }
+  const ok130=await semPlanProbe();
+  const rows=src.filter(x=>x && x.kind).map(x=>{ const k=ok130 ? x.kind : (['section','poll','file'].includes(x.kind)?'text':x.kind);
+    const r={ kind:k, body:x.body||(k==='text' && x.kind==='section' ? '— '+(x.body||'')+' —' : null) || null, payload: x.kind==='slide' ? { page:(x.payload||{}).page } : (x.payload||null) };
+    if(ok130){ if(x.note) r.note=x.note; if(x.est_sec!=null) r.est_sec=x.est_sec; }
+    return r; });
+  if(!rows.length){ toast('그 세미나에는 대본이 없어요.'); return; }
+  if(await semPlanInsert(rows, _semScript.length ? _semScript[_semScript.length-1].id : null)){ semPlanDraw(); semPlanSideDraw(); toast(`${rows.length}개를 가져왔어요.`); }
+}
+async function renderSemPlan(c, _nav){
+  try{ await kyptLoadPeople(); }catch(e){}
+  await Promise.all([semSlidesLoad(), semScriptLoad(), semPlanProbe()]);
+  if(_nav!==_navSeq) return;
+  _planSel = _semScript.length ? _semScript[_semScript.length-1].id : null;
+  const ok=_semPlanOk;
+  $('#doc').innerHTML=`<div class="sp-wrap">
+    <a class="kp-back" href="#//lab">← 물리실</a>
+    <div class="doc-head sp-head"><h1>세미나 준비 <span class="sp-name">${escapeHtml(c.name)}</span></h1>
+      <div class="tabs"><a class="btn primary sp-go" href="${roomHashOf(c.id)}">진행 화면으로 ▶</a></div></div>
+    <div class="sp-sum" id="spSum"></div>
+    ${!_semScriptOk?'<div class="ch-note">대본은 110_seminar_console.sql이 필요해요.</div>':''}
+    ${ok===false?'<div class="ch-note">장 · 투표 · 파일 항목, 진행자 메모, 예상 시간은 <b>130_seminar_plan_files.sql</b>을 실행하면 쓸 수 있어요. 지금은 말 · 슬라이드 · 멈춤만 돼요.</div>':''}
+    <div class="sp-tools">
+      <span class="sp-tg">${['text','section','slide','poll','pause','file'].map(k=>`<button type="button" class="sp-add" data-add="${k}"${(!ok && ['section','poll','file'].includes(k))?' disabled title="130 필요"':''}><span>${SEM_KINDS[k].ic}</span>${SEM_KINDS[k].t}</button>`).join('')}</span>
+      <span class="sp-tg r"><button type="button" class="btn" id="spText" style="width:auto">글로 쓰기</button><button type="button" class="btn" id="spImport" style="width:auto">다른 세미나에서 가져오기</button><button type="button" class="btn" id="spTpl" style="width:auto">시작 템플릿</button></span>
+    </div>
+    <div class="sp-grid"><div class="sp-plan" id="spPlan"></div><aside class="sp-side" id="spSide"></aside></div>
+    <div class="sp-keep">🔒 이 세미나의 대화 · 슬라이드 · 파일 · 투표 · 참석 · 대본은 <b>영구 보존</b>돼요. 끝나면 하루 뒤 보관함으로 옮겨질 뿐 지워지지 않아요.
+      ${semCanDelete(c)?`<button type="button" class="btn sp-del" id="spDel" style="width:auto;padding:5px 12px">세미나 지우기…</button>`:'<span class="muted">지울 수 있는 사람은 세미나를 연 사람뿐이에요.</span>'}</div>
+  </div>`;
+  document.querySelectorAll('.sp-add').forEach(b=>{ b.onclick=()=>semPlanAdd(b.dataset.add); });
+  $('#spText').onclick=semPlanTextModal;
+  { const d=$('#spDel'); if(d) d.onclick=()=>semDeleteFlow({ channel:c.id, name:c.name }); }   // ★CS
+  $('#spImport').onclick=semPlanImport;
+  $('#spTpl').onclick=async()=>{ const rows=semPlanParse(`# 시작\n\n안녕하세요, ${c.name} 시간입니다. 곧 시작해요. (1분)\n\n이 방은 답을 진행자가 골라 올려요. 답은 한 번만 보내 주세요. 수식은 $x^2$처럼 달러로 감싸면 돼요.\n\n전체 기록은 내일 세미나 보관함에 올라가요. 필기하지 않아도 돼요.\n\n# 본론\n\n오늘 다룰 문제를 소개할게요. (3분)\n> 슬라이드가 있으면 여기 위에 [파일 1]\n\n? 먼저 감으로 — 답이 맞을까?\n\n---\n\n# 마무리\n\n오늘 정리: (2분)\n\n?1-5 오늘 내용을 얼마나 이해했나요?`).filter(r=>ok || !semNeeds130(r)).map(r=>{ if(!ok){ delete r.note; delete r.est_sec; } return r; });
+    if(await semPlanInsert(rows, _semScript.length ? _semScript[_semScript.length-1].id : null)){ semPlanDraw(); toast('시작 템플릿을 끝에 붙였어요. 고쳐서 쓰세요.'); } };
+  semPlanDraw(); semPlanSideDraw();
+  window.scrollTo(0,0);
+}
+document.addEventListener('keydown', e=>{          // 준비 화면 Ctrl+Z
+  if(!$('#spPlan') || !((e.ctrlKey||e.metaKey) && (e.key==='z'||e.key==='Z')) || kv2InField(e.target)) return;
+  e.preventDefault(); semUndo().then(()=>{ if($('#spPlan')){ semPlanDraw(); semPlanSideDraw(); } });
+});
+
 /* ★세션 BZ — 답 골라 내리기(세미나 기본 켬). 대기 답은 진행자에게 **타일**(후보 C)로:
    같은 답은 정규화(공백·$·대소문자 제거)해서 한 타일에 ×n으로 묶고, 여러 타일을 골라 한 번에 공개(같은 batch_id · 같은 초).
    단축키(입력칸 밖에서): J/K 이동 · Enter 공개 · X 기각(삭제 아님, status=dismissed) · Shift+A 보이는 것 전부 공개 · Esc 선택 해제. */
@@ -20183,7 +21288,7 @@ function semQueueDraw(){
   box.innerHTML=`<div class="sem-qh">올라온 답 <b>${n}</b> — 누르면 공개, Shift+클릭 여러 개 · <kbd>Enter</kbd> 공개 · <kbd>X</kbd> 기각 · <kbd>⇧A</kbd> 전부 · <kbd>W</kbd> 귓속말 · <kbd>J</kbd><kbd>K</kbd> 이동${_semQSel.size?` · <b>${_semQSel.size}개 선택</b>`:''}</div>
     <div class="sem-tiles">${cl.map(c=>{ const first=c.items[0].m; const names=c.items.map(x=>x.m.author_name||'회원'); const multi=c.items.length>1;
       return `<button type="button" class="sem-tile${_semQSel.has(c.key)?' on':''}${_semQCur===c.key?' cur':''}" data-k="${escapeAttr(c.key)}" title="${escapeAttr(names.join(', '))}">
-        <b>${multi?`<span class="sem-x">×${c.items.length}</span> ${escapeHtml(names.slice(0,3).join(' · '))}${names.length>3?' 외':''}`:escapeHtml(names[0])}</b><span class="sem-tilet">${escapeHtml(String(first.body||'').slice(0,160))}${(first.images&&first.images.length)?' 📷':''}</span>
+        <b>${multi?`<span class="sem-x">×${c.items.length}</span> ${escapeHtml(names.slice(0,3).join(' · '))}${names.length>3?' 외':''}`:escapeHtml(names[0])}</b><span class="sem-tilet">${escapeHtml(String(first.body||'').slice(0,160))}${(first.images&&first.images.length)?' 📷':''}${(Array.isArray(first.files)&&first.files.length)?' 📎':''}</span>
         <span class="sem-tileb"><span class="sem-tbtn ok" data-do="ok" data-k="${escapeAttr(c.key)}">공개</span><span class="sem-tbtn no" data-do="no" data-k="${escapeAttr(c.key)}">기각</span><span class="sem-tbtn" data-do="w" data-k="${escapeAttr(c.key)}">귓속말</span></span></button>`; }).join('')}</div>`;
   box.querySelectorAll('[data-do]').forEach(b=>{ b.onclick=(e)=>{ e.stopPropagation(); const k=b.dataset.k; if(b.dataset.do==='ok') semApprove([k]); else if(b.dataset.do==='no') semDismiss([k]); else semWhisper(k); }; });
   box.querySelectorAll('.sem-tile').forEach(b=>{
@@ -20211,25 +21316,27 @@ async function semDismiss(keys){
    · Delete/Backspace = 선택 삭제 · Ctrl+Z = 되돌리기(순서·글·삭제·추가) · Space = 다음 발사 */
 let _semScript=[], _semScriptOk=true, _semSSel=new Set(), _semSCur=null, _semUndo=[];
 async function semScriptLoad(){ const c=semCur(); if(!c) return; const r=await sb.from('seminar_script').select('*').eq('channel_id', c.id).order('ord').order('id'); _semScriptOk=!r.error; _semScript=r.data||[]; }
-function semSnap(){ _semUndo.push(_semScript.map(x=>({ id:x.id, ord:x.ord, kind:x.kind, body:x.body, payload:x.payload }))); if(_semUndo.length>30) _semUndo.shift(); }
+function semSnap(){ _semUndo.push(_semScript.map(x=>({ id:x.id, ord:x.ord, kind:x.kind, body:x.body, payload:x.payload, note:x.note, est_sec:x.est_sec }))); if(_semUndo.length>30) _semUndo.shift(); }
 async function semUndo(){
   const snap=_semUndo.pop(); const c=semCur(); if(!snap||!c){ toast('되돌릴 것이 없어요.'); return; }
   const cur=new Map(_semScript.map(x=>[x.id,x]));
   for(const it of snap){
     const now=cur.get(it.id);
-    if(!now){ await sb.from('seminar_script').insert({ channel_id:c.id, ord:it.ord, kind:it.kind, body:it.body, payload:it.payload }); }
-    else if(now.body!==it.body || now.ord!==it.ord) await sb.from('seminar_script').update({ body:it.body, ord:it.ord }).eq('id', it.id);
+    const ext = _semPlanOk ? { note:it.note??null, est_sec:it.est_sec??null } : {};          // ★CR: 130이면 메모·예상 시간도
+    if(!now){ await sb.from('seminar_script').insert(Object.assign({ channel_id:c.id, ord:it.ord, kind:it.kind, body:it.body, payload:it.payload }, ext)); }
+    else if(now.body!==it.body || now.ord!==it.ord || JSON.stringify(now.payload||null)!==JSON.stringify(it.payload||null) || (_semPlanOk && ((now.note??null)!==(it.note??null) || (now.est_sec??null)!==(it.est_sec??null))))
+      await sb.from('seminar_script').update(Object.assign({ body:it.body, ord:it.ord, payload:it.payload }, ext)).eq('id', it.id);
   }
   const snapIds=new Set(snap.map(x=>x.id)); for(const x of _semScript){ if(!snapIds.has(x.id) && !x.fired_at) await sb.from('seminar_script').delete().eq('id', x.id); }
   await semScriptLoad(); semScriptDraw(); toast('되돌렸어요.');
 }
 async function semScriptReorder(ids){ semSnap(); for(let i=0;i<ids.length;i++){ const it=_semScript.find(x=>x.id===ids[i]); if(it && it.ord!==i+1) await sb.from('seminar_script').update({ ord:i+1 }).eq('id', ids[i]); } await semScriptLoad(); semScriptDraw(); }
-function semScriptItemLabel(it){ return it.kind==='pause'?'⏸ 여기서 답 기다리기':it.kind==='slide'?`🎞 파일 ${(it.payload||{}).page||''}쪽`:(it.body||''); }
+function semScriptItemLabel(it){ if(it.kind==='pause') return '⏸ 여기서 답 기다리기'+(it.body?' — '+it.body:''); if(it.kind==='section') return '§ '+(it.body||'장'); if(it.kind==='poll'){ const pl=it.payload||{}; return `📊 ${pl.question||'투표'} (${(SEM_POLL_KINDS.find(x=>x[0]===(pl.pkind||'ox'))||[])[1]||''})`; } if(it.kind==='file'){ const fl=(it.payload||{}).files||[]; return `📎 ${fl.map(f=>f.name).join(', ')||'파일 없음'}${it.body?' — '+it.body:''}`; } if(it.kind==='slide'){ const pl=it.payload||{}; const fn=pl.file_id!=null?semFileName(pl.file_id):''; return `🎞 ${fn?fn.replace(/\.pdf$/i,'')+' · ':'파일 '}${pl.page||''}쪽`; } return it.body||''; }
 function semScriptDraw(){
   const box=$('#semScript'); if(!box) return; const c=semCur();
   const next=_semScript.find(x=>!x.fired_at);
   const doneN=_semScript.filter(x=>x.fired_at).length, totN=_semScript.length, leftN=totN-doneN;
-  box.innerHTML=`<div class="sem-sph">📜 대본 <small>${totN?`${doneN} / ${totN} · 남은 ${leftN}`:''}</small></div>
+  box.innerHTML=`<div class="sem-sph">📜 대본 전체 <small>${totN?`${doneN} / ${totN} · 남은 ${leftN}`:''}</small><a class="sem-plan-l" href="${roomHashOf(c.id)}/plan">📋 준비 화면</a></div>
     ${totN?`<div class="sem-scbar"><span style="width:${Math.round(doneN*100/totN)}%"></span></div>`:''}
     <div class="sem-sphint"><kbd>Space</kbd> 발사 · <kbd>N</kbd> 추가 · <kbd>↑↓</kbd> 이동 · 더블클릭 수정 · <kbd>Del</kbd> 삭제 · <kbd>Ctrl+Z</kbd></div>
     ${!_semScriptOk?'<p class="sem-empty">대본은 110_seminar_console.sql이 필요해요.</p>':''}
@@ -20269,6 +21376,7 @@ function semScriptDraw(){
   $('#semScriptNew').onclick=()=>{ ta.focus(); };
   $('#semScriptTpl').onclick=()=>{ ta.value=`안녕하세요, ${c.name} 교실입니다. 곧 시작합니다.\n\n이 방은 답을 진행자가 골라 올립니다. 여러분이 쓴 답은 먼저 진행자에게 가요. 같은 답을 반복해 보내지 말고 한 번만 보내 주세요.\n\n수식은 달러 기호로 감싸면 됩니다: $x^2+1$. 몰라도 전혀 상관없어요.\n\n전체 기록은 내일 세미나 보관함에 올라갑니다. 필기하지 않으셔도 돼요.\n\n---\n\n자, 시작해 볼까요?`; ta.focus(); };
   $('#semScriptDel').onclick=semScriptDeleteSel;
+  semPresenterDraw();                                                                     // ★CR
 }
 async function semScriptDeleteSel(){
   const ids=[..._semSSel].filter(id=>{ const it=_semScript.find(x=>x.id===id); return it && !it.fired_at; }); if(!ids.length) return;
@@ -20282,23 +21390,62 @@ async function semScriptMove(dir){
   else { if(last>=ids.length-1) return; const nxt=ids[last+1]; ids=ids.filter(x=>!moving.includes(x)); ids.splice(ids.indexOf(nxt)+1, 0, ...moving); }
   await semScriptReorder(ids);
 }
+let _semFiring=false;
 async function semFireNext(){
-  const c=semCur(); const it=_semScript.find(x=>!x.fired_at); if(!c||!it){ if(c) toast('발사할 대본이 없어요.'); return; }
+  if(_semFiring) return;                                                      // ★CR: Space 연타로 두 번 나가던 것
+  const c=semCur(); if(!c) return;
+  _semFiring=true;
+  try{
+    /* ★CR: 장(section)은 발사할 게 없다 — 지나가며 '지금 장'으로 표시만 하고 그다음 항목을 쏜다 */
+    for(;;){ const sec=_semScript.find(x=>!x.fired_at); if(!sec || sec.kind!=='section') break;
+      const r=await sb.from('seminar_script').update({ fired_at:new Date().toISOString() }).eq('id', sec.id).is('fired_at', null);
+      if(r.error){ toast('넘기지 못했어요: '+(r.error.message||'')); return; } sec.fired_at=new Date().toISOString(); }
+    const it=_semScript.find(x=>!x.fired_at); if(!it){ toast('발사할 대본이 없어요.'); semScriptDraw(); return; }
+    await semFireItem(c, it);
+  } finally { _semFiring=false; }
+}
+/* 건너뛰기 — 보내지 않고 '발사됨'으로만 */
+async function semSkipNext(){
+  if(_semFiring) return; const it=_semScript.find(x=>!x.fired_at && x.kind!=='section'); if(!it) return;
+  _semFiring=true;
+  try{ const ids=[]; for(const x of _semScript){ if(x.fired_at) continue; ids.push(x.id); if(x===it) break; }
+    const { error } = await sb.from('seminar_script').update({ fired_at:new Date().toISOString() }).in('id', ids).is('fired_at', null);
+    if(error){ toast('넘기지 못했어요: '+(error.message||'')); return; }
+    await semScriptLoad(); semScriptDraw(); toast('하나 건너뛰었어요 · 준비 화면의 [처음부터 다시]로 되돌릴 수 있어요.');
+  } finally { _semFiring=false; }
+}
+async function semFireItem(c, it){
+  if(it.kind==='slide' && !semSlideOf(it.payload)){ toast(`${semScriptItemLabel(it)}이 없어요 — 먼저 PDF를 올리세요.`); return; }
+  if(it.kind==='text' && !String(it.body||'').trim()){ toast('빈 말이에요 — 준비 화면에서 채우거나 [건너뛰기]로 넘겨 주세요.'); return; }
+  /* ★CR: 공동 진행자가 동시에 눌러도 한 번만 — 서버에서 '아직 안 쏜 것'일 때만 내 것으로 표시 */
+  const at=new Date().toISOString();
+  const claim=await sb.from('seminar_script').update({ fired_at:at }).eq('id', it.id).is('fired_at', null).select('id');
+  if(claim.error){ toast('발사하지 못했어요: '+(claim.error.message||'')); return; }
+  if(!(claim.data||[]).length){ await semScriptLoad(); semScriptDraw(); toast('이미 다른 진행자가 발사했어요.'); return; }
+  const unclaim=async()=>{ await sb.from('seminar_script').update({ fired_at:null }).eq('id', it.id); it.fired_at=null; semScriptDraw(); };
   { const el=document.querySelector('.sem-sc.next'); if(el){ el.classList.add('firing'); setTimeout(()=>el.classList.remove('firing'), 420); } }
+  it.fired_at=at;
   let msgId=null;
   if(it.kind==='text'){
-    const row={ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:it.body||'', question_id:null, images:null, channel_id:c.id, kind:'chat' };
-    const { data, error } = await sb.from('messages').insert(row).select().single(); if(error){ toast('발사하지 못했어요: '+(error.message||'')+(/sequence/i.test(String(error.message||''))?' → 113_seminar_seq_grant.sql을 실행하세요':'')); return; } msgId=data&&data.id;
+    const row={ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:it.body||'', question_id:null, images:[], channel_id:c.id, kind:'chat' };   // ★CR: images는 NOT NULL — null이면 23502(사용자 신고)
+    const { data, error } = await sb.from('messages').insert(row).select().single(); if(error){ await unclaim(); toast('발사하지 못했어요: '+(error.message||'')+(/sequence/i.test(String(error.message||''))?' → 113_seminar_seq_grant.sql을 실행하세요':'')); return; } msgId=data&&data.id;
   } else if(it.kind==='slide'){
-    const page=(it.payload||{}).page; if(!_semSlides.some(s=>Number(s.page)===Number(page))){ toast(`파일 ${page}쪽이 없어요 — 먼저 PDF를 올리세요.`); return; } msgId=await semPostSlide(page);
+    msgId=await semPostSlide(it.payload, it.body||''); if(!msgId){ await unclaim(); return; }
+  } else if(it.kind==='file'){                                                                  // ★CR: 파일 항목 → 파일이 달린 메시지
+    const pl=it.payload||{}; if(!(pl.files||[]).length){ await unclaim(); toast('이 항목에 파일이 없어요 — 준비 화면에서 골라 주세요.'); return; }
+    const { data, error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:it.body||'', question_id:null, images:[], files:pl.files, channel_id:c.id, kind:'chat' }).select().single();
+    if(error){ await unclaim(); toast(chatFileErrMsg(error)); return; } msgId=data&&data.id;
+  } else if(it.kind==='poll'){                                                                  // ★CR: 투표 항목 → 그 자리에서 열기
+    const pl=it.payload||{}; const ok=await semOpenPoll(c, pl.pkind||'ox', pl.question||'', pl.options||null);
+    if(!ok){ await unclaim(); return; }
   }
-  await sb.from('seminar_script').update({ fired_at:new Date().toISOString(), fired_msg_id:msgId }).eq('id', it.id);
-  it.fired_at=new Date().toISOString(); semScriptDraw();
+  if(msgId) await sb.from('seminar_script').update({ fired_msg_id:msgId }).eq('id', it.id);
+  semScriptDraw();
   if(it.kind==='pause') toast('⏸ 답을 기다리는 자리예요. 다음 Space로 넘어갑니다.');
 }
 function semLastHostMsgId(){ const c=semCur(); const els=[...document.querySelectorAll('#chatLog .msg.sem-host[data-mid]')]; return els.length ? Number(els[els.length-1].dataset.mid)||null : null; }
 document.addEventListener('keydown', (ev)=>{
-  const c=semCur(); if(!c || !semIs(c) || !semIsHost(c)) return;
+  const c=semCur(); if(!c || !semIs(c) || !semIsHost(c) || !$('#chatLog')) return;      // ★CR: 방 화면에서만(준비 화면에선 Space가 발사되면 안 된다)
   if((ev.ctrlKey||ev.metaKey) && (ev.key==='z'||ev.key==='Z') && !kv2InField(ev.target)){ ev.preventDefault(); semUndo(); return; }
   if(kv2InField(ev.target) || ev.ctrlKey || ev.metaKey || ev.altKey) return;
   const cl=semClusters(); const k=ev.key;
@@ -20314,13 +21461,66 @@ document.addEventListener('keydown', (ev)=>{
   if(k==='Delete'||k==='Backspace'){ if(_semSSel.size){ ev.preventDefault(); semScriptDeleteSel(); } return; }
   if(k==='Escape'){ _semQSel.clear(); semQueueDraw(); }
 });
+/* ★세션 CR: 발표자 보기 — 진행 중에 볼 것만: 시계(경과 · 예정 · 빠름/늦음) · 지금 장 · 다음 카드(미리보기 + 진행자 메모) · 큰 [다음] · 그다음 · 방금.
+   넓은 화면은 오른쪽 패널 맨 위(#semNow), 1100px 이하(태블릿 · 폰)는 채팅 위 한 줄 막대(#semNowBar)로. 같은 데이터. */
+function semPresState(){
+  const L=_semScript; const ni=L.findIndex(x=>!x.fired_at && x.kind!=='section'); const next=ni>=0?L[ni]:null;
+  const after=next ? L.slice(ni+1).find(x=>!x.fired_at && x.kind!=='section') : null;
+  const fired=L.filter(x=>x.fired_at && x.kind!=='section').sort((a,b)=>String(a.fired_at).localeCompare(String(b.fired_at)));
+  const last=fired[fired.length-1]||null;
+  let sec=null; const upto = next ? ni : L.length-1; for(let j=upto;j>=0;j--){ if(L[j] && L[j].kind==='section'){ sec=L[j]; break; } }
+  const t0=L.filter(x=>x.fired_at).map(x=>+new Date(x.fired_at)).reduce((a,b)=>Math.min(a,b), Infinity);
+  const total=L.reduce((a,x)=>a+semEst(x),0); const doneEst=L.filter(x=>x.fired_at).reduce((a,x)=>a+semEst(x),0);
+  return { next, after, last, sec, t0: isFinite(t0)?t0:null, total, doneEst, n:L.filter(x=>x.kind!=='section').length, done:fired.length };
+}
+function semPresPreview(it){
+  const pl=it.payload||{};
+  if(it.kind==='slide'){ const sl=semSlideOf(pl); return `<div class="pv-slide">${sl?`<img src="${escapeAttr(semSlideUrl(sl.path))}" alt="">`:'<span class="sp-miss">쪽 없음</span>'}</div>${it.body?`<div class="pv-txt">${escapeHtml(it.body)}</div>`:''}`; }
+  if(it.kind==='poll') return `<div class="pv-txt"><b>📊 ${escapeHtml(pl.question||'투표')}</b></div><div class="pv-sub">${escapeHtml((SEM_POLL_KINDS.find(x=>x[0]===(pl.pkind||'ox'))||[])[1]||'')}${pl.pkind==='mc'?' · '+escapeHtml((pl.options||[]).join(' / ')):''} — 발사하면 투표가 열려요</div>`;
+  if(it.kind==='pause') return `<div class="pv-txt">⏸ 멈추고 답을 기다려요</div>${it.body?`<div class="pv-sub">${escapeHtml(it.body)}</div>`:''}`;
+  if(it.kind==='file') return `<div class="pv-txt">${(pl.files||[]).map(f=>`<span class="cf-chip"><span class="cf-ic">${FILE_ICON[fileKindOf(f.name,f.type)]}</span><span class="cf-n">${escapeHtml(f.name)}</span></span>`).join(' ')||'파일 없음'}</div>${it.body?`<div class="pv-sub">${escapeHtml(it.body)}</div>`:''}`;
+  return `<div class="pv-txt pv-math">${escapeHtml(it.body||'')}</div>`;
+}
+function semPresenterDraw(){
+  const c=semCur(); if(!c) return; const S=semPresState();
+  const K=S.next ? (SEM_KINDS[S.next.kind]||SEM_KINDS.text) : null;
+  const elapsed = S.t0 ? (Date.now()-S.t0)/1000 : 0;
+  const pace = S.t0 ? Math.round(elapsed - S.doneEst) : 0;
+  const pct = S.total ? Math.min(100, Math.round(S.doneEst*100/S.total)) : (S.n ? Math.round(S.done*100/S.n) : 0);
+  const paceHTML = S.t0 && S.total ? `<span class="pv-pace ${pace>60?'late':pace<-60?'early':'ok'}" id="pvPace">${Math.abs(pace)<=60?'예정대로':pace>0?`${Math.round(pace/60)}분 늦음`:`${Math.round(-pace/60)}분 빠름`}</span>` : '';
+  const box=$('#semNow');
+  if(box){
+    if(!_semScript.length){ box.innerHTML=`<div class="pv-empty">대본이 없어요. <a href="${roomHashOf(c.id)}/plan">📋 준비 화면</a>에서 짜 두면 여기서 하나씩 발사해요.</div>`; }
+    else box.innerHTML=`<div class="pv-top"><span class="pv-clock" id="pvClock" data-t0="${S.t0||''}">${S.t0?fmtDur(elapsed):'시작 전'}</span><span class="pv-plan">/ 예상 ${fmtDur(S.total)}</span>${paceHTML}<a class="pv-planl" href="${roomHashOf(c.id)}/plan" title="준비 화면">📋 준비</a></div>
+      <div class="pv-bar"><span style="width:${pct}%"></span></div>
+      ${S.sec?`<div class="pv-sec">§ ${escapeHtml(S.sec.body||'')}</div>`:''}
+      <div class="pv-next">${S.next?`<div class="pv-lab">다음 · ${K.ic} ${escapeHtml(K.t)}${S.next.est_sec!=null?` <small>${fmtDur(S.next.est_sec)}</small>`:''}</div>${semPresPreview(S.next)}${S.next.note?`<div class="pv-note">📝 ${escapeHtml(S.next.note)}</div>`:''}`:'<div class="pv-lab">대본 끝</div><div class="pv-sub">더 발사할 것이 없어요. 수고했어요!</div>'}</div>
+      <div class="pv-btns"><button type="button" class="pv-go" id="pvGo"${S.next?'':' disabled'}>▶ 다음 <kbd>Space</kbd></button><button type="button" class="pv-skip" id="pvSkip"${S.next?'':' disabled'} title="보내지 않고 넘기기">건너뛰기</button></div>
+      ${S.after?`<div class="pv-after"><span>그다음</span>${escapeHtml(semScriptItemLabel(S.after).slice(0,90))}</div>`:''}
+      ${S.last?`<div class="pv-last"><span>방금</span>${escapeHtml(semScriptItemLabel(S.last).slice(0,90))}</div>`:''}`;
+    const g=$('#pvGo'); if(g) g.onclick=()=>semFireNext();
+    const k=$('#pvSkip'); if(k) k.onclick=()=>semSkipNext();
+    const mt=box.querySelector('.pv-math'); if(mt) renderMath(mt);
+  }
+  const bar=$('#semNowBar');
+  if(bar){
+    bar.innerHTML = _semScript.length ? `<span class="nb-clock" id="pvClock2" data-t0="${S.t0||''}">${S.t0?fmtDur(elapsed):'시작 전'}</span>
+      <span class="nb-next">${S.next?`<b>다음</b> ${escapeHtml(semScriptItemLabel(S.next).slice(0,70))}`:'<b>대본 끝</b>'}</span>
+      <button type="button" class="nb-go" id="nbGo"${S.next?'':' disabled'}>▶ 다음</button><button type="button" class="nb-more" id="nbMore" title="대본 · 파일 패널">☰</button>`
+      : `<span class="nb-next">대본이 없어요 — <a href="${roomHashOf(c.id)}/plan">📋 준비 화면</a></span><button type="button" class="nb-more" id="nbMore" title="대본 · 파일 패널">☰</button>`;
+    const g=$('#nbGo'); if(g) g.onclick=()=>semFireNext();
+    const m=$('#nbMore'); if(m) m.onclick=()=>{ const h=document.querySelector('.hub.room-view'); if(h){ h.classList.toggle('show-side'); if(h.classList.contains('show-side')){ const n=$('#semNow'); if(n) n.scrollIntoView({ block:'start', behavior:'smooth' }); } } };
+  }
+}
+setInterval(()=>{ ['pvClock','pvClock2'].forEach(id=>{ const el=document.getElementById(id); if(!el || !el.dataset.t0) return; el.textContent=fmtDur((Date.now()-Number(el.dataset.t0))/1000); }); }, 1000);
+
 /* 귓속말: 큐의 그 학생에게만 보이는 한 줄(status='whisper', target_uid). 단방향. 110 필요. */
 async function semWhisper(key){
   const c=semCur(); const cl=semClusters().find(x=>x.key===key); if(!c||!cl) return;
   const targets=[...new Set(cl.items.map(x=>x.m.user_id))]; const names=[...new Set(cl.items.map(x=>x.m.author_name||'회원'))];
   const body=prompt(`${names.join(', ')}에게만 보이는 귓속말`, ''); if(!body||!body.trim()) return;
   for(const uid of targets){
-    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:body.trim(), question_id:null, images:null, channel_id:c.id, kind:'chat', status:'whisper', target_uid:uid });
+    const { error } = await sb.from('messages').insert({ user_id:state.user.id, author_name:state.name||null, author_handle:state.handle||null, body:body.trim(), question_id:null, images:[], channel_id:c.id, kind:'chat', status:'whisper', target_uid:uid });
     if(error){ toast(/status|column/i.test(String(error.message||''))?'귓속말은 110_seminar_console.sql이 필요해요.':'보내지 못했어요: '+(error.message||'')); return; }
   }
   toast(`${names.join(', ')}에게 귓속말을 보냈어요.`);
@@ -20329,12 +21529,19 @@ let _semArr=[], _semFrozen=false, _semFrozenN=0;
 function semHandlePending(m){
   const c=semCur(); if(!c) return false;
   if(m.pending && semIsHost(c)){ const now=Date.now(); _semArr=_semArr.filter(t=>now-t<1000).concat([now]); if(_semArr.length>5 && !_semFrozen){ _semFrozen=true; } if(_semFrozen) _semFrozenN++; }
-  if(m.status==='dismissed') return true;                       // 기각된 답은 그리지 않는다(기록에는 남는다)
+  if(m.status==='dismissed'){                                    // 기각된 답은 그리지 않는다(기록에는 남는다)
+    const me0=state.user&&state.user.id;                         // ★CR: 내 답이면 '확인 중' 줄을 조용히 바꿔 준다
+    if(m.user_id===me0 && !semIsHost(c)){ const log=$('#chatLog'); const w=log&&log.querySelector('[data-mid="'+m.id+'"]');
+      const html=`<span>내 답 "${escapeHtml(String(m.body||'').slice(0,40))}" — 이번엔 화면에 올리지 않았어요</span>`;
+      if(w){ w.className='msg-system sem-wait done'; w.innerHTML=html; }
+      else if(log){ const d=document.createElement('div'); d.className='msg-system sem-wait done'; d.setAttribute('data-mid', m.id); d.innerHTML=html; log.appendChild(d); }
+      semStuNoteDraw(); }
+    return true; }
   if(m.status==='whisper'){ const log=$('#chatLog'); if(log && !log.querySelector('[data-mid="'+m.id+'"]')){ const mineW=m.user_id===(state.user&&state.user.id); const d=document.createElement('div'); d.className='msg-system sem-whisper'; d.setAttribute('data-mid', m.id); d.innerHTML=`<span><b>${escapeHtml(m.author_name||'진행자')}</b> ${escapeHtml(m.body||'')} <i>${mineW?'귓속말 → '+escapeHtml(kyptName(m.target_uid)):'나에게만 보임'}</i></span>`; log.appendChild(d); renderMath(d); } return true; }
   if(!m.pending) return false;
   const me=state.user&&state.user.id;
   if(semIsHost(c)){ if(!_semPending.some(x=>x.m.id===m.id)) _semPending.push({ m }); semQueueDraw(); return true; }
-  if(m.user_id===me){ const log=$('#chatLog'); if(log && !log.querySelector('[data-mid="'+m.id+'"]')){ const d=document.createElement('div'); d.className='msg-system sem-wait'; d.setAttribute('data-mid', m.id); d.innerHTML=`<span>내 답 "${escapeHtml(String(m.body||'').slice(0,40))}" — 진행자 확인 중</span>`; log.appendChild(d); } return true; }
+  if(m.user_id===me){ const log=$('#chatLog'); if(log && !log.querySelector('[data-mid="'+m.id+'"]')){ const d=document.createElement('div'); d.className='msg-system sem-wait'; d.setAttribute('data-mid', m.id); d.innerHTML=`<span>내 답 "${escapeHtml(String(m.body||'').slice(0,40))}" — 진행자 확인 중</span>`; log.appendChild(d); } semStuNoteDraw(); return true; }
   return true;                                                     // 남의 대기 답은 안 보인다
 }
 /* 투표 */
@@ -20366,6 +21573,17 @@ function semPollDraw(){
   const si=$('#semShortIn'); if(si) si.onkeydown=async(e)=>{ if(e.key!=='Enter') return; e.preventDefault(); const v=si.value.trim(); if(!v) return; const { error } = await sb.from('seminar_votes').upsert({ poll_id:p.id, uid:me, choice:v.slice(0,80) }, { onConflict:'poll_id,uid' }); if(error) toast('보내지 못했어요: '+(error.message||'')); else { toast('답을 보냈어요.'); await semPollLoad(); semPollDraw(); } };
   box.querySelectorAll('.sem-pclose').forEach(b=>{ b.onclick=async()=>{ const patch = b.dataset.a==='reveal' ? { revealed_at:new Date().toISOString() } : { closed_at:new Date().toISOString() }; const r=await sb.from('seminar_polls').update(patch).eq('id', p.id); if(r.error) toast('바꾸지 못했어요: '+(r.error.message||'')); await semPollLoad(); semPollDraw(); }; });
 }
+async function semOpenPoll(c, kind, q, options){
+  try{ await sb.from('seminar_polls').update({ closed_at:new Date().toISOString() }).eq('channel_id', c.id).is('closed_at', null); }catch(e){}   // ★CR: 열린 투표는 하나만
+  if(kind==='mc'){ options=(options||[]).map(String).map(x=>x.trim()).filter(Boolean).slice(0,6); if(options.length<2){ toast('객관식 보기는 둘 이상이어야 해요.'); return false; } } else options=null;
+  let { error } = await sb.from('seminar_polls').insert({ channel_id:c.id, kind, question:q||null, opened_by:state.user.id, options });
+  if(error && /options|column|check/i.test(String(error.message||''))){
+    if(kind==='mc'||kind==='short'){ toast('객관식 · 단답은 110_seminar_console.sql이 필요해요.'); return false; }
+    ({ error } = await sb.from('seminar_polls').insert({ channel_id:c.id, kind, question:q||null, opened_by:state.user.id }));
+  }
+  if(error){ toast('투표를 열지 못했어요: '+(error.message||'')); return false; }
+  await semPollLoad(); semPollDraw(); return true;
+}
 /* ★세션 CF: 투표 만들기 패널 — prompt 대신 작은 창. 그림자 없이 테두리만, 머리를 잡아 끌면 화면 아무 데나 옮길 수 있다. */
 function semStartPoll(){
   const c=semCur(); if(!c) return;
@@ -20390,13 +21608,9 @@ function semStartPoll(){
       let options=null;
       if(kind==='mc'){ options=(box.querySelector('#spOpts').value||'').split(',').map(x=>x.trim()).filter(Boolean).slice(0,6); if(options.length<2){ msg.className='msg err'; msg.textContent='보기는 둘 이상이어야 해요.'; return; } }
       box.querySelector('#spGo').disabled=true;
-      let { error } = await sb.from('seminar_polls').insert({ channel_id:c.id, kind, question:q||null, opened_by:state.user.id, options });
-      if(error && /options|column|check/i.test(String(error.message||''))){
-        if(kind==='mc'||kind==='short'){ box.querySelector('#spGo').disabled=false; msg.className='msg err'; msg.textContent='객관식·단답은 110_seminar_console.sql이 필요해요.'; return; }
-        ({ error } = await sb.from('seminar_polls').insert({ channel_id:c.id, kind, question:q||null, opened_by:state.user.id }));
-      }
-      if(error){ box.querySelector('#spGo').disabled=false; msg.className='msg err'; msg.textContent='열지 못했어요: '+(error.message||''); return; }
-      box.remove(); await semPollLoad(); semPollDraw(); toast('투표를 열었어요. 결과는 [결과 공개]를 누를 때 보여요.');
+      const okp=await semOpenPoll(c, kind, q, options);                                   // ★CR: 대본 투표와 같은 길(열린 투표 먼저 닫기)
+      if(!okp){ box.querySelector('#spGo').disabled=false; return; }
+      box.remove(); toast('투표를 열었어요. 결과는 [결과 공개]를 누를 때 보여요.');
     };
     semDragPanel(box, box.querySelector('.sem-pnh'));
     setTimeout(()=>{ const q=box.querySelector('#spQ'); if(q) q.focus(); }, 30);
@@ -20423,7 +21637,7 @@ async function semEnd(){
   const ok=await confirmModal('세미나를 끝낼까요?', '방은 하루 동안 그대로 남고(글도 쓸 수 있어요), 다음 날 세미나 보관함으로 옮겨져요.', '끝내기'); if(!ok) return;
   const { error } = await sb.rpc('seminar_end', { p_channel:c.id }); if(error){ toast('끝내지 못했어요: '+(error.message||'')); return; }
   c.seminar_status='ended'; c.ended_at=new Date().toISOString(); c.pinned=null; semDrawPin(); toast('세미나를 끝냈어요.');
-  const h=$('#chatHeadN'); if(h) h.textContent=`세미나 · 진행자 ${semHostNames(c)} · 끝남(하루 뒤 보관함으로)`;
+  semHeadDraw(c);
 }
 /* 보관함 */
 async function renderSeminars(){
@@ -20440,16 +21654,29 @@ async function renderSeminars(){
       <div class="doc-meta">세미나 · 진행자 ${escapeHtml((a.hosts||[]).map(u=>kyptName(u)).join(' · '))} · ${escapeHtml(kv2Fmt(a.started_at)||'')} ~ ${escapeHtml(kv2Fmt(a.ended_at)||'')} · 참석 ${(r.attendance||[]).length}명</div>
       <details class="sar-att"><summary>참석자 ${(r.attendance||[]).length}명</summary><div class="sar-people">${(r.attendance||[]).map(x=>`<span>${escapeHtml(kyptName(x.uid))}</span>`).join('')}</div></details>
       ${(r.polls||[]).length?`<div class="sar-polls">${r.polls.map(p=>`<div class="sar-poll">📊 ${escapeHtml(p.question||'투표')} — ${Object.entries(p.votes||{}).map(([k,v])=>`${k}: ${v}`).join(' · ')||'표 없음'}</div>`).join('')}</div>`:''}
+      ${(isOwner() || (state.user && ((a.created_by===state.user.id) || (!a.created_by && (a.hosts||[]).includes(state.user.id)))))?`<div class="sar-keep">🔒 영구 보존 기록이에요 · <button type="button" class="btn" id="sarDel" style="width:auto;padding:3px 10px">세미나 지우기…</button></div>`:'<div class="sar-keep">🔒 영구 보존 기록이에요 — 세미나를 연 사람만 지울 수 있어요.</div>'}
       <div class="sar-tools"><span class="sar-tog"><button class="lim-chip on" data-v="all">학생 답 전부</button><button class="lim-chip" data-v="3">진행자 말마다 3개</button><button class="lim-chip" data-v="0">숨김</button></span>${r.dismissed?`<span class="muted">기각 ${r.dismissed}</span>`:''}<button class="btn" id="sarExport" style="width:auto;padding:6px 12px;margin-left:auto">HTML로 내보내기</button></div>
       <div class="sar-log">${(r.messages||[]).map(line).join('')||'<p class="muted">남은 대화가 없어요.</p>'}</div>`;
     $('#sarBack').onclick=()=>{ location.hash='#//seminars'; };
+    { const d=$('#sarDel'); if(d) d.onclick=()=>semDeleteFlow({ channel:a.channel_id??null, archive:a.id, name:a.title }); }   // ★CS
     await renderMath($('.sar-log'));
     /* 3단계 토글: 학생 답을 진행자 말 뒤 n개까지 */
     const applyTog=(v)=>{ let k=0; document.querySelectorAll('.sar-log > *').forEach(el=>{ if(el.classList.contains('sar-msg') && !el.classList.contains('host')){ k++; el.style.display = (v==='all'||(v==='3'&&k<=3)) ? '' : 'none'; } else k=0; }); };
     document.querySelectorAll('.sar-tog button').forEach(b=>{ b.onclick=()=>{ document.querySelectorAll('.sar-tog button').forEach(x=>x.classList.toggle('on', x===b)); applyTog(b.dataset.v); }; });
     /* 자기완결 HTML — 수식은 이미 KaTeX로 렌더된 DOM을 그대로 담는다(JS 의존 0, CSS만 CDN) */
-    $('#sarExport').onclick=()=>{
-      const body=document.querySelector('.sar-log').innerHTML;
+    $('#sarExport').onclick=async()=>{
+      /* ★CR: 사진 주소는 1시간짜리 서명 주소라 내보낸 파일에서 곧 깨졌다 → 사진을 파일 안에 넣는다(data:) */
+      const btn=$('#sarExport'); btn.disabled=true; const lab=btn.textContent; btn.textContent='사진 담는 중…';
+      const clone=document.querySelector('.sar-log').cloneNode(true);
+      clone.querySelectorAll('[style*="display: none"],[style*="display:none"]').forEach(x=>x.remove());
+      const imgs=[...clone.querySelectorAll('img')]; let i=0;
+      for(const im of imgs){ i++; btn.textContent=`사진 담는 중… ${i}/${imgs.length}`;
+        try{ const src=im.getAttribute('src'); const u=(src||'').indexOf(STORAGE_PUB_MARK)>=0 ? await signedStorageUrl(src) : src;
+          const r=await fetch(u); if(!r.ok) throw 0; const b=await r.blob();
+          const d=await new Promise((res,rej)=>{ const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=rej; fr.readAsDataURL(b); });
+          im.setAttribute('src', d); im.removeAttribute('loading'); }catch(e){ im.setAttribute('alt','(사진을 담지 못했어요)'); } }
+      btn.disabled=false; btn.textContent=lab;
+      const body=clone.innerHTML;
       const html=`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${escapeHtml(a.title)} — 세미나 기록</title>
 <link rel="stylesheet" href="${KATEX_CDN}/katex.min.css">
 <style>body{font-family:Pretendard,-apple-system,'Segoe UI','Noto Sans KR',sans-serif;max-width:820px;margin:28px auto;padding:0 16px;color:#1B1A1C;line-height:1.6}
@@ -20516,7 +21743,7 @@ async function openRoomCompose(initKind){
         if(error && /opens_at|unlisted|column/i.test(String(error.message||''))){ delete row.opens_at; delete row.unlisted; ({ data, error } = await sb.from('channels').insert(row).select().single()); if(!error) toast('공개 시각·비공개는 112_seminar_schedule.sql이 필요해요 — 바로 공개로 만들었어요.'); }
         if(error) throw error;
         await loadChannels(); box.remove(); toast(kind==='seminar'?'세미나를 만들었어요.':'방을 만들었어요: # '+name);
-        location.hash='#//community/'+data.id;
+        location.hash='#//community/'+data.id+(kind==='seminar'?'/plan':'');   // ★CR: 새 세미나는 준비부터
       }catch(e){ box.querySelector('#rcGo').disabled=false; m.className='msg err'; m.textContent='만들지 못했어요: '+((e&&e.message)||e); }
     };
     setTimeout(()=>{ const n=box.querySelector('#rcName'); if(n) n.focus(); }, 30);
@@ -20547,7 +21774,7 @@ async function openChannelSettings(id){
       <button class="ch-act" id="csUp">↑ 위로</button>
       <button class="ch-act" id="csDown">↓ 아래로</button>
       <button class="ch-act" id="csArch">${c.archived?'보관 해제':'보관'}</button>
-      ${permOk?`<button class="ch-act danger" id="csDel">삭제…</button>`:''}
+      ${(c.kind==='seminar') ? (semCanDelete(c)?`<button class="ch-act danger" id="csSemDel">세미나 지우기…</button>`:'') : (permOk?`<button class="ch-act danger" id="csDel">삭제…</button>`:'')}
     </div>
     <p class="ch-note">보관하면 목록에서 내려가고 대화는 그대로 남아요 — 언제든 되돌릴 수 있어요.</p>
     <div class="he-msg" id="csMsg"></div>
@@ -20606,6 +21833,7 @@ async function openChannelSettings(id){
       toast(c.archived ? '보관을 해제했어요.' : '대화방을 보관했어요. 대화는 그대로 남아 있어요.');
     }catch(e){ showErr('바꾸지 못했습니다: '+((e&&e.message)||e)); }
   };
+  { const sd=ov.querySelector('#csSemDel'); if(sd) sd.onclick=()=>{ close(); semDeleteFlow({ channel:c.id, name:c.name }); }; }   // ★CS
   const del=ov.querySelector('#csDel');
   if(del) del.onclick=async()=>{
     /* 삭제 전에 규모를 알려준다 — 몇 건이 지워지는지 모르고 지우게 하지 않는다 */
@@ -20957,15 +22185,24 @@ async function loadMessages(){
   const log=$('#chatLog'); if(!log) return;
   try{
     const q = community.qid || null;                       // null=커뮤니티 채팅, 숫자=질문 답변 스레드
-    let sel = sb.from('messages')
-      .select('id,user_id,author_name,author_handle,body,created_at,kind,question_id,images');
-    sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
-    /* ★대화방 필터는 커뮤니티 채팅에서만. 질문 스레드는 대화방 개념이 없다.
-       83 미적용(chOk=false)이면 필터를 아예 걸지 않는다 — 없는 컬럼을 참조하면 조회가 통째로 죽는다. */
-    if(!q && community.chOk){
-      sel = (community.ch==null) ? sel.is('channel_id', null) : sel.eq('channel_id', community.ch);
+    /* ★CR: 세미나 상태 칸(108 pending · 110 status/target_uid/parent_id) · 파일(130 files)을 함께 읽는다.
+       예전엔 빠져 있어서, 방을 다시 열면 진행자의 대기 답이 사라지고 기각·귓속말이 보통 메시지로 보였다.
+       없는 칸이 있으면 조회가 통째로 죽으므로 칸 묶음을 줄여 가며 다시 시도한다(규칙 9). */
+    const COLS=['id,user_id,author_name,author_handle,body,created_at,kind,question_id,images'];
+    const tries=[COLS[0]+',channel_id,pending,status,target_uid,parent_id,files', COLS[0]+',channel_id,pending,status,target_uid,parent_id', COLS[0]+',pending', COLS[0]];
+    let data=null, error=null;
+    for(const cols of tries){
+      let sel = sb.from('messages').select(cols);
+      sel = q ? sel.eq('question_id', q) : sel.is('question_id', null);
+      /* ★대화방 필터는 커뮤니티 채팅에서만. 질문 스레드는 대화방 개념이 없다.
+         83 미적용(chOk=false)이면 필터를 아예 걸지 않는다 — 없는 컬럼을 참조하면 조회가 통째로 죽는다. */
+      if(!q && community.chOk){
+        sel = (community.ch==null) ? sel.is('channel_id', null) : sel.eq('channel_id', community.ch);
+      }
+      ({ data, error } = await sel.order('created_at',{ascending:false}).limit(200));
+      if(!error) break;
+      if(!/column|42703|does not exist/i.test(String(error.message||'')+String(error.code||''))) break;
     }
-    const { data, error } = await sel.order('created_at',{ascending:false}).limit(200);
     if(error) throw error;
     const rows=(data||[]).reverse();   // 최신 200개를 오래된→최신 순으로 표시
     log.innerHTML = rows.length ? '' : '<div class="chat-empty">아직 메시지가 없습니다. 첫 메시지를 남겨보세요.</div>';
@@ -21029,9 +22266,11 @@ function appendMessage(m, doScroll=true){
     <div class="msg-main">
       <div class="msg-who">${who}</div>
       ${msgImagesHTML(m.images, m.created_at, mine)}
+      ${msgFilesHTML(m.files, mine)}
       <div class="msg-bubble-row">
         ${m.body?`<div class="msg-bubble">${escapeHtml(m.body)}</div>`:''}
       </div>
+      ${msgLinkEmbedsHTML(m.body)}
       <div class="msg-foot">
         <span class="msg-time">${fmtKST(m.created_at)}</span>
         ${canDel?`<button class="msg-del" title="메세지 삭제">${ic('trash')}</button>`:''}
@@ -21045,7 +22284,7 @@ function appendMessage(m, doScroll=true){
   }
   { const sc=semCur(); if(semIs(sc)){                            // ★108: 진행자 라벨 · 슬라이드 · 📌
       if((sc.hosts||[]).includes(m.user_id) || m.user_id===sc.created_by){ el.classList.add('sem-host'); const w=el.querySelector('.msg-who'); if(w && !w.querySelector('.sem-lab')) w.insertAdjacentHTML('beforeend',' <span class="sem-lab">진행자</span>'); }
-      if(m.kind==='slide'){ el.classList.add('sem-slidemsg'); }
+      if(m.kind==='slide'){ el.classList.add('sem-slidemsg'); semStageSet(m); }   // ★CR: 학생 '지금 화면'
       else if(!el.classList.contains('sem-host')){ el.classList.add('sem-reply'); }   // 학생 답 = 진행자 말에 딸린 묶음(회색)
       if(semIsHost(sc) && m.kind!=='system'){ const f=el.querySelector('.msg-foot'); if(f){ const b=document.createElement('button'); b.className='msg-pin'; b.title='고정 상자에 올리기'; b.textContent='📌';
           b.onclick=()=>semSetPinned(m.kind==='slide' && m.images && m.images[0] ? { type:'slide', url:m.images[0], by:state.user.id, at:new Date().toISOString(), msg_id:m.id } : { type:'msg', msg_id:m.id, body:m.body||'', by:state.user.id, at:new Date().toISOString() }); f.appendChild(b); } }
@@ -21194,7 +22433,11 @@ const LIMITS = {
   /* ★세션 BU */
   lim_avatar_kb:40,             // 프로필 사진(256px 정사각형으로 줄인 뒤 목표 용량)
   lim_bio_chars:100,            // 한 줄 소개
-  lim_story_img_kb:300          // 연혁 사진
+  lim_story_img_kb:300,         // 연혁 사진
+  /* ★세션 CQ: 고정값이던 것 2개를 상한 화면으로 (기본값은 예전 고정값 그대로) */
+  lim_sem_pdf_kb:20480,         // 세미나 PDF 파일 1개 (예전 SEM_PDF_MAX 20MB)
+  lim_labmap_img_kb:700,        // 물리실 도면 사진 (예전 700KB 고정)
+  lim_chat_file_kb:51200        // ★CR 채팅 파일 1개(130 chat-files 버킷 상한 50MB와 같게)
 };
 async function loadLimits(){
   try{
@@ -21324,23 +22567,27 @@ async function sendMessage(){
   if(!requirePerm(community.qid ? 'q_answer' : 'chat')) return;
   const inp=$('#chatText'); if(!inp || !state.user) return;
   const body=inp.value.trim();
-  if(!body && !chatPick.length) return;              // 글도 사진도 없으면 무시
-  const files=chatPick.slice();
-  inp.value=''; chatPick=[]; drawChatTray();
+  if(!body && !chatPick.length && !chatFilesPick.length) return;              // 글도 사진도 파일도 없으면 무시
+  const files=chatPick.slice(); const docs=chatFilesPick.slice();
+  inp.value=''; chatPick=[]; drawChatTray(); chatFilesPick=[]; drawChatFileTray();
   sendTypingStop();
   const btn=$('#chatSend'); if(btn) btn.disabled=true;
   try{
     let images=[];
     if(files.length) images = await uploadChatImages(files, t=>{ if(btn) btn.textContent=t.replace('사진 올리는 중… ',''); });
+    let attach=[];
+    if(docs.length){ try{ attach = await uploadChatFiles(docs, t=>{ if(btn) btn.textContent='올리는 중…'; chatPasteMsg(t, true); }); }
+      catch(e){ chatFilesPick=docs; drawChatFileTray(); throw new Error(chatFileErrMsg(e)); } }
     const row={ user_id:state.user.id, author_name:state.name||null,
       author_handle:state.handle||null, body, question_id: community.qid || null, images };
+    if(attach.length) row.files=attach;                                                     // ★CR 130
     if(!community.qid && community.chOk && community.ch!=null) row.channel_id=community.ch;   // ★83
     { const sc=semCur(); if(semIs(sc) && sc.moderated && !semIsHost(sc)) row.pending=true; }   // ★108 답 골라 내리기
     const { error } = await sb.from('messages').insert(row);
-    if(error) throw error;   // 실시간 구독으로 곧 화면에 반영됨
+    if(error){ if(attach.length){ try{ await sb.storage.from('chat-files').remove(attach.map(x=>x.path)); }catch(_){} chatFilesPick=docs; drawChatFileTray(); if(/files/i.test(String(error.message||''))) throw new Error(chatFileErrMsg(error)); } throw error; }   // 실시간 구독으로 곧 화면에 반영됨
   }catch(e){
     inp.value=body; chatPick=files; drawChatTray();
-    if(!handleErr(e, community.qid?'q_answer':'chat')) alert('전송 실패: '+((e&&e.message)||e));
+    if(!handleErr(e, community.qid?'q_answer':'chat')){ const em=String((e&&e.message)||e); if(/^파일|^\S+ 파일|파일 공유/.test(em)) toast(em); else alert('전송 실패: '+em); }
   }finally{ if(btn){ btn.disabled=false; btn.textContent='전송'; } }
 }
 
@@ -21362,8 +22609,19 @@ function initDmImages(){
 /* 채팅 화면(커뮤니티·질문)의 사진 배선 */
 function initChatImages(){
   chatPick=[]; drawChatTray();
+  chatFilesPick=[]; drawChatFileTray();                                                     // ★CR 파일
   const b=$('#chatImgBtn');
   if(b) b.onclick=()=>pickChatImages(chatPick, drawChatTray, m=>alert(m));
+  const fb=$('#chatFileBtn'); if(fb) fb.onclick=pickChatFiles;
+  const zone=document.querySelector('.chat.aops');
+  if(zone && !zone.dataset.dropOk){ zone.dataset.dropOk='1';
+    zone.addEventListener('dragover', e=>{ if(e.dataTransfer && [...(e.dataTransfer.types||[])].includes('Files')){ e.preventDefault(); zone.classList.add('cf-over'); } });
+    zone.addEventListener('dragleave', e=>{ if(e.target===zone) zone.classList.remove('cf-over'); });
+    zone.addEventListener('drop', e=>{ const fl=[...((e.dataTransfer&&e.dataTransfer.files)||[])]; zone.classList.remove('cf-over'); if(!fl.length || !$('#chatFileBtn')) return; e.preventDefault();
+      const imgs=fl.filter(f=>/^image\/(jpeg|png|webp)$/.test(f.type)), rest=fl.filter(f=>!imgs.includes(f));
+      imgs.forEach(f=>{ if(chatPick.length<CHAT_IMG_MAX) chatPick.push(f); else rest.push(f); }); drawChatTray();
+      const w=rest.length?addChatFiles(rest):''; if(w) chatPasteMsg(w, false); });
+  }
   bindChatPaste($('#chatText'), chatPick, drawChatTray, (m,ok)=>chatPasteMsg(m,ok));
   updateCharCount();                      // 상한(LIMITS)에 맞춰 카운터 초기화
 }
@@ -21519,7 +22777,8 @@ function subscribeChat(){
       const n=payload.new||{}; if(n.pending) return;
       const vc = community.ch!=null ? String(community.ch) : null; const mc = n.channel_id!=null ? String(n.channel_id) : null; if(mc!==vc) return;
       _semPending=_semPending.filter(x=>x.m.id!==n.id); semQueueDraw();
-      const w=document.querySelector('.sem-wait[data-mid="'+n.id+'"]'); if(w) w.remove();
+      if(n.status==='dismissed'){ semHandlePending(n); return; }                          // ★CR: 학생 쪽 '확인 중' 줄을 바꾸기만(appendMessage는 같은 id면 건너뛴다)
+      const w=document.querySelector('.sem-wait[data-mid="'+n.id+'"]'); if(w){ w.remove(); semStuNoteDraw(); }
       appendMessage(n, true);
     })
     .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, payload=>{
@@ -22046,7 +23305,8 @@ function route(){
   /* ★기능 스위치(82) — 꺼진 모듈은 직접 주소로도 못 들어간다 (owner는 점검을 위해 통과) */
   if(sys && !isOwner()){
     const FEAT_PAGE={ community:'community', questions:'questions', inbox:'inbox',
-                      board:'tasks', qr:'qr', directory:'directory', story:'history', kypt:'kypt' };
+                      board:'tasks', qr:'qr', directory:'directory', story:'history', kypt:'kypt',
+                      lab:'community', 'lab/chat':'community', 'lab/q':'questions' };   // ★CQ: CK 이후 새 주소에도 같은 스위치
     const fk = FEAT_PAGE[key]
             || (key.startsWith('kypt/') ? 'kypt' : null)
             || ((isQuestion||isUserQ) ? 'questions' : null)
@@ -22059,7 +23319,7 @@ function route(){
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
                      admin:'admin_access', trash:'trash', health:'system_health', system:'system_access',
-                     requests:'signup_review' };
+                     requests:'signup_review', 'lab/chat':'chat', 'lab/q':'q_ask' };   // ★CQ: 예전 community·questions 주소의 문지기를 새 주소에
     if(key==='feedback') { /* 피드백 제출은 전 등급 */ }
     const cap = PAGE_CAP[key] || (key.startsWith('q/')?'q_ask':null) || (key.startsWith('dm/')?'dm':null)
               || (key.startsWith('trash/')?'trash':null) || (key.startsWith('edit/')?'doc_edit':null)
@@ -22115,7 +23375,7 @@ function route(){
   if(sys && key==='devlog'){ renderDevLog(); return; }                            // 운영 일지: 전 등급 열람
   if(sys && key==='feedback'){ renderFeedback(); return; }                        // 전 등급
   if(sys && key==='feedback/review'){ if(!guardPage('feedback_read')) return; renderFeedbackReview(); return; }
-  if(sys && key==='health'){ if(isOwner()) renderHealth(); else location.hash='#//home'; return; }
+  if(sys && key==='health'){ renderHealth(); return; }    // ★CQ: 권한 확인은 위 PAGE_CAP(system_health)이 한다 — 예전엔 owner만 들여보내 타일과 어긋났다(검사는 읽기만 해서 안전)
   if(sys && key==='system'){ renderSystem(); return; }
   if(sys && key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
@@ -22464,6 +23724,8 @@ sb.auth.onAuthStateChange(async (event) => {
 })();
 if($('#refreshMark')) $('#refreshMark').onclick=()=>route();   // 수동 새로고침
 
+/* ★CS: 상단바 아이콘만 보일 때도 이름이 뜨게 — 버튼 글자를 title로(야간/주간은 바뀌므로 올릴 때마다) */
+document.querySelectorAll('.topbar .navbtn, .topbar .mode').forEach(b=>{ b.addEventListener('mouseenter', ()=>{ const t=(b.querySelector('.nbt, .mode-t')||{}).textContent; if(t) b.title=t.trim(); }); const t=(b.querySelector('.nbt, .mode-t')||{}).textContent; if(t && !b.title) b.title=t.trim(); });
 init();
 </script>
 </body>
