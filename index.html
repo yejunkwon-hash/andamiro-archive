@@ -3251,6 +3251,35 @@ body.has-botnav .compose{ bottom:calc(66px + env(safe-area-inset-bottom)); right
 .sp-textbox textarea{ width:100%; box-sizing:border-box; min-height:46vh; font-family:var(--mono); font-size:13px; line-height:1.6; border:1px solid var(--border); border-radius:8px; padding:10px 12px; background:var(--card); color:var(--text); resize:vertical; margin-top:8px; }
 .sp-textbox code{ font-family:var(--mono); font-size:11.5px; background:var(--box-bg); border-radius:3px; padding:0 4px; }
 .sp-tprev{ font-size:12.5px; color:var(--text-dim); margin-top:6px; }
+/* ===== ★세션 CT: 선생님 첫 화면 · 승인 화면 ===== */
+.td{ border:1.5px solid color-mix(in srgb, var(--teacher) 55%, var(--border)); border-radius:14px; background:var(--card); padding:14px 16px; margin:0 0 14px; }
+.td-h{ display:flex; align-items:baseline; gap:10px; margin-bottom:6px; } .td-h b{ font-size:17px; color:var(--teacher); } .td-h span{ color:var(--text-dim); font-size:13px; }
+.td-empty{ font-size:15px; font-weight:700; color:var(--ok); padding:6px 0 2px; }
+.td-push{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; padding:10px 12px; margin:6px 0 4px; border-radius:10px; background:color-mix(in srgb, var(--teacher) 9%, var(--card)); font-size:13.5px; }
+.td-pb{ display:flex; gap:6px; margin-left:auto; }
+.td-sec{ margin-top:10px; } .td-st{ display:flex; align-items:center; gap:8px; font-size:13px; font-weight:800; color:var(--text-dim); margin-bottom:4px; } .td-st b{ color:var(--text); }
+.td-all{ margin-left:auto; }
+.td-row{ display:flex; align-items:center; gap:10px; padding:8px 4px; border-top:1px solid var(--border); text-decoration:none; color:var(--text); }
+.td-main{ flex:1; min-width:0; text-decoration:none; color:var(--text); font-size:14.5px; } .td-main small{ display:block; color:var(--text-dim); font-size:12.5px; margin-top:2px; }
+.td-acts{ display:flex; gap:6px; flex:none; }
+.td-ok, .td-no{ border:none; border-radius:9px; padding:9px 16px; font:inherit; font-size:14px; font-weight:800; cursor:pointer; }
+.td-ok{ background:var(--ok); color:#fff; } .td-no{ background:var(--box-bg); color:var(--text); border:1px solid var(--border); }
+.td-ok:disabled, .td-no:disabled{ opacity:.5; }
+.td-did{ opacity:.6; } .td-dn{ font-size:13px; font-weight:800; color:var(--text-dim); }
+.td-more{ margin-left:auto; font-size:12.5px; font-weight:700; color:var(--text-dim); text-decoration:none; } .td-sec > .td-more{ display:block; text-align:right; margin-top:4px; }
+.ap-wrap{ max-width:520px; margin:8px auto 0; }
+.ap-k{ font-size:13px; font-weight:800; color:var(--teacher); }
+.ap-h{ font-size:24px; margin:4px 0 10px; }
+.ap-dl{ display:grid; grid-template-columns:auto 1fr; gap:6px 14px; margin:0 0 14px; font-size:15px; } .ap-dl dt{ color:var(--text-dim); font-size:13px; padding-top:2px; } .ap-dl dd{ margin:0; word-break:break-word; }
+.ap-note-in{ width:100%; box-sizing:border-box; font:inherit; font-size:14px; border:1px solid var(--border); border-radius:10px; padding:9px 11px; background:var(--card); color:var(--text); resize:vertical; }
+.ap-btns{ display:flex; gap:10px; margin-top:10px; }
+.ap-ok, .ap-no{ flex:1; padding:15px; border:none; border-radius:12px; font:inherit; font-size:17px; font-weight:800; cursor:pointer; }
+.ap-ok{ background:var(--ok); color:#fff; } .ap-no{ background:var(--box-bg); color:var(--text); border:1px solid var(--border); }
+.ap-ok:disabled, .ap-no:disabled{ opacity:.5; }
+.ap-msg{ margin-top:12px; font-size:15px; font-weight:700; } .ap-msg.ok{ color:var(--ok); } .ap-msg.err{ color:var(--danger); }
+.ap-done{ padding:12px 14px; border-radius:10px; background:var(--box-bg); font-size:14.5px; }
+.ap-foot{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 16px; margin-top:22px; } .ap-more{ width:auto !important; padding:8px 14px !important; text-decoration:none; } .ap-link{ font-size:13px; color:var(--text-dim); }
+.ap-note{ color:var(--text-dim); }
 .sp-keep{ display:flex; flex-wrap:wrap; align-items:center; gap:8px 12px; margin-top:22px; padding:12px 14px; border:1px dashed var(--border); border-radius:12px; font-size:13px; color:var(--text-dim); }
 .sp-keep .sp-del{ margin-left:auto; color:var(--danger); }
 .sar-keep{ font-size:12.5px; color:var(--text-dim); margin:6px 0 10px; }
@@ -6528,7 +6557,9 @@ const DEFAULT_FEATURES = {
   pwa_banner:false,      // 앱 설치 배너
   kypt_v2:true,          // KYPT 워크스페이스 v2(93) — 실험 기록·자료함. 끄면 v1 상세. ★기본 켬(세션 AR 사용자 결정)
   kypt:true,             // KYPT 연구 탭(92) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AQ 사용자 결정, 가이드에 기록)
-  history:true           // 연혁 페이지(91) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AP 사용자 결정, 가이드에 기록)
+  history:true,          // 연혁 페이지(91) — ★기본 켬: 규칙 14의 명시적 예외 (세션 AP 사용자 결정, 가이드에 기록)
+  teacher_desk:true,     // ★CT 선생님 첫 화면 '오늘 확인할 것' — teacher 등급에게만 보임. 기본 켬(사용자 결정, 가이드에 기록)
+  teacher_push:false     // ★CT 선생님 알림 — 꺼져 있으면 선생님께는 알림도, 알림 동의 문구도 없다(서버 132가 기기 등록까지 막음)
 };
 let FEATURES = Object.assign({}, DEFAULT_FEATURES);
 function featOn(k){ return !!FEATURES[k]; }
@@ -8718,12 +8749,100 @@ function openOrderModal(key, title){
     if(!v('#orItem')){ m.className='he-msg err'; m.textContent='무엇을 살지 적어 주세요.'; return; }
     if(v('#orLink') && !/^https?:\/\//i.test(v('#orLink'))){ m.className='he-msg err'; m.textContent='주소는 http(s)://로 시작해야 해요.'; return; }
     ok.disabled=true;
-    try{ const { error } = await sb.rpc('order_add', { p_key:key||null, p_item:v('#orItem'), p_detail:v('#orDetail')||null, p_reason:v('#orReason')||null, p_link:v('#orLink')||null });
-      if(error) throw error; close(); toast('주문을 신청했어요. 진행은 [주문·신고]에서 볼 수 있어요.'); }
+    try{ const { data:oid, error } = await sb.rpc('order_add', { p_key:key||null, p_item:v('#orItem'), p_detail:v('#orDetail')||null, p_reason:v('#orReason')||null, p_link:v('#orLink')||null });
+      if(error) throw error; close(); toast('주문을 신청했어요. 진행은 [주문·신고]에서 볼 수 있어요.');
+      if(featOn('teacher_push')){ const id=(typeof oid==='number') ? oid : (oid && typeof oid==='object' && Number(oid.id)) || null;   // ★CT: 선생님께 승인 요청 알림(132가 스위치·중복·본인 신청을 확인)
+        sb.rpc('order_push_teachers', { p_order:id }).then(()=>{}, ()=>{}); } }
     catch(e){ ok.disabled=false; m.className='he-msg err'; m.textContent=docErrMsg(e, '신청하지 못했어요: '); }
   };
   ov.querySelector('#orItem').focus();
 }
+/* ★세션 CT: 알림에서 바로 승인 — #//approve/<주문 번호>. 그 신청 하나만, [승인] · [반려] 두 단추. 승인 권한(order_approve)이 없으면 주문 화면으로. */
+async function renderApprove(id){
+  const _nav=_navSeq;
+  $('#doc').innerHTML=`<div class="ap-wrap"><p class="doc-meta">불러오는 중…</p></div>`;
+  let list=null; try{ const r=await sb.rpc('order_list'); if(r.error) throw r.error; list=r.data||[]; }catch(e){}
+  if(_nav!==_navSeq) return;
+  const o=(list||[]).find(x=>Number(x.id)===Number(id));
+  const pending=(list||[]).filter(x=>x.status==='requested' && Number(x.id)!==Number(id));
+  if(!list){ $('#doc').innerHTML=`<div class="ap-wrap"><h1 class="ap-h">주문 승인</h1><div class="notice">주문 기능이 아직 준비되지 않았어요(122).</div></div>`; return; }
+  if(!can('order_approve')){ location.hash='#//orders'; return; }
+  const rest = pending.length ? `<a class="btn ap-more" href="${pending.length===1?'#//approve/'+pending[0].id:'#//orders'}">${pending.length===1?'다음 신청 보기':`남은 승인 대기 ${pending.length}건 보기`}</a>` : '';
+  if(!o){ railReserve(false); $('#doc').innerHTML=`<div class="ap-wrap"><h1 class="ap-h">주문 승인</h1><p class="ap-note">이 신청을 찾지 못했어요 — 취소됐거나 이미 처리됐을 수 있어요.</p>${rest}<a class="ap-link" href="#//main">대문으로</a></div>`; return; }
+  const done = o.status!=='requested';
+  $('#doc').innerHTML=`<div class="ap-wrap">
+    <div class="ap-k">주문 승인 요청</div>
+    <h1 class="ap-h">${escapeHtml(o.item||'')}</h1>
+    <dl class="ap-dl">
+      ${o.detail?`<dt>얼마나 · 규격</dt><dd>${escapeHtml(o.detail)}</dd>`:''}
+      ${o.reason?`<dt>왜</dt><dd>${escapeHtml(o.reason)}</dd>`:''}
+      <dt>신청</dt><dd>${escapeHtml(o.who||'')} · ${escapeHtml(fmtKST(o.created_at))}</dd>
+      ${o.link?`<dt>살 곳</dt><dd><a href="${escapeAttr(o.link)}" target="_blank" rel="noopener">${escapeHtml(String(o.link).replace(/^https?:\/\//,'').slice(0,60))}</a></dd>`:''}
+    </dl>
+    ${done ? `<div class="ap-done">이미 처리된 신청이에요 — <b>${escapeHtml(ORDER_STEP[o.status]||o.status)}</b></div>` : `
+    <textarea class="ap-note-in" id="apNote" rows="2" maxlength="300" placeholder="(선택) 신청한 학생에게 같이 보낼 한마디"></textarea>
+    <div class="ap-btns"><button class="ap-ok" id="apOk">승인</button><button class="ap-no" id="apNo">반려</button></div>`}
+    <div class="ap-msg" id="apMsg"></div>
+    <div class="ap-foot">${rest}<a class="ap-link" href="#//orders">주문 · 신고 전체</a></div>
+  </div>`;
+  const go=async(to)=>{
+    const note=($('#apNote')||{}).value||'';
+    if(to==='rejected' && !note.trim()){ const r=await promptModal('반려 이유', '신청한 학생에게 같이 알려 줘요. (선택)', '', '반려', null); if(r==null) return; $('#apNote').value=r; }
+    ['#apOk','#apNo'].forEach(x=>{ const b=$(x); if(b) b.disabled=true; });
+    try{ const { error } = await sb.rpc('order_set', { p_id:Number(o.id), p_status:to, p_note:(($('#apNote')||{}).value||'').trim()||null }); if(error) throw error;
+      const m=$('#apMsg'); m.className='ap-msg ok'; m.innerHTML=`${to==='approved'?'승인했어요':'반려했어요'} — 신청한 학생에게 알림이 가요.`;
+      const bt=document.querySelector('.ap-btns'); if(bt) bt.remove(); const nt=$('#apNote'); if(nt) nt.remove(); }
+    catch(e){ ['#apOk','#apNo'].forEach(x=>{ const b=$(x); if(b) b.disabled=false; }); const m=$('#apMsg'); m.className='ap-msg err'; m.textContent=docErrMsg(e, '처리하지 못했어요: '); }
+  };
+  const ok=$('#apOk'); if(ok) ok.onclick=()=>go('approved');
+  const no=$('#apNo'); if(no) no.onclick=()=>go('rejected');
+  railReserve(false);
+  window.scrollTo(0,0);
+}
+/* ★세션 CT: 선생님 첫 화면 '오늘 확인할 것' — 대문 맨 위. 선생님(teacher) 등급 · 기능 스위치 teacher_desk. */
+async function mountTeacherDesk(_nav){
+  const anchor=document.getElementById('ldSum'); if(!anchor) return;
+  const safe=p=>Promise.resolve(p).then(r=>r&&!r.error?r.data:null).catch(()=>null);
+  const [ord, rep] = await Promise.all([ safe(sb.rpc('order_list')), safe(sb.rpc('report_list', { p_key:null })), loadChannels().catch(()=>null) ]);
+  if(_nav!==_navSeq) return;
+  const canAp=can('order_approve');
+  const pend=canAp ? (ord||[]).filter(o=>o.status==='requested') : [];
+  const reps=(rep||[]).slice().sort((a,b)=>(a.kind==='low')-(b.kind==='low'));
+  const wk=Date.now()+7*86400000;
+  const sems=(community.channels||[]).filter(c=>c.kind==='seminar' && !c.archived && c.seminar_status!=='ended' && !(c.unlisted && !semIsHost(c)) && (!c.opens_at || new Date(c.opens_at).getTime()<=wk));
+  let skip=false; try{ skip=localStorage.getItem('anda_tpush_skip')==='1'; }catch(e){}
+  const devState = featOn('teacher_push') ? (pushSupported() ? await pushThisDeviceState() : 'na') : 'off';
+  if(_nav!==_navSeq) return;
+  const askPush = featOn('teacher_push') && devState!=='sub' && devState!=='off' && !skip;   // 'na' = 이 브라우저는 못 받음 → 받는 방법만 안내
+  const iosNoApp = /iPhone|iPad/i.test(navigator.userAgent) && !pushIsStandalone();
+  const box=document.createElement('section'); box.className='td'; box.id='teacherDesk';
+  const today=new Date(); const wd=['일','월','화','수','목','금','토'][today.getDay()];
+  const empty=!pend.length && !reps.length && !sems.length;
+  box.innerHTML=`<div class="td-h"><b>오늘 확인할 것</b><span>${today.getMonth()+1}월 ${today.getDate()}일 (${wd})</span></div>
+    ${askPush?`<div class="td-push">${devState==='na'
+        ? `<span>📱 주문 승인 요청을 폰 알림으로 받을 수 있어요 — ${iosNoApp?'아이폰 · 아이패드는 <b>공유 → 홈 화면에 추가</b>로 설치한 앱에서 이 화면을 열면 켤 수 있어요.':'이 브라우저는 알림을 받지 못해요. <b>폰의 크롬이나 삼성 인터넷</b>에서 이 화면을 열어 주세요.'}</span><span class="td-pb"><button class="btn" id="tdPushSkip" style="width:auto;padding:6px 12px">닫기</button></span>`
+        : pushIsMobile()
+        ? `<span>📱 주문 승인 요청을 <b>폰 알림</b>으로 받을까요? 알림을 누르면 바로 승인 화면이 열려요.</span><span class="td-pb"><button class="btn primary" id="tdPushOn" style="width:auto;padding:6px 14px">받기</button><button class="btn" id="tdPushSkip" style="width:auto;padding:6px 12px">괜찮아요</button></span>`
+        : `<span>📱 주문 승인 요청을 폰 알림으로 받을 수 있어요 — <b>폰에서 이 화면을 열면</b> 켤 수 있어요.</span><span class="td-pb"><button class="btn" id="tdPushSkip" style="width:auto;padding:6px 12px">닫기</button></span>`}</div>`:''}
+    ${empty?`<div class="td-empty">✓ 오늘 확인할 것이 없어요</div>`:''}
+    ${pend.length?`<div class="td-sec"><div class="td-st">승인 대기 주문 <b>${pend.length}</b>${pend.length>1?`<button class="btn td-all" id="tdAll" style="width:auto;padding:3px 10px">모두 승인</button>`:''}</div>
+      ${pend.slice(0,6).map(o=>`<div class="td-row" data-o="${o.id}"><a class="td-main" href="#//approve/${o.id}"><b>${escapeHtml(o.item||'')}</b>${o.detail?` <span class="muted">· ${escapeHtml(o.detail)}</span>`:''}<small>${escapeHtml(o.who||'')} · ${escapeHtml(fmtKST(o.created_at))}${o.reason?' · '+escapeHtml(o.reason):''}</small></a>
+        <span class="td-acts"><button class="td-ok" data-ap="${o.id}">승인</button><button class="td-no" data-rj="${o.id}">반려</button></span></div>`).join('')}
+      ${pend.length>6?`<a class="td-more" href="#//orders">나머지 ${pend.length-6}건</a>`:''}</div>`:''}
+    ${reps.length?`<div class="td-sec"><div class="td-st">열린 신고 <b>${reps.length}</b><a class="td-more" href="#//orders">모두 보기</a></div>
+      ${reps.slice(0,3).map(r=>`<a class="td-row td-rep" href="${docHash(r.doc_key)}"><span class="td-main"><b>${escapeHtml(r.title||'')}</b> <span class="st-badge st-${r.kind==='low'?'warn':'bad'}">${escapeHtml(REPORT_WORD[r.kind]||'')}</span><small>${escapeHtml(r.who||'')}${r.count>1?` 외 ${r.count-1}명`:''} · ${escapeHtml(fmtKST(r.last_at))}</small></span></a>`).join('')}</div>`:''}
+    ${sems.length?`<div class="td-sec"><div class="td-st">이번 주 세미나 <b>${sems.length}</b></div>
+      ${sems.slice(0,4).map(c=>`<a class="td-row" href="${roomHashOf(c.id)}"><span class="td-main"><b>${escapeHtml(c.name)}</b> <span class="sem-tag${semNotYet(c)?' soon':''}">${semNotYet(c)?escapeHtml(semOpensLabel(c)):'진행 중'}</span><small>진행자 ${escapeHtml(semHostNames(c)||kyptName(c.created_by))}${c.description?' · '+escapeHtml(c.description):''}</small></span></a>`).join('')}</div>`:''}`;
+  const old=$('#teacherDesk'); if(old) old.remove();
+  const top=$('#doc'); top.insertBefore(box, top.firstChild);                         // 대문 맨 위
+  const act=async(id, to, note)=>{ const { error } = await sb.rpc('order_set', { p_id:Number(id), p_status:to, p_note:note||null }); if(error) throw error; };
+  box.querySelectorAll('[data-ap]').forEach(b=>{ b.onclick=async()=>{ b.disabled=true; try{ await act(b.dataset.ap,'approved'); const row=b.closest('.td-row'); row.classList.add('td-did'); row.querySelector('.td-acts').innerHTML='<span class="td-dn">승인함</span>'; }catch(e){ b.disabled=false; toast(docErrMsg(e,'승인하지 못했어요: ')); } }; });
+  box.querySelectorAll('[data-rj]').forEach(b=>{ b.onclick=async()=>{ const note=await promptModal('반려 이유', '신청한 학생에게 같이 알려 줘요. (선택)', '', '반려', null); if(note==null) return; b.disabled=true; try{ await act(b.dataset.rj,'rejected',note); const row=b.closest('.td-row'); row.classList.add('td-did'); row.querySelector('.td-acts').innerHTML='<span class="td-dn">반려함</span>'; }catch(e){ b.disabled=false; toast(docErrMsg(e,'반려하지 못했어요: ')); } }; });
+  const all=$('#tdAll'); if(all) all.onclick=async()=>{ const ok=await confirmModal(`승인 대기 ${pend.length}건을 모두 승인할까요?`, pend.map(o=>o.item).slice(0,8).join(', ')+(pend.length>8?' …':''), '모두 승인'); if(!ok) return; all.disabled=true; let n=0; for(const o of pend){ try{ await act(o.id,'approved'); n++; }catch(e){} } toast(`${n}건 승인했어요.`); mountTeacherDesk(_navSeq); };
+  const po=$('#tdPushOn'); if(po) po.onclick=async()=>{ po.disabled=true; try{ await setPushPref('mentions', true); toast('이 폰으로 주문 승인 요청이 와요.'); mountTeacherDesk(_navSeq); }catch(e){ po.disabled=false; toast(String((e&&e.message)||e)); } };
+  const ps=$('#tdPushSkip'); if(ps) ps.onclick=()=>{ try{ localStorage.setItem('anda_tpush_skip','1'); }catch(e){} const p=box.querySelector('.td-push'); if(p) p.remove(); };
+}
+
 /* 주문·신고 화면 (#//orders) */
 let _ordFilter=null;
 async function renderOrders(){
@@ -12973,7 +13092,7 @@ const MIG_LEDGER = [
   ['120','분류 나무',{f:'tree_get'}], ['121','물리실 도면',{t:'doc_locations',c:'doc_key'}], ['122','QR 신고·주문',{f:'order_add'}],
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
-  ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}],
+  ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
 ];
 async function migProbe(p){
   try{
@@ -12989,7 +13108,7 @@ async function migLedgerHTML(){
   const res=await Promise.all(MIG_LEDGER.map(([n,name,p])=>migProbe(p).then(st=>[n,name,p,st])));
   const miss=res.filter(r=>r[3]==='bad');
   const chip=([n,name,p,st])=>`<span class="mg-chip ${st}" title="${escapeAttr(name+(p.na?' — '+p.na:''))}"><b>${n}</b>${escapeHtml(name)}</span>`;
-  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 131) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
+  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 132) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
     <div class="mg-grid">${res.map(chip).join('')}</div>
     <div class="hs-note">초록 = 적용됨 · 빨강 = 그 번호의 SQL이 안 돌았어요(번호 순서대로 실행) · 회색 = 이름으로 구별할 수 없는 번호(아래 설명을 보고 사람이 확인).
       ${miss.length?`<br><b>실행할 파일:</b> ${miss.map(r=>`<code>${escapeHtml(r[0])}_*.sql</code>`).join(' → ')}`:''}</div></section>`;
@@ -13159,6 +13278,8 @@ function healthTasks(){
       hsT('push_prefs.assignments · mentions — 항목별 알림 (114)', 'push_prefs', 'assignments,mentions'),
       hsF('push_targets / push_queue_take / push_queue_done (114)', 'push_targets','push_queue_take','push_queue_done'),
       hsF('kypt_nudge_targets / push_subscription_drop (106 · 107)', 'kypt_nudge_targets','push_subscription_drop'),
+      hsF('order_push_teachers / anda_teacher_push_on — 선생님 알림 (132)', 'order_push_teachers','anda_teacher_push_on'),
+      hsV('선생님 알림 스위치', async()=>({ ok:true, detail: featOn('teacher_push') ? '켜짐 — 받기로 한 선생님 폰에 주문 승인 요청이 가요' : '꺼짐 — 선생님께는 알림도 동의 문구도 없어요(서버가 기기 등록도 거절)' })),
       ['Edge push-send (114 · 알림 발송)', ()=>chkEdgeFn('Edge push-send (114 · 알림 발송)','push-send')],
       ['Edge kypt-nudge (106 · 연구 기간 알림)', ()=>chkEdgeFn('Edge kypt-nudge (106 · 연구 기간 알림)','kypt-nudge')],
       hsV('이 기기 알림 상태', async()=>{ if(!pushSupported()) return { ok:true, detail:'이 브라우저는 푸시 미지원 — 알림은 폰 설치 앱에서' }; const perm=(window.Notification&&Notification.permission)||'?'; const st=await pushThisDeviceState(); return { ok:perm!=='denied', warn:true, detail:`권한 ${perm==='granted'?'허용':perm==='denied'?'차단(브라우저 설정에서 풀어야 함)':'아직 안 물음'} · 이 기기 ${st==='sub'?'등록됨':'등록 안 됨'}${pushIsMobile()?'':' · 컴퓨터는 등록하지 않아요(알림은 폰에만, 107)'}` }; }),
@@ -13732,6 +13853,10 @@ async function renderSysFeatures(){
       ['landing_extras', '대문 곁가지',            '최근 활동 피드 · 누적 통계 · 오늘의 문서 타일.'],
       ['pwa_banner',     '앱 설치 배너',           '홈 화면 설치 안내. 꺼도 브라우저 메뉴로 직접 설치는 가능해요.'],
       ['history',        '연혁',                   '동아리의 발자취 — 타임라인과 A 속 구슬. ★기본 켬(운영진 결정). 내용 편집은 91_history.sql 필요, 화면은 없이도 보여요.'],
+    ]},
+    { name:'선생님', items:[
+      ['teacher_desk',   '선생님 첫 화면 — 오늘 확인할 것', '선생님(teacher) 등급이 대문에 들어오면 맨 위에 승인 대기 주문 · 열린 신고 · 이번 주 세미나만 모아 보여 줘요. 승인은 그 자리에서 한 번에. 다 처리하면 "확인할 것이 없어요".'],
+      ['teacher_push',   '선생님 알림 (주문 승인 요청)',    '켜면 선생님 화면에 "폰 알림으로 받을까요?" 안내가 한 번 뜨고, 받기로 한 선생님 폰에 주문 승인 요청이 와요(누르면 그 신청 하나만 보이는 승인 화면). <b>끄면 선생님께는 어떤 알림도 가지 않고 동의 문구도 뜨지 않아요</b> — 이미 등록된 선생님 폰도 서버에서 지워요. 132_teacher_push.sql 필요.'],
     ]},
   ];
   const row=(k,t,d)=>`
@@ -14395,6 +14520,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-02', text:"[안내] 선생님 회원이 대문에 들어오면 맨 위에 '오늘 확인할 것'(승인 대기 주문 · 열린 신고 · 이번 주 세미나)이 보이고, 주문은 그 자리에서 바로 승인 · 반려할 수 있어요. 최고관리자가 '선생님 알림'을 켜면 받기로 한 선생님 폰에 주문 승인 요청이 가요 — 누르면 그 신청 하나만 보이는 승인 화면이 열려요." },
   { date:'2026-10-02', text:"[안내] 세미나 기록(대화 · 슬라이드 · 올린 사진과 파일 · 투표 · 참석 · 대본 · 보관 기록)은 이제 자동으로 지워지지 않고 영구 보존돼요. 지울 수 있는 사람은 그 세미나를 연 사람뿐이에요(준비 화면 맨 아래). 개인정보 처리방침 v1.3(11월 1일 시행) 제4조에 이 내용과 채팅방 첨부 사진 30일 · 첨부 파일 정리 기준을 더했어요." },
   { date:'2026-10-02', text:"[안내] 태블릿 · 작은 노트북 화면에서 상단 메뉴 글자가 세로로 쪼개지던 것을 고쳤어요. 좁을 땐 아이콘만 보이고, 마우스를 올리면 이름이 떠요." },
   { date:'2026-10-02', text:"[물리실] 세미나를 미리 짜 두는 [준비 화면]이 생겼어요. 말 · 장 · 슬라이드 · 투표 · 멈춤 · 파일을 순서대로 놓고, 항목마다 예상 시간과 진행자 메모를 적어요. PDF를 올리면 쪽마다 자동으로 들어가고, 메모장에 쓴 계획을 붙여 넣거나 지난 세미나 대본을 가져올 수도 있어요." },
@@ -16231,7 +16357,9 @@ async function setPushPref(key, on){
   if(_pushPref) _pushPref[key]=!!on;
 }
 /* 프로필의 알림 카드 */
+function teacherPushBlocked(){ return isTeacher() && !featOn('teacher_push'); }   // ★CT
 function pushPrefCardHtml(){
+  if(teacherPushBlocked()) return '';                                                    // ★CT: 선생님 알림이 꺼져 있으면 알림 카드 자체가 없다
   const p=_pushPref; if(p===false) return `<section class="me-push"><div class="me-pt">${ic('bell')} 알림</div><p class="muted" style="margin:4px 0 0;font-size:13px">알림은 준비 중이에요(106_push.sql).</p></section>`;
   const row=(k,t,d)=>`<label class="me-prow"><span><b>${escapeHtml(t)}</b><small>${escapeHtml(d)}</small></span><button class="kp-switch sm${p&&p[k]?' on':''}" role="switch" aria-checked="${p&&p[k]?'true':'false'}" data-pk="${k}"><span class="kp-switch-knob"></span></button></label>`;
   return `<section class="me-push"><div class="me-pt">${ic('bell')} 알림 <small>폰에 등록한 기기로만 가요</small></div>
@@ -16251,9 +16379,24 @@ function pushPrefCardBind(root){
     };
   });
 }
+/* ★CT: 선생님 알림 동의 — 기기마다 한 번. 목적 · 이전 항목을 선생님 알림에 맞게 */
+const TEACHER_PUSH_CONSENT_KEY = 'anda_push_consent_teacher';
+function teacherPushConsentOk(){
+  try{ if(localStorage.getItem(TEACHER_PUSH_CONSENT_KEY)===PUSH_CONSENT_VERSION) return true; }catch(e){}
+  const ok = confirm('[선생님 알림 수신 · 개인정보 국외 이전 동의]\n\n'
+    + '· 받는 알림: 학생이 물품 주문을 신청했을 때 "주문 승인 요청" 한 통(신청 물품 · 신청한 학생 이름)\n'
+    + '· 이전 항목: 알림 구독 주소·암호화 키, 알림 제목·내용(암호화 전송)\n'
+    + '· 이전받는 자·국가: 이 브라우저의 푸시 서비스 — Google LLC(미국), Apple Inc.(미국), Mozilla Corporation(미국) 중 해당 사업자\n'
+    + '· 보유 기간: 알림을 끄거나, 최고관리자가 선생님 알림을 끄거나, 탈퇴할 때까지\n'
+    + '· 거부해도 다른 기능은 그대로 쓸 수 있고, 켠 뒤에도 프로필에서 언제든 끌 수 있어요.\n\n'
+    + '동의하고 알림을 받을까요?');
+  if(ok){ try{ localStorage.setItem(TEACHER_PUSH_CONSENT_KEY, PUSH_CONSENT_VERSION); }catch(e){} }
+  return ok;
+}
 /* ★116: 웹 푸시는 브라우저 제조사의 국외 서버를 거친다 → 켜기 전에 이전 사항을 알리고 동의를 받는다(제28조의8 제2항). 기기마다 한 번. */
 const PUSH_CONSENT_KEY = 'anda_push_consent';
 function pushConsentOk(){
+  if(isTeacher()) return teacherPushConsentOk();                                         // ★CT: 선생님은 목적이 다르다(주문 승인 요청)
   try{ if(localStorage.getItem(PUSH_CONSENT_KEY)===PUSH_CONSENT_VERSION) return true; }catch(e){ /* 저장소 차단 — 매번 묻는다 */ }
   const ok = confirm('[알림 수신 · 개인정보 국외 이전 동의]\n\n'
     + '· 이전 항목: 알림 구독 주소·암호화 키, 알림 제목·내용(암호화 전송)\n'
@@ -16267,6 +16410,7 @@ function pushConsentOk(){
   return ok;
 }
 async function pushSubscribeSelf(){
+  if(teacherPushBlocked()) throw new Error('선생님 알림은 꺼져 있어요(최고관리자 설정).');   // ★CT (서버 132도 거절)
   if(!pushSupported()) throw new Error('이 브라우저는 푸시 알림을 지원하지 않아요.');
   if(!VAPID_PUBLIC_KEY) throw new Error('알림 서버 키(VAPID)가 아직 설정되지 않았어요. 운영진에게 알려 주세요.');
   if(!pushConsentOk()) throw new Error('알림 켜기를 취소했어요.');
@@ -16300,6 +16444,7 @@ async function pushThisDeviceState(){
   }catch(e){ return 'none'; }
 }
 function kyptNudgeCardHtml(mineCount){
+  if(teacherPushBlocked()) return '';                                                    // ★CT
   const pref=_pushPref; const on=!!(pref && pref.kypt_nudge);
   const na = pref===false;                                      // 106 미적용
   const sup = pushSupported();
@@ -18979,6 +19124,7 @@ async function renderLanding(){
   renderRightRail(recent);   // 최근 변경을 흰색 문서카드 밖(우측 레일)에 표시
   buildNav('main');
   fillLandingStatus(_nav, featOn('tasks') ? myTasks.length : 0);   // ★CP-7 오늘의 상태 띠
+  if(isTeacher() && featOn('teacher_desk')) mountTeacherDesk(_nav);   // ★CT 선생님 첫 화면
   window.scrollTo(0,0);
 }
 
@@ -22894,7 +23040,7 @@ const SYS_PAGES = ['main','home','community','lab','questions','directory','inbo
                    'admin','health','system','system/limits','system/maint','system/perms',
                    'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
                    'password','me','trash','notfound','board','qr','story','doctree','labmap','orders','audit','photos'];
-const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/','labmap/'];
+const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/','labmap/','approve/'];
 /* ★회원 문서(71): 주소가 '#회원번호'. 일반 생성기가 특수기호를 막으므로 충돌 불가.
    URL 조각에 '#'는 못 들어가서 링크는 encodeURIComponent('#12')='%2312'로 싣고, 라우터가 decode한다. */
 /* ================== 탈퇴 회원 표시 (87 · 세션 AH) ==================
@@ -23364,7 +23510,8 @@ function route(){
   }
   if(sys && key==='docs'){ renderDocsPage(); return; }
   if(sys && key==='doctree'){ renderDocTree(); return; }                          // ★분류 나무(120)
-  if(sys && key==='orders'){ renderOrders(); return; }                            // ★주문·신고(122)
+  if(sys && key==='orders'){ renderOrders(); return; }
+  if(sys && key.startsWith('approve/')){ renderApprove(Number(key.slice(8))); return; }      // ★CT 알림에서 바로 승인                            // ★주문·신고(122)
   if(sys && key==='photos'){ renderPhotos(); return; }                            // ★사진 창고(CP-6)
   if(sys && key==='audit'){ renderAudit(); return; }                              // ★재고 점검(123)
   if(sys && (key==='labmap' || key.startsWith('labmap/'))){ renderLabMap(key.startsWith('labmap/') ? decodeURIComponent(key.slice(7)) : null); return; }   // ★물리실 도면(121)
