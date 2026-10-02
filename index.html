@@ -986,6 +986,35 @@ body.dark{ --star-on:#ffc93c; --star-off:#3a3d45; --star-edge:#b98d18; }
 .title-chk.err{color:var(--accent);}
 .title-chk.warn{color:var(--warn);}
 .title-chk.info{color:var(--text-dim);}
+/* 한꺼번에 만들기 (CP-4) */
+.modal-box.tb-box{max-width:760px;width:94%;max-height:92vh;display:flex;flex-direction:column;}
+.tb-box .modal-sub{display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.tb-helpbtn{background:none;border:none;color:var(--accent);font-weight:600;font-size:12.5px;cursor:pointer;padding:0;}
+.tb-help{font-size:12.5px;margin:4px 0 8px;padding:10px 12px;border-radius:9px;background:var(--box-bg);border:1px solid var(--border);overflow:auto;max-height:34vh;}
+.tb-help p{margin:6px 0 0;}
+.tb-syn{border-collapse:collapse;width:100%;}
+.tb-syn td{padding:4px 6px;vertical-align:top;border-bottom:1px dashed var(--border);}
+.tb-syn tr:last-child td{border-bottom:none;}
+.tb-syn td:first-child{white-space:nowrap;}
+.tb-syn code{font-size:12px;}
+.tb-in{min-height:200px;height:32vh;resize:vertical;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"D2Coding",monospace;font-size:13px;line-height:1.55;white-space:pre;overflow:auto;tab-size:2;}
+.tb-prev{margin-top:8px;overflow:auto;min-height:40px;max-height:30vh;font-size:12.5px;}
+.tb-empty{padding:6px 2px;}
+.tb-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.tb-chip{padding:3px 9px;border-radius:999px;background:var(--box-bg);border:1px solid var(--border);white-space:nowrap;}
+.tb-chip.warn{border-color:var(--warn);}
+.tb-line{display:block;width:100%;text-align:left;background:none;border:none;border-left:3px solid var(--accent);padding:4px 8px;margin:2px 0;font:inherit;color:inherit;cursor:pointer;border-radius:0 6px 6px 0;}
+.tb-line:hover{background:var(--box-bg);}
+.tb-line.err b{color:var(--accent);}
+.tb-line.warn{border-left-color:var(--warn);}
+.tb-line.warn b{color:var(--warn);}
+.tb-stop{cursor:default;background:var(--box-bg);margin-bottom:6px;}
+.tb-tree{border:1px solid var(--border);border-radius:9px;padding:6px 8px;margin-top:6px;}
+.tb-n{display:flex;align-items:center;gap:6px;padding:2px 0 2px calc(var(--d) * 18px);min-width:0;}
+.tb-n::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--border-strong);flex:0 0 auto;}
+.tb-nm{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tb-new{font-size:11px;font-weight:700;color:#fff;background:var(--accent);border-radius:5px;padding:0 5px;}
+.tb-tp,.tb-dc{font-size:11.5px;color:var(--text-dim);white-space:nowrap;}
 /* 편집기 개편 (세션 CP) */
 .wk-tb-sep{width:1px;align-self:stretch;background:var(--border);margin:2px 4px;}
 .wk-tb-hint{margin-left:auto;align-self:center;font-size:11.5px;color:var(--text-dim);}
@@ -6201,7 +6230,7 @@ function paintDocTree(){
   const unplaced=live.filter(d=>docNodeOf(d.key)==null).sort((a,b)=>String(a.title).localeCompare(String(b.title),'ko'));
   box.innerHTML=`
     <div class="tr-tools">
-      ${admin?`<button class="btn ghost" id="trAddRoot" style="width:auto">${ic('plus')} 맨 위 분류</button>`:''}
+      ${admin?`<button class="btn ghost" id="trAddRoot" style="width:auto">${ic('plus')} 맨 위 분류</button><button class="btn ghost" id="trBulk" style="width:auto">${ic('docs')} 한꺼번에 만들기</button>`:''}
       <button class="btn ghost" id="trExpand" style="width:auto">모두 펼치기</button>
       <button class="btn ghost" id="trCollapse" style="width:auto">맨 위만 보기</button>
     </div>
@@ -6220,6 +6249,7 @@ function paintDocTree(){
       <div class="tg-docs open">${unplaced.map(d=>docPill(d.key)).join('') || '<div class="tr-empty">모든 문서가 분류에 들어 있어요.</div>'}</div>
     </div>`;
   const ar=$('#trAddRoot'); if(ar) ar.onclick=()=>treeAddNode(null);
+  const bk=$('#trBulk'); if(bk) bk.onclick=()=>openTreeBulk();
   $('#trExpand').onclick=()=>{ saveTreeClosed(new Set()); paintDocTree(); };
   $('#trCollapse').onclick=()=>{ saveTreeClosed(new Set((T.kids[0]||[]).map(n=>n.id))); paintDocTree(); };
   box.querySelectorAll('[data-tog]').forEach(b=>b.onclick=e=>{
@@ -6370,6 +6400,280 @@ async function treeAddNode(parent){
   else toast(`분류 ${made}개를 만들었어요.`);
   await loadTree();
   if(/^#\/\/doctree/.test(location.hash||'')) paintDocTree();
+}
+/* ── 한꺼번에 만들기 (세션 CP-4) ──────────────────────────────────────────────
+   한 줄 = 분류 경로 [@틀] [: 문서, 문서 #태그 #태그, …]
+     실험 장치 @기자재·장비
+     > 역학·열 : 만유인력 측정장치, 진공 실험장치 #깨지기쉬움
+   · '>'(또는 '›')로 상위 › 하위를 잇는다. 없는 분류는 만들고, 있는 분류(같은 자리·같은 이름)는 그대로 쓴다.
+   · 줄 맨 앞 '>' = 바로 위의 '기준 줄'(맨 앞 '>'가 없는 줄) 경로 아래.
+   · 마지막 이름에 쉼표 → 형제 분류 여러 개(그 줄엔 ':' 문서를 못 붙인다).
+   · ':' 뒤는 문서(쉼표로 나눔). 같은 제목의 문서가 이미 있으면 새로 만들지 않고 그 분류로 옮긴다.
+   · 문서 뒤 '#태그'는 분야 태그 — 원래 태그에 더한다(지우지 않음).
+   · '//'로 시작하는 줄 · 빈 줄은 건너뛴다.
+   ★같은 글을 다시 넣어도 안전 — 있는 건 건너뛴다. 중간에 막히면 고치고 다시 넣으면 이어서 된다.
+   ★SQL 변경 없음: tree_node_add · tree_node_template(판 번호를 이어 받음) · doc_create · doc_place_set · doc_tag_set 을 차례로 부른다. */
+const BULK_LS='anda_tree_bulk_draft';
+const TPL_ALIAS={ '기자재':'gear','장비':'gear','프로그램':'program','소프트웨어':'program','안전':'safety','안내':'guide','규정':'guide',
+  '대회':'contest_prep','실험':'experiment','연구':'research','회의':'meeting','회의록':'meeting','개념':'concept','역사':'history','인물':'person','행사':'event','자유':'free' };
+function tplKeyOf(raw){
+  const s=normTitle(raw);
+  if(!s) return { err:"'@' 뒤에 틀 이름을 적어 주세요." };
+  if(/^(없음|none)$/i.test(s)) return { key:null };
+  const z=x=>String(x).toLowerCase().replace(/[\s·・.\-_]/g,'');
+  const q=z(s), ents=Object.entries(DOC_TEMPLATES);
+  if(DOC_TEMPLATES[s]) return { key:s };
+  const ex=ents.find(([k,t])=>z(t.name)===q); if(ex) return { key:ex[0] };
+  if(TPL_ALIAS[q]) return { key:TPL_ALIAS[q] };
+  const pre=ents.filter(([k,t])=>z(t.name).startsWith(q));
+  if(pre.length===1) return { key:pre[0][0] };
+  return { err:`'@${s}' 틀을 모르겠어요 — ${ents.map(([k,t])=>t.name).join(' · ')} · 없음` };
+}
+function parseBulkTree(text){
+  const out={ lines:[], errors:[] };
+  let base=null, baseMulti=0;
+  String(text||'').split(/\r?\n/).forEach((raw,i)=>{
+    const ln=i+1;
+    let s=normTitle(raw);
+    if(!s || s.startsWith('//')) return;
+    const err=msg=>out.errors.push({ ln, msg });
+    let rel=false;
+    if(/^[>›]/.test(s)){ rel=true; s=s.replace(/^[>›]\s*/,''); }
+    const ci=s.search(/[:：]/);
+    let head=ci<0 ? s : s.slice(0,ci);
+    const tail=ci<0 ? null : s.slice(ci+1);
+    let tpl;                                          // undefined = 손대지 않음, null = 틀 없음
+    const ai=head.indexOf('@');
+    if(ai>=0){ const r=tplKeyOf(head.slice(ai+1)); head=head.slice(0,ai); if(r.err) return err(r.err); tpl=r.key; }
+    head=normTitle(head);
+    if(rel && !base) return err(baseMulti ? `${baseMulti}줄처럼 여러 분류를 한 줄에 만든 줄 아래에는 '>'로 이어 쓸 수 없어요 — 경로를 다 적어 주세요.` : "맨 앞 '>'는 위에 기준이 되는 줄이 있어야 해요.");
+    let targets;
+    if(!head){
+      if(!rel) return err('분류 이름이 없어요.');
+      targets=[base.slice()];
+    }else{
+      const segs=head.split(/[>›]/).map(x=>normTitle(x));
+      if(segs.some(x=>!x)) return err("'>' 사이에 빈 이름이 있어요.");
+      const last=splitNodeNames(segs.pop());
+      if(!last.length) return err('분류 이름이 없어요.');
+      if(last.length>1 && tail!=null) return err("쉼표로 여러 분류를 만드는 줄에는 ':' 문서를 붙일 수 없어요 — 줄을 나눠 주세요.");
+      for(const sg of segs) if(/[,，、]/.test(sg)) return err("쉼표는 마지막 분류 이름에만 쓸 수 있어요.");
+      const pre=(rel ? base : []).concat(segs);
+      targets=last.map(nm=>pre.concat([nm]));
+    }
+    if(!rel){ if(targets.length===1){ base=targets[0].slice(); baseMulti=0; } else { base=null; baseMulti=ln; } }
+    const docs=[];
+    if(tail!=null){
+      for(const item of tail.split(/[,，、]/)){
+        if(!normTitle(item)) continue;
+        const parts=item.split('#'); const title=normTitle(parts[0]);
+        const tags=[...new Set(parts.slice(1).map(x=>normTitle(x)).filter(Boolean))];
+        if(!title){ err(`'#${tags[0]||''}' 앞에 문서 제목이 없어요.`); continue; }
+        docs.push({ title, tags });
+      }
+    }
+    out.lines.push({ ln, targets, tpl, docs });
+  });
+  return out;
+}
+function planBulkTree(parsed){
+  const T=state.tree||{ kids:{}, byId:{} };
+  const errors=parsed.errors.slice(), warns=[];
+  const nodes=new Map(), order=[], docs=[];
+  const pkOf=path=>path.map(x=>x.toLowerCase()).join('\u0001');
+  function ensure(path, ln){
+    let parentPk=null;
+    for(let d=0; d<path.length; d++){
+      const pk=pkOf(path.slice(0,d+1));
+      if(!nodes.has(pk)){
+        const name=path[d];
+        const p=treeNameCheck(name);
+        if(p){ errors.push({ ln, msg:`'${name}' — ${p.msg||'이름을 확인해 주세요.'}` }); return null; }
+        if(d+1>TREE_MAX_DEPTH){ errors.push({ ln, msg:`분류는 ${TREE_MAX_DEPTH}단까지예요 — ${path.slice(0,d+1).join(' › ')}` }); return null; }
+        const parent=parentPk ? nodes.get(parentPk) : null;
+        let ex=null;
+        if(!parent || parent.id!=null) ex=(T.kids[parent ? parent.id : 0]||[]).find(k=>String(k.name).toLowerCase()===name.toLowerCase())||null;
+        const n={ pk, name: ex ? ex.name : name, parentPk, id: ex ? ex.id : null, depth:d+1, isNew:!ex, cur: ex ? (ex.template||null) : null, tpl:undefined, tplLn:0, ln, docs:0, newDocs:0 };
+        nodes.set(pk, n); order.push(n);
+      }
+      parentPk=pk;
+    }
+    return nodes.get(parentPk);
+  }
+  const pool=(state.docs||[]).filter(d=>!isMemberDocKey(d.key));
+  const seen=new Map();
+  for(const L of parsed.lines){
+    const tg=L.targets.map(p=>ensure(p, L.ln)).filter(Boolean);
+    if(tg.length!==L.targets.length) continue;
+    if(L.tpl!==undefined) for(const n of tg){
+      if(n.tpl!==undefined && n.tpl!==L.tpl){ errors.push({ ln:L.ln, msg:`'${n.name}'의 틀을 ${n.tplLn}줄과 다르게 적었어요.` }); continue; }
+      n.tpl=L.tpl; n.tplLn=L.ln;
+    }
+    const node=tg[0];
+    for(const D of L.docs){
+      const v=D.title;
+      if(seen.has(v)){ errors.push({ ln:L.ln, msg:`'${v}'을(를) ${seen.get(v)}줄에도 적었어요 — 문서는 한 분류에만 들어가요.` }); continue; }
+      seen.set(v, L.ln);
+      const exist=pool.find(d=>normTitle(d.title)===v)||null;
+      let kind='new';
+      if(exist) kind=(node.id!=null && docNodeOf(exist.key)===node.id) ? 'same' : 'move';
+      else{
+        const p=titleProblem(v);
+        if(p && p.level==='err'){ errors.push({ ln:L.ln, msg:`'${v}' — ${p.msg}` }); continue; }
+        if(p && p.level==='warn') warns.push({ ln:L.ln, msg:p.msg });
+      }
+      const bad=D.tags.find(t=>[...t].length>20 || /[,\/]/.test(t));
+      if(bad){ errors.push({ ln:L.ln, msg:`태그 '#${bad}' — 20자까지, / 는 못 써요.` }); continue; }
+      const had=exist ? docTagsOf(exist.key,'field') : [];
+      const tags=[...new Set(had.concat(D.tags))];
+      if(tags.length>12){ errors.push({ ln:L.ln, msg:`'${v}' — 태그는 12개까지예요.` }); continue; }
+      const tagsChanged=D.tags.some(t=>!had.includes(t));
+      docs.push({ ln:L.ln, title:v, key: exist ? exist.key : null, kind, tags, tagsChanged, nodePk:node.pk });
+      node.docs++; if(kind==='new') node.newDocs++;
+    }
+  }
+  const effTpl=pk=>{ let n=nodes.get(pk), g=0; while(n && g++<20){ const t=n.tpl!==undefined ? n.tpl : n.cur; if(t) return t; n=n.parentPk ? nodes.get(n.parentPk) : null; } return null; };
+  const cnt={ nodes:order.filter(n=>n.isNew).length, tpls:order.filter(n=>n.tpl!==undefined && n.tpl!==n.cur).length,
+    newDocs:docs.filter(d=>d.kind==='new').length, moved:docs.filter(d=>d.kind==='move').length,
+    same:docs.filter(d=>d.kind==='same' && !d.tagsChanged).length, tagged:docs.filter(d=>d.kind!=='new' && d.tagsChanged).length };
+  cnt.steps=cnt.nodes+cnt.tpls+docs.filter(d=>!(d.kind==='same' && !d.tagsChanged)).length;
+  errors.sort((a,b)=>a.ln-b.ln);
+  return { nodes, order, docs, errors, warns, cnt, effTpl, empty:!parsed.lines.length };
+}
+/* 틀 → 새 문서의 첫 내용 (새 문서 만들기와 같은 규칙) */
+function tplDocFields(tplKey, title, cat){
+  const tpl=tplKey && DOC_TEMPLATES[tplKey];
+  if(!tpl || (!tpl.body && !tpl.infobox)) return { category:[cat], format:'wiki' };
+  const info=tpl.infobox ? { title:(tpl.infobox.title||'').replace('{{TITLE}}', title), sub:tpl.infobox.sub||'', rows:tpl.infobox.rows.map(r=>[r[0], r[1]]) } : null;
+  return { body:tpl.body||'', infobox:info, format:'wiki', category:[cat] };
+}
+async function runBulkTree(plan, onProg){
+  let ver=(state.tree||{}).version, done=0;
+  const tick=()=>{ done++; if(onProg) onProg(done, plan.cnt.steps); };
+  const cur={ ln:0, what:'' };
+  const res={ nodes:0, tpls:0, created:0, moved:0, tagged:0 };
+  try{
+    for(const n of plan.order){
+      if(!n.isNew) continue;
+      cur.ln=n.ln; cur.what=`분류 '${n.name}'`;
+      const pid=n.parentPk ? plan.nodes.get(n.parentPk).id : null;
+      const { data, error } = await sb.rpc('tree_node_add', { p_parent:pid, p_name:n.name, p_version:ver });
+      if(error) throw error;
+      n.id=data && data.id; if(n.id==null) throw { message:'만든 분류를 찾지 못했어요' };
+      if(data.version!=null) ver=data.version;
+      n.isNew=false; res.nodes++; tick();
+    }
+    for(const n of plan.order){
+      if(n.tpl===undefined || n.tpl===n.cur) continue;
+      cur.ln=n.tplLn; cur.what=`'${n.name}'의 틀`;
+      const { data, error } = await sb.rpc('tree_node_template', { p_id:n.id, p_template:n.tpl, p_version:ver });
+      if(error) throw error;
+      if(data && data.version!=null) ver=data.version;
+      n.cur=n.tpl; res.tpls++; tick();
+    }
+    for(const d of plan.docs){
+      if(d.kind==='same' && !d.tagsChanged) continue;
+      cur.ln=d.ln; cur.what=`문서 '${d.title}'`;
+      const node=plan.nodes.get(d.nodePk);
+      if(d.kind==='new'){
+        const { data:cr, error } = await sb.rpc('doc_create', { p_title:d.title });
+        if(error) throw error;
+        d.key=cr && cr.key; if(!d.key) throw { message:'만든 문서를 찾지 못했어요' };
+        d.kind='same';                               // 여기서 멈춰도 다음 실행은 '있는 문서'로 본다
+        await placeDoc(d.key, node.id, null);
+        const { error:uerr } = await sb.from('documents').update(tplDocFields(plan.effTpl(d.nodePk), d.title, node.name)).eq('key', d.key);
+        if(uerr) throw uerr;
+        res.created++;
+      }else if(d.kind==='move'){
+        await placeDoc(d.key, node.id, null); d.kind='same'; res.moved++;
+      }
+      if(d.tagsChanged){
+        const { error } = await sb.rpc('doc_tag_set', { p_key:d.key, p_kind:'field', p_tags:d.tags });
+        if(error) throw error;
+        d.tagsChanged=false; res.tagged++;
+      }
+      tick();
+    }
+    return Object.assign({ ok:true }, res);
+  }catch(e){
+    const h=docErrCode(e);
+    return Object.assign({ ok:false, ln:cur.ln, what:cur.what,
+      msg: h==='TREE_STALE' ? '다른 관리자가 방금 분류를 바꿨어요'
+         : (isMissingFn(e) ? '서버 설정이 아직이에요(118·120 실행 필요)' : ((e && e.message) || '실패했어요')) }, res);
+  }
+}
+const BULK_HELP=`<table class="tb-syn">
+  <tr><td><code>실험 장치 &gt; 역학</code></td><td>상위 › 하위 분류를 한 번에. 이미 있으면 그대로 써요.</td></tr>
+  <tr><td><code>&gt; 전기·자기</code></td><td>줄 맨 앞 <b>&gt;</b> = 바로 위 기준 줄(맨 앞 &gt; 없는 줄) 아래</td></tr>
+  <tr><td><code>&gt; 보드, 센서, 모터</code></td><td>쉼표 = 형제 분류 여러 개</td></tr>
+  <tr><td><code>… : 오실로스코프, 조도계</code></td><td><b>:</b> 뒤는 그 분류에 넣을 문서(쉼표로). 같은 제목이 있으면 옮기기만 해요.</td></tr>
+  <tr><td><code>레이저 #레이저 #암실</code></td><td>문서 뒤 <b>#</b> = 분야 태그(원래 태그에 더해요)</td></tr>
+  <tr><td><code>실험 장치 @기자재·장비</code></td><td><b>@</b> = 그 분류의 새 문서 기본 틀 (<code>@없음</code>으로 빼기)</td></tr>
+  <tr><td><code>// 메모</code></td><td>건너뛰는 줄</td></tr></table>
+  <p class="muted">같은 글을 다시 넣어도 괜찮아요 — 이미 있는 건 건너뛰어요. 중간에 멈추면 고친 뒤 다시 [만들기].</p>`;
+function bulkPreviewHTML(plan){
+  const c=plan.cnt;
+  const chips=[ ['새 분류',c.nodes], ['틀 지정',c.tpls], ['새 문서',c.newDocs], ['옮길 문서',c.moved], ['태그만 더함',c.tagged], ['이미 그대로',c.same] ]
+    .filter(([k,v])=>v).map(([k,v])=>`<span class="tb-chip${k==='옮길 문서'?' warn':''}">${k} <b>${v}</b></span>`).join('');
+  const errs=plan.errors.map(e=>`<button type="button" class="tb-line err" data-ln="${e.ln}"><b>${e.ln}줄</b> ${escapeHtml(e.msg)}</button>`).join('');
+  const warns=plan.warns.map(e=>`<button type="button" class="tb-line warn" data-ln="${e.ln}"><b>${e.ln}줄</b> ${escapeHtml(e.msg)}</button>`).join('');
+  const rows=plan.order.map(n=>{
+    const t=n.tpl!==undefined ? n.tpl : n.cur; const tp=t && DOC_TEMPLATES[t];
+    return `<div class="tb-n" style="--d:${n.depth-1}"><span class="tb-nm">${escapeHtml(n.name)}</span>${n.isNew?'<span class="tb-new">새</span>':''}${tp && n.tpl!==undefined && n.tpl!==n.cur?`<span class="tb-tp">${tp.icon} ${escapeHtml(tp.name)}</span>`:''}${n.docs?`<span class="tb-dc">문서 ${n.docs}${n.newDocs&&n.newDocs!==n.docs?` (새 ${n.newDocs})`:''}</span>`:''}</div>`; }).join('');
+  return `${chips?`<div class="tb-chips">${chips}</div>`:''}${errs}${warns}${rows?`<div class="tb-tree">${rows}</div>`:''}`;
+}
+async function openTreeBulk(){
+  if(!isAdmin()) return toast('관리자만 할 수 있어요.');
+  let draft=''; try{ draft=localStorage.getItem(BULK_LS)||''; }catch(e){}
+  const ov=document.createElement('div'); ov.className='modal-ov';
+  ov.innerHTML=`<div class="modal-box tb-box">
+    <div class="modal-msg">분류 · 문서 한꺼번에 만들기</div>
+    <div class="modal-sub">한 줄에 분류 하나. 상위부터 하위, 그 안의 문서까지 한 번에 만들어요. <button type="button" class="tb-helpbtn" id="tbHelpBtn">문법 보기 ▾</button></div>
+    <div class="tb-help" id="tbHelp" hidden>${BULK_HELP}</div>
+    <textarea class="he-input tb-in" id="tbIn" spellcheck="false" autocomplete="off" placeholder="실험 장치 @기자재·장비&#10;&gt; 역학 : 만유인력 측정장치, 회전운동·힘의 평형 실험장치&#10;&gt; 전기·자기 : 반데그라프 #고전압">${escapeHtml(draft)}</textarea>
+    <div class="tb-prev" id="tbPrev"></div>
+    <div class="modal-btns"><button class="modal-cancel" id="tbClose">닫기</button><button class="modal-ok" id="tbOk" disabled>만들기</button></div></div>`;
+  document.body.appendChild(ov);
+  const inp=ov.querySelector('#tbIn'), prev=ov.querySelector('#tbPrev'), ok=ov.querySelector('#tbOk');
+  let plan=null, busy=false, tmr=0, banner='';
+  const refresh=()=>{
+    plan=planBulkTree(parseBulkTree(inp.value));
+    prev.innerHTML=banner + (plan.empty ? '<div class="muted tb-empty">위에 적으면 여기에 무엇이 만들어질지 미리 보여요.</div>' : bulkPreviewHTML(plan));
+    ok.disabled=busy || plan.empty || !!plan.errors.length || !plan.cnt.steps;
+    ok.textContent = plan.errors.length ? `고칠 곳 ${plan.errors.length}` : (!plan.empty && !plan.cnt.steps ? '바뀔 것 없음' : '만들기');
+  };
+  const close=()=>{ if(busy) return; ov.remove(); };
+  ov.querySelector('#tbHelpBtn').onclick=()=>{ const h=ov.querySelector('#tbHelp'); h.hidden=!h.hidden; ov.querySelector('#tbHelpBtn').textContent=h.hidden?'문법 보기 ▾':'문법 접기 ▴'; };
+  ov.querySelector('#tbClose').onclick=close;
+  ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
+  inp.addEventListener('input',()=>{ banner=''; try{ localStorage.setItem(BULK_LS, inp.value); }catch(e){} clearTimeout(tmr); tmr=setTimeout(refresh,180); });
+  inp.addEventListener('keydown',e=>{ if(e.key==='Escape') close(); });
+  prev.addEventListener('click',e=>{
+    const b=e.target.closest('[data-ln]'); if(!b) return;
+    const ln=Number(b.dataset.ln), L=inp.value.split('\n'); let a=0; for(let i=0;i<ln-1 && i<L.length;i++) a+=L[i].length+1;
+    inp.focus(); inp.setSelectionRange(a, a+((L[ln-1]||'').length));
+    const lh=parseFloat(getComputedStyle(inp).lineHeight)||18; inp.scrollTop=Math.max(0,(ln-3)*lh);
+  });
+  ok.onclick=async()=>{
+    if(busy || !plan || plan.errors.length || !plan.cnt.steps) return;
+    const c=plan.cnt;
+    const what=[c.nodes&&`분류 ${c.nodes}개`, c.newDocs&&`문서 ${c.newDocs}개`].filter(Boolean).join('와 ');
+    const more=[c.tpls&&`틀 ${c.tpls}곳 지정`, c.moved&&`문서 ${c.moved}개 옮김`, c.tagged&&`태그 ${c.tagged}곳 더함`].filter(Boolean).join(' · ');
+    if(!await confirmModal(what ? `${what}를 만들까요?` : '바꿀까요?', more||'', '만들기')) return;
+    busy=true; ok.disabled=true; inp.readOnly=true; ov.querySelector('#tbClose').disabled=true;
+    const r=await runBulkTree(plan, (i,n)=>{ ok.textContent=`만드는 중… ${i} / ${n}`; });
+    await loadTree(); await loadDocs(); await loadDocTags();
+    if(/^#\/\/doctree/.test(location.hash||'')) paintDocTree();
+    busy=false; inp.readOnly=false; ov.querySelector('#tbClose').disabled=false;
+    const sum=[r.nodes&&`분류 ${r.nodes}`, r.tpls&&`틀 ${r.tpls}`, r.created&&`새 문서 ${r.created}`, r.moved&&`옮김 ${r.moved}`, r.tagged&&`태그 ${r.tagged}`].filter(Boolean).join(' · ');
+    if(r.ok){
+      try{ localStorage.removeItem(BULK_LS); }catch(e){}
+      ov.remove(); toast(`다 만들었어요 — ${sum||'바뀐 것 없음'}`); return;
+    }
+    banner=`<div class="tb-line err tb-stop" data-ln="${r.ln}"><b>${r.ln}줄 ${escapeHtml(r.what)}</b>에서 멈췄어요 — ${escapeHtml(r.msg)}${sum?`<br><span class="muted">그 전까지 된 것: ${sum}. 고친 뒤 다시 [만들기]를 누르면 나머지만 이어서 해요.</span>`:''}</div>`;
+    refresh();
+  };
+  refresh(); inp.focus();
 }
 async function treeRename(id){
   const T=state.tree; const n=T.byId[id]; if(!n) return;
@@ -11855,6 +12159,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-02', text:'[문서] 분류 나무에 [한꺼번에 만들기]가 생겼어요(관리자). 한 줄에 "상위 > 하위 : 문서, 문서 #태그"처럼 적으면 분류부터 그 안의 문서까지 한 번에 만들어져요. 줄 맨 앞 ">"는 바로 위 줄 아래, "@틀"은 그 분류의 기본 틀. 만들기 전에 미리 보기와 고칠 곳(줄 번호)을 보여 주고, 같은 글을 다시 넣어도 이미 있는 건 건너뛰어요.' },
   { date:'2026-10-02', text:'[문서] 분류를 만들 때 쉼표(,)로 나누면 한 번에 여러 개가 만들어져요(예: "전원, 신호원, 카메라" — 양끝 띄어쓰기는 알아서 지워요). 분류 나무 · 물리실 도면 · 주문·신고 · 재고 점검 화면 왼쪽 위에 "← 문서"가 생겼어요.' },
   { date:'2026-10-02', text:'[안내] 개인정보 처리방침과 이용약관이 2026년 11월 1일부터 v1.3으로 바뀌어요. 바뀌는 점: 물품 관리(보관 위치·상태, 고장·분실 신고, 주문 신청, 재고 점검, 분야 담당·인수인계)와 편집 중 표시·문서 열람 기록을 처리 항목에 적고, 주문 신청·신고·점검 기록은 1년 뒤 지운다는 보유 기간을 정했어요. 선생님(teacher)·편집자 등급과 권한 설정을 약관에 넣었고, 인증 메일 발송 사업자를 Google(Gmail)로 바로잡았어요. 그 전까지는 v1.2가 적용돼요. 각 문서 맨 아래 [변경 이력]에서 이전 버전을 볼 수 있어요.' },
   { date:'2026-10-02', text:'[문서] 분류 나무가 가지 그림으로 바뀌었어요 — 맨 위 분류마다 색이 있고, 하위 분류가 선으로 이어져요. 분류를 지울 수 있게 됐어요(안에 든 문서는 \'분류 없음\'으로 옮겨져요). 분야 태그도 [문서] 목록에서 × 로 지울 수 있어요.' },
