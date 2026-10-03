@@ -1026,6 +1026,41 @@ body.dark{ --star-on:#F0B429; --star-off:#393234; --star-edge:#B98D18; }
 .st-barh small{ display:inline-block; width:44px; text-align:right; font-size:11px; color:var(--text-dim); font-variant-numeric:tabular-nums; }
 .st-schemas{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; margin-top:8px; color:var(--text-dim); } .st-schemas b{ color:var(--text); font-weight:600; }
 .st-dev{ max-width:560px; } .st-at{ margin:-6px 0 14px; }
+/* ★DE2: 저장 용량 → 정리하기 */
+.cln-miss{ border:1px dashed var(--border-strong); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--text); background:var(--box-bg); }
+.cln-grp{ margin:0 0 12px; border:1px solid var(--border); border-radius:12px; overflow:hidden; background:var(--card); }
+.cln-gh{ font-size:12px; font-weight:800; color:var(--text-dim); padding:7px 12px; background:var(--box-bg); border-bottom:1px solid var(--border); letter-spacing:.02em; }
+.cln-it + .cln-it{ border-top:1px solid var(--border); }
+.cln-it.open{ background:color-mix(in srgb, var(--accent) 3%, var(--card)); }
+.cln-row{ display:flex; align-items:center; gap:12px; padding:10px 12px; }
+.cln-main{ flex:1; min-width:0; }
+.cln-name{ font-weight:700; font-size:14px; display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cln-flag{ font-size:10.5px; font-weight:800; padding:1px 6px; border-radius:6px; background:var(--warn-bg); color:var(--warn); }
+.cln-flag.info{ background:var(--box-bg); color:var(--text-dim); }
+.cln-stat{ font-size:13px; color:var(--text); margin-top:2px; font-variant-numeric:tabular-nums; }
+.cln-note{ font-size:12px; color:var(--text-dim); margin-top:3px; line-height:1.5; } .cln-note code, .cln-line code, .cln-chk code{ font-size:11px; }
+.cln-dim{ color:var(--text-dim); } .cln-bad{ color:var(--danger); font-weight:700; }
+.cln-act{ flex:none; } .cln-act .abtn.on{ border-color:var(--accent); color:var(--accent); }
+.cln-panel{ margin:0 12px 12px; padding:12px; border:1px solid var(--border-strong); border-radius:10px; background:var(--card); display:flex; flex-direction:column; gap:10px; }
+.cln-modes{ display:flex; flex-direction:column; gap:8px; }
+.cln-mode{ display:flex; align-items:flex-start; gap:8px; font-size:13.5px; cursor:pointer; }
+.cln-mode > input{ margin-top:4px; accent-color:var(--accent); }
+.cln-mode > span{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.cln-mode input[type=date], .cln-mode input[type=number]{ font:inherit; font-size:13px; padding:3px 6px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); }
+.cln-mode input[type=number]{ width:84px; }
+.cln-mode small{ color:var(--text-dim); font-size:11.5px; }
+.cln-pre{ display:inline-flex; gap:4px; flex-wrap:wrap; }
+.cln-pre button{ font:inherit; font-size:11.5px; padding:1px 8px; border-radius:999px; border:1px solid var(--border); background:var(--box-bg); color:var(--text); cursor:pointer; }
+.cln-pre button:hover{ border-color:var(--accent); color:var(--accent); }
+.cln-chk{ display:flex; align-items:center; gap:6px; font-size:13px; flex-wrap:wrap; } .cln-chk input{ accent-color:var(--accent); }
+.cln-prev{ border-top:1px dashed var(--border); padding-top:10px; font-size:13px; display:flex; flex-direction:column; gap:4px; min-height:22px; }
+.cln-big{ font-size:14px; } .cln-big b{ font-size:16px; } .cln-big.ok{ color:var(--ok); font-weight:700; }
+.cln-line{ color:var(--text); } .cln-warnl{ color:var(--warn); font-weight:600; }
+.cln-big5{ display:flex; flex-wrap:wrap; gap:4px 10px; font-size:12px; color:var(--text-dim); } .cln-big5 code{ font-size:11.5px; }
+.cln-go{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; } .cln-gomsg{ font-size:12.5px; color:var(--text-dim); }
+.cln-go .abtn[disabled]{ opacity:.45; pointer-events:none; }
+.cln-more{ margin:4px 0 10px; } .cln-more summary{ cursor:pointer; font-size:13px; font-weight:700; color:var(--text); padding:4px 0; }
+@media(max-width:640px){ .cln-row{ flex-wrap:wrap; } .cln-act{ width:100%; } .cln-act .abtn{ width:100%; justify-content:center; } .cln-panel{ margin:0 8px 10px; padding:10px; } }
 .hs-more{ margin-left:auto; font-size:12px; font-weight:600; }
 @media (max-width:720px){ .st-barh{ display:none; } .st-tb th:nth-child(6), .st-tb td:nth-child(6){ display:none; } }
 @media(max-width:640px){ .hs-lb{white-space:normal;} }
@@ -13496,7 +13531,7 @@ const MIG_LEDGER = [
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
   ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
-  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}],
+  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}], ['135','저장 용량 정리',{f:'purge_status'}],
 ];
 async function migProbe(p){
   try{
@@ -14541,7 +14576,7 @@ async function renderSysStorage(){
   $('#doc').innerHTML=`
     <div class="doc-head"><h1>저장 용량</h1>
       <div class="tabs"><button id="stAgain">${ic('refresh')}다시 재기</button><button id="stBack">${ic('back')}시스템</button></div></div>
-    <div class="doc-meta">Supabase 무료 플랜 한도 안에서 얼마나 썼는지, 무엇이 자리를 차지하는지 봅니다. 읽기만 하고 아무것도 지우지 않아요.</div>
+    <div class="doc-meta">Supabase 무료 플랜 한도 안에서 얼마나 썼는지, 무엇이 자리를 차지하는지 봅니다. 아래 [정리하기]에서 항목마다 상태를 보고, 최고관리자는 오래된 것을 지울 수 있어요.</div>
     <div id="stBody"><div class="st-wait">재는 중…</div></div>`;
   $('#stBack').onclick=()=>{ location.hash='#//system'; };
   $('#stAgain').onclick=()=>stFill();
@@ -14591,6 +14626,7 @@ async function stFill(){
     }
     if(d.at) h+=`<div class="hs-note st-at">잰 시각 ${escapeHtml(new Date(d.at).toLocaleString())}</div>`;
   }
+  h+='<div id="stPurge"></div>';                                  // ★DE2: 정리하기(135)
   // 이 기기
   const L=stDevice(); let est=null; try{ if(navigator.storage && navigator.storage.estimate) est=await navigator.storage.estimate(); }catch(_){}
   if(nav!==_navSeq || !$('#stBody')) return;
@@ -14602,6 +14638,190 @@ async function stFill(){
     ${est && est.quota ? `<div class="hs-note">브라우저가 이 사이트에 내준 전체 공간: ${escapeHtml(fmtBytes(est.usage||0))} 사용 / ${escapeHtml(fmtBytes(est.quota))}(오프라인 캐시 포함)</div>` : ''}
     <div class="hs-note">영상 분석에 연 영상은 어디에도 저장되지 않아요 — 위 '영상 분석 — 저장한 점'은 찍은 점 · 축척 · 설정뿐이에요. 브라우저의 사이트 데이터를 지우면 여기 항목은 모두 사라져요.</div></section>`;
   box.innerHTML=h;
+  spMount();                                                       // ★DE2
+}
+
+/* ================================================================
+   ★세션 DE2: 저장 용량 → 정리하기(135). 항목마다 상태 · 미리 보기 · 실행.
+   · 상태(purge_status)는 운영진 모두 볼 수 있다. 지우기는 owner만(서버가 OWNER_ONLY로 막는다).
+   · 기준 둘 중 하나: ① 이 날짜 이전 전부(그날은 남김, 한국 시각 0시 기준) ② 최근 N개만 남기기(항목에 따라 방마다 · 문서마다 · 사람마다).
+   · DB 항목은 purge_run 한 번. 파일 항목은 purge_files_list로 경로를 받아 Storage API remove로 지운다
+     (storage.objects 줄만 지우면 실제 파일은 남는다). remove가 아무것도 안 지우고 끝나면 권한 문제로 보고 멈춘다.
+   ================================================================ */
+const SP_GRP_ORDER=['대화','문서','세미나','KYPT','기록','파일'];
+const _sp={ data:null, open:null, seq:0 };
+function clnDate(iso){ if(!iso) return '—'; const d=new Date(iso); if(isNaN(d)) return '—'; return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`; }
+function spRange(a,b){ if(!a && !b) return ''; const x=clnDate(a), y=clnDate(b); return x===y ? x : `${x} ~ ${y}`; }
+function spUnit(it){ return it.kind==='files' ? '개' : '줄'; }
+function spCutoff(v){ return v ? new Date(v+'T00:00:00+09:00').toISOString() : null; }        // 그날 0시(한국) 이전
+function spDaysAgo(n){ const d=new Date(Date.now()+9*3600e3-n*86400e3); return d.toISOString().slice(0,10); }   // 한국 날짜
+async function spMount(){
+  const box=$('#stPurge'); if(!box) return; const nav=_navSeq;
+  box.innerHTML=`<section class="hs-sec"><h2>정리하기 — 항목별 상태</h2><div class="st-wait">항목을 세는 중…</div></section>`;
+  let d=null, err=null;
+  try{ const r=await sb.rpc('purge_status'); if(r.error) throw r.error; d=hsJsonVal(r.data); }catch(e){ err=e; }
+  if(nav!==_navSeq || !$('#stPurge')) return;
+  if(!d){
+    const missing=/purge_status|function|does not exist|schema cache/i.test(String((err&&err.message)||''));
+    box.innerHTML=`<section class="hs-sec"><h2>정리하기 — 항목별 상태</h2><div class="cln-miss">${missing
+      ? `항목별 상태와 정리는 <b>135_storage_purge.sql</b>을 Supabase SQL Editor에서 실행하면 켜져요.`
+      : `상태를 읽지 못했어요: ${escapeHtml(String((err&&err.message)||err||''))}`}</div></section>`;
+    return;
+  }
+  _sp.data=d; spPaint();
+}
+function spPaint(){
+  const box=$('#stPurge'); const d=_sp.data; if(!box || !d) return;
+  const owner=!!d.owner && isOwner();
+  const items=(Array.isArray(d.items)?d.items:[]);
+  const groups=SP_GRP_ORDER.filter(g=>items.some(i=>i.grp===g)).concat([...new Set(items.map(i=>i.grp))].filter(g=>!SP_GRP_ORDER.includes(g)));
+  const row=it=>{
+    const ok=it.ready && it.kind!=='info', none=!it.exists;
+    const n=Number(it.rows)||0, b=Number(it.bytes)||0;
+    const stat = none ? `<span class="cln-dim">${it.kind==='table'?'표가':'버킷이'} 아직 없어요</span>`
+      : (it.kind==='table' && !it.ready) ? `<span class="cln-dim">시각 칸을 찾지 못해 정리할 수 없어요</span>`
+      : `<b>${n.toLocaleString()}${spUnit(it)}</b> · ${escapeHtml(fmtBytes(b))}${n?` · ${escapeHtml(spRange(it.oldest, it.newest))}`:''}${it.gname&&Number(it.groups)>1?` · ${escapeHtml(it.gname.replace('마다',''))} ${Number(it.groups).toLocaleString()}개`:''}`;
+    const kids=(Array.isArray(it.children)?it.children:[]).filter(c=>c.on_delete==='cascade').map(c=>c.table);
+    return `<div class="cln-it${_sp.open===it.key?' open':''}" data-sp="${escapeAttr(it.key)}">
+      <div class="cln-row">
+        <div class="cln-main"><div class="cln-name">${escapeHtml(it.label)}${it.warn?`<span class="cln-flag" title="${escapeAttr(it.warn)}">주의</span>`:''}${it.kind==='info'?'<span class="cln-flag info">상태만</span>':''}</div>
+          <div class="cln-stat">${stat}</div>
+          ${(it.note||kids.length)?`<div class="cln-note">${it.note?escapeHtml(it.note):''}${kids.length?`${it.note?' ':''}지우면 ${kids.map(k=>`<code>${escapeHtml(k)}</code>`).join(' · ')}의 딸린 줄도 함께 지워져요.`:''}</div>`:''}</div>
+        <div class="cln-act">${ok && n>0 ? `<button type="button" class="abtn${_sp.open===it.key?' on':''}" data-spopen="${escapeAttr(it.key)}" aria-expanded="${_sp.open===it.key}">${owner?`${ic('trash')}정리…`:'미리 보기'}</button>` : ''}</div>
+      </div>
+      ${_sp.open===it.key ? spPanelHTML(it, owner) : ''}
+    </div>`;
+  };
+  const others=Array.isArray(d.other_tables)?d.other_tables:[], obk=Array.isArray(d.other_buckets)?d.other_buckets:[];
+  const runs=Array.isArray(d.runs)?d.runs:[];
+  const label=k=>{ const it=items.find(i=>i.key===k); return it?it.label:k; };
+  box.innerHTML=`<section class="hs-sec cln-sec"><h2>정리하기 — 항목별 상태 <span class="hs-note">${owner?'날짜 이전 전부, 또는 최근 몇 개만 남기고 지울 수 있어요. 지우기 전에 무엇이 지워지는지 먼저 보여 줘요.':'지금 상태만 볼 수 있어요. 지우기는 최고관리자(owner)만 해요.'}</span></h2>
+    ${groups.map(g=>`<div class="cln-grp"><div class="cln-gh">${escapeHtml(g)}</div>${items.filter(i=>i.grp===g).map(row).join('')}</div>`).join('')}
+    <details class="cln-more"><summary>정리 대상이 아닌 것 — 표 ${others.length}개${obk.length?` · 버킷 ${obk.length}개`:''}</summary>
+      <div class="hs-note" style="margin:6px 0">지금 쓰고 있는 데이터(문서 본문 · 회원 · 설정 · 분류 · 도면 자리 · KYPT 문제 등)라 날짜로 지우면 사이트가 깨져요. 크기만 보여 줘요.</div>
+      <table class="hs-table st-tb"><tr><th>표</th><th>크기</th><th>줄(어림)</th></tr>
+        ${others.map(t=>`<tr><td>${ST_TABLES[t.name]?`<b>${escapeHtml(ST_TABLES[t.name])}</b> `:''}<code>${escapeHtml(t.name)}</code></td><td class="y">${escapeHtml(fmtBytes(Number(t.bytes)||0))}</td><td class="y">${Number(t.rows)>0?Number(t.rows).toLocaleString():'—'}</td></tr>`).join('')}
+        ${obk.map(t=>`<tr><td><b>${escapeHtml((ST_BUCKETS[t.name]||[t.name])[0])}</b> <code>${escapeHtml(t.name)}</code> <span class="st-tag">버킷</span></td><td class="y">${escapeHtml(fmtBytes(Number(t.bytes)||0))}</td><td class="y">${Number(t.rows)||0}개</td></tr>`).join('')}
+      </table></details>
+    <details class="cln-more"${runs.length?'':' hidden'}><summary>최근 정리 기록 ${runs.length}건</summary>
+      <table class="hs-table st-tb"><tr><th>언제</th><th>무엇</th><th>기준</th><th>지운 것</th><th>누가</th></tr>
+      ${runs.map(r=>`<tr><td class="y">${escapeHtml(new Date(r.at).toLocaleString())}</td><td>${escapeHtml(label(r.item))}</td>
+        <td>${r.mode==='before'?`${escapeHtml(clnDate(new Date(new Date(r.before_at).getTime()-1).toISOString()))}까지`:`최근 ${Number(r.keep_n)}개만 남김`}</td>
+        <td class="y">${Number(r.rows_n).toLocaleString()} · ${escapeHtml(fmtBytes(Number(r.bytes)||0))}${r.note?`<div class="hs-note">${escapeHtml(r.note)}</div>`:''}</td><td>${escapeHtml(r.by_name||'')}</td></tr>`).join('')}
+      </table></details>
+    <div class="hs-note">데이터베이스는 줄을 지워도 전체 크기가 바로 줄지 않아요 — 빈자리를 새 기록이 다시 써요. 저장소 파일은 지우면 바로 줄어요.</div>
+  </section>`;
+  box.querySelectorAll('[data-spopen]').forEach(b=>b.onclick=()=>{ const k=b.dataset.spopen; _sp.open = _sp.open===k ? null : k; spPaint(); if(_sp.open) spPreview(); });
+  if(_sp.open) spBindPanel();
+}
+function spPanelHTML(it, owner){
+  const opt=Array.isArray(it.optional)&&it.optional.length;
+  const per=it.gname ? `${escapeHtml(it.gname)} ` : '';
+  return `<div class="cln-panel" id="clnPanel">
+    <div class="cln-modes" role="radiogroup" aria-label="정리 기준">
+      <label class="cln-mode"><input type="radio" name="clnMode" value="before" checked>
+        <span><b>이 날짜 이전 전부</b> <input type="date" id="clnDate" value="${spDaysAgo(180)}" max="${spDaysAgo(0)}"> <small>그날은 남겨요</small>
+        <span class="cln-pre">${[30,90,180,365].map(n=>`<button type="button" data-spd="${n}">${n<365?n+'일':'1년'} 전</button>`).join('')}</span></span></label>
+      <label class="cln-mode"><input type="radio" name="clnMode" value="keep">
+        <span><b>${per}최근</b> <input type="number" id="clnKeep" min="0" step="1" value="${it.kind==='files'?200:(it.key==='revisions'?20:100)}" inputmode="numeric"> <b>${spUnit(it)}만 남기고 전부</b>
+        <span class="cln-pre">${(it.key==='revisions'?[5,10,20,50]:[10,50,100,500]).map(n=>`<button type="button" data-spk="${n}">${n}</button>`).join('')}</span></span></label>
+      ${opt?`<label class="cln-chk"><input type="checkbox" id="clnProtect" checked> 아직 남아 있는 글(${it.optional.map(t=>`<code>${escapeHtml(t)}</code>`).join(' · ')})에 붙은 파일은 남기기</label>`:''}
+    </div>
+    <div class="cln-prev" id="clnPrev" aria-live="polite"><span class="cln-dim">계산 중…</span></div>
+    ${owner?`<div class="cln-go"><button type="button" class="abtn danger" id="clnRun" disabled>${ic('trash')}지우기</button><span class="cln-gomsg" id="clnMsg"></span></div>`
+           :`<div class="hs-note">지우기는 최고관리자(owner)만 할 수 있어요.</div>`}
+  </div>`;
+}
+function spArgs(){
+  const it=(_sp.data.items||[]).find(i=>i.key===_sp.open); if(!it) return null;
+  const mode=(document.querySelector('input[name="clnMode"]:checked')||{}).value||'before';
+  const dv=($('#clnDate')||{}).value, kv=($('#clnKeep')||{}).value;
+  const pr=$('#clnProtect');
+  const a={ it, mode, before: mode==='before' ? spCutoff(dv) : null, keep: mode==='keep' ? Math.max(0, Math.floor(Number(kv))) : null, protect: pr ? pr.checked : true };
+  a.bad = mode==='before' ? !dv : !(kv!=='' && Number.isFinite(Number(kv)) && Number(kv)>=0);
+  return a;
+}
+let _spT=null;
+function spBindPanel(){
+  const p=$('#clnPanel'); if(!p) return;
+  const again=()=>{ clearTimeout(_spT); _spT=setTimeout(spPreview, 300); };
+  p.querySelectorAll('input').forEach(x=>{ x.addEventListener('input', again); x.addEventListener('change', again); });
+  p.querySelectorAll('[data-spd]').forEach(b=>b.onclick=e=>{ e.preventDefault(); $('#clnDate').value=spDaysAgo(Number(b.dataset.spd)); p.querySelector('input[value="before"]').checked=true; spPreview(); });
+  p.querySelectorAll('[data-spk]').forEach(b=>b.onclick=e=>{ e.preventDefault(); $('#clnKeep').value=b.dataset.spk; p.querySelector('input[value="keep"]').checked=true; spPreview(); });
+  const run=$('#clnRun'); if(run) run.onclick=clnRun;
+}
+async function spPreview(){
+  const a=spArgs(); const out=$('#clnPrev'); if(!a || !out) return;
+  const run=$('#clnRun'); if(run){ run.disabled=true; run.dataset.n=''; }
+  if(a.bad){ out.innerHTML='<span class="cln-dim">날짜나 개수를 정해 주세요.</span>'; return; }
+  const seq=++_sp.seq; out.innerHTML='<span class="cln-dim">계산 중…</span>';
+  let r=null, err=null;
+  try{ const x=await sb.rpc('purge_preview', { p_key:a.it.key, p_before:a.before, p_keep:a.keep, p_protect:a.protect }); if(x.error) throw x.error; r=hsJsonVal(x.data); }catch(e){ err=e; }
+  if(seq!==_sp.seq || !$('#clnPrev')) return;
+  if(!r){ out.innerHTML=`<span class="cln-bad">${escapeHtml(String((err&&err.message)||err||'미리 보기를 못 했어요'))}</span>`; return; }
+  const n=Number(r.count)||0, u=spUnit(a.it), tot=Number(a.it.rows)||0;
+  const pre=(r.pre||[]).filter(x=>Number(x.rows)>0).map(x=>`<code>${escapeHtml(x.table)}</code> ${Number(x.rows).toLocaleString()}줄`);
+  let h = n
+    ? `<div class="cln-big"><b>${n.toLocaleString()}${u}</b> 지워져요 · <b>${escapeHtml(fmtBytes(Number(r.bytes)||0))}</b>${r.kind==='table'?' (어림)':''}<span class="cln-dim"> — 전체 ${tot.toLocaleString()}${u} 중 ${tot?Math.round(n/tot*100):0}%</span></div>
+       <div class="cln-line">기간 ${escapeHtml(spRange(r.oldest, r.newest))}${a.it.gname&&Number(r.groups)>0?` · ${escapeHtml(a.it.gname.replace('마다',''))} ${Number(r.groups).toLocaleString()}개에서`:''}</div>`
+    : `<div class="cln-big ok">지울 것이 없어요.</div>`;
+  if(pre.length) h+=`<div class="cln-line">함께 지워지는 딸린 기록: ${pre.join(' · ')}</div>`;
+  if(r.kind==='files'){
+    if(Number(r.kept_in_range)>0) h+=`<div class="cln-line">${Number(r.kept_in_range).toLocaleString()}개는 기준에 들지만 <b>쓰이고 있어서</b> 남겨요${r.protect===false&&a.it.seminar?' (세미나 파일 · 연결된 자료)':''}.</div>`;
+    if(n && Array.isArray(r.biggest) && r.biggest.length) h+=`<div class="cln-big5">${r.biggest.map(f=>`<span title="${escapeAttr(f.name)}"><code>${escapeHtml(String(f.name).split('/').pop())}</code> ${escapeHtml(fmtBytes(Number(f.size)||0))}</span>`).join('')}</div>`;
+  }
+  if(a.it.warn && n) h+=`<div class="cln-line cln-warnl">⚠ ${escapeHtml(a.it.warn)}</div>`;
+  out.innerHTML=h;
+  if(run && n){ run.disabled=false; run.dataset.n=String(n); run.innerHTML=`${ic('trash')}${n.toLocaleString()}${u} 지우기`; _sp.last={ ...a, n, bytes:Number(r.bytes)||0 }; }
+  else if(run){ run.innerHTML=`${ic('trash')}지우기`; }
+}
+async function clnRun(){
+  const L=_sp.last; const a=spArgs(); if(!L || !a || L.it.key!==a.it.key || L.mode!==a.mode || L.before!==a.before || L.keep!==a.keep || L.protect!==a.protect){ spPreview(); return; }
+  const u=spUnit(L.it), msg=$('#clnMsg'), run=$('#clnRun');
+  const crit = L.mode==='before' ? `${clnDate(new Date(new Date(L.before).getTime()-1).toISOString())}까지` : `${L.it.gname?L.it.gname+' ':''}최근 ${L.keep}${u}만 남기고`;
+  const ok=await confirmModal(`${L.it.label} ${L.n.toLocaleString()}${u}를 지울까요?`,
+    `${crit} · ${fmtBytes(L.bytes)}. 되돌릴 수 없어요.${L.it.warn?' '+L.it.warn:''}`, '지우기');
+  if(!ok) return;
+  if(run) run.disabled=true; if(msg) msg.textContent='지우는 중…';
+  try{
+    if(L.it.kind==='table'){
+      const x=await sb.rpc('purge_run', { p_key:L.it.key, p_before:L.before, p_keep:L.keep, p_expect:L.n }); if(x.error) throw x.error;
+      const r=hsJsonVal(x.data)||{};
+      toast(`${L.it.label} ${Number(r.rows||0).toLocaleString()}줄을 지웠어요.`);
+    }else{
+      const r=await spRunFiles(L, t=>{ if(msg) msg.textContent=t; });
+      toast(`${L.it.label} ${r.count.toLocaleString()}개 · ${fmtBytes(r.bytes)}를 지웠어요.`);
+    }
+    _sp.open=null; await spMount();
+  }catch(e){
+    const m=String((e&&e.message)||e||''); const code=(e&&e.hint)||'';
+    if(msg) msg.innerHTML=`<span class="cln-bad">${escapeHtml(code==='PURGE_CHANGED'?m:code==='OWNER_ONLY'?'최고관리자(owner)만 지울 수 있어요.':m)}</span>`;
+    if(code==='PURGE_CHANGED') spPreview(); else if(run) run.disabled=false;
+  }
+}
+/* 파일: 서버가 고른 경로를 100개씩 Storage API로 지운다. 한 바퀴에 하나도 못 지우면 멈춘다(권한 · 이미 없음). */
+async function spRunFiles(L, say){
+  let count=0, bytes=0, rounds=0, note=null;
+  try{
+    for(;;){
+      if(++rounds>60){ note='한 번에 다 못 지웠어요 — 다시 실행해 주세요'; break; }
+      const x=await sb.rpc('purge_files_list', { p_key:L.it.key, p_before:L.before, p_keep:L.keep, p_protect:L.protect, p_limit:500 }); if(x.error) throw x.error;
+      const d=hsJsonVal(x.data)||{}; const files=Array.isArray(d.files)?d.files:[];
+      if(!files.length) break;
+      let gone=0;
+      for(let i=0;i<files.length;i+=100){
+        const part=files.slice(i,i+100);
+        const { data, error } = await sb.storage.from(d.bucket).remove(part.map(f=>f.name)); if(error) throw error;
+        const done=new Set((data||[]).map(o=>o.name));
+        part.forEach(f=>{ if(done.has(f.name)){ gone++; count++; bytes+=Number(f.size)||0; } });
+        say(`지우는 중… ${count.toLocaleString()} / ${L.n.toLocaleString()}개`);
+      }
+      if(!gone){ const e=new Error('저장소가 파일을 지우지 않았어요 — 지우기 권한이 없을 수 있어요(135의 저장소 정책을 확인해 주세요).'); e.hint='PURGE_STORAGE'; throw e; }
+    }
+  }finally{
+    if(count) try{ await sb.rpc('purge_files_log', { p_key:L.it.key, p_before:L.before, p_keep:L.keep, p_count:count, p_bytes:bytes, p_note:note }); }catch(_){}
+  }
+  return { count, bytes };
 }
 
 /* 시스템 → 동아리 목록 */
