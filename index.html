@@ -1008,6 +1008,24 @@ body.dark{ --star-on:#F0B429; --star-off:#393234; --star-edge:#B98D18; }
 .cap-track{height:8px;border-radius:4px;background:var(--box-bg);border:1px solid var(--border);overflow:hidden;}
 .cap-fill{height:100%;}
 .cap-table{margin-top:6px;}
+.st-wait{ padding:28px 0; color:var(--text-dim); }
+.st-warn{ border:1px solid var(--warn); background:var(--warn-bg); border-radius:10px; padding:10px 12px; margin:0 0 14px; font-size:13px; color:var(--text); }
+.st-sum{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin:4px 0 18px; }
+.st-card{ border:1px solid var(--border); border-radius:12px; padding:14px 16px; background:var(--card); }
+.st-ct{ display:flex; flex-direction:column; gap:1px; } .st-ct b{ font-size:14px; } .st-ct span{ font-size:11.5px; color:var(--text-dim); }
+.st-big{ display:flex; align-items:baseline; gap:6px; margin:10px 0 8px; flex-wrap:wrap; } .st-big b{ font-size:26px; font-weight:800; letter-spacing:-.01em; font-variant-numeric:tabular-nums; }
+.st-big span{ color:var(--text-dim); font-size:13px; } .st-big em{ margin-left:auto; font-style:normal; font-weight:800; font-size:15px; }
+.st-track{ height:10px; } .st-left{ font-size:12px; color:var(--text-dim); margin-top:6px; }
+.st-fc{ font-size:12.5px; margin-top:8px; padding-top:8px; border-top:1px dashed var(--border); color:var(--text); line-height:1.55; }
+.st-tb td code{ font-size:11px; color:var(--text-dim); } .st-tb td.y small{ color:var(--text-dim); }
+.st-tag{ margin-left:6px; font-size:10.5px; padding:0 6px; border-radius:8px; background:var(--red-50); color:var(--accent); }
+.st-barh{ width:28%; } .st-bar{ height:8px; border-radius:4px; background:var(--box-bg); overflow:hidden; display:inline-block; width:calc(100% - 48px); vertical-align:middle; }
+.st-bar i{ display:block; height:100%; background:var(--accent); border-radius:4px; } .st-bar.db i{ background:var(--ink); }
+.st-barh small{ display:inline-block; width:44px; text-align:right; font-size:11px; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.st-schemas{ display:flex; flex-wrap:wrap; gap:6px 14px; font-size:12px; margin-top:8px; color:var(--text-dim); } .st-schemas b{ color:var(--text); font-weight:600; }
+.st-dev{ max-width:560px; } .st-at{ margin:-6px 0 14px; }
+.hs-more{ margin-left:auto; font-size:12px; font-weight:600; }
+@media (max-width:720px){ .st-barh{ display:none; } .st-tb th:nth-child(6), .st-tb td:nth-child(6){ display:none; } }
 @media(max-width:640px){ .hs-lb{white-space:normal;} }
 
 /* ===== 편집기 상단 레이아웃 정리 ===== */
@@ -5228,7 +5246,7 @@ async function init(){
   if(session){ await onLoggedIn(); } else { showLogin(); }
 }
 function showLogin(){
-  try{ if(typeof ATW!=='undefined') Object.keys(ATW.wins).forEach(id=>ATW.close(id)); }catch(e){}   // ★CY
+  try{ if(typeof ATW!=='undefined') Object.keys(ATW.wins).forEach(id=>ATW.close(id, true)); }catch(e){}   // ★CY
   /* ★넓은 화면에서는 2단 그리드, 좁으면 세로 배치 (세션 AC).
      CSS 미디어 쿼리가 display를 결정하도록 인라인 값을 비운다. */
   $('#login').style.display='';
@@ -13380,6 +13398,7 @@ const MIG_LEDGER = [
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
   ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
+  ['133','저장 용량 자세히',{f:'capacity_report'}],
 ];
 async function migProbe(p){
   try{
@@ -13395,7 +13414,7 @@ async function migLedgerHTML(){
   const res=await Promise.all(MIG_LEDGER.map(([n,name,p])=>migProbe(p).then(st=>[n,name,p,st])));
   const miss=res.filter(r=>r[3]==='bad');
   const chip=([n,name,p,st])=>`<span class="mg-chip ${st}" title="${escapeAttr(name+(p.na?' — '+p.na:''))}"><b>${n}</b>${escapeHtml(name)}</span>`;
-  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 132) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
+  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 133) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
     <div class="mg-grid">${res.map(chip).join('')}</div>
     <div class="hs-note">초록 = 적용됨 · 빨강 = 그 번호의 SQL이 안 돌았어요(번호 순서대로 실행) · 회색 = 이름으로 구별할 수 없는 번호(아래 설명을 보고 사람이 확인).
       ${miss.length?`<br><b>실행할 파일:</b> ${miss.map(r=>`<code>${escapeHtml(r[0])}_*.sql</code>`).join(' → ')}`:''}</div></section>`;
@@ -13681,7 +13700,7 @@ async function renderHealth(){
   bump('용량 확인 중…');
   const capHtml = await capacityHTML();
   body.insertAdjacentHTML('beforeend',
-    `<section class="hs-sec"><h2>용량 (무료 한도)</h2>${capHtml}</section>`);
+    `<section class="hs-sec"><h2>용량 (무료 한도) <a class="hs-more" href="#//system/storage">무엇이 차지하는지 자세히 →</a></h2>${capHtml}</section>`);
 
   // 0-1) 적용 현황 한눈에 (★CQ)
   bump('적용 현황 확인 중…');
@@ -14239,11 +14258,12 @@ async function renderSystem(){
     { owner:true,          hash:'#//system/nudges', g:'set', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
     { owner:true,          hash:'#//system/signup', g:'set', ic:'users', t:'가입 설정',              d:'누가 가입할 수 있는지 정합니다. 초대 코드 · 누구나 · 가입 중단.' },
     { owner:true,          hash:'#//system/focus', g:'set',  ic:'check', t:'연구 집중 기간',         d:'기간을 켜면 대문 맨 위에 남은 날짜와 과제 진행률이 뜹니다.' },
-    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'129번까지 적용 현황을 한눈에, 그리고 표·함수·버킷·Edge Function·개인정보 잠금(비로그인 차단·비공개 버킷)을 읽기만 해서 점검합니다.' },
+    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'133번까지 적용 현황을 한눈에, 그리고 표·함수·버킷·Edge Function·개인정보 잠금(비로그인 차단·비공개 버킷)을 읽기만 해서 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin', g:'mem',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs', g:'mem',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
     { cap:'track_read',    hash:'#//system/tracks', g:'mem', ic:'edit',  t:'계열 목록',              d:'계열별 회원을 보고, 권한이 있으면 이름·색을 수정합니다.' },
     { cap:'feedback_read', hash:'#//feedback/review', g:'mem', ic:'heart', t:'피드백 검토',           d:'회원들이 보낸 별점·의견을 모아 봅니다.' },
+    { cap:'system_health', hash:'#//system/storage', g:'chk', ic:'box',   t:'저장 용량',              d:'무료 한도(데이터베이스 500MB · 저장소 1GB) 중 얼마나 썼는지, 무엇이 자리를 차지하는지(사진 · 파일 종류별, 큰 표), 최근 30일에 늘어난 양과 이 속도면 언제 차는지, 이 기기 브라우저에 남은 도구 데이터까지.' },
     { cap:'system_maint',  hash:'#//system/maint', g:'chk',  ic:'broom', t:'유지 보수',              d:'안 쓰는 문서 사진·KYPT 파일·도면 사진 정리, 프로필 없는 계정 복구, 가입 기록 정리, 서버가 알아서 하는 자동 정리 일정.' },
   ].filter(it => it.owner ? isOwner() : can(it.cap));
   $('#doc').innerHTML=`
@@ -14369,6 +14389,121 @@ async function renderSysMaint(){
   $('#smBack').onclick=()=>{ location.hash='#//system'; };
   renderMaintenance('#sysMaint');
   window.scrollTo(0,0);
+}
+
+/* ════════════════════════════════════════════════════════════════
+   ★세션 DB: 시스템 → 저장 용량 (133 capacity_report — 읽기만)
+   서버: 데이터베이스 / 저장소 무료 한도 · 버킷별(최근 30일 증가 → 언제 차는지) · 큰 표 · 스키마별
+   이 기기: 브라우저 저장소(도구 데이터 · 임시 저장본 …) — 서버 용량과 별개
+   ════════════════════════════════════════════════════════════════ */
+const ST_BUCKETS={
+  'doc-images':['문서 사진','문서 · 기자재 · 사진 창고 — 지우기 전까지 보관'], 'chat-images':['채팅 사진','30일 지나면 자동 삭제(세미나 사진은 보존)'],
+  'chat-files':['채팅 파일 · 영상','압축하지 않아 빨리 차요 — [유지 보수]에서 오래된 것 정리'], 'question-images':['질문 사진','지우기 전까지 보관'],
+  'avatars':['프로필 사진','256px로 줄여 저장'], 'seminar':['세미나 슬라이드','세미나를 연 사람이 지울 때까지 보관'], 'kypt':['KYPT 자료함','실험 기록 · 자료 파일'],
+  'labmap':['물리실 도면',''], 'landing':['대문 사진',''], 'history':['연혁','story.json + 사진'],
+};
+const ST_TABLES={
+  documents:'문서 본문', revisions:'문서 고친 기록(리비전)', messages:'채팅 · 세미나 메시지', dm_messages:'쪽지', questions:'질문', profiles:'회원 프로필',
+  notifications:'알림', push_queue:'푸시 보낼 목록', push_subscriptions:'푸시 받는 기기', kypt_entries:'KYPT 실험 기록', kypt_notes:'KYPT 끄적', kypt_refkit:'KYPT 레퍼런스 키트',
+  kypt_log:'KYPT 활동 기록', kypt_comments:'KYPT 의견', seminar_script:'세미나 대본', seminar_archive:'세미나 보관 기록', seminar_slides:'세미나 슬라이드 목록', seminar_votes:'세미나 투표',
+  doc_stats:'문서 열람 통계', contrib_log:'기여 기록', signup_log:'가입 기록', dev_log:'운영 일지', feedback:'피드백', channel_items:'작업 공간', message_reactions:'반응',
+  assignments:'과제', assignment_submissions:'과제 제출', order_requests:'주문 신청', doc_locations:'물품 보관 위치', handle_history:'활동명 기록',
+};
+const ST_SCHEMAS={ public:'내 데이터(public)', auth:'로그인 · 계정(auth)', storage:'저장소 파일 목록(storage)', realtime:'실시간(realtime)', cron:'예약 작업(cron)', net:'외부 호출(net)', pg_catalog:'DB 자체(시스템)', supabase_functions:'Edge 함수 기록', vault:'비밀값(vault)', extensions:'확장', graphql:'GraphQL' };
+const ST_DEVICE=[
+  ['anda_graph_v1','그래프 그리기 — 표 · 설정'], ['anda_tr_v1','영상 분석 — 저장한 점'], ['anda_tr_pref','영상 분석 — 설정'], ['anda_tabs_','도구 — 열린 탭'], ['anda_hist_','도구 — 닫은 탭 기록'],
+  ['anda_err_v1','오차 분석'], ['anda_kt_','KYPT 발표 타이머'], ['anda_tw_','도구 창 위치 · 크기'], ['anda_draft','문서 임시 저장본'], ['anda_kypt_draft','KYPT 임시 저장본'],
+  ['anda_tree_bulk_draft','분류 한꺼번에 만들기 초안'], ['anda_photos','사진 창고'], ['sb-','로그인 정보'],
+];
+function stPct(u,l){ return l>0 ? Math.min(100, u/l*100) : 0; }
+function stCol(p){ return p>=90 ? 'var(--link-red, var(--accent))' : p>=70 ? 'var(--warn)' : 'var(--ok)'; }
+function stWhen(d){ if(!d) return '—'; const t=new Date(d); return isNaN(t) ? '—' : `${t.getFullYear()}.${String(t.getMonth()+1).padStart(2,'0')}.${String(t.getDate()).padStart(2,'0')}`; }
+/* 최근 30일 속도로 남은 공간이 몇 달 버티는지 */
+function stForecast(used, limit, per30){
+  if(!(per30>0)) return '최근 30일 동안 늘지 않았어요.';
+  const left=limit-used; if(left<=0) return '이미 한도를 넘었어요.';
+  const m=left/per30; const s = m>=24 ? `${(m/12).toFixed(1)}년` : m>=1 ? `${m.toFixed(1)}개월` : `${Math.max(1, Math.round(m*30))}일`;
+  return `최근 30일 <b>+${escapeHtml(fmtBytes(per30))}</b> — 이 속도면 약 <b>${s}</b> 뒤에 가득 차요.`;
+}
+function stSum(title, sub, used, limit, extra){
+  const p=stPct(used, limit), c=stCol(p);
+  return `<div class="st-card"><div class="st-ct"><b>${escapeHtml(title)}</b><span>${escapeHtml(sub)}</span></div>
+    <div class="st-big"><b>${escapeHtml(fmtBytes(used))}</b><span>/ ${escapeHtml(fmtBytes(limit))}</span><em style="color:${c}">${p.toFixed(1)}%</em></div>
+    <div class="cap-track st-track"><div class="cap-fill" style="width:${Math.max(p, used>0?0.6:0).toFixed(2)}%;background:${c}"></div></div>
+    <div class="st-left">남은 공간 ${escapeHtml(fmtBytes(Math.max(0, limit-used)))}</div>${extra||''}</div>`;
+}
+function stDevice(){
+  const cats=ST_DEVICE.map(([p,n])=>({ p, n, b:0, k:0 })); let app={ n:'앱 설정 · 기타', b:0, k:0 }, other={ n:'다른 것', b:0, k:0 }, total=0;
+  try{ for(let i=0;i<localStorage.length;i++){ const k=localStorage.key(i); const v=localStorage.getItem(k)||''; const b=(k.length+v.length)*2; total+=b;
+      const c=cats.find(x=>k.startsWith(x.p)); const t = c || (k.startsWith('anda') ? app : other); t.b+=b; t.k++; } }catch(e){}
+  const rows=[...cats, app, other].filter(x=>x.k).sort((a,b)=>b.b-a.b);
+  return { rows, total, limit:5*1024*1024 };
+}
+async function renderSysStorage(){
+  $('#doc').innerHTML=`
+    <div class="doc-head"><h1>저장 용량</h1>
+      <div class="tabs"><button id="stAgain">${ic('refresh')}다시 재기</button><button id="stBack">${ic('back')}시스템</button></div></div>
+    <div class="doc-meta">Supabase 무료 플랜 한도 안에서 얼마나 썼는지, 무엇이 자리를 차지하는지 봅니다. 읽기만 하고 아무것도 지우지 않아요.</div>
+    <div id="stBody"><div class="st-wait">재는 중…</div></div>`;
+  $('#stBack').onclick=()=>{ location.hash='#//system'; };
+  $('#stAgain').onclick=()=>stFill();
+  window.scrollTo(0,0);
+  stFill();
+}
+async function stFill(){
+  const box=$('#stBody'); if(!box) return; const nav=_navSeq;
+  box.innerHTML='<div class="st-wait">재는 중…</div>';
+  let d=null, old=false, err=null;
+  try{ const r=await sb.rpc('capacity_report'); if(r.error) throw r.error; d=hsJsonVal(r.data); }
+  catch(e){ err=e; try{ const r2=await sb.rpc('capacity_usage'); if(!r2.error && r2.data){ d=hsJsonVal(r2.data); old=true; } }catch(_){} }
+  if(nav!==_navSeq || !$('#stBody')) return;
+  let h='';
+  if(!d){
+    h+=`<div class="st-warn">서버 용량을 읽지 못했어요 — <b>133_capacity_report.sql</b>을 Supabase SQL Editor에서 실행해 주세요.<div class="hs-note">${escapeHtml(String((err&&err.message)||err||''))}</div></div>`;
+  } else {
+    const B=Array.isArray(d.buckets)?d.buckets:[], T=Array.isArray(d.tables)?d.tables:[];
+    const sLimit=Number(d.storage_limit)||1073741824, dLimit=Number(d.db_limit)||524288000, sUsed=Number(d.storage_bytes)||0, dUsed=Number(d.db_bytes)||0;
+    const per30=B.reduce((a,b)=>a+(Number(b.bytes_30d)||0),0);
+    if(old) h+=`<div class="st-warn">지금은 합계만 보여요. <b>133_capacity_report.sql</b>을 실행하면 사진 · 파일 종류별 크기, 최근 30일 늘어난 양, 언제 차는지까지 보여요.</div>`;
+    h+=`<div class="st-sum">
+      ${stSum('저장소 (Storage)', '사진 · 파일 · 슬라이드 · 영상', sUsed, sLimit, old?'':`<div class="st-fc">${stForecast(sUsed, sLimit, per30)}</div>`)}
+      ${stSum('데이터베이스 (Database)', '문서 글 · 리비전 · 메시지 · 기록', dUsed, dLimit, d.schemas ? `<div class="st-fc">내 데이터(public) <b>${escapeHtml(fmtBytes(d.schemas.public||0))}</b> · 나머지는 로그인 · 시스템이 쓰는 몫이에요.</div>` : '')}
+    </div>`;
+    if(B.length){
+      const mx=Math.max(1, ...B.map(b=>Number(b.bytes)||0));
+      h+=`<section class="hs-sec"><h2>저장소 — 종류별 <span class="hs-note">버킷 ${B.length}개 · 파일 ${B.reduce((a,b)=>a+(Number(b.files)||0),0).toLocaleString()}개</span></h2>
+        <table class="hs-table st-tb"><tr><th>무엇</th><th class="st-barh">차지하는 몫</th><th>크기</th><th>파일</th><th>최근 30일</th><th>가장 큰 파일</th></tr>
+        ${B.map(b=>{ const nm=ST_BUCKETS[b.name]||[b.name,'']; const by=Number(b.bytes)||0; const share=sUsed>0?by/sUsed*100:0;
+          return `<tr data-bk="${escapeAttr(b.name)}"><td><b>${escapeHtml(nm[0])}</b> <code>${escapeHtml(b.name)}</code>${b.public?'<span class="st-tag">공개</span>':''}${nm[1]?`<div class="hs-note">${escapeHtml(nm[1])}</div>`:''}</td>
+            <td class="st-barh"><div class="st-bar"><i style="width:${(by/mx*100).toFixed(1)}%"></i></div><small>${share.toFixed(1)}%</small></td>
+            <td class="y">${escapeHtml(fmtBytes(by))}</td><td class="y">${(Number(b.files)||0).toLocaleString()}</td>
+            <td class="y">${Number(b.bytes_30d)>0?`+${escapeHtml(fmtBytes(b.bytes_30d))}<small> · ${b.files_30d}개</small>`:'—'}</td><td class="y">${Number(b.biggest)>0?escapeHtml(fmtBytes(b.biggest)):'—'}</td></tr>`; }).join('')}
+        </table>
+        <div class="hs-note">정리는 <a href="#//system/maint">유지 보수</a>에서(안 쓰는 문서 사진 · 오래된 채팅 파일 등), 사진 한 장 크기는 <a href="#//system/limits">글자수 · 사진 용량 상한</a>에서 바꿔요.</div></section>`;
+    }
+    if(T.length){
+      const mx=Math.max(1, ...T.map(t=>Number(t.bytes)||0));
+      h+=`<section class="hs-sec"><h2>데이터베이스 — 큰 표</h2>
+        <table class="hs-table st-tb"><tr><th>표</th><th class="st-barh">크기 비교</th><th>크기</th><th>줄(어림)</th></tr>
+        ${T.slice(0,15).map(t=>{ const by=Number(t.bytes)||0; const nm=ST_TABLES[t.name];
+          return `<tr><td>${nm?`<b>${escapeHtml(nm)}</b> `:''}<code>${escapeHtml(t.name)}</code></td><td class="st-barh"><div class="st-bar db"><i style="width:${(by/mx*100).toFixed(1)}%"></i></div></td><td class="y">${escapeHtml(fmtBytes(by))}</td><td class="y">${t.rows!=null&&Number(t.rows)>0?Number(t.rows).toLocaleString():'—'}</td></tr>`; }).join('')}
+        </table>
+        ${d.schemas ? `<div class="st-schemas">${Object.entries(d.schemas).sort((a,b)=>b[1]-a[1]).filter(x=>x[1]>0).map(([k,v])=>`<span><b>${escapeHtml(ST_SCHEMAS[k]||k)}</b> ${escapeHtml(fmtBytes(v))}</span>`).join('')}</div>` : ''}
+        <div class="hs-note">크기에는 색인이 포함돼요. 데이터베이스 전체 크기(위 막대)는 여기 표들에 더해 DB가 스스로 쓰는 몫까지 합친 값이에요.</div></section>`;
+    }
+    if(d.at) h+=`<div class="hs-note st-at">잰 시각 ${escapeHtml(new Date(d.at).toLocaleString())}</div>`;
+  }
+  // 이 기기
+  const L=stDevice(); let est=null; try{ if(navigator.storage && navigator.storage.estimate) est=await navigator.storage.estimate(); }catch(_){}
+  if(nav!==_navSeq || !$('#stBody')) return;
+  const lp=stPct(L.total, L.limit);
+  h+=`<section class="hs-sec"><h2>이 기기 (브라우저) <span class="hs-note">서버 용량과 별개 — 지금 쓰는 이 브라우저에만 있어요</span></h2>
+    <div class="cap-bar"><div class="cap-top"><b>앱이 브라우저에 둔 데이터(localStorage)</b><span>${escapeHtml(fmtBytes(L.total))} / 약 ${escapeHtml(fmtBytes(L.limit))} · <b style="color:${stCol(lp)}">${lp.toFixed(1)}%</b></span></div>
+      <div class="cap-track"><div class="cap-fill" style="width:${lp.toFixed(1)}%;background:${stCol(lp)}"></div></div></div>
+    ${L.rows.length ? `<table class="hs-table st-tb st-dev"><tr><th>무엇</th><th>크기</th><th>항목</th></tr>${L.rows.map(r=>`<tr><td>${escapeHtml(r.n)}</td><td class="y">${escapeHtml(fmtBytes(r.b))}</td><td class="y">${r.k}</td></tr>`).join('')}</table>` : ''}
+    ${est && est.quota ? `<div class="hs-note">브라우저가 이 사이트에 내준 전체 공간: ${escapeHtml(fmtBytes(est.usage||0))} 사용 / ${escapeHtml(fmtBytes(est.quota))}(오프라인 캐시 포함)</div>` : ''}
+    <div class="hs-note">영상 분석에 연 영상은 어디에도 저장되지 않아요 — 위 '영상 분석 — 저장한 점'은 찍은 점 · 축척 · 설정뿐이에요. 브라우저의 사이트 데이터를 지우면 여기 항목은 모두 사라져요.</div></section>`;
+  box.innerHTML=h;
 }
 
 /* 시스템 → 동아리 목록 */
@@ -14808,6 +14943,8 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-04', text:"[안내] [시스템 → 저장 용량]이 생겼어요. 무료 한도(저장소 1GB · 데이터베이스 500MB) 중 얼마나 썼는지, 사진 · 채팅 파일 · 세미나 슬라이드 등 종류별로 무엇이 자리를 차지하는지, 최근 30일에 늘어난 양과 이 속도면 언제 차는지, 큰 표 순위, 그리고 이 기기 브라우저에 남은 도구 데이터까지 한 화면에 보여요. 서버 쪽은 133 SQL이 필요해요." },
+  { date:'2026-10-03', text:"[도구] 그래프 그리기 · 영상 분석을 탭 여러 개로 띄울 수 있어요. 탭 이름은 두 번 눌러 바꾸고, 닫은 탭은 오른쪽 위 [기록]에 남아 어떤 파일을 불러왔는지 보고 다시 열 수 있어요. 영상 분석: 창이나 탭을 닫으면 '찍은 점을 저장할까요?'를 물어요(저장되는 것은 점 · 축척 · 축뿐, 영상은 저장 안 함). '늘 저장'을 켜면 묻지 않고, 같은 영상을 열면 점이 바로 떠요. [자동] → [여러 개 함께]로 물체 여러 개를 한 번에 따라가고, 시간 막대의 손잡이를 끌어 분석 시작 · 끝을 정해요. [그래프 도구로 보내기]는 그래프 도구의 새 탭으로 보내요. [보기]에서 축척 막대 · 좌표축 · 점을 숨길 수 있어요." },
   { date:'2026-10-03', text:"[도구] 새 도구 셋 — ① 영상 분석: 실험 영상을 열고(크기 제한 없음 · 업로드 없음 · 원본 화질) 축척을 맞춘 뒤 물체를 누르거나 [자동]으로 따라가게 하면 시간 · 위치 · 속도 표가 나와요. 그래프 도구로 바로 보내요. ② 오차 분석: g = 4π²L/T²처럼 식을 쓰고 측정값 ± 오차(또는 반복 측정값)를 넣으면 결과 ± 오차와 어느 값이 오차를 키우는지 알려 줘요. ③ KYPT 발표 타이머: Physics Fight 단계별 시간 · 소리 · 발표장용 큰 창, 순서는 고칠 수 있어요." },
   { date:'2026-10-03', text:"[도구] 상단 [도구] → [그래프 그리기]가 생겼어요. 화면 위에 떠 있는 창이라 다른 문서를 보면서 쓸 수 있고, 끌어서 옮기고 모서리로 크기를 바꿔요. 왼쪽 표의 X 축 · Y 축 칸에 값을 넣거나 엑셀 · 구글 시트 표를 Ctrl+V로 붙이거나 CSV · 엑셀 파일을 열면(어느 열을 X · Y · 오차로 쓸지 묻어요) 오른쪽에 MATLAB 같은 그래프가 그려져요. 오차 막대, 직선 · 2차 · 지수 · 거듭제곱 · 사인 맞춤(계수 ± 오차 · R²), 확대 · 이동 · 데이터 팁, 로그 축, 범위 · 크기 지정까지. 다 그린 그림은 PNG · SVG 저장, 복사, 인쇄, 그리고 [끌어서 넣기]로 문서 편집 · 채팅 · 바탕화면에 바로 넣을 수 있어요. 표는 내 기기에만 저장돼요." },
   { date:'2026-10-03', text:"[안내] 앱의 색을 안다미로 빨강 중심으로 정리했어요. 분류 · 태그 · 머리글자 · 도구 카드의 여러 색이 빨강의 진하기로 바뀌고, 다른 색은 완료(초록) · 주의(호박) · 선생님(먹색) · 링크(파랑)에만 남겨요. 동아리 색은 12색에 더해 [+]에서 원하는 색을 자유롭게 고를 수 있어요." },
@@ -23357,7 +23494,7 @@ function hideBlockingLoader(){ const o=$('#blockOv'); if(o) o.remove(); }
    시스템 페이지는 전부 '//' 네임스페이스에 산다 → 새 문서를 아무 이름으로 만들어도 시스템을 가리지 않는다.
    반대로 문서 주소에는 '/'를 못 쓰게 막았다(create_document·주소 변경 양쪽에서 검사). */
 const SYS_PAGES = ['main','home','community','lab','questions','directory','inbox','docs',
-                   'admin','health','system','system/limits','system/maint','system/perms',
+                   'admin','health','system','system/limits','system/maint','system/storage','system/perms',
                    'system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog',
                    'password','me','trash','notfound','board','qr','story','doctree','labmap','orders','audit','photos'];
 const SYS_PREFIXES = ['member/','trash/','q/','dm/','rev/','hist/','edit/','uq/','labmap/','approve/'];
@@ -23781,7 +23918,7 @@ function route(){
             || (isMember ? 'directory' : null);
     if(fk && !featOn(fk)){ renderFeatureOff(); return; }
   }
-  const fullWidthPages=['community','lab','lab/chat','lab/q','admin','health','system','system/limits','system/maint','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt','doctree','labmap','orders','audit','photos'];
+  const fullWidthPages=['community','lab','lab/chat','lab/q','admin','health','system','system/limits','system/maint','system/storage','system/perms','system/landing','system/clubs','system/tracks','system/site','system/nudges','system/signup','system/focus','system/features','fx','feedback','feedback/review','devlog','password','me','directory','trash','inbox','docs','questions','board','qr','story','kypt','doctree','labmap','orders','audit','photos'];
   railReserve(!fullWidthPages.includes(key) && !key.startsWith('kypt/') && !key.startsWith('labmap/') && !key.startsWith('community/') && !key.startsWith('seminars') && !isMember && !isTrashDoc && !isQuestion && !isUserQ && !isDm && !isRev && !isHist && !isEdit);   // 문서/대문: 레일 폭 미리 확보(흔들림 방지) · 그 외: 숨김
   if(sys && key!=='main' && key!=='home' && key!=='notfound' && key!=='password' && key!=='me'){
     const PAGE_CAP={ docs:'doc_read', community:'chat', questions:'q_ask', inbox:'dm', directory:'dir_read',
@@ -23847,6 +23984,7 @@ function route(){
   if(sys && key==='system'){ renderSystem(); return; }
   if(sys && key==='system/limits'){ if(!guardPage('system_limits')) return; renderSysLimits(); return; }
   if(sys && key==='system/maint'){  if(!guardPage('system_maint'))  return; renderSysMaint();  return; }
+  if(sys && key==='system/storage'){ if(!guardPage('system_health')) return; renderSysStorage(); return; }   // ★DB 저장 용량
   if(sys && key==='system/perms'){  if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysPerms(); return; }
   if(sys && key==='system/landing'){ if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysLanding(); return; }
   if(sys && key==='system/site'){    if(!isOwner()){ showDenied('system_access', ()=>{ location.hash='#//system'; }); return; } renderSysSite(); return; }
@@ -24087,7 +24225,7 @@ $('#userdrop').querySelectorAll('a[data-go]').forEach(a=>a.onclick=()=>{ locatio
 $('#dropFx').onclick=()=>{ location.hash='#//fx'; closeUserMenu(); };   // 화면 효과(세션 L)
 $('#dropLogout').onclick=async()=>{
   closeUserMenu(); stopHeartbeat(); stopPulse(); editLockRelease(false);
-  try{ if(typeof ATW!=='undefined') Object.keys(ATW.wins).forEach(id=>ATW.close(id)); }catch(e){}   // ★CY: 떠 있는 도구 창은 저장하고 닫는다(다음 사람에게 안 보이게)
+  try{ if(typeof ATW!=='undefined') Object.keys(ATW.wins).forEach(id=>ATW.close(id, true)); }catch(e){}   // ★CY: 떠 있는 도구 창은 저장하고 닫는다(다음 사람에게 안 보이게)
   try{ await sb.rpc('go_offline'); }catch(e){}      // '접속 중' 표시 즉시 제거
   await sb.auth.signOut();
   state.user=null; state.recovery=false; showLogin(); resetLoginCaptcha();
@@ -24509,6 +24647,57 @@ table.tr-tb td small{ margin-left:3px; color:var(--text-dim); font-size:9.5px; }
 .ec-tb select[data-k=mode]{ width:58px; padding:0 2px; }
 .kt-b svg, .kt-play svg{ width:20px; height:20px; display:block; margin:auto; }
 
+/* ★DA: 창 안의 탭 */
+.tt{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; }
+.tt-bar{ display:flex; align-items:flex-end; gap:4px; padding:5px 8px 0; background:var(--bg-soft, #f4f1f1); border-bottom:1px solid var(--border); min-height:34px; }
+.tt-tabs{ display:flex; gap:3px; min-width:0; overflow-x:auto; scrollbar-width:thin; }
+.tt-tab{ display:flex; align-items:center; gap:4px; max-width:220px; height:28px; padding:0 4px 0 11px; border:1px solid var(--border); border-bottom:0; border-radius:7px 7px 0 0; background:transparent; color:var(--text-dim); font-size:12.5px; cursor:pointer; white-space:nowrap; user-select:none; flex:none; }
+.tt-tab:hover{ background:var(--card); color:var(--text); }
+.tt-tab.on{ background:var(--card); color:var(--text); font-weight:700; border-color:var(--border-strong); box-shadow:inset 0 2px 0 var(--accent); margin-bottom:-1px; height:29px; }
+.tt-nm{ overflow:hidden; text-overflow:ellipsis; min-width:0; }
+.tt-dot{ color:var(--accent); font-style:normal; font-size:10px; }
+.tt-x{ border:0; background:none; color:var(--text-dim); width:20px; height:20px; border-radius:5px; cursor:pointer; font-size:15px; line-height:1; padding:0; }
+.tt-x:hover{ background:var(--red-50); color:var(--accent); }
+.tt-in{ width:130px; height:22px; font:inherit; font-weight:600; border:1px solid var(--accent); border-radius:4px; padding:0 4px; }
+.tt-add{ flex:none; width:28px; height:26px; margin-bottom:2px; border:1px dashed var(--border-strong); border-radius:7px; background:none; color:var(--text-dim); cursor:pointer; font-size:15px; }
+.tt-add:hover{ color:var(--accent); border-color:var(--accent); }
+.tt-sp{ flex:1; }
+.tt-hist{ flex:none; height:26px; margin-bottom:2px; padding:0 10px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font-size:12px; cursor:pointer; }
+.tt-hist:hover{ border-color:var(--accent); color:var(--accent); }
+.tt-panes{ flex:1; min-height:0; display:flex; position:relative; }
+.tt-pane{ flex:1; min-width:0; min-height:0; display:flex; }
+.tt-pane[hidden]{ display:none; }
+.tt-hl{ list-style:none; margin:4px 0; padding:0; max-height:min(52vh,460px); overflow:auto; display:flex; flex-direction:column; gap:6px; }
+.tt-hl li{ display:flex; gap:10px; align-items:center; justify-content:space-between; border:1px solid var(--border); border-radius:8px; padding:8px 10px; }
+.tt-hl li > div{ display:flex; flex-direction:column; gap:2px; min-width:0; font-size:12.5px; }
+.tt-hl small{ color:var(--text-dim); font-size:11px; }
+.tt-hd{ color:var(--text-dim); font-size:11.5px; line-height:1.5; word-break:break-all; }
+.tt-hd code, .tr-asklist code, .tr-asknote code{ font-size:11.5px; background:var(--red-50); padding:0 4px; border-radius:4px; color:var(--text); }
+.tt-ha{ display:flex; gap:4px; flex:none; }
+/* ★DA: 영상 분석 — 저장 묻기 · 도구 줄 · 범위 손잡이 */
+.tr-asklist{ margin:2px 0 8px; padding-left:18px; font-size:13px; line-height:1.7; }
+.tr-asknote{ font-size:12.5px; line-height:1.6; margin:0 0 8px; color:var(--text); }
+.tr-always{ font-size:12.5px; margin-bottom:6px; } .tr-always small{ color:var(--text-dim); }
+.tr-ctx{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:4px 10px; min-height:30px; border-bottom:1px solid var(--border); background:var(--card); font-size:12px; }
+.tr-ctx.dis{ opacity:.5; pointer-events:none; }
+.tr-hint{ color:var(--text-dim); min-width:0; } .tr-hint b{ color:var(--accent); }
+.tr-opts{ display:flex; gap:8px; margin-left:auto; }
+.tr-opts label{ display:flex; align-items:center; gap:4px; color:var(--text-dim); white-space:nowrap; } .tr-opts .tr-in{ width:52px; height:24px; }
+.tr-am button{ font-size:12px; }
+.tr-grid label.gt-ck, .tr-grid label.tr-ckrow{ flex-direction:row; align-items:center; gap:7px; color:var(--text); }
+.tr-ckrow input{ margin:0; flex:none; } .tr-ckrow small{ color:var(--text-dim); }
+.tr-stp{ width:auto !important; min-width:34px; padding:0 6px !important; font-size:12px; font-weight:700; font-variant-numeric:tabular-nums; }
+.tr-range{ z-index:3; }
+.tr-range b{ pointer-events:auto; cursor:ew-resize; width:10px !important; margin-left:-5px !important; background:transparent !important; touch-action:none; }
+.tr-range b::before{ content:''; position:absolute; left:3px; top:0; width:4px; height:100%; border-radius:2px; background:var(--ink); }
+.tr-range b:hover::before, .tr-range b.drag::before{ background:var(--accent); }
+.tr-out{ position:absolute; top:4px; height:18px; background:rgba(40,30,30,.13); pointer-events:none; } .tr-out.l{ left:0; }
+.tr-rg{ color:var(--text-dim); }
+.tr-want{ background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.25); border-radius:8px; padding:8px 12px; font-size:12.5px; line-height:1.6; max-width:460px; }
+.tr-want b{ font-size:13px !important; color:#fff; } .tr-want small{ opacity:.7; }
+.tr-shows{ flex-wrap:wrap; }
+.tr-tog{ font-weight:700; }
+
 </style>
 <script id="anda-tools-js">
 /* ★세션 CY: 떠 있는 도구 창 + 그래프 도구 (본 스크립트 뒤 — 본 스크립트의 toast · featOn 등을 쓴다) */
@@ -24546,7 +24735,7 @@ const ATW={
     el.innerHTML=`<div class="atw-bar"><span class="atw-ic">${o.icon||''}</span><b class="atw-t">${ATW_esc(o.title)}</b><span class="atw-sub">${ATW_esc(o.sub||'')}</span><span class="atw-sp"></span>
         <button type="button" class="atw-b" data-a="min" title="작게 (제목줄만)" aria-label="작게">${ATW_ICON.min}</button>
         <button type="button" class="atw-b" data-a="max" title="크게 / 원래대로 (제목줄 두 번 누르기)" aria-label="크게">${ATW_ICON.max}</button>
-        <button type="button" class="atw-b atw-x" data-a="close" title="닫기 — 내용은 이 기기에 남아요" aria-label="닫기">${ATW_ICON.close}</button></div>
+        <button type="button" class="atw-b atw-x" data-a="close" title="${ATW_esc(o.closeTitle||'닫기 — 내용은 이 기기에 남아요')}" aria-label="닫기">${ATW_ICON.close}</button></div>
       <div class="atw-body"></div>${['n','s','e','w','ne','nw','se','sw'].map(d=>`<span class="atw-rs atw-${d}" data-d="${d}"></span>`).join('')}`;
     document.body.appendChild(el);
     const win={ id, el, body:el.querySelector('.atw-body'), o, max:false, min:false, rect:null, onResize:null };
@@ -24584,7 +24773,12 @@ const ATW={
   focus(win){ if(win.el.style.zIndex!=String(this.z)){ this.z++; win.el.style.zIndex=this.z; } Object.values(this.wins).forEach(w=>w.el.classList.toggle('atw-front', w===win)); },
   toggleMax(win){ if(this.phone()) return; win.max=!win.max; win.min=false; this.apply(win); this.save(win); },
   toggleMin(win){ win.min=!win.min; this.apply(win); },
-  close(id){ const w=this.wins[id]; if(!w) return; try{ w.o.onClose && w.o.onClose(w); }catch(e){} w.el.remove(); delete this.wins[id]; },
+  /* 닫기: beforeClose(win)가 false를 돌려주면 닫지 않는다(저장할지 묻기 등). force = 묻지 않고(로그아웃) */
+  async close(id, force){ const w=this.wins[id]; if(!w) return true;
+    if(!force && w.o.beforeClose){ if(w._closing) return false; w._closing=true;
+      try{ if(!(await w.o.beforeClose(w))) return false; }catch(e){ console.error(e); } finally{ w._closing=false; } }
+    if(!this.wins[id]) return true;
+    try{ w.o.onClose && w.o.onClose(w, !!force); }catch(e){} w.el.remove(); delete this.wins[id]; return true; },
   bind(win){
     const el=win.el, bar=el.querySelector('.atw-bar');
     el.addEventListener('pointerdown', ()=>this.focus(win), true);
@@ -24640,6 +24834,96 @@ function openToolsMenu(anchor){
   setTimeout(()=>{ document.addEventListener('pointerdown', off, true); document.addEventListener('keydown', esc, true); }, 0);
   m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ m.remove(); document.removeEventListener('pointerdown', off, true); const t=ANDA_TOOLS.find(x=>x.id===b.dataset.t); if(t) t.open(); });
   const f=m.querySelector('[data-t]'); if(f) f.focus();
+}
+
+/* ================================================================
+   ★세션 DA: 창 안의 탭 — 그래프 · 영상 분석을 여러 개 동시에. 탭마다 이름, 닫은 탭은 '기록'에 남아 다시 열 수 있다.
+   cfg = { kind, defName(n), make(pane, tab, host) → 도구, canClose(tab) → Promise<bool>, histInfo(tab) → {…}, purge(entry), reopenNote(entry) }
+   저장: anda_tabs_<kind>:<uid> = { tabs:[{ id, name, created, extra }], active } · anda_hist_<kind>:<uid> = [{ id, name, created, closedAt, … }]
+   ================================================================ */
+function ATW_UID(){ try{ if(typeof state!=='undefined' && state.user && state.user.id) return state.user.id; }catch(e){} return 'anon'; }
+class ToolTabs{
+  constructor(body, win, cfg){
+    this.body=body; this.win=win; this.cfg=cfg; this.tabs=[]; this.active=null; this.uid=ATW_UID();
+    this.kTabs=`anda_tabs_${cfg.kind}:${this.uid}`; this.kHist=`anda_hist_${cfg.kind}:${this.uid}`;
+    body.innerHTML=`<div class="tt"><div class="tt-bar" role="tablist"><div class="tt-tabs"></div><button type="button" class="tt-add" title="새 탭" aria-label="새 탭">＋</button><span class="tt-sp"></span><button type="button" class="tt-hist" title="닫은 탭 기록 — 다시 열기">기록</button></div><div class="tt-panes"></div><div class="gt-dlg-ov tt-ov" hidden></div></div>`;
+    this.$bar=body.querySelector('.tt-tabs'); this.$panes=body.querySelector('.tt-panes'); this.$ov=body.querySelector('.tt-ov');
+    body.querySelector('.tt-add').onclick=()=>this.add(null);
+    body.querySelector('.tt-hist').onclick=()=>this.showHist(); this.bindBar();
+    Object.defineProperty(win, 'tool', { get:()=>this.active ? this.active.inst : null, configurable:true });
+    win.tabs=this;
+    win.onResize=()=>{ const i=this.active && this.active.inst; if(i && i.onResize) i.onResize(); };
+    const sv=ATW_LS.get(this.kTabs, null);
+    const list=(sv && Array.isArray(sv.tabs) && sv.tabs.length) ? sv.tabs : (cfg.migrate ? cfg.migrate() : []);
+    list.forEach(m=>this.add(m, true));
+    if(!this.tabs.length) this.add(null, true);
+    this.activate((sv && this.tabs.find(t=>t.id===sv.active)) ? sv.active : this.tabs[0].id);
+  }
+  nextNo(){ const used=new Set(this.tabs.map(t=>t.name)); let n=1; while(used.has(this.cfg.defName(n))) n++; return n; }
+  persist(){ ATW_LS.set(this.kTabs, { tabs:this.tabs.map(t=>({ id:t.id, name:t.name, created:t.created, extra:t.extra||{} })), active:this.active && this.active.id }); }
+  add(m, silent){
+    const id=(m && m.id) || (this.cfg.kind[0]+Date.now().toString(36)+Math.random().toString(36).slice(2,5));
+    const t={ id, name:(m && m.name) || this.cfg.defName(this.nextNo()), created:(m && m.created) || Date.now(), extra:Object.assign({}, (m && m.extra)||{}), dirty:false };
+    t.pane=document.createElement('div'); t.pane.className='tt-pane'; t.pane.hidden=true; this.$panes.appendChild(t.pane);
+    this.tabs.push(t);
+    try{ t.inst=this.cfg.make(t.pane, t, this); }catch(e){ console.error(e); t.pane.innerHTML='<div class="atw-err">탭을 여는 중에 문제가 생겼어요: '+ATW_esc(e.message||e)+'</div>'; }
+    this.paintBar(); this.persist();
+    if(!silent) this.activate(id);
+    return t;
+  }
+  activate(id){
+    const t=this.tabs.find(x=>x.id===id); if(!t) return;
+    this.active=t; this.tabs.forEach(x=>{ x.pane.hidden = x!==t; }); this.paintBar(); this.persist();
+    requestAnimationFrame(()=>{ try{ t.inst && t.inst.onResize && t.inst.onResize(); }catch(e){} });
+  }
+  isActive(inst){ return !!(this.active && this.active.inst===inst && this.win.el.classList.contains('atw-front') && !this.win.min); }
+  rename(id, name){ const t=this.tabs.find(x=>x.id===id); if(!t) return; name=String(name||'').trim().slice(0,40); if(!name) return; t.name=name; this.paintBar(); this.persist(); }
+  setExtra(t, patch){ Object.assign(t.extra, patch); this.persist(); this.paintBar(); }
+  markDirty(t, on){ t.dirty=!!on; this.paintBar(); }
+  paintBar(){
+    this.$bar.innerHTML=this.tabs.map(t=>`<div class="tt-tab${t===this.active?' on':''}" role="tab" tabindex="0" aria-selected="${t===this.active}" data-id="${t.id}" title="${ATW_esc(t.name)}${t.extra && t.extra.file ? ' — '+ATW_esc(t.extra.file.name) : ''} · 두 번 누르면(F2) 이름 바꾸기">
+      <span class="tt-nm">${ATW_esc(t.name)}</span>${t.dirty?'<i class="tt-dot" title="저장하지 않은 점이 있어요">●</i>':''}<button type="button" class="tt-x" data-x="${t.id}" title="탭 닫기 — 기록에 남아요" aria-label="탭 닫기">×</button></div>`).join('');
+  }
+  /* 탭 줄 — 그릴 때마다 다시 만들므로 이벤트는 줄 하나에 한 번만(두 번 누르기도 직접 잰다) */
+  bindBar(){
+    let last={ id:null, t:0 };
+    this.$bar.addEventListener('click', e=>{ const x=e.target.closest('[data-x]'); if(x){ e.stopPropagation(); this.close(x.dataset.x); return; }
+      const el=e.target.closest('.tt-tab'); if(!el || e.target.closest('input')) return; const id=el.dataset.id, now=performance.now();
+      if(last.id===id && now-last.t<450){ last={ id:null, t:0 }; const cur=this.$bar.querySelector(`.tt-tab[data-id="${id}"]`); if(cur) this.editName(cur); return; }
+      last={ id, t:now }; if(!this.active || this.active.id!==id) this.activate(id); });
+    this.$bar.addEventListener('keydown', e=>{ const el=e.target.closest('.tt-tab'); if(!el || e.target.closest('input')) return; if(e.key==='Enter' || e.key===' '){ e.preventDefault(); this.activate(el.dataset.id); } if(e.key==='F2'){ e.preventDefault(); this.editName(el); } });
+  }
+  editName(el){ const t=this.tabs.find(x=>x.id===el.dataset.id); const nm=el.querySelector('.tt-nm'); const inp=document.createElement('input'); inp.className='tt-in'; inp.value=t.name; inp.maxLength=40; nm.replaceWith(inp); inp.focus(); inp.select();
+    let done=false; const fin=ok=>{ if(done) return; done=true; if(ok) this.rename(t.id, inp.value); else this.paintBar(); };
+    inp.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter') fin(true); if(e.key==='Escape') fin(false); }); inp.addEventListener('blur', ()=>fin(true)); }
+  async close(id){
+    const t=this.tabs.find(x=>x.id===id); if(!t) return false;
+    if(this.cfg.canClose && !(await this.cfg.canClose(t, this))) return false;
+    const info=Object.assign({ id:t.id, name:t.name, created:t.created, closedAt:Date.now(), extra:Object.assign({}, t.extra||{}) }, this.cfg.histInfo ? this.cfg.histInfo(t) : {});
+    try{ t.inst && t.inst.destroy && t.inst.destroy(); }catch(e){}
+    t.pane.remove(); this.tabs=this.tabs.filter(x=>x!==t);
+    const H=ATW_LS.get(this.kHist, []).filter(h=>h.id!==t.id); H.unshift(info);
+    H.slice(40).forEach(h=>{ try{ this.cfg.purge && this.cfg.purge(h); }catch(e){} }); ATW_LS.set(this.kHist, H.slice(0,40));
+    if(!this.tabs.length) this.add(null, true);
+    if(this.active===t || !this.tabs.includes(this.active)) this.activate(this.tabs[Math.max(0, this.tabs.length-1)].id); else { this.paintBar(); this.persist(); }
+    ATW_say(`'${t.name}' 탭을 닫았어요 — [기록]에서 다시 열 수 있어요.`);
+    return true;
+  }
+  dialog(html, bind){ const ov=this.$ov; ov.hidden=false; ov.innerHTML=`<div class="gt-dlg">${html}</div>`; const close=()=>{ ov.hidden=true; ov.innerHTML=''; }; ov.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Escape') close(); }; ov.querySelectorAll('[data-x]').forEach(b=>b.onclick=close); bind && bind(ov.querySelector('.gt-dlg'), close); }
+  showHist(){
+    const H=ATW_LS.get(this.kHist, []);
+    const d=t=>{ const x=new Date(t); const p=n=>String(n).padStart(2,'0'); return `${x.getFullYear()}.${p(x.getMonth()+1)}.${p(x.getDate())} ${p(x.getHours())}:${p(x.getMinutes())}`; };
+    this.dialog(`<div class="gt-dlg-h"><b>닫은 탭 기록</b><span>${H.length}개 · 최근 40개까지</span></div>
+      ${H.length ? `<ul class="tt-hl">${H.map(h=>`<li data-h="${ATW_esc(h.id)}"><div><b>${ATW_esc(h.name)}</b><small>${d(h.closedAt)}에 닫음</small>${this.cfg.histLine ? `<span class="tt-hd">${this.cfg.histLine(h)}</span>`:''}</div><span class="tt-ha"><button type="button" class="gt-btn" data-open="${ATW_esc(h.id)}">다시 열기</button><button type="button" class="gt-btn ghost" data-del="${ATW_esc(h.id)}" title="기록과 저장된 내용을 지워요">지우기</button></span></li>`).join('')}</ul>` : '<p class="tr-mute">아직 닫은 탭이 없어요.</p>'}
+      <div class="gt-dlg-b"><button type="button" class="gt-btn pri" data-x>닫기</button></div>`, (dl, close)=>{
+      dl.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{ const all=ATW_LS.get(this.kHist, []); const h=all.find(x=>x.id===b.dataset.open); if(!h) return;
+        ATW_LS.set(this.kHist, all.filter(x=>x!==h)); close();
+        const exist=this.tabs.find(t=>t.id===h.id); if(exist){ this.activate(exist.id); return; }
+        const t=this.add({ id:h.id, name:h.name, created:h.created, extra:h.extra||{} }); if(this.cfg.reopened) this.cfg.reopened(t, h); });
+      dl.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ const all=ATW_LS.get(this.kHist, []); const h=all.find(x=>x.id===b.dataset.del); if(!h) return; if(!confirm(`'${h.name}' 기록과 이 기기에 저장된 내용을 지울까요?`)) return;
+        try{ this.cfg.purge && this.cfg.purge(h); }catch(e){} ATW_LS.set(this.kHist, all.filter(x=>x!==h)); b.closest('li').remove(); });
+    });
+  }
 }
 
 /* ================================================================
@@ -25156,8 +25440,8 @@ function gtNewCol(ax, n){ const c={ id:gtUid(ax), name:(ax==='x'?'X':'Y')+n, val
   return c; }
 function gtDefaultFig(){ return { title:'', xlabel:'', ylabel:'', xr:{min:'',max:''}, yr:{min:'',max:''}, xlog:false, ylog:false, grid:'major', box:true, legend:'ne', legendOne:false, font:'sans', fs:1, palette:'anda', tight:false, zero:true, size:'auto', w:800, h:560, scale:2, bg:'white', fitLegend:true }; }
 function gtDefault(){ const x=gtNewCol('x',1), y=gtNewCol('y',1); y.pair=x.id; return { v:1, xs:[x], ys:[y], fig:gtDefaultFig(), tips:[], view:null, ui:{ split:0.42, mode:'cursor' } }; }
-function gtLoad(){
-  const g=ATW_LS.get(GT_KEY_NOW(), null);
+function gtLoad(key){
+  const g=ATW_LS.get(key||GT_KEY_NOW(), null);
   if(!g || !Array.isArray(g.xs) || !Array.isArray(g.ys)) return gtDefault();
   g.fig=Object.assign(gtDefaultFig(), g.fig||{}); g.ui=Object.assign({ split:0.42, mode:'cursor' }, g.ui||{}); g.tips=g.tips||[];
   g.ys.forEach(y=>{ const d=gtNewCol('y',1); Object.keys(d).forEach(k=>{ if(!(k in y)) y[k]=d[k]; }); });
@@ -25171,19 +25455,50 @@ function gtExample(){
   return G;
 }
 
-function openGraphTool(){
-  return ATW.open('graph', { title:'그래프 그리기', sub:'', icon:ATW_ICON.graph, w:1160, h:700, minW:620, minH:420,
-    mount:(body, win)=>{ const T=new GraphTool(body, win); win.tool=T; },
-    onClose:(win)=>{ try{ win.tool && win.tool.flushSave(); }catch(e){} } });
+/* ★DA: 탭 — 탭마다 따로 저장(anda_graph_v1:<uid>:<탭 id>). 예전 한 칸짜리 저장은 첫 탭으로 옮긴다 */
+function GT_KEY_TAB(id){ return GT_KEY_NOW()+':'+id; }
+function gtCountPts(G){ let n=0; (G.ys||[]).forEach(y=>{ n+=(y.vals||[]).filter(v=>String(v).trim()).length; }); return n; }
+const GT_TABS={
+  kind:'graph', defName:n=>`그래프 ${n}`,
+  make:(pane, tab, host)=>new GraphTool(pane, host.win, tab, host),
+  canClose:t=>{ try{ t.inst && t.inst.flushSave(); }catch(e){} return true; },
+  histInfo:t=>{ const G=(t.inst && t.inst.G) || ATW_LS.get(GT_KEY_TAB(t.id), null) || {}; return { title:(G.fig && G.fig.title)||'', pts:gtCountPts(G), sets:(G.ys||[]).length }; },
+  histLine:h=>{ const f=(h.extra && h.extra.files)||[]; const bits=[];
+    if(h.title) bits.push('제목 “'+ATW_esc(h.title)+'”');
+    bits.push(`데이터 ${h.sets||0}묶음 · 점 ${h.pts||0}개`);
+    bits.push(f.length ? '불러온 파일: '+f.map(x=>'<code>'+ATW_esc(x)+'</code>').join(', ') : '불러온 파일 없음(직접 입력 · 붙여넣기)');
+    return bits.join(' · '); },
+  purge:h=>{ try{ localStorage.removeItem(GT_KEY_TAB(h.id)); }catch(e){} },
+  migrate:()=>{ const old=ATW_LS.get(GT_KEY_NOW(), null); if(!old) return [];
+    const id='g'+Date.now().toString(36); if(ATW_LS.set(GT_KEY_TAB(id), old)){ try{ localStorage.removeItem(GT_KEY_NOW()); }catch(e){} }
+    return [{ id, name:'그래프 1' }]; },
+};
+/* opts.newTab: 새 탭에서(지금 탭이 비어 있으면 그 탭을 쓴다) · opts.name: 탭 이름 */
+function openGraphTool(opts){
+  opts=opts||{};
+  const w=ATW.open('graph', { title:'그래프 그리기', sub:'', icon:ATW_ICON.graph, w:1160, h:700, minW:620, minH:420,
+    mount:(body, win)=>{ new ToolTabs(body, win, GT_TABS); },
+    onClose:(win)=>{ try{ win.tabs && win.tabs.tabs.forEach(t=>{ try{ t.inst && t.inst.destroy(); }catch(e){} }); }catch(e){} } });
+  if(opts.newTab && w.tabs){
+    const cur=w.tabs.active, empty=cur && cur.inst && !cur.inst.hasData();
+    if(empty){ if(opts.name) w.tabs.rename(cur.id, opts.name); }
+    else w.tabs.add({ name:opts.name });
+  }
+  return w;
 }
 
 class GraphTool{
-  constructor(body, win){
-    this.body=body; this.win=win; this.key=GT_KEY_NOW(); this.G=gtLoad(); this.undo=[]; this.redo=[];
+  constructor(body, win, tab, host){
+    this.body=body; this.win=win; this.tab=tab||null; this.host=host||null;
+    this.key= tab ? GT_KEY_TAB(tab.id) : GT_KEY_NOW(); this.G=gtLoad(this.key); this.undo=[]; this.redo=[];
     this.sel={ c:0, r:0, c2:0, r2:0 }; this.hover=null; this.png=null; this.saveWarned=false;
     this.build(); this.renderGrid(); this.draw();
-    win.onResize=()=>{ this.root.classList.toggle('narrow', this.body.clientWidth<760); this.layoutSplit(); this.renderRows(); this.draw(); };
+    this.onResize=()=>{ if(this.hiddenTab()) return; this.root.classList.toggle('narrow', this.body.clientWidth<760); this.layoutSplit(); this.renderRows(); this.draw(); };
+    if(!host) win.onResize=this.onResize;
   }
+  hiddenTab(){ return !!(this.host && this.host.active!==this.tab); }
+  destroy(){ try{ this.flushSave(); }catch(e){} try{ this._ro && this._ro.disconnect(); }catch(e){} }
+  noteFile(name){ if(!this.host || !this.tab || !name) return; const f=(this.tab.extra.files||[]).filter(x=>x!==name); f.push(name); this.host.setExtra(this.tab, { files:f.slice(-12) }); }
   /* ───────── 뼈대 ───────── */
   build(){
     const b=this.body;
@@ -25506,6 +25821,7 @@ class GraphTool{
   hasData(){ return [...this.G.xs, ...this.G.ys].some(c=>c.vals.some(v=>String(v).trim())); }
   async importFile(f){
     if(f.size>25*1024*1024) return ATW_say('파일이 너무 커요(25MB까지).');
+    this.noteFile(f.name);
     try{
       if(/\.xlsx?$/i.test(f.name)){
         let X; try{ X=await gtLoadXLSX(); }catch(e){ return ATW_say('엑셀 파일을 읽는 도구를 불러오지 못했어요 — 엑셀에서 CSV로 저장해 열어 주세요.', 5000); }
@@ -25696,7 +26012,7 @@ class GraphTool{
   /* ───────── 그래프 ───────── */
   figSize(){ const F=this.G.fig; if(F.size==='fixed') return { w:Math.max(200,+F.w||800), h:Math.max(150,+F.h||560) }; const r=this.gp.getBoundingClientRect(); return { w:Math.max(260, Math.round(r.width)), h:Math.max(200, Math.round(r.height)) }; }
   draw(){
-    if(!this.gp || this.win.min) return;
+    if(!this.gp || this.win.min || this.hiddenTab()) return;
     if(this.gp.clientWidth<20) return;
     const { w, h }=this.figSize();
     let out; try{ out=gtRender(this.G, w, h); }catch(e){ console.error(e); this.gsvg.innerHTML='<div class="gp-err">그리는 중에 문제가 생겼어요: '+ATW_esc(e.message||e)+'</div>'; return; }
@@ -26286,14 +26602,86 @@ const TR_COLORS=['#C00000','#1E6BE0','#1F7A4D','#B7791F','#7A4E9C','#0C8599','#3
 const TR_FPS_STD=[23.976,24,25,29.97,30,48,50,59.94,60,90,100,119.88,120,180,239.76,240,480,960];
 function trSize(b){ return b>=1073741824 ? (b/1073741824).toFixed(2)+'GB' : b>=1048576 ? (b/1048576).toFixed(1)+'MB' : Math.round(b/1024)+'KB'; }
 function trTime(s){ if(!isFinite(s)) return '–'; const m=Math.floor(s/60), r=s-m*60; return m+':'+(r<10?'0':'')+r.toFixed(3); }
-function openTracker(){ return ATW.open('tracker', { title:'영상 분석', icon:ATW_ICON.track, w:1240, h:780, minW:640, minH:460, mount:(b,w)=>{ w.tool=new Tracker(b,w); }, onClose:w=>{ try{ w.tool.destroy(); }catch(e){} } }); }
+/* ★DA: 저장은 동의를 받고 — 탭/창을 닫을 때 '저장할까요?'(저장되는 것은 점뿐). '늘 저장'을 고르면 묻지 않고 저장 · 같은 영상을 열면 바로 불러온다 */
+function TR_PREF(){ return Object.assign({ autoSave:false, show:{ cal:true, axes:true, pts:true } }, ATW_LS.get('anda_tr_pref:'+TR_UID(), {})); }
+function TR_SETPREF(p){ ATW_LS.set('anda_tr_pref:'+TR_UID(), Object.assign(TR_PREF(), p)); }
+function trKeyOf(sig){ return TR_KEY0+':'+TR_UID()+':'+sig; }
+function trCount(D){ return D && D.tracks ? D.tracks.reduce((a,t)=>a+Object.keys(t.pts||{}).length,0) : 0; }
+/* 저장할지 묻기 → 'save' | 'discard' | null(취소) */
+function trAskSave(host, tabs, verb){
+  verb=verb||'닫기';
+  return new Promise(res=>{
+    const li=tabs.map(t=>`<li><b>${ATW_esc(t.name)}</b>${t.extra && t.extra.file ? ` — <code>${ATW_esc(t.extra.file.name)}</code>` : ''} · 찍은 점 ${trCount(t.inst && t.inst.D)}개</li>`).join('');
+    host.dialog(`<div class="gt-dlg-h"><b>찍은 점을 저장할까요?</b></div>
+      <ul class="tr-asklist">${li}</ul>
+      <p class="tr-asknote"><b>저장되는 것은 찍은 점뿐이에요</b> — 점과 축척 · 좌표축 · 설정만 이 기기(브라우저)에 남고, <b>영상 파일은 저장되지 않아요.</b> 다음에 같은 영상 파일을 다시 열면 점이 다시 떠요.</p>
+      <label class="gt-ck tr-always"><input type="checkbox" data-al> 다음부터 묻지 않고 늘 저장 <small>(같은 영상을 열면 점이 바로 떠요 · 오른쪽 [설정]에서 끌 수 있어요)</small></label>
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn" data-n>저장하지 않고 ${verb}</button><button type="button" class="gt-btn pri" data-y>저장하고 ${verb}</button></div>`, (dl, close)=>{
+      let done=false; const fin=v=>{ if(done) return; done=true; close(); res(v); };
+      dl.querySelector('[data-c]').onclick=()=>fin(null);
+      dl.querySelector('[data-n]').onclick=()=>fin('discard');
+      dl.querySelector('[data-y]').onclick=()=>{ if(dl.querySelector('[data-al]').checked){ TR_SETPREF({ autoSave:true }); ATW_say('이제 묻지 않고 늘 저장해요.'); } fin('save'); };
+      dl.parentNode.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Escape') fin(null); };
+      setTimeout(()=>{ try{ dl.querySelector('[data-y]').focus(); }catch(e){} }, 0);
+    });
+  });
+}
+const TR_TABS={
+  kind:'tracker', defName:n=>`영상 ${n}`,
+  make:(pane, tab, host)=>new Tracker(pane, host.win, tab, host),
+  canClose:async (t, host)=>{ const I=t.inst; if(!I) return true; if(I.dirty && I.D && host.active!==t) host.activate(t.id); return I.confirmLeave('닫기'); },
+  histInfo:t=>{ const I=t.inst; const sig=t.extra.sig; const sv=sig ? ATW_LS.get(trKeyOf(sig), null) : null;
+    return { pts: I && I.D ? trCount(I.D) : (t.extra.pts||0), saved: trCount(sv) }; },
+  histLine:h=>{ const f=h.extra && h.extra.file;
+    return (f ? `영상 <code>${ATW_esc(f.name)}</code> (${trSize(f.size)})` : '영상을 열지 않았어요') + ` · 찍은 점 ${h.pts||0}개 · ${h.saved ? `이 기기에 점 ${h.saved}개 저장됨 — 같은 파일을 열면 이어서` : '점은 저장하지 않았어요'}`; },
+  purge:h=>{ const sig=h.extra && h.extra.sig; if(!sig) return; const w=ATW.wins.tracker; if(w && w.tabs && w.tabs.tabs.some(t=>t.extra.sig===sig)) return; try{ localStorage.removeItem(trKeyOf(sig)); }catch(e){} },
+};
+async function trBeforeClose(w){
+  const H=w.tabs; if(!H) return true;
+  const dirty=H.tabs.filter(t=>t.inst && t.inst.dirty && t.inst.D);
+  if(!dirty.length) return true;
+  if(TR_PREF().autoSave){ dirty.forEach(t=>t.inst.flush()); return true; }
+  if(w.min) ATW.toggleMin(w); ATW.focus(w);
+  if(dirty.length===1 && H.active!==dirty[0]) H.activate(dirty[0].id);
+  const a=await trAskSave(H, dirty); if(!a) return false;
+  dirty.forEach(t=>{ if(a==='save') t.inst.flush(); else t.inst.discard(); });
+  return true;
+}
+function openTracker(){ return ATW.open('tracker', { title:'영상 분석', icon:ATW_ICON.track, w:1240, h:780, minW:640, minH:460, closeTitle:'닫기 — 저장하지 않은 점이 있으면 저장할지 물어요',
+  mount:(b,w)=>{ new ToolTabs(b, w, TR_TABS); }, beforeClose:w=>trBeforeClose(w),
+  onClose:w=>{ try{ w.tabs && w.tabs.tabs.forEach(t=>{ try{ t.inst && t.inst.destroy(); }catch(e){} }); }catch(e){} } }); }
+window.addEventListener('beforeunload', e=>{ const w=ATW.wins.tracker; if(!w || !w.tabs) return; const d=w.tabs.tabs.filter(t=>t.inst && t.inst.dirty && t.inst.D); if(!d.length) return;
+  if(TR_PREF().autoSave){ d.forEach(t=>{ try{ t.inst.flush(); }catch(err){} }); return; } e.preventDefault(); e.returnValue=''; });
 class Tracker{
-  constructor(body, win){
-    this.body=body; this.win=win; this.D=null; this.f=0; this.N=0; this.z=1; this.tx=0; this.ty=0; this.mode='mark'; this.undo=[]; this.redo=[];
-    this.build(); win.onResize=()=>{ const t=this.body.querySelector('.tr'); if(t) t.classList.toggle('narrow', this.body.clientWidth<900); if(this.D && !this._userZoom) this.fitView(); this.paint(); };
+  constructor(body, win, tab, host){
+    this.body=body; this.win=win; this.tab=tab||null; this.host=host||null; this.D=null; this.f=0; this.N=0; this.z=1; this.tx=0; this.ty=0; this.mode='mark'; this.multi=false; this.undo=[]; this.redo=[]; this.dirty=false;
+    this.show=Object.assign({ cal:true, axes:true, pts:true }, TR_PREF().show||{});
+    this.build();
+    this.onResize=()=>{ if(this.host && this.host.active!==this.tab) return; const t=this.body.querySelector('.tr'); if(t) t.classList.toggle('narrow', this.body.clientWidth<900); if(this.D && !this._userZoom) this.fitView(); this.paint(); };
+    if(!host) win.onResize=this.onResize;
     this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH);
   }
-  destroy(){ this.stopAuto=true; this.flush(); document.removeEventListener('keydown', this.keyH); try{ this.video.pause(); this.video.removeAttribute('src'); this.video.load(); }catch(e){} if(this.url) URL.revokeObjectURL(this.url); }
+  destroy(){ this.stopAuto=true; clearTimeout(this._st); if(this.dirty && this.D && TR_PREF().autoSave) this.flush(); document.removeEventListener('keydown', this.keyH); try{ this.video.pause(); this.video.removeAttribute('src'); this.video.load(); }catch(e){} if(this.url) URL.revokeObjectURL(this.url); }
+  /* 저장하지 않은 점이 있으면 물어본다(늘 저장이면 그냥 저장) → 계속해도 되면 true */
+  async confirmLeave(verb){
+    if(!this.dirty || !this.D) return true;
+    if(TR_PREF().autoSave || !this.host){ this.flush(); return true; }
+    const a=await trAskSave(this.host, [this.tab], verb); if(!a) return false;
+    if(a==='save') this.flush(); else this.discard(); return true;
+  }
+  discard(){ clearTimeout(this._st); this.setDirty(false); }
+  setDirty(on){ on=!!on; if(this.dirty===on) return; this.dirty=on; if(this.host && this.tab) this.host.markDirty(this.tab, on); const b=this.body.querySelector('[data-a="savenow"]'); if(b) b.classList.toggle('pri', on); }
+  saveNow(){ if(!this.D) return ATW_say('먼저 영상을 여세요.'); this.flush(); ATW_say(`찍은 점 ${trCount(this.D)}개를 이 기기에 저장했어요 — 영상은 저장하지 않아요.`, 3500); }
+  paintEmpty(){ const x=this.$('.tr-ex'); if(!x) return; const f=this.tab && this.tab.extra.file;
+    const n = f && this.tab.extra.sig ? trCount(ATW_LS.get(trKeyOf(this.tab.extra.sig), null)) : 0;
+    x.innerHTML = f ? `<div class="tr-want">이 탭의 영상 <b>${ATW_esc(f.name)}</b> <small>${trSize(f.size)}</small><br>${n ? `저장해 둔 점 <b>${n}</b>개가 있어요 — 이 파일을 다시 열면 이어서 할 수 있어요.` : '영상은 저장하지 않으니 이 파일을 다시 열어 주세요.'}</div>` : ''; }
+  askOther(file){ const want=this.tab.extra.file||{};
+    return new Promise(res=>this.host.dialog(`<div class="gt-dlg-h"><b>이 탭은 다른 영상용이에요</b></div>
+      <p class="tr-asknote">이 탭의 영상: <code>${ATW_esc(want.name||'')}</code><br>지금 열려는 영상: <code>${ATW_esc(file.name)}</code></p>
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn" data-h>이 탭에서 열기</button><button type="button" class="gt-btn pri" data-nw>새 탭에서 열기</button></div>`, (dl, close)=>{
+      let done=false; const fin=v=>{ if(done) return; done=true; close(); res(v); };
+      dl.querySelector('[data-c]').onclick=()=>fin(null); dl.querySelector('[data-h]').onclick=()=>fin('here'); dl.querySelector('[data-nw]').onclick=()=>fin('new');
+      dl.parentNode.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Escape') fin(null); }; })); }
   /* ───────── 뼈대 ───────── */
   build(){
     this.body.innerHTML=`<div class="tr">
@@ -26310,27 +26698,28 @@ class Tracker{
         <button type="button" class="gt-btn ghost" data-a="view" title="밝기 · 대비 · 흑백 · 픽셀 그대로">보기</button>
         <input type="file" class="tr-fi" accept="video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi" hidden>
       </div>
+      <div class="tr-ctx"></div>
       <div class="tr-mid">
         <div class="tr-stage" tabindex="0">
           <div class="tr-wrap"><video class="tr-v" playsinline muted preload="auto"></video><svg class="tr-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
           <canvas class="tr-loupe" width="150" height="150" hidden></canvas>
           <div class="tr-busy" hidden><i></i><span></span></div>
           <div class="tr-load" hidden><div class="tr-spin"></div><b class="tr-lt"></b><span class="tr-ls"></span><div class="tr-lbar"><i></i></div><small class="tr-lh"></small><div class="tr-lbtn"></div></div>
-          <div class="tr-empty"><div class="tr-ei">${ATW_ICON.track}</div><b>실험 영상을 여세요</b><span>MP4 · MOV · WebM 등 · 크기 제한 없음(10GB도 돼요)<br>영상은 업로드되지도 저장되지도 않아요 — 이 기기에서 원본 화질 그대로 읽어요</span><button type="button" class="gt-btn pri" data-a="open">영상 열기</button></div>
+          <div class="tr-empty"><div class="tr-ei">${ATW_ICON.track}</div><b>실험 영상을 여세요</b><span>MP4 · MOV · WebM 등 · 크기 제한 없음(10GB도 돼요)<br>영상은 업로드되지도 저장되지도 않아요 — 이 기기에서 원본 화질 그대로 읽어요</span><div class="tr-ex"></div><button type="button" class="gt-btn pri" data-a="open">영상 열기</button></div>
           <div class="tr-drop" hidden>놓으면 열어요</div>
         </div>
         <aside class="tr-side">
           <div class="tr-sec"><div class="tr-sh"><b>물체</b><button type="button" class="gt-btn ghost" data-a="addtr">＋ 물체</button></div><div class="tr-tracks"></div></div>
           <div class="tr-sec tr-set"></div>
           <div class="tr-sec tr-tablesec"><div class="tr-sh"><b>데이터</b><span class="tr-cnt"></span></div><div class="tr-table"></div>
-            <div class="tr-acts"><button type="button" class="gt-btn pri" data-a="tograph" title="그래프 도구로 — X · Y 역할은 넣을 때 고를 수 있어요">${ATW_ICON.graph}그래프로</button><button type="button" class="gt-btn" data-a="csv">CSV</button><button type="button" class="gt-btn ghost" data-a="snap" title="지금 화면(원본 해상도 + 점)을 PNG로">화면 저장</button><button type="button" class="gt-btn ghost" data-a="clrtr" title="이 물체의 점 모두 지우기">점 지우기</button></div></div>
+            <div class="tr-acts"><button type="button" class="gt-btn pri tr-tog" data-a="tograph" title="그래프 그리기 도구의 새 탭으로 보내요 — 어느 열을 X · Y로 쓸지 넣을 때 골라요">${ATW_ICON.graph}그래프 도구로 보내기</button><button type="button" class="gt-btn" data-a="csv" title="t · x · y · 속도를 CSV 파일로">CSV</button><button type="button" class="gt-btn" data-a="savenow" title="찍은 점을 이 기기에 저장 (Ctrl+S) — 영상은 저장하지 않아요">점 저장</button><button type="button" class="gt-btn ghost" data-a="snap" title="지금 화면(원본 해상도 + 점)을 PNG 그림으로">화면 PNG</button><button type="button" class="gt-btn ghost" data-a="clrtr" title="이 물체의 점 모두 지우기">점 지우기</button></div></div>
         </aside>
       </div>
       <div class="tr-tl">
-        <div class="tr-tlb"><button type="button" class="gt-ib" data-a="b10" title="10 프레임 뒤로 (Shift+←)">⏪</button><button type="button" class="gt-ib" data-a="b1" title="1 프레임 뒤로 (←)">◀</button>
-          <button type="button" class="gt-ib tr-play" data-a="play" title="재생 · 멈춤 (Space)">▶</button><button type="button" class="gt-ib" data-a="f1" title="1 프레임 앞으로 (→)">▶︎</button><button type="button" class="gt-ib" data-a="f10" title="10 프레임 앞으로 (Shift+→)">⏩</button>
+        <div class="tr-tlb"><button type="button" class="gt-ib tr-stp" data-a="b10" title="10프레임 뒤로 (Shift+←)">−10</button><button type="button" class="gt-ib tr-stp" data-a="b1" title="1프레임 뒤로 (←)">−1</button>
+          <button type="button" class="gt-ib tr-play" data-a="play" title="재생 · 멈춤 (Space)">▶</button><button type="button" class="gt-ib tr-stp" data-a="f1" title="1프레임 앞으로 (→)">+1</button><button type="button" class="gt-ib tr-stp" data-a="f10" title="10프레임 앞으로 (Shift+→)">+10</button>
           <span class="tr-pos"></span><span class="gt-sp"></span>
-          <button type="button" class="gt-btn ghost" data-a="setA" title="분석을 이 프레임부터">[ 시작</button><button type="button" class="gt-btn ghost" data-a="setB" title="분석을 이 프레임까지">끝 ]</button><button type="button" class="gt-btn ghost" data-a="set0" title="이 프레임을 t = 0으로">t = 0</button></div>
+          <button type="button" class="gt-btn ghost" data-a="setA" title="분석을 이 프레임부터 — 아래 막대의 ▕ 손잡이를 끌어도 돼요">[ 시작</button><button type="button" class="gt-btn ghost" data-a="setB" title="분석을 이 프레임까지 — 아래 막대의 ▏ 손잡이를 끌어도 돼요">끝 ]</button><button type="button" class="gt-btn ghost" data-a="set0" title="이 프레임을 t = 0으로">t = 0</button></div>
         <div class="tr-rail"><input type="range" class="tr-sl" min="0" max="0" value="0" step="1" aria-label="프레임"><div class="tr-marks"></div><div class="tr-range"></div></div>
       </div>
       <div class="gt-dlg-ov" hidden></div>
@@ -26341,7 +26730,7 @@ class Tracker{
     this.body.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>this.setMode(b.dataset.mode));
     q('.tr-fi').onchange=e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) this.openFile(f); };
     const sl=q('.tr-sl'); sl.addEventListener('input', ()=>{ this.pauseIfPlaying(); this.seekFrame(+sl.value); });
-    this.bindStage(); this.bindDrop(); this.setMode('mark'); this.paintSide();
+    this.bindStage(); this.bindDrop(); this.bindRange(); this.setMode('mark'); this.paintSide(); this.paintEmpty();
     const v=this.video;
     v.addEventListener('waiting', ()=>{ if(this.playing) this.busy(true, '영상 읽는 중…'); }); v.addEventListener('playing', ()=>this.busy(false));
   }
@@ -26354,11 +26743,20 @@ class Tracker{
     this.$('.tr-spin').hidden = !!(btns && btns.length);
   }
   busy(on, text){ clearTimeout(this._bt); const B=this.$('.tr-busy'); if(!on){ B.hidden=true; return; } this._bt=setTimeout(()=>{ B.hidden=false; B.querySelector('span').textContent=text||'프레임 불러오는 중…'; }, 160); }
-  async openFile(file){
+  async openFile(file, skipCheck){
     if(!/^video\//.test(file.type) && !/\.(mp4|mov|m4v|webm|mkv|avi|3gp|mts|m2ts)$/i.test(file.name)) return ATW_say('영상 파일이 아니에요.');
-    this.stopAuto=true; this.flush();
+    const sig=[file.name, file.size, file.lastModified].join('|');
+    if(this.host && !skipCheck){
+      const want=this.tab.extra.sig;
+      if(want && want!==sig){ const ch=await this.askOther(file); if(!ch) return;
+        if(ch==='new'){ const t=this.host.add(null); if(t.inst) t.inst.openFile(file, true); return; } }
+      if(this.D && sig!==this.sig && !(await this.confirmLeave('다른 영상 열기'))) return;
+    }
+    this.stopAuto=true; clearTimeout(this._st); this.setDirty(false);
     if(this.url) URL.revokeObjectURL(this.url);
-    this.file=file; this.sig=[file.name, file.size, file.lastModified].join('|'); this.D=null; this.f=0; this.undo=[]; this.redo=[];
+    this.file=file; this.sig=sig; this.D=null; this.f=0; this.undo=[]; this.redo=[];
+    if(this.host){ this.host.setExtra(this.tab, { file:{ name:file.name, size:file.size, lm:file.lastModified }, sig });
+      if(/^영상 \d+$/.test(this.tab.name)) this.host.rename(this.tab.id, file.name.replace(/\.[^.]+$/,'').slice(0,28) || this.tab.name); }
     this.svg.innerHTML=''; this.$('.tr-marks').innerHTML=''; this.$('.tr-range').innerHTML=''; this.$('.tr-pos').textContent=''; this._mk=null; this.paintSide();   // 앞 영상의 점 · 표를 바로 치운다
     this.$('.tr-empty').hidden=true; this.$('.tr-file').textContent=`${file.name} · ${trSize(file.size)}`;
     const v=this.video, t0=performance.now(); let phase='meta';
@@ -26408,19 +26806,21 @@ class Tracker{
     return { fps:+fps.toFixed(3), guessed:false };
   }
   startProject(fr){
-    const v=this.video; const key=TR_KEY0+':'+TR_UID()+':'+this.sig; this.key=key;
+    const v=this.video; const key=trKeyOf(this.sig); this.key=key;
     const prev=ATW_LS.get(key, null);
     const fresh={ v:1, fps:fr.fps, fpsGuess:fr.guessed, cap:'', step:1, cal:null, axes:null, tracks:[{ id:'A', name:'물체 A', color:TR_COLORS[0], pts:{} }], cur:'A', fa:0, fb:null, f0:0, trail:'all', tsize:32, srad:40, thr:0.55 };
     const go=(D)=>{ this.D=D; this.N=Math.max(1, Math.floor(v.duration*D.fps+1e-6)); if(D.fb==null || D.fb>=this.N) D.fb=this.N-1;
       this.$('.tr-sl').max=this.N-1; this.loading(false); this.$('.tr-file').textContent=`${this.file.name} · ${trSize(this.file.size)} · ${v.videoWidth}×${v.videoHeight} · ${D.fps}fps${D.fpsGuess?' (짐작)':''} · ${trTime(v.duration)}`;
       this.wrap.style.width=v.videoWidth+'px'; this.wrap.style.height=v.videoHeight+'px'; this.svg.setAttribute('viewBox', `0 0 ${v.videoWidth} ${v.videoHeight}`); this.svg.setAttribute('width', v.videoWidth); this.svg.setAttribute('height', v.videoHeight);
-      this._userZoom=false; this.fitView(); this.seekFrame(D.fa||0); this.paintSide(); this.save();
+      this._userZoom=false; this.fitView(); this.seekFrame(D.fa||0); this.paintSide(); this.paintCtx(); this.setDirty(false); if(this.host) this.host.setExtra(this.tab, { pts:trCount(D) });
       ATW_say(D.fpsGuess ? '프레임 속도를 재지 못해 30fps로 뒀어요 — 오른쪽 [설정]에서 고쳐 주세요.' : `준비됐어요 — ${v.videoWidth}×${v.videoHeight}, ${D.fps}fps`, 4000);
       if(!D.cal) setTimeout(()=>ATW_say('먼저 [축척]으로 길이를 아는 물체를 재 주세요 — 안 하면 픽셀 단위로 나와요.', 5000), 1800); };
     const nPts=prev ? prev.tracks.reduce((a,t)=>a+Object.keys(t.pts||{}).length,0) : 0;
-    if(prev && (nPts || prev.cal)){
+    const resume=()=>go(Object.assign(fresh, prev, { fps:prev.fpsManual?prev.fps:fr.fps, fpsGuess:prev.fpsManual?false:fr.guessed }));
+    if(prev && (nPts || prev.cal) && TR_PREF().autoSave){ resume(); setTimeout(()=>ATW_say(`저장해 둔 점 ${nPts}개를 불러왔어요 (늘 저장 켜짐).`, 4000), 300); }
+    else if(prev && (nPts || prev.cal)){
       this.loading(true, `이 영상에서 찍어 둔 점 ${nPts}개가 있어요`, `${prev.cal?'축척 · ':''}${prev.tracks.length}개 물체 — 이어서 할까요?`, null, '영상 자체는 저장하지 않았고, 찍은 점과 설정만 이 기기에 남아 있었어요.',
-        [['이어서 하기', ()=>go(Object.assign(fresh, prev, { fps:prev.fpsManual?prev.fps:fr.fps, fpsGuess:prev.fpsManual?false:fr.guessed }))], ['새로 시작', ()=>go(fresh)]]);
+        [['이어서 하기', resume], ['새로 시작', ()=>go(fresh)]]);
     } else go(fresh);
   }
   /* ───────── 프레임 이동 ───────── */
@@ -26472,34 +26872,50 @@ class Tracker{
   paint(){
     if(!this.D) return; const D=this.D, z=this.z, u=1/z; const W=this.vw(), H=this.vh();
     let h='';
+    const sh=this.show||{}, showAx=sh.axes!==false || this.mode==='axes', showCal=sh.cal!==false || this.mode==='cal', showPts=sh.pts!==false;
     // 축
     const A=this.axes(); const L=Math.max(W,H)*2; const c=Math.cos(A.ang), s=Math.sin(A.ang);
     const ax=(dx,dy)=>`${(A.x+dx).toFixed(1)} ${(A.y-dy).toFixed(1)}`;
-    h+=`<g class="tr-ax" stroke="#FF2DA6" fill="#FF2DA6" stroke-width="${1.5*u}"><path d="M${ax(-L*c,-L*s)}L${ax(L*c,L*s)}M${ax(L*s,-L*c)}L${ax(-L*s,L*c)}"/>
+    if(showAx) h+=`<g class="tr-ax" stroke="#FF2DA6" fill="#FF2DA6" stroke-width="${1.5*u}"><path d="M${ax(-L*c,-L*s)}L${ax(L*c,L*s)}M${ax(L*s,-L*c)}L${ax(-L*s,L*c)}"/>
       <circle cx="${A.x}" cy="${A.y}" r="${5*u}" fill="none"/><text stroke="none" x="${(A.x+c*60*u+6*u).toFixed(1)}" y="${(A.y-s*60*u-6*u).toFixed(1)}" font-size="${13*u}">x</text><text stroke="none" x="${(A.x-s*60*u*(A.flip?-1:1)+6*u).toFixed(1)}" y="${(A.y-c*60*u*(A.flip?-1:1)).toFixed(1)}" font-size="${13*u}">y</text></g>`;
     // 축척
-    if(D.cal){ const C=D.cal; h+=`<g class="tr-cal" stroke="#12A4FF" fill="#12A4FF" stroke-width="${2.5*u}"><line x1="${C.a.x}" y1="${C.a.y}" x2="${C.b.x}" y2="${C.b.y}"/><circle cx="${C.a.x}" cy="${C.a.y}" r="${6*u}" data-h="ca"/><circle cx="${C.b.x}" cy="${C.b.y}" r="${6*u}" data-h="cb"/>
+    if(D.cal && showCal){ const C=D.cal; h+=`<g class="tr-cal" stroke="#12A4FF" fill="#12A4FF" stroke-width="${2.5*u}"><line x1="${C.a.x}" y1="${C.a.y}" x2="${C.b.x}" y2="${C.b.y}"/><circle cx="${C.a.x}" cy="${C.a.y}" r="${6*u}" data-h="ca"/><circle cx="${C.b.x}" cy="${C.b.y}" r="${6*u}" data-h="cb"/>
       <text stroke="#000" stroke-width="${3*u}" paint-order="stroke" x="${(C.a.x+C.b.x)/2}" y="${(C.a.y+C.b.y)/2-10*u}" font-size="${14*u}" text-anchor="middle" font-family="sans-serif" font-weight="700">${ATW_esc(gtFmt(C.len,4))} ${ATW_esc(C.unit)}</text></g>`; }
     if(this._calDrag){ const C=this._calDrag; h+=`<g class="tr-cal" stroke="#12A4FF" fill="#12A4FF" stroke-width="${2.5*u}"><line x1="${C.a.x}" y1="${C.a.y}" x2="${C.b.x}" y2="${C.b.y}"/></g>`; }
     // 점
-    D.tracks.forEach(T=>{ if(T.hide) return; const fs=Object.keys(T.pts).map(Number).sort((a,b)=>a-b); const cur=T.id===D.cur;
+    if(showPts) D.tracks.forEach(T=>{ if(T.hide) return; const fs=Object.keys(T.pts).map(Number).sort((a,b)=>a-b); const cur=T.id===D.cur;
       const vis = D.trail==='none' ? fs.filter(f=>f===this.f) : D.trail==='30' ? fs.filter(f=>Math.abs(f-this.f)<=30) : fs;
       if(vis.length>1 && D.trail!=='none') h+=`<path d="${vis.map((f,i)=>(i?'L':'M')+T.pts[f].x.toFixed(1)+' '+T.pts[f].y.toFixed(1)).join('')}" fill="none" stroke="${T.color}" stroke-width="${1.2*u}" opacity="${cur?0.7:0.4}"/>`;
       vis.forEach(f=>{ const p=T.pts[f]; const on=f===this.f; h+= on ? `<g class="tr-pt on${cur?' cur':''}" data-pt="${T.id}"><circle cx="${p.x}" cy="${p.y}" r="${9*u}" fill="none" stroke="${T.color}" stroke-width="${2.2*u}"/><path d="M${p.x-14*u} ${p.y}h${8*u}M${p.x+6*u} ${p.y}h${8*u}M${p.x} ${p.y-14*u}v${8*u}M${p.x} ${p.y+6*u}v${8*u}" stroke="${T.color}" stroke-width="${1.5*u}"/></g>`
         : `<circle cx="${p.x}" cy="${p.y}" r="${(cur?3.5:2.8)*u}" fill="${T.color}" opacity="${cur?0.95:0.6}"${p.auto?` stroke="#fff" stroke-width="${0.8*u}"`:''}/>`; }); });
     // 자동 추적 상자
-    if(this._autoBox){ const B=this._autoBox; h+=`<rect x="${B.x-B.r}" y="${B.y-B.r}" width="${2*B.r}" height="${2*B.r}" fill="none" stroke="#ffd400" stroke-width="${1.5*u}" stroke-dasharray="${4*u} ${3*u}"/>`; }
+    (this._autoBox||[]).forEach(B=>{ h+=`<rect x="${B.x-B.r}" y="${B.y-B.r}" width="${2*B.r}" height="${2*B.r}" fill="none" stroke="${B.c||'#ffd400'}" stroke-width="${1.5*u}" stroke-dasharray="${4*u} ${3*u}"/>`; });
     this.svg.innerHTML=h;
     this.paintPos(); this.paintMarks();
+    if(this.mode==='auto' && this.multi && this.seedCount()!==this._seedN) this.paintCtx();
   }
   paintPos(){ if(!this.D) return; const D=this.D; const T=this.track(); const p=T&&T.pts[this.f];
     const t=this.tOf(p||(this.vt!=null?{ vt:this.vt }:null), this.f);
-    this.$('.tr-pos').innerHTML=`프레임 <b>${this.f}</b> / ${this.N-1} · 영상 ${trTime(this.vt!=null?this.vt:this.f/D.fps)} · <b>t = ${t.toFixed(4)} s</b>${this.tscale()!==1?' <small>(슬로모션 보정)</small>':''}`; }
+    this.$('.tr-pos').innerHTML=`프레임 <b>${this.f}</b> / ${this.N-1} · 영상 ${trTime(this.vt!=null?this.vt:this.f/D.fps)} · <b>t = ${t.toFixed(4)} s</b>${this.tscale()!==1?' <small>(슬로모션 보정)</small>':''} · <span class="tr-rg" title="분석 범위 — 막대 위 손잡이를 끌어 바꿔요">범위 ${D.fa}–${D.fb}</span>`; }
   paintMarks(){ if(!this.D) return; const T=this.track(); const N=Math.max(1,this.N-1);
     const fs=Object.keys(T.pts).map(Number); const key=T.id+':'+fs.length+':'+this.D.fa+':'+this.D.fb+':'+this.D.f0;
     if(this._mk===key) return; this._mk=key;
     this.$('.tr-marks').innerHTML = fs.length>2000 ? `<i class="tr-mkall" style="left:${Math.min(...fs)/N*100}%;width:${(Math.max(...fs)-Math.min(...fs))/N*100}%;background:${T.color}"></i>` : fs.map(f=>`<i style="left:${(f/N*100).toFixed(3)}%;background:${T.color}"></i>`).join('');
-    this.$('.tr-range').innerHTML=`<b style="left:${this.D.fa/N*100}%" title="시작"></b><b style="left:${this.D.fb/N*100}%" title="끝"></b><em style="left:${this.D.f0/N*100}%" title="t = 0"></em>`; }
+    this.paintRange(); }
+  paintRange(){ if(!this.D) return; const R=this.$('.tr-range'); const N=Math.max(1,this.N-1), D=this.D;
+    if(!R.querySelector('[data-h="fa"]')) R.innerHTML=`<i class="tr-out l"></i><i class="tr-out r"></i><b data-h="fa" title="분석 시작 — 끌어서 옮기기" aria-label="분석 시작 손잡이"></b><b data-h="fb" title="분석 끝 — 끌어서 옮기기" aria-label="분석 끝 손잡이"></b><em title="t = 0"></em>`;
+    const pa=D.fa/N*100, pb=D.fb/N*100;
+    R.querySelector('.tr-out.l').style.width=pa+'%'; const r=R.querySelector('.tr-out.r'); r.style.left=pb+'%'; r.style.width=(100-pb)+'%';
+    R.querySelector('[data-h="fa"]').style.left=pa+'%'; R.querySelector('[data-h="fb"]').style.left=pb+'%'; R.querySelector('em').style.left=(D.f0/N*100)+'%'; }
+  bindRange(){ const R=this.$('.tr-range');
+    R.addEventListener('pointerdown', e=>{ const h=e.target.closest('b[data-h]'); if(!h || !this.D || this.autoRun) return; e.preventDefault(); e.stopPropagation(); this.pauseIfPlaying();
+      try{ h.setPointerCapture(e.pointerId); }catch(err){} const k=h.dataset.h, D=this.D; this.pushU(); h.classList.add('drag');
+      const mv=ev=>{ const rc=R.getBoundingClientRect(); let f=Math.round((ev.clientX-rc.left)/rc.width*Math.max(1,this.N-1)); f=Math.max(0, Math.min(this.N-1, f));
+        f = k==='fa' ? Math.min(f, D.fb) : Math.max(f, D.fa); if(D[k]===f) return; D[k]=f; if(k==='fa' && D.f0<f) D.f0=f;
+        this.paintRange(); this.paintPos(); cancelAnimationFrame(this._rsq); this._rsq=requestAnimationFrame(()=>this.seekFrame(f)); };
+      const up=()=>{ h.removeEventListener('pointermove', mv); h.removeEventListener('pointerup', up); h.removeEventListener('pointercancel', up); h.classList.remove('drag'); this._mk=null; this.save(); this.paintTable(); this.paintMarks();
+        ATW_say(k==='fa' ? `프레임 ${D.fa}부터 분석해요.` : `프레임 ${D.fb}까지 분석해요.`); };
+      h.addEventListener('pointermove', mv); h.addEventListener('pointerup', up); h.addEventListener('pointercancel', up); }); }
   /* ───────── 오른쪽 칸 ───────── */
   paintSide(){
     const D=this.D; const q=this.$;
@@ -26519,19 +26935,20 @@ class Tracker{
       <label>찍을 때마다 넘길 프레임<select data-s="step">${[1,2,3,5,10].map(k=>`<option value="${k}"${+D.step===k?' selected':''}>${k}프레임</option>`).join('')}</select></label>
       <label>점 자취<select data-s="trail"><option value="all"${D.trail==='all'?' selected':''}>모두</option><option value="30"${D.trail==='30'?' selected':''}>앞뒤 30프레임</option><option value="none"${D.trail==='none'?' selected':''}>지금 프레임만</option></select></label>
       <label class="tr-wide">축척 <span>${D.cal ? `${gtFmt(D.cal.len,4)} ${ATW_esc(D.cal.unit)} = ${gtFmt(Math.hypot(D.cal.b.x-D.cal.a.x, D.cal.b.y-D.cal.a.y),5)} px → 1 px = ${gtFmt(S.s,4)} ${ATW_esc(S.u)}` : '<span class="ec-w">아직 없음 — 결과가 픽셀(px)로 나와요</span>'}</span></label>
-      <div class="tr-wide tr-axl"><span class="tr-axt">좌표축</span><span>${D.axes ? `원점 (${D.axes.x.toFixed(0)}, ${D.axes.y.toFixed(0)}) px · x축 ${(D.axes.ang*180/Math.PI).toFixed(1)}°` : '왼쪽 아래 구석(기본) — [축]으로 바꿔요'}</span><label class="gt-ck"><input type="checkbox" data-s="flip"${this.axes().flip?' checked':''}> y는 아래쪽이 +</label></div>
-      <label title="자동 추적에서 물체를 기억하는 상자 크기(영상 픽셀)">추적 상자 (px)<input data-s="tsize" value="${D.tsize}" class="tr-in"></label>
-      <label title="한 프레임에 물체가 움직일 수 있는 거리(영상 픽셀)">찾는 범위 (px)<input data-s="srad" value="${D.srad}" class="tr-in"></label>
-      <label title="이보다 덜 닮으면 자동 추적을 멈추고 물어봐요(0~1)">멈추는 일치도 (0~1)<input data-s="thr" value="${D.thr}" class="tr-in"></label></div>`;
-    q('.tr-set').querySelectorAll('[data-s]').forEach(i=>{ i.addEventListener('keydown', e=>e.stopPropagation()); i.addEventListener(i.tagName==='SELECT'||i.type==='checkbox'?'change':'change', ()=>{ const k=i.dataset.s;
+      <div class="tr-wide tr-axl"><span class="tr-axt">좌표축</span><span>${D.axes ? `원점 (${D.axes.x.toFixed(0)}, ${D.axes.y.toFixed(0)}) px · x축 ${(D.axes.ang*180/Math.PI).toFixed(1)}°` : '왼쪽 아래 구석(기본) — [축]으로 바꿔요'}</span></div>
+      <label class="gt-ck tr-ckrow tr-wide" title="보통은 위쪽이 +예요. 화면 좌표처럼 아래쪽을 +로 하려면 켜세요"><input type="checkbox" data-s="flip"${this.axes().flip?' checked':''}><span>y는 아래쪽이 +</span></label>
+      <label class="gt-ck tr-ckrow tr-wide" title="켜면 탭 · 창을 닫을 때 묻지 않고 점을 저장하고, 같은 영상을 열면 바로 불러와요. 영상은 저장하지 않아요"><input type="checkbox" data-pref="auto"${TR_PREF().autoSave?' checked':''}><span>닫을 때 묻지 않고 늘 점 저장 <small>(영상은 저장 안 함)</small></span></label></div>`;
+    const pa=q('.tr-set [data-pref="auto"]'); if(pa) pa.onchange=()=>{ TR_SETPREF({ autoSave:pa.checked }); if(pa.checked && this.dirty) this.flush(); ATW_say(pa.checked ? '이제 닫을 때 묻지 않고 점을 저장해요.' : '이제 닫을 때 저장할지 물어요.'); };
+    q('.tr-set').querySelectorAll('[data-s]').forEach(i=>this.bindOpt(i));
+    this.paintTable();
+  }
+  bindOpt(i){ const D=this.D; i.addEventListener('keydown', e=>e.stopPropagation()); i.addEventListener('change', ()=>{ const k=i.dataset.s;
       if(k==='fps'){ const v=gtNum(i.value); if(v>0 && v<5000){ D.fps=v; D.fpsManual=true; D.fpsGuess=false; this.N=Math.max(1, Math.floor(this.video.duration*v+1e-6)); this.$('.tr-sl').max=this.N-1; D.fb=Math.min(D.fb, this.N-1); } }
       else if(k==='flip'){ D.axes=Object.assign({}, this.axes(), { flip:i.checked }); }
       else if(k==='tsize'||k==='srad'){ const v=Math.round(gtNum(i.value)); if(v>=8 && v<=400) D[k]=v; }
       else if(k==='thr'){ const v=gtNum(i.value); if(v>0 && v<1) D.thr=v; }
       else D[k]=i.value;
-      this._mk=null; this.save(); this.paintSide(); this.paint(); }); });
-    this.paintTable();
-  }
+      this._mk=null; this.save(); this.paintSide(); this.paint(); if(k==='tsize'||k==='srad'||k==='thr') this.paintCtx(); }); }
   rows(T){
     T=T||this.track(); const D=this.D; const fs=Object.keys(T.pts).map(Number).filter(f=>f>=D.fa && f<=D.fb).sort((a,b)=>a-b);
     const R=fs.map(f=>{ const p=T.pts[f]; const P=this.phys(p); return { f, t:this.tOf(p, f), x:P.X, y:P.Y, auto:p.auto }; });
@@ -26549,16 +26966,38 @@ class Tracker{
   }
   changed(){ this._mk=null; this.save(); this.paint(); this.paintTable(); const c=this.body.querySelector(`.tr-trk[data-t="${this.D.cur}"] .tr-tc`); if(c) c.textContent=Object.keys(this.track().pts).length+'점'; }
   /* ───────── 저장 · 되돌리기 ───────── */
-  save(){ clearTimeout(this._st); this._st=setTimeout(()=>this.flush(), 600); }
+  /* 바뀜 → '저장 안 함' 표시. 늘 저장이 켜져 있을 때만 알아서 저장(동의 없이 저장하지 않는다) */
+  save(){ if(!this.D) return; this.setDirty(true); if(this.host) this.host.setExtra(this.tab, { pts:trCount(this.D) }); clearTimeout(this._st); if(TR_PREF().autoSave) this._st=setTimeout(()=>this.flush(), 600); }
   flush(){ if(!this.D || !this.key) return; clearTimeout(this._st);
-    const ok=ATW_LS.set(this.key, this.D);
+    const ok=ATW_LS.set(this.key, this.D); if(ok) this.setDirty(false);
+    const w=ATW.wins.tracker, open=new Set(((w && w.tabs && w.tabs.tabs)||[]).map(t=>t.extra.sig && trKeyOf(t.extra.sig)));
     const idx=ATW_LS.get(TR_KEY0+':idx:'+TR_UID(), []).filter(k=>k!==this.key); idx.unshift(this.key);
-    idx.slice(20).forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); ATW_LS.set(TR_KEY0+':idx:'+TR_UID(), idx.slice(0,20));     // 영상 20개까지만 기억
+    idx.slice(20).forEach(k=>{ if(!open.has(k)){ try{ localStorage.removeItem(k); }catch(e){} } }); ATW_LS.set(TR_KEY0+':idx:'+TR_UID(), idx.slice(0,20));     // 영상 20개까지만 기억
     if(!ok && !this._warned){ this._warned=true; ATW_say('점이 너무 많아 이 기기에 저장하지 못했어요 — CSV로 내보내 두세요.', 5000); } }
   pushU(){ this.undo.push(JSON.stringify({ tracks:this.D.tracks, cal:this.D.cal, axes:this.D.axes })); if(this.undo.length>100) this.undo.shift(); this.redo=[]; }
   restoreU(s){ const o=JSON.parse(s); Object.assign(this.D, o); this.paintSide(); this.changed(); }
   /* ───────── 마우스 · 키보드 ───────── */
-  setMode(m){ this.mode=m; this.body.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on', b.dataset.mode===m)); this.stage.dataset.mode=m; this.loupe.hidden=true; }
+  setMode(m){ this.mode=m; this.body.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on', b.dataset.mode===m)); this.stage.dataset.mode=m; this.loupe.hidden=true; this.paintCtx(); if(this.D) this.paint(); }
+  seedCount(){ return this.D ? this.D.tracks.filter(T=>!T.hide && T.pts[this.f]).length : 0; }
+  /* 도구마다 바뀌는 줄 — 지금 도구의 도움말과 그 도구에만 쓰는 설정(자동 추적 상자 · 범위 · 일치도는 [자동]에서만) */
+  paintCtx(){
+    const c=this.$('.tr-ctx'); if(!c) return; const D=this.D, m=this.mode;
+    const hint={ mark:'물체를 누르면 점이 찍히고 다음 프레임으로 넘어가요 · 찍은 점은 끌어서 고치고, 오른쪽 클릭으로 지워요 · ← → 프레임',
+      cal:'길이를 아는 물체(자 · 줄자)의 한쪽 끝에서 다른 끝까지 끌어요 — 놓으면 실제 길이를 물어요',
+      axes:'누른 곳이 원점, 그대로 끌면 x축 방향이에요 (Shift = 15°씩)', pan:'끌어서 화면 옮기기 · 휠 = 확대 · 두 번 누르면 화면에 맞춤' }[m];
+    if(m!=='auto'){ c.innerHTML=`<span class="tr-hint">${hint||''}</span>`; this._seedN=null; return; }
+    const n=this.seedCount(); this._seedN=n;
+    c.innerHTML=`<span class="gt-seg tr-am" role="group" aria-label="자동 추적 방식"><button type="button" data-am="one" class="${this.multi?'':'on'}">한 개씩</button><button type="button" data-am="multi" class="${this.multi?'on':''}">여러 개 함께</button></span>
+      <span class="tr-hint">${this.multi ? `물체마다 시작점을 하나씩 찍으세요(찍으면 다음 물체로) · 시작점 <b>${n}</b>개` : '따라갈 물체를 한 번 누르면 다음 프레임들을 알아서 따라가요'}</span>
+      ${this.multi ? `<button type="button" class="gt-btn pri" data-go${n?'':' disabled'}>▶ ${n}개 함께 따라가기</button>` : ''}
+      ${D ? `<span class="tr-opts"><label title="물체를 기억하는 상자 크기(영상 픽셀) — 물체가 쏙 들어갈 만큼">추적 상자<input data-s="tsize" value="${D.tsize}" class="tr-in"></label><label title="한 프레임 사이에 물체가 움직일 수 있는 거리(영상 픽셀) — 빠르면 키워요">찾는 범위<input data-s="srad" value="${D.srad}" class="tr-in"></label><label title="이보다 덜 닮으면 그 물체는 멈춰요(0~1)">멈추는 일치도<input data-s="thr" value="${D.thr}" class="tr-in"></label></span>` : ''}`;
+    c.querySelectorAll('[data-am]').forEach(b=>b.onclick=()=>{ this.multi=b.dataset.am==='multi'; this.paintCtx(); });
+    const g=c.querySelector('[data-go]'); if(g) g.onclick=()=>this.multiGo();
+    c.querySelectorAll('[data-s]').forEach(i=>this.bindOpt(i));
+    c.classList.toggle('dis', !!this.autoRun);
+  }
+  multiGo(){ if(!this.D || this.autoRun) return; const Ts=this.D.tracks.filter(T=>!T.hide && T.pts[this.f]);
+    if(!Ts.length) return ATW_say('먼저 물체마다 시작점을 찍어 주세요.'); this.pushU(); this.runAuto(Ts, false); }
   bindStage(){
     const st=this.stage; let drag=null; this._space=false;
     st.addEventListener('wheel', e=>{ if(!this.D) return; e.preventDefault(); this.zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY*0.0015)); }, { passive:false });
@@ -26572,6 +27011,14 @@ class Tracker{
       if(this.mode==='cal'){ const C=this.D.cal; if(C && near(C.a)) drag={ k:'ca' }; else if(C && near(C.b)) drag={ k:'cb' }; else { this._calDrag={ a:P, b:P }; drag={ k:'cnew' }; } this.pushU(); st.setPointerCapture(e.pointerId); return; }
       if(this.mode==='axes'){ const A=this.axes(); this.pushU(); if(near(A, 12)) drag={ k:'ao' }; else { this.D.axes=Object.assign({}, A, { x:P.x, y:P.y }); drag={ k:'aang' }; } st.setPointerCapture(e.pointerId); this.paint(); return; }
       if(this.mode==='mark' || this.mode==='auto'){
+        if(this.mode==='auto' && this.multi){
+          if(cur && near(cur, 12)){ this.pushU(); drag={ k:'pt', moved:false }; st.setPointerCapture(e.pointerId); return; }
+          const hit=this.D.tracks.find(t=>!t.hide && t.pts[this.f] && near(t.pts[this.f], 12)); if(hit){ this.D.cur=hit.id; this.paintSide(); this.paint(); return; }   // 다른 물체의 시작점 → 그 물체 고르기
+          this.pushU(); let S=T;
+          if(S.pts[this.f] || S.hide){ S=this.D.tracks.find(t=>!t.hide && !t.pts[this.f]); if(S) this.D.cur=S.id; else { this.action('addtr'); S=this.track(); } }   // 이미 시작점이 있으면 다음 물체(없으면 새로)
+          S.pts[this.f]={ x:+P.x.toFixed(2), y:+P.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null }; this.changed();
+          const nx=this.D.tracks.find(t=>!t.hide && !t.pts[this.f]); if(nx) this.D.cur=nx.id;
+          this.paintSide(); this.paint(); this.paintCtx(); return; }
         if(this.mode==='auto'){ this.startAuto(cur && near(cur, 12) ? cur : P); return; }       // 있는 점을 누르면 그 자리부터
         if(cur && near(cur, 12)){ this.pushU(); drag={ k:'pt', moved:false }; st.setPointerCapture(e.pointerId); return; }
         this.pushU(); T.pts[this.f]={ x:+P.x.toFixed(2), y:+P.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null }; this.changed();
@@ -26608,7 +27055,10 @@ class Tracker{
     c.fillStyle='rgba(0,0,0,.55)'; c.fillRect(0,sz-18,sz,18); c.fillStyle='#fff'; c.font='11px sans-serif'; c.fillText(`${P.x.toFixed(1)}, ${P.y.toFixed(1)} px`, 6, sz-5);
   }
   onKey(e){
-    if(!this.body.isConnected || !this.win.el.classList.contains('atw-front')) return;
+    if(!this.body.isConnected) return;
+    if(this.host ? !this.host.isActive(this) : !this.win.el.classList.contains('atw-front')) return;
+    if(this.host && !this.host.$ov.hidden) return;
+    if((e.ctrlKey||e.metaKey) && !e.shiftKey && e.key.toLowerCase()==='s'){ e.preventDefault(); this.saveNow(); return; }
     if(e.target.closest('input, select, textarea') || !this.D) return;
     if(e.code==='Space' && e.type==='keydown'){ e.preventDefault(); this.togglePlay(); return; }
     const k=e.key, sh=e.shiftKey, ctrl=e.ctrlKey||e.metaKey;
@@ -26668,13 +27118,19 @@ class Tracker{
     return { x:x0+bx+h+ox, y:y0+by+h+oy, score:best, edge: bx===0||by===0||bx===2*R||by===2*R };
   }
   async startAuto(P){
-    if(this.autoRun) return; const T=this.track(); const D=this.D;
+    if(this.autoRun) return; const T=this.track();
     this.pushU();
     if(!T.pts[this.f]) T.pts[this.f]={ x:+P.x.toFixed(2), y:+P.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null };
     this.changed();
-    let Tm=this.tmpl(T.pts[this.f]); const step=+D.step||1; let prev=T.pts[this.f], prev2=null; let k=0; const total=Math.floor((D.fb-this.f)/step);
+    return this.runAuto([T], true);
+  }
+  /* 여러 물체를 한 프레임씩 함께 — 놓친 물체만 빠지고 나머지는 계속 */
+  async runAuto(Ts, single){
+    if(this.autoRun) return; const D=this.D; const step=+D.step||1; const total=Math.max(0, Math.floor((D.fb-this.f)/step));
+    const S=Ts.map(T=>({ T, Tm:this.tmpl(T.pts[this.f]), prev:T.pts[this.f], prev2:null, alive:true, n:0, lostAt:null, sc:0 }));
+    let k=0;
     this.autoRun=true; this.stopAuto=false;
-    const bar=this.$('.tr-busy'); this.$('.tr-modes').classList.add('dis');
+    const bar=this.$('.tr-busy'); this.$('.tr-modes').classList.add('dis'); this.$('.tr-ctx').classList.add('dis');
     const stopBtn=document.createElement('button'); stopBtn.type='button'; stopBtn.className='gt-btn tr-stop'; stopBtn.textContent='멈추기 (Esc)'; stopBtn.onclick=()=>{ this.stopAuto=true; }; this.stage.appendChild(stopBtn);
     const esc=e=>{ if(e.key==='Escape') this.stopAuto=true; }; document.addEventListener('keydown', esc, true);
     let why='';
@@ -26682,19 +27138,29 @@ class Tracker{
       while(!this.stopAuto){
         const nf=this.f+step; if(nf>D.fb){ why='end'; break; }
         await this.seekFrame(nf); k++;
-        const pred = prev2 ? { x:prev.x+(prev.x-prev2.x), y:prev.y+(prev.y-prev2.y) } : prev;    // 등속으로 다음 자리를 어림
-        this._autoBox={ x:pred.x, y:pred.y, r:(D.tsize>>1)+D.srad };
-        let m=this.match(Tm, pred); if(m && (m.score<D.thr || m.edge) && prev2){ const m2=this.match(Tm, prev); if(m2 && m2.score>m.score) m=m2; }
-        if(!m || m.score<D.thr){ why='lost'; this.lastScore=m?m.score:0; break; }
-        T.pts[this.f]={ x:+m.x.toFixed(2), y:+m.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null, auto:true, sc:+m.score.toFixed(3) };
-        prev2=prev; prev=T.pts[this.f];
-        if(m.score>0.85 && k%3===0){ const nt=this.tmpl(prev); for(let i=0;i<Tm.t.length;i++) Tm.t[i]=Tm.t[i]*0.7+nt.t[i]*0.3; let sd=0; for(const v of Tm.t) sd+=v*v; Tm.norm=Math.sqrt(sd); }   // 모양이 조금씩 바뀌면 따라 배운다
-        bar.hidden=false; bar.querySelector('span').textContent=`자동 추적 중 ${k} / ${total} · 일치도 ${m.score.toFixed(2)}`;
-        if(k%5===0){ this.paintTable(); this.paintMarks(); this._mk=null; }
+        const boxes=[];
+        for(const s of S){ if(!s.alive) continue;
+          const pred = s.prev2 ? { x:s.prev.x+(s.prev.x-s.prev2.x), y:s.prev.y+(s.prev.y-s.prev2.y) } : s.prev;    // 등속으로 다음 자리를 어림
+          boxes.push({ x:pred.x, y:pred.y, r:(D.tsize>>1)+D.srad, c:S.length>1 ? s.T.color : null });
+          let m=this.match(s.Tm, pred); if(m && (m.score<D.thr || m.edge) && s.prev2){ const m2=this.match(s.Tm, s.prev); if(m2 && m2.score>m.score) m=m2; }
+          if(!m || m.score<D.thr){ s.alive=false; s.lostAt=this.f; s.sc=m?m.score:0; continue; }
+          s.T.pts[this.f]={ x:+m.x.toFixed(2), y:+m.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null, auto:true, sc:+m.score.toFixed(3) };
+          s.prev2=s.prev; s.prev=s.T.pts[this.f]; s.n++; s.sc=m.score;
+          if(m.score>0.85 && k%3===0){ const nt=this.tmpl(s.prev); const t=s.Tm.t; for(let i=0;i<t.length;i++) t[i]=t[i]*0.7+nt.t[i]*0.3; let sd=0; for(const v of t) sd+=v*v; s.Tm.norm=Math.sqrt(sd); }   // 모양이 조금씩 바뀌면 따라 배운다
+        }
+        this._autoBox=boxes;
+        const live=S.filter(s=>s.alive).length;
+        if(!live){ why='lost'; break; }
+        bar.hidden=false; bar.querySelector('span').textContent = S.length===1 ? `자동 추적 중 ${k} / ${total} · 일치도 ${S[0].sc.toFixed(2)}` : `${S.length}개 물체 추적 중 ${k} / ${total} · 따라가는 중 ${live}개`;
+        if(k%5===0){ this.paintTable(); this._mk=null; this.paintMarks(); }
       }
     } finally {
-      this.autoRun=false; this._autoBox=null; stopBtn.remove(); document.removeEventListener('keydown', esc, true); bar.hidden=true; this.$('.tr-modes').classList.remove('dis'); this.changed();
-      ATW_say(why==='end' ? `끝까지 따라갔어요 — ${k}프레임.` : why==='lost' ? `${k}프레임에서 물체를 놓쳤어요(일치도 ${(this.lastScore||0).toFixed(2)}). 물체를 다시 누르면 이어서 따라가요.` : `멈췄어요 — ${k}프레임.`, 5000);
+      this.autoRun=false; this._autoBox=null; stopBtn.remove(); document.removeEventListener('keydown', esc, true); bar.hidden=true; this.$('.tr-modes').classList.remove('dis'); this.$('.tr-ctx').classList.remove('dis'); this.changed(); this.paintSide(); this.paintCtx();
+      const lost=S.filter(s=>s.lostAt!=null);
+      if(single || S.length===1){ const s=S[0];
+        ATW_say(why==='end' ? `끝까지 따라갔어요 — ${k}프레임.` : s.lostAt!=null ? `${k}프레임에서 물체를 놓쳤어요(일치도 ${s.sc.toFixed(2)}). 물체를 다시 누르면 이어서 따라가요.` : `멈췄어요 — ${k}프레임.`, 5000); }
+      else ATW_say((why==='end' ? `끝까지 ${k}프레임 — ` : why==='lost' ? `모두 놓쳐 ${k}프레임에서 멈췄어요 — ` : `멈췄어요(${k}프레임) — `) +
+        (lost.length ? `놓친 물체: ${lost.map(s=>`${s.T.name}(프레임 ${s.lostAt})`).join(', ')}. 그 프레임에서 [한 개씩]으로 다시 누르면 이어서 따라가요.` : `${S.length}개 모두 따라갔어요.`), 7000);
     }
   }
   /* ───────── 단추 ───────── */
@@ -26713,9 +27179,9 @@ class Tracker{
       case 'setA': if(this.f>D.fb) return ATW_say('끝보다 뒤예요.'); D.fa=this.f; if(D.f0<D.fa) D.f0=D.fa; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}부터 분석해요.`);
       case 'setB': if(this.f<D.fa) return ATW_say('시작보다 앞이에요.'); D.fb=this.f; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}까지 분석해요.`);
       case 'set0': D.f0=this.f; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}을 t = 0으로.`);
-      case 'addtr': { const n=D.tracks.length; const id=String.fromCharCode(65+n%26)+(n>=26?n:''); D.tracks.push({ id, name:'물체 '+id, color:TR_COLORS[n%TR_COLORS.length], pts:{} }); D.cur=id; this.save(); this.paintSide(); this.paint(); return; }
+      case 'addtr': { let n=D.tracks.length; const has=x=>D.tracks.some(t=>t.id===x); const mk=k=>String.fromCharCode(65+k%26)+(k>=26?k:''); while(has(mk(n))) n++; const id=mk(n); D.tracks.push({ id, name:'물체 '+id, color:TR_COLORS[n%TR_COLORS.length], pts:{} }); D.cur=id; this.save(); this.paintSide(); this.paint(); this.paintCtx(); return; }
       case 'clrtr': { const T=this.track(); const n=Object.keys(T.pts).length; if(!n) return; if(!confirm(`'${T.name}'의 점 ${n}개를 모두 지울까요? (Ctrl+Z로 되돌릴 수 있어요)`)) return; this.pushU(); T.pts={}; return this.changed(); }
-      case 'tograph': return this.toGraph(); case 'csv': return this.csv(); case 'snap': return this.snap();
+      case 'tograph': return this.toGraph(); case 'csv': return this.csv(); case 'snap': return this.snap(); case 'savenow': return this.saveNow(); case 'multigo': return this.multiGo();
     }
   }
   viewMenu(btn){
@@ -26725,10 +27191,12 @@ class Tracker{
     pop.innerHTML=`<div class="gt-pop-h"><b>보기</b><button type="button" class="gt-ib" data-x aria-label="닫기">×</button></div>
       <div class="gt-f"><span>밝기</span><input type="range" min="40" max="250" value="${f.b}" data-f="b"></div><div class="gt-f"><span>대비</span><input type="range" min="40" max="300" value="${f.c}" data-f="c"></div>
       <div class="gt-f gt-f2"><label class="gt-ck"><input type="checkbox" data-f="g"${f.g?' checked':''}> 흑백</label><label class="gt-ck" title="많이 확대했을 때 픽셀을 흐리게 메우지 않고 그대로"><input type="checkbox" data-px${D.pixel?' checked':''}> 픽셀 그대로</label><button type="button" class="gt-btn ghost" data-r>원래대로</button></div>
-      <p class="gps-tip">화면에만 쓰는 보정이에요. 자동 추적은 원본 프레임으로 해요.</p>`;
+      <div class="gt-f gt-f2 tr-shows"><span>겹쳐 보이기</span><label class="gt-ck" title="파란 축척 막대와 길이 글자(예: 0.5 m)"><input type="checkbox" data-sh="cal"${this.show.cal!==false?' checked':''}> 축척 막대</label><label class="gt-ck"><input type="checkbox" data-sh="axes"${this.show.axes!==false?' checked':''}> 좌표축</label><label class="gt-ck"><input type="checkbox" data-sh="pts"${this.show.pts!==false?' checked':''}> 점 · 자취</label></div>
+      <p class="gps-tip">화면에만 쓰는 보정이에요. 자동 추적은 원본 프레임으로 해요. 겹쳐 보이기를 끄면 [화면 PNG]에서도 빠져요(축척 · 축은 그 도구를 쓰는 동안엔 보여요).</p>`;
     document.body.appendChild(pop); const r=btn.getBoundingClientRect(); pop.style.left=Math.max(6,Math.min(innerWidth-pop.offsetWidth-6, r.left))+'px'; pop.style.top=(r.bottom+4)+'px';
     const apply=()=>{ this.video.style.filter=`brightness(${f.b}%) contrast(${f.c}%)${f.g?' grayscale(1)':''}`; if(this.D){ this.D.filt=f; this.save(); } };
     pop.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('input', ()=>{ f[i.dataset.f]= i.type==='checkbox' ? i.checked : +i.value; apply(); }));
+    pop.querySelectorAll('[data-sh]').forEach(i=>i.onchange=()=>{ this.show[i.dataset.sh]=i.checked; TR_SETPREF({ show:Object.assign({}, this.show) }); this.paint(); });
     pop.querySelector('[data-px]').onchange=e=>{ if(this.D){ this.D.pixel=e.target.checked; this.applyView(); this.save(); } };
     pop.querySelector('[data-r]').onclick=()=>{ f.b=100; f.c=100; f.g=false; pop.querySelectorAll('[data-f]').forEach(i=>{ if(i.type==='checkbox') i.checked=false; else i.value=100; }); apply(); };
     const close=()=>{ pop.remove(); document.removeEventListener('pointerdown', off, true); }; const off=e=>{ if(!pop.contains(e.target)) close(); };
@@ -26747,8 +27215,11 @@ class Tracker{
   toGraph(){
     const multi=this.D.tracks.filter(t=>Object.keys(t.pts).length).length>1;
     const go=(all)=>{ const M=this.matrix(all); if(!M.n) return ATW_say('찍은 점이 없어요.');
-      const gw=openGraphTool(); const T=gw && gw.tool; if(!T) return;
-      T.importDialog(M.mat, { source:`영상 분석 — ${this.file?this.file.name:''} · ${M.n}점`, roles:M.roles, hdr:1 }); };
+      const nm=(this.tab ? this.tab.name : (this.file ? this.file.name.replace(/\.[^.]+$/,'') : '영상'))+' 추적';
+      const gw=openGraphTool({ newTab:true, name:nm }); const T=gw && gw.tool; if(!T) return;
+      if(this.file && T.noteFile) T.noteFile(this.file.name+' (영상 분석)');
+      T.importDialog(M.mat, { source:`영상 분석 — ${this.file?this.file.name:''} · ${M.n}점`, roles:M.roles, hdr:1 });
+      ATW_say(`그래프 그리기의 '${nm}' 탭으로 보냈어요 — X · Y로 쓸 열을 고르고 [넣기]를 누르세요.`, 4500); };
     if(!multi) return go(false);
     this.popChoice('그래프로 보낼 물체', [['지금 고른 물체만', ()=>go(false)], ['점이 있는 물체 모두', ()=>go(true)]]);
   }
