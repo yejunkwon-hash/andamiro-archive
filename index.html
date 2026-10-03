@@ -13398,7 +13398,7 @@ const MIG_LEDGER = [
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
   ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
-  ['133','저장 용량 자세히',{f:'capacity_report'}],
+  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}],
 ];
 async function migProbe(p){
   try{
@@ -13414,7 +13414,7 @@ async function migLedgerHTML(){
   const res=await Promise.all(MIG_LEDGER.map(([n,name,p])=>migProbe(p).then(st=>[n,name,p,st])));
   const miss=res.filter(r=>r[3]==='bad');
   const chip=([n,name,p,st])=>`<span class="mg-chip ${st}" title="${escapeAttr(name+(p.na?' — '+p.na:''))}"><b>${n}</b>${escapeHtml(name)}</span>`;
-  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 133) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
+  return `<section class="hs-sec"><h2>적용 현황 한눈에 (89 → 134) ${miss.length?`<span class="hs-badge bad">미적용 ${miss.length}</span>`:'<span class="hs-badge ok">빠진 것 없음</span>'}</h2>
     <div class="mg-grid">${res.map(chip).join('')}</div>
     <div class="hs-note">초록 = 적용됨 · 빨강 = 그 번호의 SQL이 안 돌았어요(번호 순서대로 실행) · 회색 = 이름으로 구별할 수 없는 번호(아래 설명을 보고 사람이 확인).
       ${miss.length?`<br><b>실행할 파일:</b> ${miss.map(r=>`<code>${escapeHtml(r[0])}_*.sql</code>`).join(' → ')}`:''}</div></section>`;
@@ -14258,7 +14258,7 @@ async function renderSystem(){
     { owner:true,          hash:'#//system/nudges', g:'set', ic:'heart', t:'넛지 설정',              d:'우하단 안내 팝업의 켜기/끄기·빈도·문구·이동 링크를 전부 조정합니다.' },
     { owner:true,          hash:'#//system/signup', g:'set', ic:'users', t:'가입 설정',              d:'누가 가입할 수 있는지 정합니다. 초대 코드 · 누구나 · 가입 중단.' },
     { owner:true,          hash:'#//system/focus', g:'set',  ic:'check', t:'연구 집중 기간',         d:'기간을 켜면 대문 맨 위에 남은 날짜와 과제 진행률이 뜹니다.' },
-    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'133번까지 적용 현황을 한눈에, 그리고 표·함수·버킷·Edge Function·개인정보 잠금(비로그인 차단·비공개 버킷)을 읽기만 해서 점검합니다.' },
+    { cap:'system_health', hash:'#//health', g:'chk',        ic:'check', t:'시스템 검사',            d:'134번까지 적용 현황을 한눈에, 그리고 표·함수·버킷·Edge Function·개인정보 잠금(비로그인 차단·비공개 버킷)을 읽기만 해서 점검합니다.' },
     { cap:'admin_access',  hash:'#//admin', g:'mem',         ic:'users', t:'회원 관리',              d:'회원 등급·소속을 관리합니다.' },
     { cap:'club_read',     hash:'#//system/clubs', g:'mem',  ic:'users', t:'동아리 목록',            d:'동아리별 소속 회원을 보고, 권한이 있으면 목록을 수정합니다.' },
     { cap:'track_read',    hash:'#//system/tracks', g:'mem', ic:'edit',  t:'계열 목록',              d:'계열별 회원을 보고, 권한이 있으면 이름·색을 수정합니다.' },
@@ -14943,6 +14943,8 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-04', text:"[도구] 영상 분석의 [그래프로 보내기]가 안 보이던 문제를 고쳤어요(문서 분류 나무의 단추와 이름이 겹쳐 투명하게 숨어 있었어요). 이제 위 도구 줄에도 있고, 오른쪽 칸 맨 아래 단추 줄은 늘 보여요. 오차 분석은 [＋ 변수]로 변수를 직접 만들어 값을 넣고, 이름을 누르면 식에 들어가요. 식이 잠깐 틀려도 넣은 값은 그대로 남고, v₀ 같은 아래 첨자 · ½ · 10⁻³도 써요." },
+  { date:'2026-10-04', text:"[문서] 회원 문서의 '논란 및 사건사고' 절을 정리할 수 있게 했어요(최고관리자가 134 SQL 실행 — 미리 보기 뒤 적용, 예전 본문은 편집 이력에 남아요)." },
   { date:'2026-10-04', text:"[안내] [시스템 → 저장 용량]이 생겼어요. 무료 한도(저장소 1GB · 데이터베이스 500MB) 중 얼마나 썼는지, 사진 · 채팅 파일 · 세미나 슬라이드 등 종류별로 무엇이 자리를 차지하는지, 최근 30일에 늘어난 양과 이 속도면 언제 차는지, 큰 표 순위, 그리고 이 기기 브라우저에 남은 도구 데이터까지 한 화면에 보여요. 서버 쪽은 133 SQL이 필요해요." },
   { date:'2026-10-03', text:"[도구] 그래프 그리기 · 영상 분석을 탭 여러 개로 띄울 수 있어요. 탭 이름은 두 번 눌러 바꾸고, 닫은 탭은 오른쪽 위 [기록]에 남아 어떤 파일을 불러왔는지 보고 다시 열 수 있어요. 영상 분석: 창이나 탭을 닫으면 '찍은 점을 저장할까요?'를 물어요(저장되는 것은 점 · 축척 · 축뿐, 영상은 저장 안 함). '늘 저장'을 켜면 묻지 않고, 같은 영상을 열면 점이 바로 떠요. [자동] → [여러 개 함께]로 물체 여러 개를 한 번에 따라가고, 시간 막대의 손잡이를 끌어 분석 시작 · 끝을 정해요. [그래프 도구로 보내기]는 그래프 도구의 새 탭으로 보내요. [보기]에서 축척 막대 · 좌표축 · 점을 숨길 수 있어요." },
   { date:'2026-10-03', text:"[도구] 새 도구 셋 — ① 영상 분석: 실험 영상을 열고(크기 제한 없음 · 업로드 없음 · 원본 화질) 축척을 맞춘 뒤 물체를 누르거나 [자동]으로 따라가게 하면 시간 · 위치 · 속도 표가 나와요. 그래프 도구로 바로 보내요. ② 오차 분석: g = 4π²L/T²처럼 식을 쓰고 측정값 ± 오차(또는 반복 측정값)를 넣으면 결과 ± 오차와 어느 값이 오차를 키우는지 알려 줘요. ③ KYPT 발표 타이머: Physics Fight 단계별 시간 · 소리 · 발표장용 큰 창, 순서는 고칠 수 있어요." },
@@ -24613,13 +24615,13 @@ tr.miss .ec-nm{ color:var(--danger); }
 .tr-lt{ font-size:17px; } .tr-ls{ font-size:13px; opacity:.8; max-width:560px; } .tr-lh{ font-size:12px; opacity:.7; max-width:560px; line-height:1.55; }
 .tr-lbar{ width:min(360px, 80%); height:6px; background:rgba(255,255,255,.15); border-radius:4px; overflow:hidden; } .tr-lbar[hidden]{ display:none; } .tr-lbar i{ display:block; height:100%; background:#fff; transition:width .3s; }
 .tr-lbtn{ display:flex; gap:8px; margin-top:6px; }
-.tr-empty{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#eee; text-align:center; padding:20px; }
-.tr-empty[hidden]{ display:none; } .tr-ei svg{ width:46px; height:46px; opacity:.7; } .tr-empty b{ font-size:17px; } .tr-empty span{ font-size:12.5px; opacity:.75; line-height:1.6; }
+.trk-empty{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#eee; text-align:center; padding:20px; }
+.trk-empty[hidden]{ display:none; } .tr-ei svg{ width:46px; height:46px; opacity:.7; } .trk-empty b{ font-size:17px; } .trk-empty span{ font-size:12.5px; opacity:.75; line-height:1.6; }
 .tr-drop{ position:absolute; inset:8px; z-index:7; border:2px dashed #fff; border-radius:12px; display:grid; place-items:center; color:#fff; font-size:18px; background:rgba(0,0,0,.4); pointer-events:none; } .tr-drop[hidden]{ display:none; }
 .tr-stop{ position:absolute; z-index:6; right:12px; top:10px; background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
 .tr-side{ border-left:1px solid var(--border); overflow:auto; display:flex; flex-direction:column; min-height:0; }
 .tr-sec{ padding:8px 10px; border-bottom:1px solid var(--border); } .tr-sh{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:5px; font-size:13px; }
-.tr-cnt{ font-size:11.5px; color:var(--text-dim); } .tr-mute{ color:var(--text-dim); font-size:12.5px; line-height:1.6; margin:4px 0; }
+.trk-cnt{ font-size:11.5px; color:var(--text-dim); } .tr-mute{ color:var(--text-dim); font-size:12.5px; line-height:1.6; margin:4px 0; }
 .tr-trk{ display:flex; align-items:center; gap:6px; padding:4px 5px; border-radius:8px; cursor:pointer; } .tr-trk.on{ background:var(--red-50); box-shadow:inset 3px 0 0 var(--accent); }
 .tr-col{ position:relative; flex:none; width:18px; height:18px; border-radius:50%; background:var(--c); border:2px solid var(--card); box-shadow:0 0 0 1px var(--border-strong); overflow:hidden; cursor:pointer; } .tr-col input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
 .tr-tn{ flex:1; min-width:0; height:26px; border:1px solid transparent; background:none; color:var(--text); font:inherit; font-weight:700; border-radius:6px; padding:0 4px; } .tr-tn:focus{ border-color:var(--accent); outline:none; background:var(--card); }
@@ -24631,7 +24633,7 @@ tr.miss .ec-nm{ color:var(--danger); }
 .tr-tb{ } table.tr-tb{ width:100%; border-collapse:collapse; font-size:11.5px; font-variant-numeric:tabular-nums; } table.tr-tb th{ position:sticky; top:0; background:var(--card); text-align:right; color:var(--text-dim); font-weight:600; padding:3px; border-bottom:1px solid var(--border); }
 table.tr-tb td{ text-align:right; padding:2px 3px; border-bottom:1px solid var(--border); white-space:nowrap; } table.tr-tb tr[data-f]{ cursor:pointer; } table.tr-tb tr.on td{ background:var(--red-50); font-weight:700; }
 table.tr-tb td small{ margin-left:3px; color:var(--text-dim); font-size:9.5px; } table.tr-tb button{ border:0; background:none; color:var(--text-dim); cursor:pointer; padding:0 3px; } table.tr-tb button:hover{ color:var(--danger); }
-.tr-acts{ display:flex; flex-wrap:wrap; gap:5px; padding-top:7px; } .tr-acts .gt-btn svg{ width:15px; height:15px; }
+.trk-acts{ display:flex; flex-wrap:wrap; gap:5px; padding-top:7px; } .trk-acts .gt-btn svg{ width:15px; height:15px; }
 .tr-tl{ flex:none; border-top:1px solid var(--border); padding:4px 10px 8px; }
 .tr-tlb{ display:flex; align-items:center; gap:3px; flex-wrap:wrap; } .tr-play{ color:var(--accent); font-size:15px; }
 .tr-pos{ font-size:12px; margin-left:8px; font-variant-numeric:tabular-nums; } .tr-pos small{ color:var(--warn); }
@@ -24680,7 +24682,7 @@ table.tr-tb td small{ margin-left:3px; color:var(--text-dim); font-size:9.5px; }
 .tr-always{ font-size:12.5px; margin-bottom:6px; } .tr-always small{ color:var(--text-dim); }
 .tr-ctx{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; padding:4px 10px; min-height:30px; border-bottom:1px solid var(--border); background:var(--card); font-size:12px; }
 .tr-ctx.dis{ opacity:.5; pointer-events:none; }
-.tr-hint{ color:var(--text-dim); min-width:0; } .tr-hint b{ color:var(--accent); }
+.trk-hint{ color:var(--text-dim); min-width:0; } .trk-hint b{ color:var(--accent); }
 .tr-opts{ display:flex; gap:8px; margin-left:auto; }
 .tr-opts label{ display:flex; align-items:center; gap:4px; color:var(--text-dim); white-space:nowrap; } .tr-opts .tr-in{ width:52px; height:24px; }
 .tr-am button{ font-size:12px; }
@@ -24697,6 +24699,25 @@ table.tr-tb td small{ margin-left:3px; color:var(--text-dim); font-size:9.5px; }
 .tr-want b{ font-size:13px !important; color:#fff; } .tr-want small{ opacity:.7; }
 .tr-shows{ flex-wrap:wrap; }
 .tr-tog{ font-weight:700; }
+/* ★DC: 영상 분석 — 아래 단추는 늘 보이게(옆 칸 바닥에 붙음) · 위 줄에도 [그래프로 보내기] · 탭 줄 세로 스크롤 막기 */
+.tr-side > .trk-acts{ position:sticky; bottom:0; z-index:2; margin-top:auto; padding:8px 10px; background:var(--card); border-top:1px solid var(--border-strong); box-shadow:0 -4px 10px rgba(0,0,0,.05); }
+.tr-tablesec{ min-height:150px; }
+.tr-tgtop{ font-weight:700; border-color:var(--accent) !important; color:var(--accent) !important; }
+.tr-tgtop svg{ width:15px; height:15px; }
+.tt-tabs{ overflow-y:hidden; align-self:stretch; align-items:flex-end; padding-bottom:1px; margin-bottom:-1px; }
+/* ★DC: 오차 분석 — 변수 직접 추가 · 이름 눌러 식에 넣기 */
+.ec-ins{ border:0; background:none; padding:0 2px; font:inherit; color:inherit; cursor:pointer; border-radius:4px; }
+.ec-ins:hover{ background:var(--red-50); color:var(--accent); }
+.ec-nm{ white-space:nowrap; } .ec-un{ display:block; font:600 10px/1.2 var(--font, sans-serif); font-style:normal; color:var(--text-dim); }
+.ec-del{ border:0; background:none; color:var(--text-dim); cursor:pointer; font-size:14px; padding:0 3px; font-style:normal; } .ec-del:hover{ color:var(--danger); }
+tr.unused td{ opacity:.85; } tr.unused .ec-ins{ color:var(--text-dim); }
+.ec-add{ display:flex; align-items:center; gap:6px; margin-top:8px; flex-wrap:wrap; }
+.ec-add .ec-newv{ width:190px; height:30px; box-sizing:border-box; border:1px dashed var(--border-strong); border-radius:7px; padding:0 8px; background:var(--card); color:var(--text); font:inherit; }
+.ec-add .ec-newv:focus{ border-style:solid; border-color:var(--accent); outline:none; }
+.ec-addh{ font-size:11.5px; color:var(--text-dim); }
+.ec-none{ font-size:12.5px; color:var(--text-dim); line-height:1.6; margin:2px 0 4px; }
+.ec-tb[hidden]{ display:none; }
+.tr-mid{ grid-template-rows:minmax(0,1fr); } .tr-side{ min-height:0; }
 
 </style>
 <script id="anda-tools-js">
@@ -26371,6 +26392,8 @@ const EC_EXAMPLES=[
 ];
 /* ── 식 읽기 ── */
 function ecTokens(src){
+  const SUP={'⁰':'0','¹':'1','²':'2','³':'3','⁴':'4','⁵':'5','⁶':'6','⁷':'7','⁸':'8','⁹':'9'}, FR={'½':'(1/2)','⅓':'(1/3)','⅔':'(2/3)','¼':'(1/4)','¾':'(3/4)','⅕':'(1/5)','⅛':'(1/8)'};
+  src=String(src).replace(/[½⅓⅔¼¾⅕⅛]/g, c=>' '+FR[c]+' ').replace(/⁻?[⁰¹⁴-⁹]+|⁻[²³]+/g, m=>'^('+(m[0]==='⁻'?'-':'')+[...m.replace('⁻','')].map(c=>SUP[c]||c).join('')+')');   // ★DC: ½ m v² · 10⁻³
   let s=String(src).replace(/π/g,' π ').replace(/²/g,'^2').replace(/³/g,'^3').replace(/[×·⋅∙]/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/√/g,'sqrt ');
   const out=[]; let i=0;
   while(i<s.length){
@@ -26378,7 +26401,7 @@ function ecTokens(src){
     if(/\s/.test(c)){ i++; continue; }
     let m=s.slice(i).match(/^(\d+\.?\d*(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?)/);
     if(m){ out.push({ t:'n', v:parseFloat(m[1]), p:i }); i+=m[1].length; continue; }
-    m=s.slice(i).match(/^[A-Za-z_µͰ-Ͽ가-힣][A-Za-z0-9_µͰ-Ͽ가-힣']*/);
+    m=s.slice(i).match(/^[A-Za-z_µͰ-Ͽ가-힣][A-Za-z0-9_µͰ-Ͽ가-힣'₀-₉ₐₑₒₓₕₖₗₘₙₚₛₜ]*/);   // ★DC: v₀ · Lₘ 같은 아래 첨자도 이름의 일부
     if(m){ out.push({ t:'id', v:m[0], p:i }); i+=m[0].length; continue; }
     if('+-*/^(),'.includes(c)){ out.push({ t:c, p:i }); i++; continue; }
     throw { msg:`'${c}'는 식에 쓸 수 없어요`, pos:i };
@@ -26488,12 +26511,13 @@ class ErrCalc{
         <div class="ec-opts"><select class="ec-ex" aria-label="예시"><option value="">예시 식…</option>${EC_EXAMPLES.map((e,i)=>`<option value="${i}">${ATW_esc(e[0])} — ${ATW_esc(e[1])}</option>`).join('')}</select>
           <span class="gt-seg2" role="group" aria-label="각도 단위"><button type="button" data-deg="1" class="${S.deg?'on':''}" title="sin · cos · tan에 넣는 각도를 도(°)로">도(°)</button><button type="button" data-deg="0" class="${!S.deg?'on':''}" title="라디안으로">라디안</button></span>
           <button type="button" class="gt-btn ghost" data-a="graph" title="열려 있는 그래프 도구의 맞춤 계수(예: 기울기 ± 오차)를 변수로">그래프에서 가져오기</button></div>
-        <p class="ec-help">곱하기는 생략해도 돼요(4π²L/T²) · ²  ³  √ · sin cos tan asin ln(자연로그) log(상용로그) exp sqrt abs · 그리스 문자 θ, ω 그대로 · 변수는 식에서 자동으로 찾아요</p>
+        <p class="ec-help">곱하기는 생략해도 돼요(4π²L/T²) · ²  ³  √ · sin cos tan asin ln(자연로그) log(상용로그) exp sqrt abs · 그리스 문자 θ, ω 그대로 · 아래 첨자 v₀ · 분수 ½ · 10⁻³ · 변수는 식에 쓴 글자에서 자동으로 생기고, <b>[＋ 변수]</b>로 직접 추가해도 돼요</p>
       </div>
       <div class="ec-body"><div class="ec-vars"></div><div class="ec-res"></div></div>
       <div class="gt-dlg-ov" hidden></div></div>`;
     const q=s=>this.body.querySelector(s); this.$=q;
-    const ex=q('.ec-expr'); ex.addEventListener('input', ()=>{ S.expr=ex.value; this.save(); this.recalc(); }); ex.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter'){ this.remember(); } });
+    const ex=q('.ec-expr'); const mark=()=>{ this._caret=ex.selectionStart; }; ['keyup','click','select','blur','input'].forEach(t=>ex.addEventListener(t, mark));
+    ex.addEventListener('input', ()=>{ S.expr=ex.value; this.save(); this.recalc(); }); ex.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter'){ this.remember(); } });
     q('.ec-ex').onchange=e=>{ const E=EC_EXAMPLES[+e.target.value]; e.target.value=''; if(!E) return; S.expr=E[1]; S.vars=Object.assign({}, S.vars); Object.entries(E[2]).forEach(([k,v])=>{ S.vars[k]={ val:v[0], unc:v[1], unit:v[2], mode:'abs' }; }); S.unit=E[3]; S.ref=E[4]; ex.value=S.expr; this.save(); this.recalc(); };
     this.body.querySelectorAll('[data-deg]').forEach(b=>b.onclick=()=>{ S.deg=b.dataset.deg==='1'; this.body.querySelectorAll('[data-deg]').forEach(x=>x.classList.toggle('on', x===b)); this.save(); this.recalc(); });
     q('[data-a=graph]').onclick=()=>this.fromGraph();
@@ -26503,16 +26527,23 @@ class ErrCalc{
     const S=this.S; const R=ecCompute(S, true); this.R=R;
     const msg=this.$('.ec-msg'); msg.className='ec-msg'+(R.err && !R.domain?' bad':'');
     msg.textContent = R.err && !R.domain ? `${R.err} (${(R.pos||0)+1}번째 글자 부근)` : R.name ? `결과 이름: ${R.name}` : '결과 이름을 붙이려면 "g = …"처럼 써요';
-    if(!R.names){ this.$('.ec-vars').innerHTML=''; this.$('.ec-res').innerHTML=''; return; }
+    /* ★DC: 식이 잠깐 틀려도(쓰는 중) 변수 표는 그대로 두고, 직접 추가한 변수(S.extra)도 늘 보여 준다 */
+    if(R.names) this._lastNames=R.names; else if(!String(S.expr||'').replace(/^[^=]*=/,'').trim()) this._lastNames=null;   // 식을 다 지우면 표도 비운다(직접 추가한 것만)
+    const exprNames=R.names || this._lastNames || [];
+    const extra=(S.extra||[]).filter(n=>!exprNames.includes(n));
+    this._rows=[...exprNames, ...extra]; this._unused=new Set(extra);
     // 변수 표(입력 중 포커스를 잃지 않게: 변수 목록이 같으면 값만 갱신)
-    const sig=R.names.join('\u0001');
+    const sig=this._rows.join('\u0001')+'|'+extra.join('\u0001');
     if(this._sig!==sig){ this._sig=sig; this.paintVars(R); } else this.paintVarInfo(R);
+    if(!R.names){ this.$('.ec-res').innerHTML=`<div class="ec-wait bad">${ATW_esc(R.err||'식을 적어 주세요')} — 식을 고치면 바로 다시 계산해요. 넣어 둔 값은 그대로 있어요.</div>`; return; }
     this.paintRes(R);
   }
   paintVars(R){
     const S=this.S; const box=this.$('.ec-vars');
-    box.innerHTML=`<table class="ec-tb"><tr><th>변수</th><th>측정값</th><th>± 오차</th><th></th><th>단위</th><th></th></tr>${R.names.map(nm=>{ const v=S.vars[nm]||(S.vars[nm]={ val:'', unc:'', unit:'', mode:'abs' }); const rep=v.rep&&v.rep.on;
-      return `<tr data-v="${ATW_esc(nm)}" class="${rep?'rep':''}"><td class="ec-nm">${gtRichSVG?ATW_esc(nm):ATW_esc(nm)}</td>
+    const rows=this._rows||[];
+    box.innerHTML=`${rows.length?'':'<p class="ec-none">식에 쓴 글자가 변수가 돼요(예: <b>g = 4π²L/T²</b> → L · T). 아래 <b>[＋ 변수]</b>로 먼저 만들고 값을 넣은 뒤, 이름을 눌러 식에 넣어도 돼요.</p>'}
+      <table class="ec-tb"${rows.length?'':' hidden'}><tr><th>변수</th><th>측정값</th><th>± 오차</th><th></th><th>단위</th><th></th></tr>${rows.map(nm=>{ const v=S.vars[nm]||(S.vars[nm]={ val:'', unc:'', unit:'', mode:'abs' }); const rep=v.rep&&v.rep.on; const un=this._unused && this._unused.has(nm);
+      return `<tr data-v="${ATW_esc(nm)}" class="${rep?'rep':''}${un?' unused':''}"><td class="ec-nm"><button type="button" class="ec-ins" data-ins title="${un?'식에 아직 없어요 — 누르면 식의 커서 자리에 넣어요':'누르면 식의 커서 자리에 넣어요'}">${ATW_esc(nm)}</button>${un?'<button type="button" class="ec-del" data-del title="이 변수 지우기" aria-label="지우기">×</button><small class="ec-un">식에 없음</small>':''}</td>
         <td><input data-k="val" value="${ATW_esc(v.val)}" inputmode="decimal" placeholder="값"${rep?' disabled':''}></td>
         <td><input data-k="unc" value="${ATW_esc(v.unc)}" inputmode="decimal" placeholder="오차"${rep?' disabled':''}></td>
         <td><select data-k="mode"${rep?' disabled':''} title="오차를 값으로 · 퍼센트로"><option value="abs"${v.mode!=='rel'?' selected':''}>값</option><option value="rel"${v.mode==='rel'?' selected':''}>%</option></select></td>
@@ -26524,20 +26555,47 @@ class ErrCalc{
             <label>기기 최소 눈금 <input data-k="res" value="${ATW_esc((v.rep&&v.rep.res)||'')}" placeholder="예 0.01" class="ec-sm"></label>
             <label><select data-k="resMode"><option value="half"${!v.rep||v.rep.resMode!=='sq3'?' selected':''}>눈금 ÷ 2</option><option value="sq3"${v.rep&&v.rep.resMode==='sq3'?' selected':''}>눈금 ÷ √3 (GUM)</option></select></label></div>
           <div class="ec-st"></div></div></td></tr>`; }).join('')}</table>
+      <div class="ec-add"><input class="ec-newv" placeholder="새 변수 이름 (예: m, v₀, Δt)" aria-label="새 변수 이름" maxlength="12" spellcheck="false" autocomplete="off"><button type="button" class="gt-btn" data-addv>＋ 변수</button><span class="ec-addh">이름을 누르면 식에 들어가요</span></div>
       <div class="ec-ru"><label>결과 단위 <input class="ec-unit" value="${ATW_esc(S.unit||'')}" placeholder="예 m/s²"></label><label>비교할 값(이론 · 참값) <input class="ec-ref" value="${ATW_esc(S.ref||'')}" placeholder="예 9.80" inputmode="decimal"></label></div>`;
     box.querySelectorAll('tr[data-v]').forEach(tr=>{ const nm=tr.dataset.v; const v=S.vars[nm];
       tr.querySelectorAll('[data-k]').forEach(i=>{ i.addEventListener(i.tagName==='SELECT'?'change':'input', ()=>{ v[i.dataset.k]=i.value; this.save(); this.recalc(); }); i.addEventListener('keydown', e=>e.stopPropagation()); });
       tr.querySelector('[data-rep]').onclick=()=>{ v.rep=Object.assign({ list:'', use:'se', res:'', resMode:'half' }, v.rep||{}); v.rep.on=!v.rep.on; this.save(); this._sig=null; this.recalc(); };
     });
+    box.querySelectorAll('tr[data-v] [data-ins]').forEach(b=>b.onclick=()=>this.insertName(b.closest('tr').dataset.v));
+    box.querySelectorAll('tr[data-v] [data-del]').forEach(b=>b.onclick=()=>{ const nm=b.closest('tr').dataset.v; S.extra=(S.extra||[]).filter(x=>x!==nm); delete S.vars[nm]; this._sig=null; this.save(); this.recalc(); });
+    const nv=box.querySelector('.ec-newv'); const add=()=>this.addVar(nv.value);
+    nv.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter' && !e.isComposing){ e.preventDefault(); add(); } });
+    box.querySelector('[data-addv]').onclick=add;
     box.querySelectorAll('tr[data-r]').forEach(tr=>{ const v=S.vars[tr.dataset.r]; tr.querySelectorAll('[data-k]').forEach(i=>{ i.addEventListener(i.tagName==='SELECT'?'change':'input', ()=>{ v.rep[i.dataset.k]=i.value; this.save(); this.recalc(); }); i.addEventListener('keydown', e=>e.stopPropagation()); }); });
     const u=box.querySelector('.ec-unit'), rf=box.querySelector('.ec-ref');
     [u,rf].forEach(i=>i.addEventListener('keydown', e=>e.stopPropagation()));
     u.oninput=()=>{ S.unit=u.value; this.save(); this.paintRes(this.R); }; rf.oninput=()=>{ S.ref=rf.value; this.save(); this.paintRes(this.R); };
     this.paintVarInfo(R);
   }
+  /* ★DC: 변수 직접 추가 · 이름을 눌러 식에 넣기 */
+  addVar(raw){
+    const S=this.S; const nm=String(raw||'').trim().replace(/\s+/g,'');
+    const nv=this.$('.ec-newv');
+    if(!nm){ if(nv) nv.focus(); return ATW_say('변수 이름을 적어 주세요 (예: m, v₀, Δt).'); }
+    if(!/^[A-Za-z_µͰ-Ͽ가-힣][A-Za-z0-9_µͰ-Ͽ가-힣'₀-₉ₐₑₒₓₕₖₗₘₙₚₛₜ]*$/.test(nm)) return ATW_say('변수 이름은 글자로 시작하고 글자 · 숫자 · _ 만 써요 (예: m, v0, Δt).', 4000);
+    if(EC_FUNCS[nm] || nm in EC_CONST) return ATW_say(`'${nm}'은 함수 · 상수 이름이라 변수로 쓸 수 없어요.`, 4000);
+    const has=(this._rows||[]).includes(nm);
+    if(!has){ S.extra=(S.extra||[]).filter(x=>x!==nm).concat(nm); S.vars[nm]=S.vars[nm]||{ val:'', unc:'', unit:'', mode:'abs' }; this._sig=null; this.save(); this.recalc(); }
+    const i=this.body.querySelector(`tr[data-v="${CSS.escape(nm)}"] [data-k=val]`); if(i){ i.focus(); i.select(); }
+    const nv2=this.$('.ec-newv'); if(nv2 && !has) nv2.value='';
+    if(has) ATW_say(`'${nm}'은 이미 있어요 — 값을 넣으세요.`);
+  }
+  insertName(nm){
+    const ex=this.$('.ec-expr'); const v=ex.value; const a=this._caret!=null ? Math.min(this._caret, v.length) : v.length;
+    const before=v.slice(0,a), after=v.slice(a);
+    const pre = before && !/[\s(=+\-*/^·×÷]$/.test(before) ? ' ' : '';
+    const post = after && !/^[\s)+\-*/^·×÷]/.test(after) ? ' ' : '';
+    ex.value=before+pre+nm+post+after; this.S.expr=ex.value; const c=(before+pre+nm+post).length; this._caret=c;
+    ex.focus(); ex.setSelectionRange(c, c); this.save(); this.recalc();
+  }
   paintVarInfo(R){
-    (R.names||[]).forEach(nm=>{ const row=this.body.querySelector(`tr[data-r="${CSS.escape(nm)}"] .ec-st`); const tr=this.body.querySelector(`tr[data-v="${CSS.escape(nm)}"]`); if(!row || !tr) return;
-      const inf=R.info && R.info[nm]; const v=this.S.vars[nm];
+    (this._rows||[]).forEach(nm=>{ const row=this.body.querySelector(`tr[data-r="${CSS.escape(nm)}"] .ec-st`); const tr=this.body.querySelector(`tr[data-v="${CSS.escape(nm)}"]`); if(!row || !tr) return;
+      const inf=R.info && R.info[nm]; const v=this.S.vars[nm]; if(!v) return;
       if(v.rep && v.rep.on){ const st=inf&&inf.st;
         row.innerHTML = st ? `n = ${st.n} · 평균 <b>${gtFmt(st.mean,6)}</b> · s = ${gtFmt(st.s,3)} · s/√n = ${gtFmt(st.se,3)}${st.n>1?` · 95% ±${gtFmt(st.ci,3)} (t=${ecT95(st.n-1).toFixed(2)})`:''} → <b>${gtFmtPM(st.mean, Math.sqrt((inf.a||0)**2+(inf.b||0)**2))}</b>${inf.b?` <small>(통계 ${gtFmt(inf.a,2)} ⊕ 눈금 ${gtFmt(inf.b,2)})</small>`:''}${st.n<3?' <small class="ec-w">3번 이상 재면 더 믿을 만해요</small>':''}` : '<span class="ec-w">숫자를 넣어 주세요</span>';
         tr.querySelector('[data-k=val]').value = st ? gtFmt(st.mean,6) : ''; tr.querySelector('[data-k=unc]').value = st ? gtFmt(Math.sqrt((inf.a||0)**2+(inf.b||0)**2),3) : ''; }
@@ -26695,7 +26753,8 @@ class Tracker{
           <button type="button" data-mode="axes" title="좌표축 — 누르면 원점, 끌면 x축 방향">✛<span>축</span></button>
           <button type="button" data-mode="pan" title="화면 옮기기 (가운데 버튼으로 끌어도 돼요 · 휠 = 확대)">✋<span>이동</span></button></span>
         <span class="tr-zoom"><button type="button" class="gt-ib" data-a="zout" title="축소 (−)" aria-label="축소">−</button><button type="button" class="tr-zv" data-a="fit" title="화면에 맞춤 (0) · 누르면 100%">맞춤</button><button type="button" class="gt-ib" data-a="zin" title="확대 (+)" aria-label="확대">＋</button></span>
-        <button type="button" class="gt-btn ghost" data-a="view" title="밝기 · 대비 · 흑백 · 픽셀 그대로">보기</button>
+        <button type="button" class="gt-btn ghost" data-a="view" title="밝기 · 대비 · 흑백 · 겹쳐 보이기(축척 막대 · 축 · 점)">보기</button>
+        <button type="button" class="gt-btn tr-tgtop" data-a="tograph" title="찍은 점(t · x · y · 속도)을 그래프 그리기 도구의 새 탭으로 보내요">${ATW_ICON.graph}그래프로 보내기</button>
         <input type="file" class="tr-fi" accept="video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi" hidden>
       </div>
       <div class="tr-ctx"></div>
@@ -26705,14 +26764,15 @@ class Tracker{
           <canvas class="tr-loupe" width="150" height="150" hidden></canvas>
           <div class="tr-busy" hidden><i></i><span></span></div>
           <div class="tr-load" hidden><div class="tr-spin"></div><b class="tr-lt"></b><span class="tr-ls"></span><div class="tr-lbar"><i></i></div><small class="tr-lh"></small><div class="tr-lbtn"></div></div>
-          <div class="tr-empty"><div class="tr-ei">${ATW_ICON.track}</div><b>실험 영상을 여세요</b><span>MP4 · MOV · WebM 등 · 크기 제한 없음(10GB도 돼요)<br>영상은 업로드되지도 저장되지도 않아요 — 이 기기에서 원본 화질 그대로 읽어요</span><div class="tr-ex"></div><button type="button" class="gt-btn pri" data-a="open">영상 열기</button></div>
+          <div class="trk-empty"><div class="tr-ei">${ATW_ICON.track}</div><b>실험 영상을 여세요</b><span>MP4 · MOV · WebM 등 · 크기 제한 없음(10GB도 돼요)<br>영상은 업로드되지도 저장되지도 않아요 — 이 기기에서 원본 화질 그대로 읽어요</span><div class="tr-ex"></div><button type="button" class="gt-btn pri" data-a="open">영상 열기</button></div>
           <div class="tr-drop" hidden>놓으면 열어요</div>
         </div>
         <aside class="tr-side">
           <div class="tr-sec"><div class="tr-sh"><b>물체</b><button type="button" class="gt-btn ghost" data-a="addtr">＋ 물체</button></div><div class="tr-tracks"></div></div>
           <div class="tr-sec tr-set"></div>
-          <div class="tr-sec tr-tablesec"><div class="tr-sh"><b>데이터</b><span class="tr-cnt"></span></div><div class="tr-table"></div>
-            <div class="tr-acts"><button type="button" class="gt-btn pri tr-tog" data-a="tograph" title="그래프 그리기 도구의 새 탭으로 보내요 — 어느 열을 X · Y로 쓸지 넣을 때 골라요">${ATW_ICON.graph}그래프 도구로 보내기</button><button type="button" class="gt-btn" data-a="csv" title="t · x · y · 속도를 CSV 파일로">CSV</button><button type="button" class="gt-btn" data-a="savenow" title="찍은 점을 이 기기에 저장 (Ctrl+S) — 영상은 저장하지 않아요">점 저장</button><button type="button" class="gt-btn ghost" data-a="snap" title="지금 화면(원본 해상도 + 점)을 PNG 그림으로">화면 PNG</button><button type="button" class="gt-btn ghost" data-a="clrtr" title="이 물체의 점 모두 지우기">점 지우기</button></div></div>
+          <div class="tr-sec tr-tablesec"><div class="tr-sh"><b>데이터</b><span class="trk-cnt"></span></div><div class="tr-table"></div>
+            </div>
+          <div class="trk-acts"><button type="button" class="gt-btn pri tr-tog" data-a="tograph" title="그래프 그리기 도구의 새 탭으로 보내요 — 어느 열을 X · Y로 쓸지 넣을 때 골라요">${ATW_ICON.graph}그래프 도구로 보내기</button><button type="button" class="gt-btn" data-a="csv" title="t · x · y · 속도를 CSV 파일로">CSV</button><button type="button" class="gt-btn" data-a="savenow" title="찍은 점을 이 기기에 저장 (Ctrl+S) — 영상은 저장하지 않아요">점 저장</button><button type="button" class="gt-btn ghost" data-a="snap" title="지금 화면(원본 해상도 + 점)을 PNG 그림으로">화면 PNG</button><button type="button" class="gt-btn ghost" data-a="clrtr" title="이 물체의 점 모두 지우기">점 지우기</button></div>
         </aside>
       </div>
       <div class="tr-tl">
@@ -26758,7 +26818,7 @@ class Tracker{
     if(this.host){ this.host.setExtra(this.tab, { file:{ name:file.name, size:file.size, lm:file.lastModified }, sig });
       if(/^영상 \d+$/.test(this.tab.name)) this.host.rename(this.tab.id, file.name.replace(/\.[^.]+$/,'').slice(0,28) || this.tab.name); }
     this.svg.innerHTML=''; this.$('.tr-marks').innerHTML=''; this.$('.tr-range').innerHTML=''; this.$('.tr-pos').textContent=''; this._mk=null; this.paintSide();   // 앞 영상의 점 · 표를 바로 치운다
-    this.$('.tr-empty').hidden=true; this.$('.tr-file').textContent=`${file.name} · ${trSize(file.size)}`;
+    this.$('.trk-empty').hidden=true; this.$('.tr-file').textContent=`${file.name} · ${trSize(file.size)}`;
     const v=this.video, t0=performance.now(); let phase='meta';
     const sub=`${file.name} · ${trSize(file.size)} — 업로드하지 않고 이 기기에서 바로 읽어요`;
     this.loading(true, '영상을 여는 중…', sub, 5, file.size>2147483648 ? '큰 영상이에요. 처음 여는 데 몇 초 걸릴 수 있어요.' : '');
@@ -26919,7 +26979,7 @@ class Tracker{
   /* ───────── 오른쪽 칸 ───────── */
   paintSide(){
     const D=this.D; const q=this.$;
-    if(!D){ q('.tr-tracks').innerHTML='<p class="tr-mute">영상을 열면 물체를 고를 수 있어요.</p>'; q('.tr-set').innerHTML=''; q('.tr-table').innerHTML=''; q('.tr-cnt').textContent=''; return; }
+    if(!D){ q('.tr-tracks').innerHTML='<p class="tr-mute">영상을 열면 물체를 고를 수 있어요.</p>'; q('.tr-set').innerHTML=''; q('.tr-table').innerHTML=''; q('.trk-cnt').textContent=''; return; }
     q('.tr-tracks').innerHTML=D.tracks.map(T=>`<div class="tr-trk${T.id===D.cur?' on':''}" data-t="${T.id}"><label class="tr-col" style="--c:${T.color}" title="색"><input type="color" value="${T.color}" data-tc="${T.id}"></label>
       <input class="tr-tn" value="${ATW_esc(T.name)}" data-tn="${T.id}" aria-label="물체 이름"><span class="tr-tc">${Object.keys(T.pts).length}점</span>
       <button type="button" class="gt-ib" data-th="${T.id}" title="${T.hide?'보이기':'숨기기'}" aria-label="숨기기">${T.hide?'◌':'◉'}</button>${D.tracks.length>1?`<button type="button" class="gt-ib" data-td="${T.id}" title="물체 지우기" aria-label="지우기">×</button>`:''}</div>`).join('');
@@ -26957,7 +27017,7 @@ class Tracker{
   }
   paintTable(){
     const D=this.D; if(!D) return; const T=this.track(); const R=this.rows(T); const u=this.scale().u;
-    this.$('.tr-cnt').textContent=`${T.name} · ${R.length}점${Object.keys(T.pts).length>R.length?` (범위 밖 ${Object.keys(T.pts).length-R.length})`:''}`;
+    this.$('.trk-cnt').textContent=`${T.name} · ${R.length}점${Object.keys(T.pts).length>R.length?` (범위 밖 ${Object.keys(T.pts).length-R.length})`:''}`;
     const show=R.length>600 ? R.slice(0,300).concat([null], R.slice(-300)) : R;
     this.$('.tr-table').innerHTML = R.length ? `<table class="tr-tb"><tr><th>프레임</th><th>t (s)</th><th>x (${u})</th><th>y (${u})</th><th>vx</th><th>vy</th><th></th></tr>${show.map(r=>r?`<tr data-f="${r.f}" class="${r.f===this.f?'on':''}"><td>${r.f}${r.auto?'<small>자동</small>':''}</td><td>${r.t.toFixed(4)}</td><td>${gtFmt(r.x,5)}</td><td>${gtFmt(r.y,5)}</td><td>${r.vx!=null?gtFmt(r.vx,4):''}</td><td>${r.vy!=null?gtFmt(r.vy,4):''}</td><td><button type="button" data-del="${r.f}" title="이 점 지우기" aria-label="지우기">×</button></td></tr>`:`<tr><td colspan="7" class="tr-mute">… 가운데 ${R.length-600}줄은 CSV · 그래프로 보내면 모두 들어가요 …</td></tr>`).join('')}</table>`
       : `<p class="tr-mute">${D.cal?'':'① [축척]으로 길이를 맞추고, '}${'② [점]을 고르고 물체를 누르세요. 누를 때마다 다음 프레임으로 넘어가요. [자동]은 한 번 누르면 알아서 따라가요.'}</p>`;
@@ -26985,10 +27045,10 @@ class Tracker{
     const hint={ mark:'물체를 누르면 점이 찍히고 다음 프레임으로 넘어가요 · 찍은 점은 끌어서 고치고, 오른쪽 클릭으로 지워요 · ← → 프레임',
       cal:'길이를 아는 물체(자 · 줄자)의 한쪽 끝에서 다른 끝까지 끌어요 — 놓으면 실제 길이를 물어요',
       axes:'누른 곳이 원점, 그대로 끌면 x축 방향이에요 (Shift = 15°씩)', pan:'끌어서 화면 옮기기 · 휠 = 확대 · 두 번 누르면 화면에 맞춤' }[m];
-    if(m!=='auto'){ c.innerHTML=`<span class="tr-hint">${hint||''}</span>`; this._seedN=null; return; }
+    if(m!=='auto'){ c.innerHTML=`<span class="trk-hint">${hint||''}</span>`; this._seedN=null; return; }
     const n=this.seedCount(); this._seedN=n;
     c.innerHTML=`<span class="gt-seg tr-am" role="group" aria-label="자동 추적 방식"><button type="button" data-am="one" class="${this.multi?'':'on'}">한 개씩</button><button type="button" data-am="multi" class="${this.multi?'on':''}">여러 개 함께</button></span>
-      <span class="tr-hint">${this.multi ? `물체마다 시작점을 하나씩 찍으세요(찍으면 다음 물체로) · 시작점 <b>${n}</b>개` : '따라갈 물체를 한 번 누르면 다음 프레임들을 알아서 따라가요'}</span>
+      <span class="trk-hint">${this.multi ? `물체마다 시작점을 하나씩 찍으세요(찍으면 다음 물체로) · 시작점 <b>${n}</b>개` : '따라갈 물체를 한 번 누르면 다음 프레임들을 알아서 따라가요'}</span>
       ${this.multi ? `<button type="button" class="gt-btn pri" data-go${n?'':' disabled'}>▶ ${n}개 함께 따라가기</button>` : ''}
       ${D ? `<span class="tr-opts"><label title="물체를 기억하는 상자 크기(영상 픽셀) — 물체가 쏙 들어갈 만큼">추적 상자<input data-s="tsize" value="${D.tsize}" class="tr-in"></label><label title="한 프레임 사이에 물체가 움직일 수 있는 거리(영상 픽셀) — 빠르면 키워요">찾는 범위<input data-s="srad" value="${D.srad}" class="tr-in"></label><label title="이보다 덜 닮으면 그 물체는 멈춰요(0~1)">멈추는 일치도<input data-s="thr" value="${D.thr}" class="tr-in"></label></span>` : ''}`;
     c.querySelectorAll('[data-am]').forEach(b=>b.onclick=()=>{ this.multi=b.dataset.am==='multi'; this.paintCtx(); });
@@ -27002,7 +27062,7 @@ class Tracker{
     const st=this.stage; let drag=null; this._space=false;
     st.addEventListener('wheel', e=>{ if(!this.D) return; e.preventDefault(); this.zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY*0.0015)); }, { passive:false });
     st.addEventListener('pointerdown', e=>{
-      if(!this.D || e.target.closest('.tr-load, .tr-empty')) return; st.focus({ preventScroll:true });
+      if(!this.D || e.target.closest('.tr-load, .trk-empty')) return; st.focus({ preventScroll:true });
       const P=this.toVid(e), z=this.z, near=(a,r)=>a && Math.hypot(a.x-P.x, a.y-P.y) < (r||10)/z;
       if(e.button===1 || this.mode==='pan'){ drag={ k:'pan', sx:e.clientX, sy:e.clientY, tx:this.tx, ty:this.ty }; st.setPointerCapture(e.pointerId); st.classList.add('grab'); return; }
       if(e.button!==0) return;
