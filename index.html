@@ -5028,7 +5028,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
         <div class="usermenu-drop" id="userdrop">
           <a data-go="directory" class="drop-mobile">회원</a>
           <a data-go="me">프로필</a>
-          <a data-tool="graph" id="dropTools" href="#" onclick="return false">그래프 도구</a>
+          <a data-tool="menu" id="dropTools" href="#" onclick="return false">도구</a>
           <a data-go="password">비밀번호 변경</a>
           <a data-go="admin" id="dropAdmin" style="display:none">회원 관리</a>
           <a data-go="system" id="dropSystem" style="display:none">시스템</a>
@@ -14808,6 +14808,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-03', text:"[도구] 새 도구 셋 — ① 영상 분석: 실험 영상을 열고(크기 제한 없음 · 업로드 없음 · 원본 화질) 축척을 맞춘 뒤 물체를 누르거나 [자동]으로 따라가게 하면 시간 · 위치 · 속도 표가 나와요. 그래프 도구로 바로 보내요. ② 오차 분석: g = 4π²L/T²처럼 식을 쓰고 측정값 ± 오차(또는 반복 측정값)를 넣으면 결과 ± 오차와 어느 값이 오차를 키우는지 알려 줘요. ③ KYPT 발표 타이머: Physics Fight 단계별 시간 · 소리 · 발표장용 큰 창, 순서는 고칠 수 있어요." },
   { date:'2026-10-03', text:"[도구] 상단 [도구] → [그래프 그리기]가 생겼어요. 화면 위에 떠 있는 창이라 다른 문서를 보면서 쓸 수 있고, 끌어서 옮기고 모서리로 크기를 바꿔요. 왼쪽 표의 X 축 · Y 축 칸에 값을 넣거나 엑셀 · 구글 시트 표를 Ctrl+V로 붙이거나 CSV · 엑셀 파일을 열면(어느 열을 X · Y · 오차로 쓸지 묻어요) 오른쪽에 MATLAB 같은 그래프가 그려져요. 오차 막대, 직선 · 2차 · 지수 · 거듭제곱 · 사인 맞춤(계수 ± 오차 · R²), 확대 · 이동 · 데이터 팁, 로그 축, 범위 · 크기 지정까지. 다 그린 그림은 PNG · SVG 저장, 복사, 인쇄, 그리고 [끌어서 넣기]로 문서 편집 · 채팅 · 바탕화면에 바로 넣을 수 있어요. 표는 내 기기에만 저장돼요." },
   { date:'2026-10-03', text:"[안내] 앱의 색을 안다미로 빨강 중심으로 정리했어요. 분류 · 태그 · 머리글자 · 도구 카드의 여러 색이 빨강의 진하기로 바뀌고, 다른 색은 완료(초록) · 주의(호박) · 선생님(먹색) · 링크(파랑)에만 남겨요. 동아리 색은 12색에 더해 [+]에서 원하는 색을 자유롭게 고를 수 있어요." },
   { date:'2026-10-03', text:"[문서] 최고관리자(owner)는 문서 목록에서 [골라 지우기]로 여러 문서를 한꺼번에 휴지통으로 보낼 수 있어요. 하나씩 · 묶음째 · 태그나 검색으로 거른 뒤 '보이는 것 모두'로 고르고, 고른 개수를 적어 확인해요. 태그는 지워지지 않고, 휴지통에서 30일 안에 복원할 수 있어요." },
@@ -24385,6 +24386,129 @@ body.dark .gp{ background:#f4f2f2; }
 .atw-full .gt-btn span, .gt.narrow .gt-seg span{ }
 @media (max-width:720px){ .gt-drag span{ display:none; } .gt-seg button span{ display:none; } }
 
+/* ===== ★세션 CZ: KYPT 발표 타이머 ===== */
+.kt{ flex:1; min-width:0; display:flex; flex-direction:column; position:relative; }
+.kt-top{ display:flex; align-items:center; gap:8px; padding:8px 10px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.kt-pre{ height:30px; border:1px solid var(--border-strong); border-radius:8px; background:var(--card); color:var(--text); font:inherit; font-weight:700; padding:0 8px; max-width:260px; }
+.kt-main{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 250px; }
+.kt.kt-narrow .kt-main{ grid-template-columns:minmax(0,1fr); } .kt.kt-narrow .kt-list{ display:none; }
+.kt-stage{ --kt-f:120px; --kt-c:var(--accent); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:14px; min-height:0; text-align:center; border-top:6px solid var(--kt-c); }
+.kt-role{ font-size:13px; font-weight:700; color:var(--kt-c); letter-spacing:.02em; }
+.kt-name{ font-size:calc(var(--kt-f) * .2); font-weight:800; line-height:1.2; }
+.kt-time{ font-size:var(--kt-f); font-weight:800; line-height:1; font-variant-numeric:tabular-nums; letter-spacing:-.03em; color:var(--text); }
+.kt-stage.warn .kt-time{ color:var(--warn); } .kt-stage.over .kt-time{ color:var(--danger); animation:ktb 1s steps(2) infinite; }
+@keyframes ktb{ 50%{ opacity:.35; } }
+.kt-sub{ font-size:14px; color:var(--text-dim); min-height:20px; } .kt-sub.on{ color:var(--warn); font-weight:700; }
+.kt-bar{ width:min(560px, 92%); height:8px; border-radius:6px; background:var(--box-bg); overflow:hidden; } .kt-bar i{ display:block; height:100%; background:var(--kt-c); transition:width .2s linear; }
+.kt-stage.over .kt-bar i{ background:var(--danger); }
+.kt-next{ font-size:13px; color:var(--text-dim); min-height:18px; }
+.kt-ctl{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center; margin-top:6px; }
+.kt-b{ width:52px; height:44px; border-radius:12px; border:1px solid var(--border-strong); background:var(--card); color:var(--text); font-size:19px; cursor:pointer; }
+.kt-play{ width:76px; background:var(--accent); border-color:var(--accent); color:#fff; } .kt-play.on{ background:var(--card); color:var(--accent); }
+.kt-adj{ display:inline-flex; border:1px solid var(--border-strong); border-radius:9px; overflow:hidden; } .kt-adj button{ border:0; background:var(--card); padding:0 10px; height:34px; font:inherit; font-size:12.5px; cursor:pointer; color:var(--text); } .kt-adj button+button{ border-left:1px solid var(--border); }
+.kt-list{ list-style:none; margin:0; padding:6px; overflow:auto; border-left:1px solid var(--border); font-size:12.5px; }
+.kt-list li{ display:flex; align-items:center; gap:7px; padding:6px 7px; border-radius:8px; cursor:pointer; }
+.kt-list li:hover{ background:var(--box-bg); } .kt-list li.on{ background:color-mix(in srgb, var(--c) 12%, var(--card)); font-weight:700; box-shadow:inset 3px 0 0 var(--c); }
+.kt-list li i{ flex:none; width:8px; height:8px; border-radius:50%; background:var(--c); } .kt-list li.done{ color:var(--text-dim); } .kt-list li.late .kt-lt{ color:var(--danger); }
+.kt-ln{ flex:1; min-width:0; } .kt-lt{ font-variant-numeric:tabular-nums; color:var(--text-dim); white-space:nowrap; }
+.kt-log{ width:100%; border-collapse:collapse; font-size:13px; } .kt-log th, .kt-log td{ padding:5px 8px; border-bottom:1px solid var(--border); text-align:left; } .kt-log td:nth-child(n+2){ font-variant-numeric:tabular-nums; } .kt-log tr.late td{ color:var(--danger); }
+.kt-ed{ width:100%; border-collapse:collapse; font-size:12.5px; } .kt-ed th{ text-align:left; color:var(--text-dim); font-weight:600; padding:3px; } .kt-ed td{ padding:2px 3px; }
+.kt-in{ width:100%; height:28px; border:1px solid var(--border-strong); border-radius:6px; background:var(--card); color:var(--text); font:inherit; padding:0 6px; box-sizing:border-box; } .kt-sm{ width:76px; } .kt-nm{ width:260px; margin-left:6px; }
+.kt-ed select{ height:28px; border:1px solid var(--border-strong); border-radius:6px; background:var(--card); color:var(--text); font:inherit; }
+.kt-no{ color:var(--text-dim); text-align:right; } .kt-ops{ white-space:nowrap; } .kt-ops button{ width:24px; height:24px; border:0; background:none; cursor:pointer; color:var(--text-dim); border-radius:5px; } .kt-ops button:hover{ background:var(--box-bg); color:var(--text); }
+
+/* ===== ★세션 CZ: 오차 분석 ===== */
+.ec{ flex:1; min-width:0; display:flex; flex-direction:column; position:relative; overflow:hidden; }
+.ec-top{ padding:10px 12px 6px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+.ec-expr{ width:100%; height:44px; box-sizing:border-box; border:1.5px solid var(--border-strong); border-radius:10px; padding:0 12px; font-family:'Cambria Math','Times New Roman',serif; font-size:21px; background:var(--card); color:var(--text); }
+.ec-expr:focus{ outline:none; border-color:var(--accent); }
+.ec-msg{ font-size:12px; color:var(--text-dim); min-height:16px; margin-top:3px; } .ec-msg.bad{ color:var(--danger); font-weight:700; }
+.ec-opts{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .ec-ex{ height:28px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; max-width:280px; }
+.ec-help{ margin:0; font-size:11.5px; color:var(--text-dim); line-height:1.5; }
+.ec-body{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1.1fr) minmax(0,1fr); overflow:hidden; }
+.ec-vars, .ec-res{ overflow:auto; padding:10px 12px; } .ec-res{ border-left:1px solid var(--border); }
+.ec-tb{ width:100%; border-collapse:collapse; font-size:13px; } .ec-tb th{ text-align:left; color:var(--text-dim); font-weight:600; font-size:12px; padding:2px 3px; }
+.ec-tb td{ padding:3px; vertical-align:middle; } .ec-tb input, .ec-tb select, .ec-tb textarea, .ec-ru input{ width:100%; box-sizing:border-box; height:30px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; padding:0 7px; }
+.ec-tb input:disabled{ background:var(--box-bg); color:var(--text-dim); }
+.ec-nm{ font-family:'Cambria Math','Times New Roman',serif; font-size:17px; font-style:italic; font-weight:700; width:44px; } .ec-u{ max-width:80px; }
+tr.miss .ec-nm{ color:var(--danger); }
+.ec-repb.on{ color:var(--accent); background:var(--red-50); }
+.ec-rep{ border:1px dashed var(--border-strong); border-radius:9px; padding:7px; display:flex; flex-direction:column; gap:6px; background:var(--box-bg); }
+.ec-rep textarea{ height:auto; min-height:46px; padding:5px 7px; font-family:var(--mono); font-size:12.5px; resize:vertical; }
+.ec-rep-o{ display:flex; gap:6px 12px; flex-wrap:wrap; font-size:12px; } .ec-rep-o label{ display:flex; align-items:center; gap:4px; } .ec-rep-o select, .ec-rep-o input{ height:26px; width:auto; border:1px solid var(--border-strong); border-radius:6px; background:var(--card); color:var(--text); font:inherit; padding:0 4px; } .ec-sm{ width:70px !important; }
+.ec-st{ font-size:12px; line-height:1.55; } .ec-w{ color:var(--warn); font-weight:600; }
+.ec-ru{ display:flex; gap:10px; margin-top:12px; flex-wrap:wrap; } .ec-ru label{ display:flex; flex-direction:column; gap:3px; font-size:12px; font-weight:600; flex:1; min-width:140px; }
+.ec-wait{ padding:20px 6px; color:var(--text-dim); font-size:14px; } .ec-wait.bad{ color:var(--danger); }
+.ec-big{ font-family:'Cambria Math','Times New Roman',serif; font-size:24px; line-height:1.35; padding:4px 0 2px; } .ec-big b{ color:var(--accent); font-family:var(--mono); font-size:21px; } .ec-name{ font-style:italic; }
+.ec-rel{ display:block; font-family:inherit; font-size:12.5px; color:var(--text-dim); font-family:system-ui, sans-serif; }
+.ec-acts{ display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 8px; }
+.ec-cmp{ padding:7px 10px; border-radius:8px; font-size:12.5px; line-height:1.5; margin-bottom:6px; } .ec-cmp.ok{ background:var(--ok-bg); } .ec-cmp.mid{ background:var(--warn-bg); } .ec-cmp.bad{ background:var(--red-100); }
+.ec-res h4{ margin:12px 0 6px; font-size:12.5px; color:var(--text-dim); }
+.ec-bar{ display:grid; grid-template-columns:52px minmax(0,1fr) 52px; gap:2px 8px; align-items:center; font-size:12.5px; margin-bottom:6px; }
+.ec-bn{ font-family:'Cambria Math','Times New Roman',serif; font-style:italic; font-weight:700; font-size:15px; } .ec-bt{ height:12px; background:var(--box-bg); border-radius:6px; overflow:hidden; } .ec-bt i{ display:block; height:100%; background:var(--accent); border-radius:6px; }
+.ec-bp{ font-variant-numeric:tabular-nums; text-align:right; } .ec-bd{ grid-column:2 / 4; font-size:11px; color:var(--text-dim); font-family:var(--mono); }
+.ec-tip{ font-size:12.5px; background:var(--box-bg); padding:7px 10px; border-radius:8px; margin:4px 0; line-height:1.55; }
+.ec-m{ width:100%; border-collapse:collapse; font-size:12.5px; } .ec-m td{ padding:6px 4px; border-bottom:1px solid var(--border); vertical-align:top; } .ec-m td:nth-child(2){ font-family:var(--mono); white-space:nowrap; } .ec-mx{ color:var(--text-dim); font-size:11.5px; }
+.ec-hist rect{ fill:var(--accent-soft); }
+.ec-gf{ border:1px solid var(--border); border-radius:9px; padding:8px; font-size:12.5px; } .ec-gf code{ font-family:var(--mono); } .ec-gp{ display:flex; align-items:center; gap:6px; margin-top:4px; } .ec-gp select{ height:26px; border:1px solid var(--border-strong); border-radius:6px; background:var(--card); color:var(--text); }
+.atw-full .ec-body, .ec-body.narrow{ grid-template-columns:minmax(0,1fr); overflow:auto; } .atw-full .ec-vars, .atw-full .ec-res{ overflow:visible; } .atw-full .ec-res{ border-left:0; border-top:1px solid var(--border); }
+
+/* ===== ★세션 CZ: 영상 분석 ===== */
+.tr{ flex:1; min-width:0; display:flex; flex-direction:column; position:relative; }
+.tr-tb{ gap:6px; } .tr-file{ font-size:12px; color:var(--text-dim); min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; flex:1 1 200px; }
+.tr-modes.dis{ opacity:.45; pointer-events:none; }
+.tr-zoom{ display:inline-flex; align-items:center; gap:2px; } .tr-zv{ min-width:54px; height:28px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; font-size:12px; cursor:pointer; font-variant-numeric:tabular-nums; }
+.tr-mid{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 330px; }
+.tr-stage{ position:relative; overflow:hidden; background:#111; outline:none; touch-action:none; }
+.tr-stage[data-mode="mark"], .tr-stage[data-mode="auto"], .tr-stage[data-mode="cal"], .tr-stage[data-mode="axes"]{ cursor:crosshair; } .tr-stage[data-mode="pan"], .tr-stage.grab{ cursor:grab; } .tr-stage.grab{ cursor:grabbing; }
+.tr-wrap{ position:absolute; left:0; top:0; transform-origin:0 0; will-change:transform; }
+.tr-v{ display:block; width:100%; height:100%; }
+.tr-wrap.px .tr-v{ image-rendering:pixelated; }
+.tr-svg{ position:absolute; inset:0; width:100%; height:100%; overflow:visible; pointer-events:none; }
+.tr-loupe{ position:absolute; z-index:4; width:150px; height:150px; border-radius:50%; border:2px solid #fff; box-shadow:0 4px 14px rgba(0,0,0,.5); pointer-events:none; background:#000; }
+.tr-busy{ position:absolute; z-index:5; left:10px; top:10px; display:flex; align-items:center; gap:7px; background:rgba(0,0,0,.72); color:#fff; padding:5px 10px; border-radius:8px; font-size:12px; pointer-events:none; }
+.tr-busy i{ width:12px; height:12px; border-radius:50%; border:2px solid rgba(255,255,255,.35); border-top-color:#fff; animation:trs .8s linear infinite; }
+@keyframes trs{ to{ transform:rotate(360deg); } }
+.tr-load{ position:absolute; inset:0; z-index:6; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; background:rgba(12,10,10,.86); color:#fff; text-align:center; padding:20px; }
+.tr-load[hidden]{ display:none; }
+.tr-spin{ width:42px; height:42px; border-radius:50%; border:4px solid rgba(255,255,255,.2); border-top-color:#fff; animation:trs .9s linear infinite; } .tr-spin[hidden]{ display:none; }
+.tr-lt{ font-size:17px; } .tr-ls{ font-size:13px; opacity:.8; max-width:560px; } .tr-lh{ font-size:12px; opacity:.7; max-width:560px; line-height:1.55; }
+.tr-lbar{ width:min(360px, 80%); height:6px; background:rgba(255,255,255,.15); border-radius:4px; overflow:hidden; } .tr-lbar[hidden]{ display:none; } .tr-lbar i{ display:block; height:100%; background:#fff; transition:width .3s; }
+.tr-lbtn{ display:flex; gap:8px; margin-top:6px; }
+.tr-empty{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:#eee; text-align:center; padding:20px; }
+.tr-empty[hidden]{ display:none; } .tr-ei svg{ width:46px; height:46px; opacity:.7; } .tr-empty b{ font-size:17px; } .tr-empty span{ font-size:12.5px; opacity:.75; line-height:1.6; }
+.tr-drop{ position:absolute; inset:8px; z-index:7; border:2px dashed #fff; border-radius:12px; display:grid; place-items:center; color:#fff; font-size:18px; background:rgba(0,0,0,.4); pointer-events:none; } .tr-drop[hidden]{ display:none; }
+.tr-stop{ position:absolute; z-index:6; right:12px; top:10px; background:var(--accent) !important; color:#fff !important; border-color:var(--accent) !important; }
+.tr-side{ border-left:1px solid var(--border); overflow:auto; display:flex; flex-direction:column; min-height:0; }
+.tr-sec{ padding:8px 10px; border-bottom:1px solid var(--border); } .tr-sh{ display:flex; align-items:center; justify-content:space-between; gap:6px; margin-bottom:5px; font-size:13px; }
+.tr-cnt{ font-size:11.5px; color:var(--text-dim); } .tr-mute{ color:var(--text-dim); font-size:12.5px; line-height:1.6; margin:4px 0; }
+.tr-trk{ display:flex; align-items:center; gap:6px; padding:4px 5px; border-radius:8px; cursor:pointer; } .tr-trk.on{ background:var(--red-50); box-shadow:inset 3px 0 0 var(--accent); }
+.tr-col{ position:relative; flex:none; width:18px; height:18px; border-radius:50%; background:var(--c); border:2px solid var(--card); box-shadow:0 0 0 1px var(--border-strong); overflow:hidden; cursor:pointer; } .tr-col input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+.tr-tn{ flex:1; min-width:0; height:26px; border:1px solid transparent; background:none; color:var(--text); font:inherit; font-weight:700; border-radius:6px; padding:0 4px; } .tr-tn:focus{ border-color:var(--accent); outline:none; background:var(--card); }
+.tr-tc{ font-size:11.5px; color:var(--text-dim); white-space:nowrap; }
+.tr-grid{ display:grid; grid-template-columns:1fr 1fr; gap:6px 10px; font-size:12px; } .tr-grid label{ display:flex; flex-direction:column; gap:2px; color:var(--text-dim); } .tr-grid .tr-wide{ grid-column:1 / -1; } .tr-grid .tr-wide span{ color:var(--text); }
+.tr-grid select, .tr-in{ height:26px; border:1px solid var(--border-strong); border-radius:6px; background:var(--card); color:var(--text); font:inherit; padding:0 5px; width:100%; box-sizing:border-box; }
+.tr-tablesec{ flex:1; display:flex; flex-direction:column; min-height:180px; }
+.tr-table{ flex:1; overflow:auto; min-height:80px; }
+.tr-tb{ } table.tr-tb{ width:100%; border-collapse:collapse; font-size:11.5px; font-variant-numeric:tabular-nums; } table.tr-tb th{ position:sticky; top:0; background:var(--card); text-align:right; color:var(--text-dim); font-weight:600; padding:3px; border-bottom:1px solid var(--border); }
+table.tr-tb td{ text-align:right; padding:2px 3px; border-bottom:1px solid var(--border); white-space:nowrap; } table.tr-tb tr[data-f]{ cursor:pointer; } table.tr-tb tr.on td{ background:var(--red-50); font-weight:700; }
+table.tr-tb td small{ margin-left:3px; color:var(--text-dim); font-size:9.5px; } table.tr-tb button{ border:0; background:none; color:var(--text-dim); cursor:pointer; padding:0 3px; } table.tr-tb button:hover{ color:var(--danger); }
+.tr-acts{ display:flex; flex-wrap:wrap; gap:5px; padding-top:7px; } .tr-acts .gt-btn svg{ width:15px; height:15px; }
+.tr-tl{ flex:none; border-top:1px solid var(--border); padding:4px 10px 8px; }
+.tr-tlb{ display:flex; align-items:center; gap:3px; flex-wrap:wrap; } .tr-play{ color:var(--accent); font-size:15px; }
+.tr-pos{ font-size:12px; margin-left:8px; font-variant-numeric:tabular-nums; } .tr-pos small{ color:var(--warn); }
+.tr-rail{ position:relative; height:26px; margin-top:2px; } .tr-sl{ position:absolute; left:0; right:0; top:6px; width:100%; margin:0; accent-color:var(--accent); z-index:2; }
+.tr-marks{ position:absolute; left:8px; right:8px; bottom:0; height:6px; } .tr-marks i{ position:absolute; bottom:0; width:2px; height:6px; margin-left:-1px; opacity:.85; } .tr-marks .tr-mkall{ height:4px; opacity:.6; width:auto; margin:0; }
+.tr-range{ position:absolute; left:8px; right:8px; top:0; height:26px; pointer-events:none; } .tr-range b{ position:absolute; top:2px; width:3px; height:22px; margin-left:-1px; background:var(--ink); border-radius:2px; } .tr-range em{ position:absolute; top:0; width:0; height:0; margin-left:-5px; border:5px solid transparent; border-top-color:var(--ok); }
+.atw-full .tr-mid, .tr.narrow .tr-mid{ grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr) 40%; } .atw-full .tr-side{ border-left:0; border-top:1px solid var(--border); }
+@media (max-width:720px){ .tr-modes span{ display:none; } }
+
+.tr-axl{ display:flex; flex-direction:column; gap:2px; font-size:12px; } .tr-axt{ color:var(--text-dim); } .tr-axl .gt-ck{ color:var(--text); }
+
+.tr-busy[hidden]{ display:none !important; }
+.ec-tb select[data-k=mode]{ width:58px; padding:0 2px; }
+.kt-b svg, .kt-play svg{ width:20px; height:20px; display:block; margin:auto; }
+
 </style>
 <script id="anda-tools-js">
 /* ★세션 CY: 떠 있는 도구 창 + 그래프 도구 (본 스크립트 뒤 — 본 스크립트의 toast · featOn 등을 쓴다) */
@@ -24407,6 +24531,9 @@ const ATW_ICON={
   unmax:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="5.5" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5V3.8c0-.4.3-.8.8-.8h6c.4 0 .7.3.7.7v6c0 .5-.3.8-.8.8H10.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
   close:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
   graph:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M7 15l4-5 3 3 5-7"/><circle cx="11" cy="10" r=".6" fill="currentColor"/><circle cx="14" cy="13" r=".6" fill="currentColor"/></svg>',
+  timer:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5M12 2.5V5"/></svg>',
+  track:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="13" height="14" rx="2"/><path d="M15.5 10l6-3.5v11l-6-3.5"/><circle cx="7" cy="14.5" r="1" fill="currentColor"/><circle cx="9.5" cy="11.5" r="1" fill="currentColor"/><circle cx="12" cy="9.5" r="1" fill="currentColor"/></svg>',
+  err:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5v9M7.5 8h9M7.5 18h9"/></svg>',
   tools:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><path d="M17 13.5v7M13.5 17h7"/></svg>',
 };
 const ATW={
@@ -24495,6 +24622,9 @@ window.addEventListener('resize', ()=>{ clearTimeout(ATW._rt); ATW._rt=setTimeou
 /* ── 도구 모음 — 상단바 [도구]를 누르면 뜨는 작은 목록. 도구가 늘면 여기에 한 줄씩 */
 const ANDA_TOOLS=[
   { id:'graph', name:'그래프 그리기', sub:'표 · CSV · 붙여넣기 → 실험 그래프, 맞춤 · 오차 막대 · 내보내기', icon:ATW_ICON.graph, open:()=>openGraphTool() },
+  { id:'tracker', name:'영상 분석 (Tracker)', sub:'실험 영상에서 물체 위치를 찍어 시간 · 위치 · 속도 표로 — 원본 화질, 업로드 없음', icon:ATW_ICON.track, open:()=>openTracker() },
+  { id:'errcalc', name:'오차 분석', sub:'식과 측정값 ± 오차 → 결과 ± 오차, 어느 값이 오차를 키우는지', icon:ATW_ICON.err, open:()=>openErrCalc() },
+  { id:'kytimer', name:'KYPT 발표 타이머', sub:'Physics Fight 단계별 시간 · 소리 · 발표장 큰 화면', icon:ATW_ICON.timer, open:()=>openKyptTimer() },
 ];
 function openToolsMenu(anchor){
   const old=document.querySelector('.atw-menu'); if(old){ old.remove(); return; }
@@ -25403,6 +25533,8 @@ class GraphTool{
     const target=null;
     const reguess=()=>{ const m=tr?gtTranspose(mat):mat; const gg=gtGuess(m); hdr=gg.hdr; cols=gtColumns(m, hdr); roles=gtAutoRoles(cols, target); };
     reguess();
+    if(o.hdr!=null){ hdr=o.hdr; const m=tr?gtTranspose(mat):mat; cols=gtColumns(m, hdr); roles=gtAutoRoles(cols, target); }
+    if(o.roles && o.roles.length===cols.length) roles=o.roles.slice();       // 다른 도구가 보낸 표: 역할을 미리 정해 둠(바꿀 수 있음)
     const PRE={ xy:'첫 열 X · 나머지 Y', ally:'모두 Y (X는 번호)', allx:'모두 X', alt:'X, Y 번갈아', inplace:'고른 칸부터 그대로' };
     const applyPreset=k=>{ const d=cols.map(c=>c.vals.some(v=>String(v).trim()));
       if(k==='xy'){ let first=true; roles=cols.map((c,i)=>{ if(!d[i]) return 'skip'; if(GT_ERR_RE.test(c.name)) return 'err'; if(first){ first=false; return 'x'; } return 'y'; }); }
@@ -25726,10 +25858,918 @@ function gtI(n){
   return `<svg class="gt-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||''}</svg>`;
 }
 
+/* ================================================================
+   ★세션 CZ: KYPT 발표 타이머 — Physics Fight 한 스테이지를 단계별로.
+   기본 순서는 IYPT 규정(2022) VII장. KYPT 규정이 해마다 바뀔 수 있어 단계 · 시간은 고칠 수 있다(이 기기에 저장).
+   시간은 performance.now()로 잰다 — 탭이 뒤로 가도(setInterval이 느려져도) 틀리지 않는다.
+   ================================================================ */
+const KT_KEY='anda_kt_v1';
+const KT_I={ prev:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 5h2v14H6zM20 5v14L9 12z"/></svg>', next:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16 5h2v14h-2zM4 5v14l11-7z"/></svg>', play:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4v16l13-8z"/></svg>', pause:'<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 4h4v16H6zM14 4h4v16h-4z"/></svg>' };
+const KT_ROLES={ R:{ t:'발표자', c:'var(--accent)' }, O:{ t:'반대자', c:'var(--ink)' }, V:{ t:'검토자', c:'var(--warn)' }, J:{ t:'심사위원', c:'var(--ok)' }, A:{ t:'모두', c:'var(--text-dim)' } };
+function ktDefaults(){
+  const iypt=[
+    ['반대자가 발표자에게 문제 도전', 'O', 60], ['발표자가 도전 수락 · 거절', 'R', 60], ['발표자 준비', 'R', 300],
+    ['발표자 보고', 'R', 720], ['반대자 질문 · 발표자 답', 'O', 120], ['반대자 준비', 'O', 180],
+    ['반대자 발언 + 발표자와 토론', 'O', 840, { label:'반대자 발언(최대)', sec:240 }], ['반대자 토론 요약', 'O', 60],
+    ['검토자 질문 · 답', 'V', 180], ['검토자 준비', 'V', 120], ['검토자 발언', 'V', 240], ['발표자 마무리', 'R', 120], ['심사위원 질문', 'J', 300],
+  ].map(([name, role, sec, sub])=>({ name, role, sec, sub:sub||null }));
+  return [
+    { id:'iypt', name:'IYPT 규정 한 스테이지 (2022)', steps:iypt, fixed:true },
+    { id:'final', name:'결승 (도전 단계 없음)', steps:iypt.slice(2), fixed:true },
+    { id:'report', name:'연습 — 발표 + 질문', steps:[{ name:'발표자 준비', role:'R', sec:300 }, { name:'발표자 보고', role:'R', sec:720 }, { name:'질문 · 답', role:'A', sec:300 }], fixed:true },
+    { id:'opp', name:'연습 — 반대자', steps:[{ name:'반대자 준비', role:'O', sec:180 }, { name:'반대자 발언 + 토론', role:'O', sec:840, sub:{ label:'반대자 발언(최대)', sec:240 } }, { name:'토론 요약', role:'O', sec:60 }], fixed:true },
+  ];
+}
+function ktFmt(ms, plus){ const neg=ms<0; let s=Math.floor(Math.abs(ms)/1000); const m=Math.floor(s/60); s%=60; return (neg?'+':(plus?'':''))+m+':'+String(s).padStart(2,'0'); }
+function openKyptTimer(){
+  return ATW.open('kytimer', { title:'KYPT 발표 타이머', icon:ATW_ICON.timer, w:760, h:560, minW:420, minH:340,
+    mount:(body, win)=>{ win.tool=new KyptTimer(body, win); }, onClose:(win)=>{ try{ win.tool.destroy(); }catch(e){} } });
+}
+class KyptTimer{
+  constructor(body, win){
+    this.body=body; this.win=win;
+    const sv=ATW_LS.get(KT_KEY, null);
+    const D=ktDefaults();
+    this.S=Object.assign({ custom:[], cur:'iypt', beep:true, autoNext:false, warn:[60, 30] }, sv||{});
+    this.presets=()=>D.concat(this.S.custom);
+    this.reset(); this.build(); this.tick=setInterval(()=>this.paint(), 200); this.paint();
+    win.onResize=()=>this.fit();
+    this.keyH=e=>{ if(!this.body.isConnected) return; if(e.target.closest('input, select, textarea')) return; if(!this.win.el.classList.contains('atw-front')) return;
+      if(e.code==='Space'){ e.preventDefault(); this.toggle(); } else if(e.key==='ArrowRight'){ e.preventDefault(); this.go(1); } else if(e.key==='ArrowLeft'){ e.preventDefault(); this.go(-1); } };
+    document.addEventListener('keydown', this.keyH);
+  }
+  preset(){ return this.presets().find(p=>p.id===this.S.cur) || this.presets()[0]; }
+  save(){ ATW_LS.set(KT_KEY, this.S); }
+  reset(){ this.i=0; this.run=false; this.t0=0; this.acc=0; this.log=[]; this.beeped={}; }
+  elapsed(){ return this.acc + (this.run ? performance.now()-this.t0 : 0); }
+  step(){ return this.preset().steps[this.i]; }
+  toggle(){ if(this.run){ this.acc=this.elapsed(); this.run=false; this.unlock(); } else { this.t0=performance.now(); this.run=true; this.lock(); this.audioInit(); } this.paint(true); }
+  go(d){ const st=this.preset().steps; const ni=this.i+d; if(ni<0 || ni>st.length) return;
+    this.log[this.i]=this.elapsed(); const wasRun=this.run;
+    if(ni===st.length){ this.run=false; this.i=st.length; this.unlock(); this.paint(true); this.showLog(); return; }
+    this.i=ni; this.acc=this.log[ni]&&d<0 ? this.log[ni] : 0; this.t0=performance.now(); this.beeped={};
+    this.run = wasRun || (d>0 && this.S.autoNext); if(this.run){ this.lock(); this.audioInit(); } this.paint(true); }
+  jump(k){ this.log[this.i]=this.elapsed(); this.i=k; this.acc=this.log[k]||0; this.t0=performance.now(); this.beeped={}; this.paint(true); }
+  adj(sec){ this.acc-=sec*1000; this.paint(true); }
+  /* 소리: 1분 · 30초 남음 = 짧게 한 번, 0 = 세 번. 첫 시작 때 AudioContext를 깨운다(브라우저 자동 재생 규칙) */
+  audioInit(){ try{ if(!this.ac) this.ac=new (window.AudioContext||window.webkitAudioContext)(); if(this.ac.state==='suspended') this.ac.resume(); }catch(e){} }
+  beep(n, f){ if(!this.S.beep || !this.ac) return; const ac=this.ac; for(let k=0;k<n;k++){ const o=ac.createOscillator(), g=ac.createGain(), t=ac.currentTime+k*0.28; o.frequency.value=f||880; o.type='sine'; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.35,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+0.2); o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+0.22); } }
+  async lock(){ try{ if(navigator.wakeLock && !this.wl) this.wl=await navigator.wakeLock.request('screen'); }catch(e){} }
+  unlock(){ try{ this.wl && this.wl.release(); }catch(e){} this.wl=null; }
+  destroy(){ clearInterval(this.tick); document.removeEventListener('keydown', this.keyH); this.unlock(); try{ this.pop && this.pop.close(); }catch(e){} }
+  build(){
+    this.body.innerHTML=`<div class="kt">
+      <div class="kt-top"><select class="kt-pre" aria-label="진행 순서">${this.presets().map(p=>`<option value="${p.id}"${p.id===this.S.cur?' selected':''}>${ATW_esc(p.name)}</option>`).join('')}</select>
+        <button type="button" class="gt-btn ghost" data-a="edit" title="단계 · 시간 고치기 — 올해 KYPT 규정에 맞게">순서 고치기</button><span class="gt-sp"></span>
+        <label class="gt-ck" title="1분 · 30초 남음, 시간 끝"><input type="checkbox" data-o="beep"${this.S.beep?' checked':''}> 소리</label>
+        <label class="gt-ck" title="다음 단계로 넘기면 바로 시작"><input type="checkbox" data-o="autoNext"${this.S.autoNext?' checked':''}> 자동 시작</label>
+        <button type="button" class="gt-btn" data-a="pop" title="발표장 화면(프로젝터)에 띄울 큰 창">발표용 창</button></div>
+      <div class="kt-main"><div class="kt-stage"><div class="kt-role"></div><div class="kt-name"></div><div class="kt-time"></div><div class="kt-sub"></div><div class="kt-bar"><i></i></div><div class="kt-next"></div>
+        <div class="kt-ctl"><button type="button" class="kt-b" data-a="prev" title="이전 단계 (←)" aria-label="이전 단계">${KT_I.prev}</button><button type="button" class="kt-b kt-play" data-a="play" title="시작 · 멈춤 (Space)" aria-label="시작 · 멈춤">${KT_I.play}</button><button type="button" class="kt-b" data-a="next" title="다음 단계 (→)" aria-label="다음 단계">${KT_I.next}</button>
+          <span class="kt-adj"><button type="button" data-a="m30" title="30초 덜 쓴 것으로">−30초</button><button type="button" data-a="p30" title="30초 더 쓴 것으로">+30초</button></span>
+          <button type="button" class="gt-btn ghost" data-a="restart">처음부터</button><button type="button" class="gt-btn ghost" data-a="log">기록</button></div></div>
+        <ol class="kt-list"></ol></div>
+      <div class="kt-dlg gt-dlg-ov" hidden></div></div>`;
+    const q=s=>this.body.querySelector(s); this.$=q;
+    q('.kt-pre').onchange=e=>{ if(this.elapsed()>2000 && !confirm('지금 진행 중인 타이머를 처음부터 시작할까요?')){ e.target.value=this.S.cur; return; } this.S.cur=e.target.value; this.save(); this.reset(); this.paint(true); };
+    this.body.querySelectorAll('[data-o]').forEach(c=>c.onchange=()=>{ this.S[c.dataset.o]=c.checked; this.save(); });
+    this.body.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ const a=b.dataset.a;
+      if(a==='play') this.toggle(); else if(a==='next') this.go(1); else if(a==='prev') this.go(-1);
+      else if(a==='m30') this.adj(-30); else if(a==='p30') this.adj(30);
+      else if(a==='restart'){ if(this.elapsed()>2000 && !confirm('처음부터 다시 시작할까요?')) return; this.reset(); this.unlock(); this.paint(true); }
+      else if(a==='log') this.showLog(); else if(a==='edit') this.edit(); else if(a==='pop') this.popout(); });
+    this.fit();
+  }
+  fit(){ const st=this.$('.kt-stage'); if(!st) return; const w=st.clientWidth, h=st.clientHeight; const f=Math.max(40, Math.min(w/4.2, h/3.2)); st.style.setProperty('--kt-f', f+'px'); this.root=this.body.querySelector('.kt'); if(this.root) this.root.classList.toggle('kt-narrow', this.body.clientWidth<620); }
+  view(){
+    const P=this.preset(), st=P.steps, done=this.i>=st.length, S=done?null:st[this.i], el=this.elapsed();
+    const left = S ? S.sec*1000-el : 0; const sub = S && S.sub ? S.sub.sec*1000-el : null;
+    return { P, st, done, S, el, left, sub, next:st[this.i+1] };
+  }
+  paint(force){
+    const v=this.view(), q=this.$; if(!q('.kt-time')) return;
+    // 소리
+    if(this.run && v.S){ const sL=Math.ceil(v.left/1000);
+      (this.S.warn||[]).forEach(w=>{ if(v.S.sec>w && sL===w && !this.beeped['w'+w]){ this.beeped['w'+w]=1; this.beep(1, 660); } });
+      if(v.left<=0 && !this.beeped.end){ this.beeped.end=1; this.beep(3, 990); }
+      if(v.sub!=null && v.sub<=0 && !this.beeped.sub){ this.beeped.sub=1; this.beep(2, 760); } }
+    const role=v.S ? (KT_ROLES[v.S.role]||KT_ROLES.A) : KT_ROLES.A;
+    q('.kt-stage').style.setProperty('--kt-c', role.c);
+    q('.kt-stage').classList.toggle('over', !!v.S && v.left<0); const warnAt = v.S && v.S.sec>90 ? 60000 : 15000; q('.kt-stage').classList.toggle('warn', !!v.S && v.left>=0 && v.left<=warnAt); q('.kt-stage').classList.toggle('run', this.run);
+    q('.kt-role').textContent = v.S ? `${this.i+1} / ${v.st.length} 단계 · ${role.t}` : '스테이지 끝';
+    q('.kt-name').textContent = v.S ? v.S.name : '수고했어요';
+    q('.kt-time').textContent = v.S ? ktFmt(v.left) : ktFmt(this.log.reduce((a,b)=>a+(b||0),0));
+    q('.kt-sub').textContent = v.S && v.S.sub ? (v.sub>0 ? `${v.S.sub.label} ${ktFmt(v.sub)} 남음` : `${v.S.sub.label} 끝 — 이제 토론`) : (v.S && v.left<0 ? '시간을 넘겼어요' : v.done ? '[기록]에서 단계별로 쓴 시간을 볼 수 있어요' : '');
+    q('.kt-sub').classList.toggle('on', !!(v.S && v.S.sub && v.sub>0));
+    q('.kt-bar i').style.width = v.S ? Math.min(100, Math.max(0, v.el/(v.S.sec*1000)*100))+'%' : '100%';
+    q('.kt-next').textContent = v.next ? `다음 · ${v.next.name} (${ktFmt(v.next.sec*1000)})` : (v.S ? '마지막 단계' : '');
+    q('.kt-play').innerHTML = this.run ? KT_I.pause : KT_I.play; q('.kt-play').classList.toggle('on', this.run);
+    if(force || this._li!==this.i || this._ln!==v.st.length){ this._li=this.i; this._ln=v.st.length;
+      q('.kt-list').innerHTML=v.st.map((s,k)=>{ const r=KT_ROLES[s.role]||KT_ROLES.A; const lg=this.log[k];
+        return `<li class="${k===this.i?'on':''}${lg!=null&&k<this.i?' done':''}${lg!=null&&lg>s.sec*1000?' late':''}" data-k="${k}" style="--c:${r.c}"><i></i><span class="kt-ln">${ATW_esc(s.name)}</span><span class="kt-lt">${lg!=null && k!==this.i ? ktFmt(lg)+' / ' : ''}${ktFmt(s.sec*1000)}</span></li>`; }).join('');
+      q('.kt-list').querySelectorAll('[data-k]').forEach(li=>li.onclick=()=>this.jump(+li.dataset.k));
+      const on=q('.kt-list li.on'); if(on) on.scrollIntoView({ block:'nearest' }); }
+    this.paintPop(v, role);
+  }
+  showLog(){
+    const v=this.view(); const rows=v.st.map((s,k)=>({ s, used:this.log[k]!=null?this.log[k]:(k===this.i?this.elapsed():null) }));
+    const txt=rows.map(r=>`${r.s.name}\t${ktFmt(r.s.sec*1000)}\t${r.used!=null?ktFmt(r.used):'-'}${r.used!=null&&r.used>r.s.sec*1000?`\t(+${ktFmt(r.used-r.s.sec*1000)})`:''}`).join('\n');
+    this.dialog(`<div class="gt-dlg-h"><b>단계별 기록</b><span>${ATW_esc(v.P.name)}</span></div>
+      <table class="kt-log"><tr><th>단계</th><th>정해진 시간</th><th>쓴 시간</th></tr>${rows.map(r=>`<tr class="${r.used!=null&&r.used>r.s.sec*1000?'late':''}"><td>${ATW_esc(r.s.name)}</td><td>${ktFmt(r.s.sec*1000)}</td><td>${r.used!=null?ktFmt(r.used)+(r.used>r.s.sec*1000?` <b>(+${ktFmt(r.used-r.s.sec*1000).replace('+','')})</b>`:''):'—'}</td></tr>`).join('')}</table>
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-cp>복사</button><button type="button" class="gt-btn pri" data-x>닫기</button></div>`, d=>{ d.querySelector('[data-cp]').onclick=()=>{ try{ navigator.clipboard.writeText(txt).then(()=>ATW_say('기록을 복사했어요.')); }catch(e){} }; });
+  }
+  dialog(html, bind){ const ov=this.$('.kt-dlg'); ov.hidden=false; ov.innerHTML=`<div class="gt-dlg">${html}</div>`; const close=()=>{ ov.hidden=true; ov.innerHTML=''; };
+    ov.querySelectorAll('[data-x]').forEach(b=>b.onclick=close); ov.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Escape') close(); }; if(bind) bind(ov.querySelector('.gt-dlg'), close); }
+  edit(){
+    const P=this.preset(); let steps=P.steps.map(s=>Object.assign({}, s, { sub:s.sub?Object.assign({}, s.sub):null })); let name=P.fixed ? P.name+' (내 순서)' : P.name;
+    const mmss=s=>`${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`;
+    const toSec=v=>{ const s=String(v).trim(); let m=s.match(/^(\d+):(\d{1,2})$/); if(m) return (+m[1])*60+(+m[2]); m=s.match(/^(\d+(?:\.\d+)?)$/); if(m) return Math.round(+m[1]*60); return null; };
+    const paint=(d)=>{
+      d.innerHTML=`<div class="gt-dlg-h"><b>순서 고치기</b><span>${P.fixed?'기본 순서는 그대로 두고 내 순서로 저장해요':''}</span></div>
+        <label class="gt-row">이름 <input class="kt-in kt-nm" value="${ATW_esc(name)}" maxlength="40"></label>
+        <table class="kt-ed"><tr><th></th><th>단계</th><th>누가</th><th>시간 (분:초)</th><th>안쪽 제한(선택)</th><th></th></tr>
+        ${steps.map((s,k)=>`<tr data-k="${k}"><td class="kt-no">${k+1}</td><td><input class="kt-in" data-f="name" value="${ATW_esc(s.name)}"></td>
+          <td><select data-f="role">${Object.entries(KT_ROLES).map(([r,o])=>`<option value="${r}"${s.role===r?' selected':''}>${o.t}</option>`).join('')}</select></td>
+          <td><input class="kt-in kt-sm" data-f="sec" value="${mmss(s.sec)}"></td>
+          <td><input class="kt-in kt-sm" data-f="sub" value="${s.sub?mmss(s.sub.sec):''}" placeholder="예 4:00"></td>
+          <td class="kt-ops"><button type="button" data-up="${k}" title="위로">↑</button><button type="button" data-dn="${k}" title="아래로">↓</button><button type="button" data-del="${k}" title="빼기">×</button></td></tr>`).join('')}</table>
+        <button type="button" class="gt-btn ghost" data-add>＋ 단계 더하기</button>
+        <p class="gps-tip">시간은 4:30 또는 4.5(분)처럼 적어요. '안쪽 제한'은 한 단계 안의 작은 제한이에요(예: 반대자 발언 최대 4분 + 토론).</p>
+        <div class="gt-dlg-b">${!P.fixed?'<button type="button" class="gt-btn ghost" data-rm style="margin-right:auto;color:var(--danger)">이 순서 지우기</button>':''}<button type="button" class="gt-btn ghost" data-x>취소</button><button type="button" class="gt-btn pri" data-ok>저장</button></div>`;
+      const rd=()=>{ name=d.querySelector('.kt-nm').value.trim()||name; d.querySelectorAll('tr[data-k]').forEach(tr=>{ const s=steps[+tr.dataset.k]; s.name=tr.querySelector('[data-f=name]').value.trim()||s.name; s.role=tr.querySelector('[data-f=role]').value;
+        const sv=toSec(tr.querySelector('[data-f=sec]').value); if(sv!=null && sv>0) s.sec=sv; const sb=tr.querySelector('[data-f=sub]').value.trim(); if(!sb) s.sub=null; else { const x=toSec(sb); if(x!=null && x>0 && x<s.sec) s.sub={ label:(s.sub&&s.sub.label)||'안쪽 제한', sec:x }; } }); };
+      d.querySelectorAll('[data-up]').forEach(b=>b.onclick=()=>{ rd(); const k=+b.dataset.up; if(k>0){ [steps[k-1],steps[k]]=[steps[k],steps[k-1]]; } paint(d); });
+      d.querySelectorAll('[data-dn]').forEach(b=>b.onclick=()=>{ rd(); const k=+b.dataset.dn; if(k<steps.length-1){ [steps[k+1],steps[k]]=[steps[k],steps[k+1]]; } paint(d); });
+      d.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ rd(); if(steps.length>1) steps.splice(+b.dataset.del,1); paint(d); });
+      d.querySelector('[data-add]').onclick=()=>{ rd(); steps.push({ name:'새 단계', role:'A', sec:120, sub:null }); paint(d); };
+      d.querySelectorAll('[data-x]').forEach(b=>b.onclick=()=>{ const ov=this.$('.kt-dlg'); ov.hidden=true; ov.innerHTML=''; });
+      const rm=d.querySelector('[data-rm]'); if(rm) rm.onclick=()=>{ if(!confirm(`'${P.name}' 순서를 지울까요?`)) return; this.S.custom=this.S.custom.filter(p=>p.id!==P.id); this.S.cur='iypt'; this.save(); this.reset(); this.build(); this.paint(true); };
+      d.querySelector('[data-ok]').onclick=()=>{ rd(); const bad=steps.find(s=>!(s.sec>0)); if(bad) return ATW_say('시간을 확인해 주세요.');
+        if(P.fixed){ const id='c'+Date.now().toString(36); this.S.custom.push({ id, name, steps }); this.S.cur=id; }
+        else{ const c=this.S.custom.find(p=>p.id===P.id); c.name=name; c.steps=steps; }
+        this.save(); this.reset(); this.build(); this.paint(true); ATW_say('순서를 저장했어요(이 기기).'); };
+      d.querySelectorAll('input, select').forEach(i=>i.addEventListener('keydown', e=>e.stopPropagation()));
+    };
+    this.dialog('', d=>paint(d));
+  }
+  /* 발표용 창: 프로젝터 화면으로 끌어다 놓고 전체 화면(F11). 이 창이 매 순간 내용을 써 넣는다 */
+  popout(){
+    try{ if(this.pop && !this.pop.closed){ this.pop.focus(); return; } }catch(e){}
+    const w=window.open('', 'anda_kt_pop', 'width=960,height=600'); if(!w) return ATW_say('팝업이 막혔어요 — 주소창 오른쪽에서 팝업 허용을 눌러 주세요.', 5000);
+    this.pop=w;
+    w.document.open(); w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>KYPT 타이머</title><style>
+      html,body{margin:0;height:100%;background:#111;color:#fff;font-family:Helvetica,Arial,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;}
+      .w{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2vh;text-align:center;padding:3vh 4vw;box-sizing:border-box;border-top:1.4vh solid var(--c,#C00000);}
+      .r{font-size:4vh;opacity:.8;letter-spacing:.04em} .n{font-size:7vh;font-weight:700;line-height:1.2} .t{font-size:34vh;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+      .s{font-size:4.5vh;color:#ffd27a;min-height:5vh} .x{font-size:3.4vh;opacity:.6} .b{width:80vw;height:1.6vh;background:#333;border-radius:1vh;overflow:hidden} .b i{display:block;height:100%;background:var(--c,#C00000)}
+      .over .t{color:#ff5a52;animation:bl 1s steps(2) infinite} .warn .t{color:#ffcf5a} @keyframes bl{50%{opacity:.35}}
+      .h{position:fixed;right:1vw;bottom:1vh;font-size:1.6vh;opacity:.4}</style></head><body><div class="w"><div class="r"></div><div class="n"></div><div class="t"></div><div class="s"></div><div class="b"><i></i></div><div class="x"></div></div><div class="h">F11 = 전체 화면 · Space 시작/멈춤 · → 다음</div></body></html>`); w.document.close();
+    w.document.addEventListener('keydown', e=>{ if(e.code==='Space'){ e.preventDefault(); this.toggle(); } else if(e.key==='ArrowRight') this.go(1); else if(e.key==='ArrowLeft') this.go(-1); });
+    this.paint(true);
+  }
+  paintPop(v, role){
+    const w=this.pop; if(!w || w.closed) return; const d=w.document; const q=s=>d.querySelector(s); if(!q('.t')) return;
+    const col={ R:'#E35049', O:'#CFC8C9', V:'#E6A23C', J:'#4CC38A', A:'#A79FA0' }[v.S ? v.S.role : 'A'] || '#E35049';   // 검은 화면용 밝은 짝
+    q('.w').style.setProperty('--c', col||'#C00000'); q('.w').className='w'+(v.S && v.left<0?' over':v.S && v.left<=(v.S.sec>90?60000:15000)?' warn':'');
+    q('.r').textContent=this.$('.kt-role').textContent; q('.n').textContent=this.$('.kt-name').textContent; q('.t').textContent=this.$('.kt-time').textContent;
+    q('.s').textContent=this.$('.kt-sub').textContent; q('.x').textContent=this.$('.kt-next').textContent; q('.b i').style.width=this.$('.kt-bar i').style.width;
+  }
+}
+
+/* ================================================================
+   ★세션 CZ: 오차 분석 — 식 + 측정값 ± 오차 → 결과 ± 오차
+   · 식은 직접 읽는다(eval 없음): + − × ÷ ^ ( ), 4π²L/T² 같은 곱 생략, ², ³, √, sin · cos · ln · log …
+   · 오차 전파(편미분 · 독립 가정) + 각 변수의 몫, 최대 · 최소 방법, 몬테카를로(비선형 확인)
+   · 반복 측정: 평균 · 표준편차 · 표준 오차 · 95% 구간(t 분포) + 기기 눈금 오차
+   ================================================================ */
+const EC_KEY0='anda_err_v1';
+function EC_KEY(){ let u='anon'; try{ if(typeof state!=='undefined' && state.user && state.user.id) u=state.user.id; }catch(e){} return EC_KEY0+':'+u; }
+const EC_FUNCS={ sin:1, cos:1, tan:1, asin:1, acos:1, atan:1, arcsin:1, arccos:1, arctan:1, sinh:1, cosh:1, tanh:1, sqrt:1, exp:1, ln:1, log:1, log10:1, log2:1, abs:1, min:2, max:2, atan2:2, pow:2 };
+const EC_CONST={ pi:Math.PI, 'π':Math.PI, e:Math.E };
+const EC_EXAMPLES=[
+  ['단진자로 g 구하기', 'g = 4π²L/T²', { L:['0.850','0.002','m'], T:['1.851','0.012','s'] }, 'm/s²', '9.80'],
+  ['자유 낙하로 g 구하기', 'g = 2h/t²', { h:['1.200','0.003','m'], t:['0.495','0.008','s'] }, 'm/s²', '9.80'],
+  ['원기둥 밀도', 'ρ = m/(π r² h)', { m:['52.3','0.1','g'], r:['1.25','0.01','cm'], h:['3.40','0.02','cm'] }, 'g/cm³', ''],
+  ['굴절률 (스넬 법칙)', 'n = sin(θ1)/sin(θ2)', { θ1:['40','1','°'], θ2:['25','1','°'] }, '', '1.50'],
+  ['용수철 상수 (진동)', 'k = 4π² m / T²', { m:['0.200','0.001','kg'], T:['0.92','0.02','s'] }, 'N/m', ''],
+];
+/* ── 식 읽기 ── */
+function ecTokens(src){
+  let s=String(src).replace(/π/g,' π ').replace(/²/g,'^2').replace(/³/g,'^3').replace(/[×·⋅∙]/g,'*').replace(/÷/g,'/').replace(/[−–]/g,'-').replace(/√/g,'sqrt ');
+  const out=[]; let i=0;
+  while(i<s.length){
+    const c=s[i];
+    if(/\s/.test(c)){ i++; continue; }
+    let m=s.slice(i).match(/^(\d+\.?\d*(?:[eE][+-]?\d+)?|\.\d+(?:[eE][+-]?\d+)?)/);
+    if(m){ out.push({ t:'n', v:parseFloat(m[1]), p:i }); i+=m[1].length; continue; }
+    m=s.slice(i).match(/^[A-Za-z_µͰ-Ͽ가-힣][A-Za-z0-9_µͰ-Ͽ가-힣']*/);
+    if(m){ out.push({ t:'id', v:m[0], p:i }); i+=m[0].length; continue; }
+    if('+-*/^(),'.includes(c)){ out.push({ t:c, p:i }); i++; continue; }
+    throw { msg:`'${c}'는 식에 쓸 수 없어요`, pos:i };
+  }
+  // 곱 생략: 2π · 2(…) · )( · )x · x(…)(x가 함수가 아니면) · 3x
+  const res=[];
+  out.forEach((tk,k)=>{ const pv=res[res.length-1];
+    if(pv){ const endVal = pv.t==='n' || pv.t===')' || (pv.t==='id' && !EC_FUNCS[pv.v]); const startVal = tk.t==='n' || tk.t==='id' || tk.t==='(';
+      if(endVal && startVal && !(pv.t==='n' && tk.t==='n')) res.push({ t:'*', p:tk.p, imp:true }); }
+    res.push(tk); });
+  return res;
+}
+function ecParse(src){
+  const T=ecTokens(src); let k=0;
+  const peek=()=>T[k], eat=t=>{ const x=T[k]; if(!x || (t && x.t!==t)) throw { msg: t===')' ? '괄호가 닫히지 않았어요' : '식이 덜 끝났어요', pos:x?x.p:String(src).length }; k++; return x; };
+  const prim=()=>{ const x=peek(); if(!x) throw { msg:'식이 덜 끝났어요', pos:String(src).length };
+    if(x.t==='n'){ k++; return { t:'n', v:x.v }; }
+    if(x.t==='('){ k++; const e=expr(0); eat(')'); return e; }
+    if(x.t==='-'){ k++; return { t:'u', a:expr(3) }; }
+    if(x.t==='+'){ k++; return expr(3); }
+    if(x.t==='id'){ k++;
+      if(EC_FUNCS[x.v]){ const args=[];
+        if(peek() && peek().t==='('){ k++; if(peek() && peek().t!==')'){ args.push(expr(0)); while(peek() && peek().t===','){ k++; args.push(expr(0)); } } eat(')'); }
+        else args.push(expr(4));                            // sqrt x · sin θ 처럼 괄호 없이
+        if(args.length!==EC_FUNCS[x.v]) throw { msg:`${x.v}에는 값이 ${EC_FUNCS[x.v]}개 들어가요`, pos:x.p };
+        return { t:'f', name:x.v, args }; }
+      return { t:'v', name:x.v, p:x.p }; }
+    throw { msg:`'${x.t}' 자리가 이상해요`, pos:x.p };
+  };
+  const BP={ '+':1, '-':1, '*':2, '/':2, '^':4 };
+  const expr=(minbp)=>{
+    let lhs=prim();
+    for(;;){ const op=peek(); if(!op || !BP[op.t]) break; const bp=BP[op.t]; if(bp<minbp || (bp===minbp && op.t!=='^')) break;
+      k++; const rhs = op.t==='^' ? expr(bp) : expr(bp+0.5); lhs={ t:'b', op:op.t, a:lhs, b:rhs }; }
+    return lhs;
+  };
+  if(!T.length) throw { msg:'식을 적어 주세요', pos:0 };
+  const ast=expr(0); if(k<T.length) throw { msg:`'${T[k].t==='id'||T[k].t==='n'?T[k].v:T[k].t}' 앞에 연산 기호가 빠졌어요`, pos:T[k].p };
+  return ast;
+}
+function ecVars(ast, out){ out=out||[]; if(!ast) return out; if(ast.t==='v' && !(ast.name in EC_CONST) && !out.includes(ast.name)) out.push(ast.name); ['a','b'].forEach(k=>ast[k] && ecVars(ast[k], out)); (ast.args||[]).forEach(a=>ecVars(a,out)); return out; }
+function ecEval(ast, V, deg){
+  const D=deg?Math.PI/180:1;
+  const go=n=>{ switch(n.t){
+    case 'n': return n.v;
+    case 'v': return (n.name in V) ? V[n.name] : EC_CONST[n.name];
+    case 'u': return -go(n.a);
+    case 'b': { const a=go(n.a), b=go(n.b); return n.op==='+'?a+b : n.op==='-'?a-b : n.op==='*'?a*b : n.op==='/'?a/b : Math.pow(a,b); }
+    case 'f': { const x=n.args.map(go); switch(n.name){
+      case 'sin': return Math.sin(x[0]*D); case 'cos': return Math.cos(x[0]*D); case 'tan': return Math.tan(x[0]*D);
+      case 'asin': case 'arcsin': return Math.asin(x[0])/D; case 'acos': case 'arccos': return Math.acos(x[0])/D; case 'atan': case 'arctan': return Math.atan(x[0])/D; case 'atan2': return Math.atan2(x[0],x[1])/D;
+      case 'sinh': return Math.sinh(x[0]); case 'cosh': return Math.cosh(x[0]); case 'tanh': return Math.tanh(x[0]);
+      case 'sqrt': return Math.sqrt(x[0]); case 'exp': return Math.exp(x[0]); case 'ln': return Math.log(x[0]); case 'log': case 'log10': return Math.log10(x[0]); case 'log2': return Math.log2(x[0]);
+      case 'abs': return Math.abs(x[0]); case 'min': return Math.min(x[0],x[1]); case 'max': return Math.max(x[0],x[1]); case 'pow': return Math.pow(x[0],x[1]); } } }
+    return NaN; };
+  return go(ast);
+}
+/* t 분포 97.5% 값(양쪽 95%) */
+function ecT95(df){ const T=[0,12.706,4.303,3.182,2.776,2.571,2.447,2.365,2.306,2.262,2.228,2.201,2.179,2.160,2.145,2.131,2.120,2.110,2.101,2.093,2.086,2.080,2.074,2.069,2.064,2.060,2.056,2.052,2.048,2.045,2.042]; if(df<1) return NaN; if(df<=30) return T[df]; if(df<=40) return 2.021; if(df<=60) return 2.000; if(df<=120) return 1.980; return 1.960; }
+function ecStats(list){ const xs=list.map(gtNum).filter(isFinite); const n=xs.length; if(!n) return null; const m=xs.reduce((a,b)=>a+b,0)/n; const s=n>1?Math.sqrt(xs.reduce((a,b)=>a+(b-m)**2,0)/(n-1)):0; const se=n>1?s/Math.sqrt(n):0; return { n, mean:m, s, se, ci:n>1?ecT95(n-1)*se:0, min:Math.min(...xs), max:Math.max(...xs) }; }
+function ecRandN(){ let u=0,v=0; while(u===0) u=Math.random(); while(v===0) v=Math.random(); return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v); }
+/* 계산 한 번: 변수 → 값 · σ · 몫 · 최대최소 · (몬테카를로) */
+function ecCompute(S, withMC){
+  let name='', rhs=S.expr||''; const m=rhs.match(/^\s*([^=]+?)\s*=\s*([\s\S]*)$/); if(m){ name=m[1].trim(); rhs=m[2]; }
+  let ast; try{ ast=ecParse(rhs); }catch(e){ return { err:e.msg||String(e), pos:(e.pos||0)+(m?S.expr.indexOf(rhs):0), name }; }
+  const names=ecVars(ast); const V={}, sig={}, info={}; const miss=[];
+  names.forEach(nm=>{ const v=(S.vars||{})[nm]||{}; let val=gtNum(v.val), unc=gtNum(v.unc);
+    if(v.rep && v.rep.on){ const st=ecStats(String(v.rep.list||'').split(/[\s,;\t\n]+/).filter(Boolean)); info[nm]={ st };
+      if(st){ val=st.mean; const a = v.rep.use==='ci' ? st.ci : v.rep.use==='s' ? st.s : st.se; const r=gtNum(v.rep.res); const b = isFinite(r)&&r>0 ? (v.rep.resMode==='sq3' ? r/Math.sqrt(3) : r/2) : 0; unc=Math.sqrt(a*a+b*b); info[nm].a=a; info[nm].b=b; } }
+    else if(v.mode==='rel' && isFinite(unc) && isFinite(val)) unc=Math.abs(val)*unc/100;
+    if(!isFinite(val)) miss.push(nm); V[nm]=val; sig[nm]=isFinite(unc)?Math.abs(unc):0; });
+  if(miss.length) return { ast, names, miss, name, info };
+  const f=x=>ecEval(ast, x, S.deg);
+  const f0=f(V); if(!isFinite(f0)) return { ast, names, name, info, err:'이 값들로는 계산이 안 돼요(0으로 나누기 · 음수의 제곱근 · 0 이하의 로그 등)', domain:true };
+  const parts=names.map(nm=>{ const s=sig[nm]; if(!(s>0)) return { nm, d:0, c:0 };
+    const h=s*1e-3 || Math.abs(V[nm])*1e-6 || 1e-6; const up=Object.assign({}, V, { [nm]:V[nm]+h }), dn=Object.assign({}, V, { [nm]:V[nm]-h }); const d=(f(up)-f(dn))/(2*h);
+    return { nm, d, c:(d*s)**2 }; });
+  const varSum=parts.reduce((a,p)=>a+(isFinite(p.c)?p.c:0),0); const sigma=Math.sqrt(varSum);
+  // 최대 · 최소 (변수 12개까지)
+  let ext=null; const act=names.filter(nm=>sig[nm]>0);
+  if(act.length && act.length<=12){ let lo=Infinity, hi=-Infinity; for(let b=0;b<(1<<act.length);b++){ const X=Object.assign({}, V); act.forEach((nm,k)=>{ X[nm]+= (b>>k&1?1:-1)*sig[nm]; }); const y=f(X); if(isFinite(y)){ lo=Math.min(lo,y); hi=Math.max(hi,y); } } if(isFinite(lo)) ext={ lo, hi, half:(hi-lo)/2 }; }
+  let mc=null;
+  if(withMC && act.length){ const N=20000, ys=[]; for(let k=0;k<N;k++){ const X=Object.assign({}, V); act.forEach(nm=>{ X[nm]+=ecRandN()*sig[nm]; }); const y=f(X); if(isFinite(y)) ys.push(y); }
+    if(ys.length>N*0.5){ ys.sort((a,b)=>a-b); const mean=ys.reduce((a,b)=>a+b,0)/ys.length, sd=Math.sqrt(ys.reduce((a,b)=>a+(b-mean)**2,0)/(ys.length-1));
+      const q=p=>ys[Math.min(ys.length-1, Math.max(0, Math.round(p*(ys.length-1))))]; const lo=q(0.025), hi=q(0.975);
+      const B=32, a0=q(0.002), a1=q(0.998), hist=Array(B).fill(0); ys.forEach(y=>{ const i=Math.floor((y-a0)/(a1-a0)*B); if(i>=0 && i<B) hist[i]++; });
+      mc={ n:ys.length, bad:N-ys.length, mean, sd, lo, hi, hist, a0, a1 }; } }
+  return { ast, names, name, info, V, sig, f0, sigma, parts:parts.map(p=>Object.assign(p, { share: varSum>0 ? p.c/varSum : 0 })), ext, mc, rel: f0!==0 ? sigma/Math.abs(f0) : NaN };
+}
+
+function openErrCalc(){ return ATW.open('errcalc', { title:'오차 분석', icon:ATW_ICON.err, w:880, h:660, minW:480, minH:420, mount:(b,w)=>{ w.tool=new ErrCalc(b,w); }, onClose:w=>{ try{ w.tool.flush(); }catch(e){} } }); }
+class ErrCalc{
+  constructor(body, win){
+    this.body=body; this.win=win; this.key=EC_KEY();
+    this.S=Object.assign({ expr:'g = 4π²L/T²', vars:{ L:{ val:'0.850', unc:'0.002', unit:'m', mode:'abs' }, T:{ val:'1.851', unc:'0.012', unit:'s', mode:'abs' } }, unit:'m/s²', ref:'9.80', deg:true, hist:[] }, ATW_LS.get(this.key, {}));
+    this.build(); this.recalc();
+    win.onResize=()=>{ const b=this.body.querySelector('.ec-body'); if(b) b.classList.toggle('narrow', this.body.clientWidth<720); };
+  }
+  save(){ clearTimeout(this._t); this._t=setTimeout(()=>this.flush(), 400); }
+  flush(){ ATW_LS.set(this.key, this.S); }
+  build(){
+    const S=this.S;
+    this.body.innerHTML=`<div class="ec">
+      <div class="ec-top">
+        <div class="ec-fx"><input class="ec-expr" value="${ATW_esc(S.expr)}" spellcheck="false" autocomplete="off" aria-label="식" placeholder="예: g = 4π²L/T²">
+          <div class="ec-msg"></div></div>
+        <div class="ec-opts"><select class="ec-ex" aria-label="예시"><option value="">예시 식…</option>${EC_EXAMPLES.map((e,i)=>`<option value="${i}">${ATW_esc(e[0])} — ${ATW_esc(e[1])}</option>`).join('')}</select>
+          <span class="gt-seg2" role="group" aria-label="각도 단위"><button type="button" data-deg="1" class="${S.deg?'on':''}" title="sin · cos · tan에 넣는 각도를 도(°)로">도(°)</button><button type="button" data-deg="0" class="${!S.deg?'on':''}" title="라디안으로">라디안</button></span>
+          <button type="button" class="gt-btn ghost" data-a="graph" title="열려 있는 그래프 도구의 맞춤 계수(예: 기울기 ± 오차)를 변수로">그래프에서 가져오기</button></div>
+        <p class="ec-help">곱하기는 생략해도 돼요(4π²L/T²) · ²  ³  √ · sin cos tan asin ln(자연로그) log(상용로그) exp sqrt abs · 그리스 문자 θ, ω 그대로 · 변수는 식에서 자동으로 찾아요</p>
+      </div>
+      <div class="ec-body"><div class="ec-vars"></div><div class="ec-res"></div></div>
+      <div class="gt-dlg-ov" hidden></div></div>`;
+    const q=s=>this.body.querySelector(s); this.$=q;
+    const ex=q('.ec-expr'); ex.addEventListener('input', ()=>{ S.expr=ex.value; this.save(); this.recalc(); }); ex.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter'){ this.remember(); } });
+    q('.ec-ex').onchange=e=>{ const E=EC_EXAMPLES[+e.target.value]; e.target.value=''; if(!E) return; S.expr=E[1]; S.vars=Object.assign({}, S.vars); Object.entries(E[2]).forEach(([k,v])=>{ S.vars[k]={ val:v[0], unc:v[1], unit:v[2], mode:'abs' }; }); S.unit=E[3]; S.ref=E[4]; ex.value=S.expr; this.save(); this.recalc(); };
+    this.body.querySelectorAll('[data-deg]').forEach(b=>b.onclick=()=>{ S.deg=b.dataset.deg==='1'; this.body.querySelectorAll('[data-deg]').forEach(x=>x.classList.toggle('on', x===b)); this.save(); this.recalc(); });
+    q('[data-a=graph]').onclick=()=>this.fromGraph();
+  }
+  remember(){ const e=this.S.expr.trim(); if(!e) return; this.S.hist=[e].concat((this.S.hist||[]).filter(x=>x!==e)).slice(0,10); this.save(); }
+  recalc(){
+    const S=this.S; const R=ecCompute(S, true); this.R=R;
+    const msg=this.$('.ec-msg'); msg.className='ec-msg'+(R.err && !R.domain?' bad':'');
+    msg.textContent = R.err && !R.domain ? `${R.err} (${(R.pos||0)+1}번째 글자 부근)` : R.name ? `결과 이름: ${R.name}` : '결과 이름을 붙이려면 "g = …"처럼 써요';
+    if(!R.names){ this.$('.ec-vars').innerHTML=''; this.$('.ec-res').innerHTML=''; return; }
+    // 변수 표(입력 중 포커스를 잃지 않게: 변수 목록이 같으면 값만 갱신)
+    const sig=R.names.join('\u0001');
+    if(this._sig!==sig){ this._sig=sig; this.paintVars(R); } else this.paintVarInfo(R);
+    this.paintRes(R);
+  }
+  paintVars(R){
+    const S=this.S; const box=this.$('.ec-vars');
+    box.innerHTML=`<table class="ec-tb"><tr><th>변수</th><th>측정값</th><th>± 오차</th><th></th><th>단위</th><th></th></tr>${R.names.map(nm=>{ const v=S.vars[nm]||(S.vars[nm]={ val:'', unc:'', unit:'', mode:'abs' }); const rep=v.rep&&v.rep.on;
+      return `<tr data-v="${ATW_esc(nm)}" class="${rep?'rep':''}"><td class="ec-nm">${gtRichSVG?ATW_esc(nm):ATW_esc(nm)}</td>
+        <td><input data-k="val" value="${ATW_esc(v.val)}" inputmode="decimal" placeholder="값"${rep?' disabled':''}></td>
+        <td><input data-k="unc" value="${ATW_esc(v.unc)}" inputmode="decimal" placeholder="오차"${rep?' disabled':''}></td>
+        <td><select data-k="mode"${rep?' disabled':''} title="오차를 값으로 · 퍼센트로"><option value="abs"${v.mode!=='rel'?' selected':''}>값</option><option value="rel"${v.mode==='rel'?' selected':''}>%</option></select></td>
+        <td><input data-k="unit" class="ec-u" value="${ATW_esc(v.unit||'')}" placeholder="단위"></td>
+        <td><button type="button" class="gt-btn ghost ec-repb${rep?' on':''}" data-rep title="여러 번 잰 값을 넣으면 평균과 오차를 계산해요">반복 측정</button></td></tr>
+        <tr class="ec-reprow" data-r="${ATW_esc(nm)}"${rep?'':' hidden'}><td></td><td colspan="5"><div class="ec-rep">
+          <textarea data-k="list" rows="2" placeholder="잰 값들 — 줄바꿈 · 쉼표 · 띄어쓰기로 (엑셀에서 붙여 넣어도 돼요)">${ATW_esc((v.rep&&v.rep.list)||'')}</textarea>
+          <div class="ec-rep-o"><label>통계 오차 <select data-k="use"><option value="se"${!v.rep||v.rep.use==='se'||!v.rep.use?' selected':''}>표준 오차 s/√n</option><option value="s"${v.rep&&v.rep.use==='s'?' selected':''}>표준편차 s</option><option value="ci"${v.rep&&v.rep.use==='ci'?' selected':''}>95% 구간 (t·s/√n)</option></select></label>
+            <label>기기 최소 눈금 <input data-k="res" value="${ATW_esc((v.rep&&v.rep.res)||'')}" placeholder="예 0.01" class="ec-sm"></label>
+            <label><select data-k="resMode"><option value="half"${!v.rep||v.rep.resMode!=='sq3'?' selected':''}>눈금 ÷ 2</option><option value="sq3"${v.rep&&v.rep.resMode==='sq3'?' selected':''}>눈금 ÷ √3 (GUM)</option></select></label></div>
+          <div class="ec-st"></div></div></td></tr>`; }).join('')}</table>
+      <div class="ec-ru"><label>결과 단위 <input class="ec-unit" value="${ATW_esc(S.unit||'')}" placeholder="예 m/s²"></label><label>비교할 값(이론 · 참값) <input class="ec-ref" value="${ATW_esc(S.ref||'')}" placeholder="예 9.80" inputmode="decimal"></label></div>`;
+    box.querySelectorAll('tr[data-v]').forEach(tr=>{ const nm=tr.dataset.v; const v=S.vars[nm];
+      tr.querySelectorAll('[data-k]').forEach(i=>{ i.addEventListener(i.tagName==='SELECT'?'change':'input', ()=>{ v[i.dataset.k]=i.value; this.save(); this.recalc(); }); i.addEventListener('keydown', e=>e.stopPropagation()); });
+      tr.querySelector('[data-rep]').onclick=()=>{ v.rep=Object.assign({ list:'', use:'se', res:'', resMode:'half' }, v.rep||{}); v.rep.on=!v.rep.on; this.save(); this._sig=null; this.recalc(); };
+    });
+    box.querySelectorAll('tr[data-r]').forEach(tr=>{ const v=S.vars[tr.dataset.r]; tr.querySelectorAll('[data-k]').forEach(i=>{ i.addEventListener(i.tagName==='SELECT'?'change':'input', ()=>{ v.rep[i.dataset.k]=i.value; this.save(); this.recalc(); }); i.addEventListener('keydown', e=>e.stopPropagation()); }); });
+    const u=box.querySelector('.ec-unit'), rf=box.querySelector('.ec-ref');
+    [u,rf].forEach(i=>i.addEventListener('keydown', e=>e.stopPropagation()));
+    u.oninput=()=>{ S.unit=u.value; this.save(); this.paintRes(this.R); }; rf.oninput=()=>{ S.ref=rf.value; this.save(); this.paintRes(this.R); };
+    this.paintVarInfo(R);
+  }
+  paintVarInfo(R){
+    (R.names||[]).forEach(nm=>{ const row=this.body.querySelector(`tr[data-r="${CSS.escape(nm)}"] .ec-st`); const tr=this.body.querySelector(`tr[data-v="${CSS.escape(nm)}"]`); if(!row || !tr) return;
+      const inf=R.info && R.info[nm]; const v=this.S.vars[nm];
+      if(v.rep && v.rep.on){ const st=inf&&inf.st;
+        row.innerHTML = st ? `n = ${st.n} · 평균 <b>${gtFmt(st.mean,6)}</b> · s = ${gtFmt(st.s,3)} · s/√n = ${gtFmt(st.se,3)}${st.n>1?` · 95% ±${gtFmt(st.ci,3)} (t=${ecT95(st.n-1).toFixed(2)})`:''} → <b>${gtFmtPM(st.mean, Math.sqrt((inf.a||0)**2+(inf.b||0)**2))}</b>${inf.b?` <small>(통계 ${gtFmt(inf.a,2)} ⊕ 눈금 ${gtFmt(inf.b,2)})</small>`:''}${st.n<3?' <small class="ec-w">3번 이상 재면 더 믿을 만해요</small>':''}` : '<span class="ec-w">숫자를 넣어 주세요</span>';
+        tr.querySelector('[data-k=val]').value = st ? gtFmt(st.mean,6) : ''; tr.querySelector('[data-k=unc]').value = st ? gtFmt(Math.sqrt((inf.a||0)**2+(inf.b||0)**2),3) : ''; }
+      tr.classList.toggle('miss', (R.miss||[]).includes(nm)); });
+  }
+  paintRes(R){
+    const box=this.$('.ec-res'), S=this.S, unit=S.unit?` ${ATW_esc(S.unit)}`:'';
+    if(R.miss && R.miss.length){ box.innerHTML=`<div class="ec-wait">값을 넣으면 바로 계산해요 — <b>${R.miss.map(ATW_esc).join(', ')}</b></div>`; return; }
+    if(R.err){ box.innerHTML=`<div class="ec-wait bad">${ATW_esc(R.err)}</div>`; return; }
+    const name=R.name||'결과'; const pm=gtFmtPM(R.f0, R.sigma); const rel=isFinite(R.rel)?(R.rel*100):NaN;
+    const top=[...R.parts].sort((a,b)=>b.share-a.share);
+    const nonlin = R.mc && R.sigma>0 && Math.abs(R.mc.sd-R.sigma)/R.sigma>0.1;
+    const ref=gtNum(S.ref); let cmp='';
+    if(isFinite(ref)){ const d=R.f0-ref, z=R.sigma>0?Math.abs(d)/R.sigma:Infinity, pct=ref!==0?d/ref*100:NaN;
+      const verdict = z<=1 ? ['ok','오차 범위 안 — 이론과 맞아요'] : z<=2 ? ['mid','오차의 1~2배 — 대체로 맞지만 확인해 볼 만해요'] : ['bad','오차의 2배 넘게 벗어나요 — 측정 · 식 · 가정을 다시 봐요'];
+      cmp=`<div class="ec-cmp ${verdict[0]}"><b>비교</b> 참값 ${ATW_esc(gtFmt(ref,6))}${unit}와의 차이 ${gtFmt(d,3)}${isFinite(pct)?` (${pct>0?'+':''}${pct.toFixed(2)}%)`:''} · 오차의 ${isFinite(z)?z.toFixed(2):'∞'}배 — ${verdict[1]}</div>`; }
+    const hist = R.mc ? (()=>{ const H=R.mc.hist, mx=Math.max(...H), W=220, Hh=48; const bw=W/H.length; return `<svg class="ec-hist" viewBox="0 0 ${W} ${Hh}" width="${W}" height="${Hh}" aria-hidden="true">${H.map((h,i)=>`<rect x="${(i*bw).toFixed(1)}" y="${(Hh-h/mx*Hh).toFixed(1)}" width="${(bw-1).toFixed(1)}" height="${(h/mx*Hh).toFixed(1)}"/>`).join('')}</svg>`; })() : '';
+    box.innerHTML=`<div class="ec-big"><span class="ec-name">${ATW_esc(name)}</span> = <b>${ATW_esc(pm)}</b>${unit}<span class="ec-rel">${isFinite(rel)?`상대 오차 ${rel<1?rel.toFixed(2):rel.toPrecision(2)}%`:''}</span></div>
+      <div class="ec-acts"><button type="button" class="gt-btn" data-cp1>한 줄 복사</button><button type="button" class="gt-btn ghost" data-cpw title="문서에 붙이면 표가 돼요">위키 표로 복사</button><button type="button" class="gt-btn ghost" data-mc>몬테카를로 다시</button></div>
+      ${cmp}
+      <h4>어느 값이 오차를 키우나요</h4>
+      <div class="ec-bars">${top.map(p=>`<div class="ec-bar"><span class="ec-bn">${ATW_esc(p.nm)}</span><span class="ec-bt"><i style="width:${(p.share*100).toFixed(1)}%"></i></span><span class="ec-bp">${(p.share*100).toFixed(1)}%</span><span class="ec-bd" title="∂${ATW_esc(name)}/∂${ATW_esc(p.nm)}">∂/∂${ATW_esc(p.nm)} = ${gtFmt(p.d,3)}</span></div>`).join('')}</div>
+      ${top.length && top[0].share>0.7 && top.length>1 ? `<p class="ec-tip">오차의 ${(top[0].share*100).toFixed(0)}%가 <b>${ATW_esc(top[0].nm)}</b>에서 와요. ${ATW_esc(top[0].nm)}를 더 정밀하게 재면(반복 측정 횟수를 늘리거나 더 고운 기구로) 결과가 가장 많이 좋아져요.</p>`:''}
+      <h4>방법별 비교</h4>
+      <table class="ec-m"><tr><td>오차 전파 (편미분)</td><td><b>${ATW_esc(pm)}</b></td><td class="ec-mx">σ² = Σ(∂f/∂x · σx)² — 변수끼리 독립이라고 봐요</td></tr>
+        ${R.ext?`<tr><td>최대 · 최소 방법</td><td>${gtFmt(R.ext.lo,5)} ~ ${gtFmt(R.ext.hi,5)} → ± ${gtFmt(R.ext.half,2)}</td><td class="ec-mx">모든 변수를 ±로 한꺼번에 — 가장 넉넉한 어림</td></tr>`:''}
+        ${R.mc?`<tr><td>몬테카를로 (${R.mc.n.toLocaleString()}번)</td><td>${ATW_esc(gtFmtPM(R.mc.mean, R.mc.sd))}<br><small>95%: ${gtFmt(R.mc.lo,5)} ~ ${gtFmt(R.mc.hi,5)}</small></td><td class="ec-mx">${hist}${nonlin?'<br><b class="ec-w">식이 많이 휘어 있어 편미분 어림이 덜 맞아요 — 이 값을 쓰는 게 좋아요</b>':''}</td></tr>`:''}</table>`;
+    const line=`${name} = ${pm}${S.unit?' '+S.unit:''}${isFinite(rel)?` (상대 오차 ${rel<1?rel.toFixed(2):rel.toPrecision(2)}%)`:''}`;
+    const cp=t=>{ try{ navigator.clipboard.writeText(t).then(()=>ATW_say('복사했어요.')); }catch(e){ ATW_say('복사하지 못했어요.'); } };
+    box.querySelector('[data-cp1]').onclick=()=>cp(line);
+    box.querySelector('[data-cpw]').onclick=()=>{ const rows=R.names.map(nm=>{ const v=S.vars[nm]; const p=R.parts.find(x=>x.nm===nm); return `| ${nm} | ${gtFmtPM(R.V[nm], R.sig[nm])} | ${v.unit||''} | ${(p.share*100).toFixed(1)}% |`; });
+      cp(`식: ${S.expr}\n\n| 변수 | 값 ± 오차 | 단위 | 오차 몫 |\n|---|---|---|---|\n${rows.join('\n')}\n| **${name}** | **${pm}** | ${S.unit||''} | 100% |\n`); };
+    box.querySelector('[data-mc]').onclick=()=>{ this.R=ecCompute(S, true); this.paintRes(this.R); };
+  }
+  fromGraph(){
+    const gw=ATW.wins.graph; const T=gw && gw.tool; const fits=T && T.last ? T.last.info.fits.filter(f=>!f.err) : [];
+    if(!fits.length) return ATW_say('그래프 도구를 열고 맞춤(예: 직선)을 해 두면 그 계수를 가져올 수 있어요.', 4500);
+    const R=this.R||{}; const names=R.names||[];
+    const ov=this.body.querySelector('.gt-dlg-ov'); ov.hidden=false;
+    ov.innerHTML=`<div class="gt-dlg"><div class="gt-dlg-h"><b>그래프의 맞춤 계수 가져오기</b></div>
+      ${fits.map((f,fi)=>`<div class="ec-gf"><b>${ATW_esc(f.s.name)}</b> <code>${ATW_esc(f.eq)}</code>${f.params.map((p,pi)=>`<div class="ec-gp">${ATW_esc(p[0])} = ${ATW_esc(p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6))} → <select data-f="${fi}" data-p="${pi}"><option value="">넣지 않기</option>${names.map(n=>`<option>${ATW_esc(n)}</option>`).join('')}<option value="+">새 변수…</option></select></div>`).join('')}</div>`).join('')}
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-x>취소</button><button type="button" class="gt-btn pri" data-ok>넣기</button></div></div>`;
+    const close=()=>{ ov.hidden=true; ov.innerHTML=''; };
+    ov.querySelector('[data-x]').onclick=close;
+    ov.querySelector('[data-ok]').onclick=()=>{ let n=0; ov.querySelectorAll('select[data-f]').forEach(s=>{ let to=s.value; if(!to) return; const p=fits[+s.dataset.f].params[+s.dataset.p];
+        if(to==='+'){ to=prompt('변수 이름', p[0])||''; to=to.trim(); if(!to) return; }
+        this.S.vars[to]={ val:String(+p[1].toPrecision(8)), unc:p[2]?String(+p[2].toPrecision(4)):'', unit:(this.S.vars[to]||{}).unit||'', mode:'abs' }; n++; });
+      close(); this._sig=null; this.save(); this.recalc(); ATW_say(n?`${n}개를 넣었어요.`:'넣은 것이 없어요.'); };
+  }
+}
+
+/* ================================================================
+   ★세션 CZ: 영상 분석 (Tracker 간이판)
+   · 영상은 이 기기의 파일을 그대로 읽는다(URL.createObjectURL) — 업로드 · 복사 · 저장 없음. 10GB도 메모리에 올리지 않고
+     브라우저가 디스크에서 필요한 만큼만 읽는다. 화면에는 원본 해상도 프레임이 그대로(재인코딩 없음).
+   · 저장되는 것은 찍은 점 · 축척 · 축뿐(계정 + 영상 파일 서명별, localStorage). 창을 닫으면 영상은 다시 열어야 한다.
+   · 시간: 프레임마다 실제 표시 시각(requestVideoFrameCallback의 mediaTime)을 적는다 → 폰의 가변 프레임 영상도 맞다.
+   ================================================================ */
+const TR_KEY0='anda_tr_v1';
+function TR_UID(){ try{ if(typeof state!=='undefined' && state.user && state.user.id) return state.user.id; }catch(e){} return 'anon'; }
+const TR_COLORS=['#C00000','#1E6BE0','#1F7A4D','#B7791F','#7A4E9C','#0C8599','#3A3536','#D9483F'];
+const TR_FPS_STD=[23.976,24,25,29.97,30,48,50,59.94,60,90,100,119.88,120,180,239.76,240,480,960];
+function trSize(b){ return b>=1073741824 ? (b/1073741824).toFixed(2)+'GB' : b>=1048576 ? (b/1048576).toFixed(1)+'MB' : Math.round(b/1024)+'KB'; }
+function trTime(s){ if(!isFinite(s)) return '–'; const m=Math.floor(s/60), r=s-m*60; return m+':'+(r<10?'0':'')+r.toFixed(3); }
+function openTracker(){ return ATW.open('tracker', { title:'영상 분석', icon:ATW_ICON.track, w:1240, h:780, minW:640, minH:460, mount:(b,w)=>{ w.tool=new Tracker(b,w); }, onClose:w=>{ try{ w.tool.destroy(); }catch(e){} } }); }
+class Tracker{
+  constructor(body, win){
+    this.body=body; this.win=win; this.D=null; this.f=0; this.N=0; this.z=1; this.tx=0; this.ty=0; this.mode='mark'; this.undo=[]; this.redo=[];
+    this.build(); win.onResize=()=>{ const t=this.body.querySelector('.tr'); if(t) t.classList.toggle('narrow', this.body.clientWidth<900); if(this.D && !this._userZoom) this.fitView(); this.paint(); };
+    this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH);
+  }
+  destroy(){ this.stopAuto=true; this.flush(); document.removeEventListener('keydown', this.keyH); try{ this.video.pause(); this.video.removeAttribute('src'); this.video.load(); }catch(e){} if(this.url) URL.revokeObjectURL(this.url); }
+  /* ───────── 뼈대 ───────── */
+  build(){
+    this.body.innerHTML=`<div class="tr">
+      <div class="gt-tb tr-tb">
+        <button type="button" class="gt-btn pri" data-a="open">${gtI('folder')}영상 열기</button>
+        <span class="tr-file">영상을 열거나 이 창에 끌어 놓으세요 — 업로드하지 않고 이 기기에서 바로 읽어요</span><span class="gt-sp"></span>
+        <span class="gt-seg tr-modes" role="group" aria-label="도구">
+          <button type="button" data-mode="mark" title="점 찍기 — 물체를 누르면 점이 찍히고 다음 프레임으로">●<span>점</span></button>
+          <button type="button" data-mode="auto" title="자동 추적 — 물체를 한 번 누르면 다음 프레임들을 따라가요">⟳<span>자동</span></button>
+          <button type="button" data-mode="cal" title="축척 — 길이를 아는 물체의 양 끝을 끌어서">⟷<span>축척</span></button>
+          <button type="button" data-mode="axes" title="좌표축 — 누르면 원점, 끌면 x축 방향">✛<span>축</span></button>
+          <button type="button" data-mode="pan" title="화면 옮기기 (가운데 버튼으로 끌어도 돼요 · 휠 = 확대)">✋<span>이동</span></button></span>
+        <span class="tr-zoom"><button type="button" class="gt-ib" data-a="zout" title="축소 (−)" aria-label="축소">−</button><button type="button" class="tr-zv" data-a="fit" title="화면에 맞춤 (0) · 누르면 100%">맞춤</button><button type="button" class="gt-ib" data-a="zin" title="확대 (+)" aria-label="확대">＋</button></span>
+        <button type="button" class="gt-btn ghost" data-a="view" title="밝기 · 대비 · 흑백 · 픽셀 그대로">보기</button>
+        <input type="file" class="tr-fi" accept="video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi" hidden>
+      </div>
+      <div class="tr-mid">
+        <div class="tr-stage" tabindex="0">
+          <div class="tr-wrap"><video class="tr-v" playsinline muted preload="auto"></video><svg class="tr-svg" xmlns="http://www.w3.org/2000/svg"></svg></div>
+          <canvas class="tr-loupe" width="150" height="150" hidden></canvas>
+          <div class="tr-busy" hidden><i></i><span></span></div>
+          <div class="tr-load" hidden><div class="tr-spin"></div><b class="tr-lt"></b><span class="tr-ls"></span><div class="tr-lbar"><i></i></div><small class="tr-lh"></small><div class="tr-lbtn"></div></div>
+          <div class="tr-empty"><div class="tr-ei">${ATW_ICON.track}</div><b>실험 영상을 여세요</b><span>MP4 · MOV · WebM 등 · 크기 제한 없음(10GB도 돼요)<br>영상은 업로드되지도 저장되지도 않아요 — 이 기기에서 원본 화질 그대로 읽어요</span><button type="button" class="gt-btn pri" data-a="open">영상 열기</button></div>
+          <div class="tr-drop" hidden>놓으면 열어요</div>
+        </div>
+        <aside class="tr-side">
+          <div class="tr-sec"><div class="tr-sh"><b>물체</b><button type="button" class="gt-btn ghost" data-a="addtr">＋ 물체</button></div><div class="tr-tracks"></div></div>
+          <div class="tr-sec tr-set"></div>
+          <div class="tr-sec tr-tablesec"><div class="tr-sh"><b>데이터</b><span class="tr-cnt"></span></div><div class="tr-table"></div>
+            <div class="tr-acts"><button type="button" class="gt-btn pri" data-a="tograph" title="그래프 도구로 — X · Y 역할은 넣을 때 고를 수 있어요">${ATW_ICON.graph}그래프로</button><button type="button" class="gt-btn" data-a="csv">CSV</button><button type="button" class="gt-btn ghost" data-a="snap" title="지금 화면(원본 해상도 + 점)을 PNG로">화면 저장</button><button type="button" class="gt-btn ghost" data-a="clrtr" title="이 물체의 점 모두 지우기">점 지우기</button></div></div>
+        </aside>
+      </div>
+      <div class="tr-tl">
+        <div class="tr-tlb"><button type="button" class="gt-ib" data-a="b10" title="10 프레임 뒤로 (Shift+←)">⏪</button><button type="button" class="gt-ib" data-a="b1" title="1 프레임 뒤로 (←)">◀</button>
+          <button type="button" class="gt-ib tr-play" data-a="play" title="재생 · 멈춤 (Space)">▶</button><button type="button" class="gt-ib" data-a="f1" title="1 프레임 앞으로 (→)">▶︎</button><button type="button" class="gt-ib" data-a="f10" title="10 프레임 앞으로 (Shift+→)">⏩</button>
+          <span class="tr-pos"></span><span class="gt-sp"></span>
+          <button type="button" class="gt-btn ghost" data-a="setA" title="분석을 이 프레임부터">[ 시작</button><button type="button" class="gt-btn ghost" data-a="setB" title="분석을 이 프레임까지">끝 ]</button><button type="button" class="gt-btn ghost" data-a="set0" title="이 프레임을 t = 0으로">t = 0</button></div>
+        <div class="tr-rail"><input type="range" class="tr-sl" min="0" max="0" value="0" step="1" aria-label="프레임"><div class="tr-marks"></div><div class="tr-range"></div></div>
+      </div>
+      <div class="gt-dlg-ov" hidden></div>
+    </div>`;
+    const q=s=>this.body.querySelector(s); this.$=q;
+    this.video=q('.tr-v'); this.svg=q('.tr-svg'); this.wrap=q('.tr-wrap'); this.stage=q('.tr-stage'); this.loupe=q('.tr-loupe');
+    this.body.querySelectorAll('[data-a]').forEach(b=>b.addEventListener('click', e=>this.action(b.dataset.a, b, e)));
+    this.body.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>this.setMode(b.dataset.mode));
+    q('.tr-fi').onchange=e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) this.openFile(f); };
+    const sl=q('.tr-sl'); sl.addEventListener('input', ()=>{ this.pauseIfPlaying(); this.seekFrame(+sl.value); });
+    this.bindStage(); this.bindDrop(); this.setMode('mark'); this.paintSide();
+    const v=this.video;
+    v.addEventListener('waiting', ()=>{ if(this.playing) this.busy(true, '영상 읽는 중…'); }); v.addEventListener('playing', ()=>this.busy(false));
+  }
+  /* ───────── 열기 · 불러오는 중 피드백 ───────── */
+  loading(on, title, sub, pct, hint, btns){
+    const L=this.$('.tr-load'); L.hidden=!on; if(!on) return;
+    this.$('.tr-lt').textContent=title||''; this.$('.tr-ls').textContent=sub||''; this.$('.tr-lh').textContent=hint||'';
+    const bar=this.$('.tr-lbar'); bar.hidden = pct==null; if(pct!=null) bar.querySelector('i').style.width=Math.max(2,Math.min(100,pct))+'%';
+    const bb=this.$('.tr-lbtn'); bb.innerHTML=(btns||[]).map((b,i)=>`<button type="button" class="gt-btn${i===0?' pri':''}" data-lb="${i}">${ATW_esc(b[0])}</button>`).join(''); bb.querySelectorAll('[data-lb]').forEach(x=>x.onclick=()=>btns[+x.dataset.lb][1]());
+    this.$('.tr-spin').hidden = !!(btns && btns.length);
+  }
+  busy(on, text){ clearTimeout(this._bt); const B=this.$('.tr-busy'); if(!on){ B.hidden=true; return; } this._bt=setTimeout(()=>{ B.hidden=false; B.querySelector('span').textContent=text||'프레임 불러오는 중…'; }, 160); }
+  async openFile(file){
+    if(!/^video\//.test(file.type) && !/\.(mp4|mov|m4v|webm|mkv|avi|3gp|mts|m2ts)$/i.test(file.name)) return ATW_say('영상 파일이 아니에요.');
+    this.stopAuto=true; this.flush();
+    if(this.url) URL.revokeObjectURL(this.url);
+    this.file=file; this.sig=[file.name, file.size, file.lastModified].join('|'); this.D=null; this.f=0; this.undo=[]; this.redo=[];
+    this.svg.innerHTML=''; this.$('.tr-marks').innerHTML=''; this.$('.tr-range').innerHTML=''; this.$('.tr-pos').textContent=''; this._mk=null; this.paintSide();   // 앞 영상의 점 · 표를 바로 치운다
+    this.$('.tr-empty').hidden=true; this.$('.tr-file').textContent=`${file.name} · ${trSize(file.size)}`;
+    const v=this.video, t0=performance.now(); let phase='meta';
+    const sub=`${file.name} · ${trSize(file.size)} — 업로드하지 않고 이 기기에서 바로 읽어요`;
+    this.loading(true, '영상을 여는 중…', sub, 5, file.size>2147483648 ? '큰 영상이에요. 처음 여는 데 몇 초 걸릴 수 있어요.' : '');
+    const tick=setInterval(()=>{ const s=((performance.now()-t0)/1000).toFixed(0);
+      if(phase==='meta') this.loading(true, `영상을 여는 중… ${s}초`, sub, Math.min(35, 5+s*3), +s>=12 ? '오래 걸리네요 — 영상 정보가 파일 끝에 있는 영상(아이폰 MOV 등)은 끝까지 찾아 읽느라 늦을 수 있어요. 25초가 넘으면 이 브라우저가 못 여는 형식일 수 있어요.' : file.size>2147483648?'큰 영상이에요. 처음 여는 데 몇 초 걸릴 수 있어요.':'');
+      if(phase==='meta' && +s>=25){ phase='slow'; this.codecHelp('time'); } }, 500);
+    const fail=(why)=>{ clearInterval(tick); phase='err'; this.codecHelp(why); };
+    v.onerror=()=>fail(v.error ? v.error.code : 0);
+    this.url=URL.createObjectURL(file);
+    v.src=this.url; v.load();
+    try{
+      await new Promise((res, rej)=>{ v.onloadedmetadata=res; v.onerror=()=>rej(v.error?v.error.code:0); });
+      if(!v.videoWidth){ fail('novideo'); return; }
+      phase='first';
+      this.loading(true, `해상도 ${v.videoWidth}×${v.videoHeight} · 길이 ${trTime(v.duration)} 확인`, '첫 화면을 불러오는 중…', 45, '화면에는 원본 해상도 그대로 보여요(줄이지 않아요).');
+      if(v.readyState<2) await new Promise((res, rej)=>{ v.onloadeddata=res; v.onerror=()=>rej(v.error?v.error.code:0); setTimeout(res, 15000); });
+      phase='fps'; clearInterval(tick);
+      const fps=await this.measureFps((k,n)=>this.loading(true, '프레임 속도를 재는 중…', `${k} / ${n} 프레임`, 55+k/n*40, '프레임을 한 장씩 넘기려면 정확한 프레임 속도가 필요해요.'));
+      this.startProject(fps);
+    }catch(code){ fail(code); }
+  }
+  codecHelp(why){
+    const map={ 4:'이 브라우저가 이 영상 형식(코덱)을 열 수 없어요.', 3:'영상을 푸는 중에 문제가 생겼어요(손상됐거나 지원하지 않는 형식).', 2:'파일을 읽는 중에 끊겼어요.', time:'영상을 여는 데 너무 오래 걸려요 — 이 브라우저가 못 여는 형식일 수 있어요.', novideo:'이 파일에는 영상 트랙이 없거나, 브라우저가 영상을 풀지 못해요(소리만 나오는 경우).' };
+    this.loading(true, map[why]||'영상을 열지 못했어요.', this.file?`${this.file.name} · ${trSize(this.file.size)}`:'', null,
+      '아이폰 영상(HEVC/H.265)이 흔한 원인이에요 → ① 크롬 · 엣지 최신판 또는 맥 사파리로 열기 ② 아이폰 [설정 → 카메라 → 포맷 → 높은 호환성]으로 찍기 ③ 영상을 H.264 MP4로 바꿔 열기. 화질을 지키려면 비트레이트를 원본과 같게 두세요.',
+      [['다른 영상 열기', ()=>this.$('.tr-fi').click()], why==='time'?['조금 더 기다리기', ()=>this.loading(true, '기다리는 중…', '', null, '', [])]:null].filter(Boolean));
+  }
+  /* 프레임 속도: 소리 없이 잠깐 재생하며 프레임마다의 표시 시각 간격을 잰다. 4K처럼 못 따라가 건너뛴 칸은 가장 짧은 간격으로 걸러 낸다 */
+  async measureFps(prog){
+    const v=this.video;
+    if(!v.requestVideoFrameCallback) return { fps:30, guessed:true };
+    const ts=[]; const N=24; v.muted=true; v.currentTime=0;
+    await new Promise(r=>{ v.onseeked=r; setTimeout(r, 1500); });
+    const got=await new Promise(res=>{ let done=false; const fin=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} res(ts); };
+      const cb=(now, m)=>{ ts.push(m.mediaTime); prog && prog(ts.length, N); if(ts.length>=N) fin(); else v.requestVideoFrameCallback(cb); };
+      v.requestVideoFrameCallback(cb); const p=v.play(); if(p && p.catch) p.catch(()=>fin()); setTimeout(fin, 4000); });
+    const d=[]; for(let i=1;i<got.length;i++){ const x=got[i]-got[i-1]; if(x>1e-5) d.push(x); }
+    if(d.length<3) return { fps:30, guessed:true };
+    d.sort((a,b)=>a-b); const base=d[Math.floor(d.length*0.15)]; const near=d.filter(x=>Math.abs(x-base)/base<0.08); let dt=near.reduce((a,b)=>a+b,0)/near.length;
+    // 짧은 표본은 ms 단위 반올림 때문에 30과 29.97을 못 가른다 → 끝 무렵 프레임의 시각을 읽어 영상 전체 길이로 잰다
+    const t0=got[0]; let fps=1/dt;
+    try{ if(v.duration>dt*40){ const tgt=v.duration-dt*2.5; const tl=await new Promise(res=>{ let ok=false; v.requestVideoFrameCallback((n,m)=>{ ok=true; res(m.mediaTime); }); v.currentTime=tgt; setTimeout(()=>{ if(!ok) res(null); }, 3000); });
+        if(tl!=null && tl>t0){ const cnt=Math.round((tl-t0)/dt); if(cnt>0) fps=cnt/(tl-t0); } } }catch(e){}
+    const snap=TR_FPS_STD.find(s=>Math.abs(s-fps)/s<0.0006) || TR_FPS_STD.find(s=>Math.abs(s-fps)/s<0.012 && !TR_FPS_STD.some(o=>o!==s && Math.abs(o-fps)/o<0.012)); if(snap) fps=snap;
+    return { fps:+fps.toFixed(3), guessed:false };
+  }
+  startProject(fr){
+    const v=this.video; const key=TR_KEY0+':'+TR_UID()+':'+this.sig; this.key=key;
+    const prev=ATW_LS.get(key, null);
+    const fresh={ v:1, fps:fr.fps, fpsGuess:fr.guessed, cap:'', step:1, cal:null, axes:null, tracks:[{ id:'A', name:'물체 A', color:TR_COLORS[0], pts:{} }], cur:'A', fa:0, fb:null, f0:0, trail:'all', tsize:32, srad:40, thr:0.55 };
+    const go=(D)=>{ this.D=D; this.N=Math.max(1, Math.floor(v.duration*D.fps+1e-6)); if(D.fb==null || D.fb>=this.N) D.fb=this.N-1;
+      this.$('.tr-sl').max=this.N-1; this.loading(false); this.$('.tr-file').textContent=`${this.file.name} · ${trSize(this.file.size)} · ${v.videoWidth}×${v.videoHeight} · ${D.fps}fps${D.fpsGuess?' (짐작)':''} · ${trTime(v.duration)}`;
+      this.wrap.style.width=v.videoWidth+'px'; this.wrap.style.height=v.videoHeight+'px'; this.svg.setAttribute('viewBox', `0 0 ${v.videoWidth} ${v.videoHeight}`); this.svg.setAttribute('width', v.videoWidth); this.svg.setAttribute('height', v.videoHeight);
+      this._userZoom=false; this.fitView(); this.seekFrame(D.fa||0); this.paintSide(); this.save();
+      ATW_say(D.fpsGuess ? '프레임 속도를 재지 못해 30fps로 뒀어요 — 오른쪽 [설정]에서 고쳐 주세요.' : `준비됐어요 — ${v.videoWidth}×${v.videoHeight}, ${D.fps}fps`, 4000);
+      if(!D.cal) setTimeout(()=>ATW_say('먼저 [축척]으로 길이를 아는 물체를 재 주세요 — 안 하면 픽셀 단위로 나와요.', 5000), 1800); };
+    const nPts=prev ? prev.tracks.reduce((a,t)=>a+Object.keys(t.pts||{}).length,0) : 0;
+    if(prev && (nPts || prev.cal)){
+      this.loading(true, `이 영상에서 찍어 둔 점 ${nPts}개가 있어요`, `${prev.cal?'축척 · ':''}${prev.tracks.length}개 물체 — 이어서 할까요?`, null, '영상 자체는 저장하지 않았고, 찍은 점과 설정만 이 기기에 남아 있었어요.',
+        [['이어서 하기', ()=>go(Object.assign(fresh, prev, { fps:prev.fpsManual?prev.fps:fr.fps, fpsGuess:prev.fpsManual?false:fr.guessed }))], ['새로 시작', ()=>go(fresh)]]);
+    } else go(fresh);
+  }
+  /* ───────── 프레임 이동 ───────── */
+  tOfFrame(n){ return (n+0.5)/this.D.fps; }
+  frameOfTime(t){ return Math.max(0, Math.min(this.N-1, Math.round(t*this.D.fps))); }
+  seekFrame(n){
+    if(!this.D) return Promise.resolve();
+    n=Math.max(0, Math.min(this.N-1, Math.round(n))); this.f=n; this.$('.tr-sl').value=n; this.paintPos();
+    const v=this.video; const my=(this._seq=(this._seq||0)+1);
+    if(Math.abs(v.currentTime-this.tOfFrame(n))<1e-6 && !v.seeking && v.readyState>=2){ this.paint(); return Promise.resolve(); }   // 이미 그 프레임
+    this.busy(true);
+    // 끝났다고 보는 조건: seeked + 화면에 실제로 나온 프레임의 시각(mediaTime)이 고른 프레임과 맞을 때.
+    // (seek 직후 예전 프레임이 한 번 더 '나왔다'고 알려 오는 경우가 있어서 — 그 프레임으로 자동 추적하면 어긋난다)
+    const tgt=this.tOfFrame(n), half=0.5/this.D.fps;
+    return new Promise(res=>{
+      let fin=false, seeked=false, mt=null;
+      const end=()=>{ if(fin) return; fin=true; if(my===this._seq){ this.vt = mt!=null && Math.abs(mt-tgt)<=half+2e-3 ? mt : v.currentTime-half; this.busy(false); this.paint(); } res(); };
+      const good=()=>mt!=null && Math.abs(mt-tgt)<=half+2e-3;
+      const arm=()=>{ if(fin || !v.requestVideoFrameCallback) return; v.requestVideoFrameCallback((now, m)=>{ mt=m.mediaTime; if(seeked && good()) end(); else arm(); }); };
+      v.addEventListener('seeked', ()=>{ seeked=true; if(!v.requestVideoFrameCallback) return end(); if(good()) end(); else setTimeout(end, 400); }, { once:true });
+      arm(); setTimeout(end, 5000);
+      v.currentTime=tgt;
+    });
+  }
+  pauseIfPlaying(){ if(!this.video.paused){ this.video.pause(); this.playing=false; this.$('.tr-play').textContent='▶'; } }
+  togglePlay(){
+    const v=this.video; if(!this.D) return;
+    if(!v.paused){ v.pause(); this.playing=false; this.$('.tr-play').textContent='▶'; this.seekFrame(this.frameOfTime(v.currentTime-0.5/this.D.fps)); return; }
+    this.playing=true; this.$('.tr-play').textContent='⏸'; if(this.f>=this.D.fb) this.seekFrame(this.D.fa);
+    const loop=(now, m)=>{ if(!this.playing) return; this.f=this.frameOfTime(m.mediaTime); this.vt=m.mediaTime; this.$('.tr-sl').value=this.f; this.paintPos(); this.paint();
+      if(this.f>=this.D.fb){ v.pause(); this.playing=false; this.$('.tr-play').textContent='▶'; return; } v.requestVideoFrameCallback(loop); };
+    if(v.requestVideoFrameCallback) v.requestVideoFrameCallback(loop);
+    v.play().catch(()=>{ this.playing=false; this.$('.tr-play').textContent='▶'; });
+  }
+  /* ───────── 좌표 ───────── */
+  vw(){ return this.video.videoWidth||1; } vh(){ return this.video.videoHeight||1; }
+  fitView(){ const r=this.stage.getBoundingClientRect(); if(!r.width) return; const z=Math.min(r.width/this.vw(), r.height/this.vh())*0.98; this.z=z; this.tx=(r.width-this.vw()*z)/2; this.ty=(r.height-this.vh()*z)/2; this.applyView(); }
+  applyView(){ this.wrap.style.transform=`translate(${this.tx}px, ${this.ty}px) scale(${this.z})`; this.$('.tr-zv').textContent = Math.round(this.z*100)+'%'; this.wrap.classList.toggle('px', !!(this.D && this.D.pixel && this.z>=2)); this.paint(); }
+  zoomAt(cx, cy, k){ const r=this.stage.getBoundingClientRect(); const px=cx-r.left, py=cy-r.top; const nz=Math.max(0.05, Math.min(32, this.z*k)); this.tx=px-(px-this.tx)*nz/this.z; this.ty=py-(py-this.ty)*nz/this.z; this.z=nz; this._userZoom=true; this.applyView(); }
+  toVid(e){ const r=this.wrap.getBoundingClientRect(); return { x:(e.clientX-r.left)/r.width*this.vw(), y:(e.clientY-r.top)/r.height*this.vh() }; }
+  axes(){ return this.D.axes || { x:0, y:this.vh(), ang:0, flip:false }; }
+  scale(){ const c=this.D.cal; if(!c) return { s:1, u:'px' }; const d=Math.hypot(c.b.x-c.a.x, c.b.y-c.a.y); return { s: d>0 ? c.len/d : 1, u:c.unit||'m' }; }
+  phys(p){ const A=this.axes(), S=this.scale(); const dx=p.x-A.x, dy=-(p.y-A.y); const c=Math.cos(A.ang), s=Math.sin(A.ang);
+    let X=(dx*c+dy*s)*S.s, Y=(-dx*s+dy*c)*S.s; if(A.flip) Y=-Y; return { X, Y }; }
+  tscale(){ const cap=gtNum(this.D.cap); return cap>0 ? this.D.fps/cap : 1; }     // 슬로모션: 촬영 240fps를 30fps로 재생한 영상이면 실제 시간 = 영상 시간 × 30/240
+  tOf(pt, f){ const vt = pt && pt.vt!=null ? pt.vt : f/this.D.fps; const v0 = this.D.f0/this.D.fps; return (vt - v0)*this.tscale(); }
+  track(){ return this.D.tracks.find(t=>t.id===this.D.cur) || this.D.tracks[0]; }
+  /* ───────── 그리기(겹쳐 그리는 SVG — 영상 픽셀 좌표) ───────── */
+  paint(){
+    if(!this.D) return; const D=this.D, z=this.z, u=1/z; const W=this.vw(), H=this.vh();
+    let h='';
+    // 축
+    const A=this.axes(); const L=Math.max(W,H)*2; const c=Math.cos(A.ang), s=Math.sin(A.ang);
+    const ax=(dx,dy)=>`${(A.x+dx).toFixed(1)} ${(A.y-dy).toFixed(1)}`;
+    h+=`<g class="tr-ax" stroke="#FF2DA6" fill="#FF2DA6" stroke-width="${1.5*u}"><path d="M${ax(-L*c,-L*s)}L${ax(L*c,L*s)}M${ax(L*s,-L*c)}L${ax(-L*s,L*c)}"/>
+      <circle cx="${A.x}" cy="${A.y}" r="${5*u}" fill="none"/><text stroke="none" x="${(A.x+c*60*u+6*u).toFixed(1)}" y="${(A.y-s*60*u-6*u).toFixed(1)}" font-size="${13*u}">x</text><text stroke="none" x="${(A.x-s*60*u*(A.flip?-1:1)+6*u).toFixed(1)}" y="${(A.y-c*60*u*(A.flip?-1:1)).toFixed(1)}" font-size="${13*u}">y</text></g>`;
+    // 축척
+    if(D.cal){ const C=D.cal; h+=`<g class="tr-cal" stroke="#12A4FF" fill="#12A4FF" stroke-width="${2.5*u}"><line x1="${C.a.x}" y1="${C.a.y}" x2="${C.b.x}" y2="${C.b.y}"/><circle cx="${C.a.x}" cy="${C.a.y}" r="${6*u}" data-h="ca"/><circle cx="${C.b.x}" cy="${C.b.y}" r="${6*u}" data-h="cb"/>
+      <text stroke="#000" stroke-width="${3*u}" paint-order="stroke" x="${(C.a.x+C.b.x)/2}" y="${(C.a.y+C.b.y)/2-10*u}" font-size="${14*u}" text-anchor="middle" font-family="sans-serif" font-weight="700">${ATW_esc(gtFmt(C.len,4))} ${ATW_esc(C.unit)}</text></g>`; }
+    if(this._calDrag){ const C=this._calDrag; h+=`<g class="tr-cal" stroke="#12A4FF" fill="#12A4FF" stroke-width="${2.5*u}"><line x1="${C.a.x}" y1="${C.a.y}" x2="${C.b.x}" y2="${C.b.y}"/></g>`; }
+    // 점
+    D.tracks.forEach(T=>{ if(T.hide) return; const fs=Object.keys(T.pts).map(Number).sort((a,b)=>a-b); const cur=T.id===D.cur;
+      const vis = D.trail==='none' ? fs.filter(f=>f===this.f) : D.trail==='30' ? fs.filter(f=>Math.abs(f-this.f)<=30) : fs;
+      if(vis.length>1 && D.trail!=='none') h+=`<path d="${vis.map((f,i)=>(i?'L':'M')+T.pts[f].x.toFixed(1)+' '+T.pts[f].y.toFixed(1)).join('')}" fill="none" stroke="${T.color}" stroke-width="${1.2*u}" opacity="${cur?0.7:0.4}"/>`;
+      vis.forEach(f=>{ const p=T.pts[f]; const on=f===this.f; h+= on ? `<g class="tr-pt on${cur?' cur':''}" data-pt="${T.id}"><circle cx="${p.x}" cy="${p.y}" r="${9*u}" fill="none" stroke="${T.color}" stroke-width="${2.2*u}"/><path d="M${p.x-14*u} ${p.y}h${8*u}M${p.x+6*u} ${p.y}h${8*u}M${p.x} ${p.y-14*u}v${8*u}M${p.x} ${p.y+6*u}v${8*u}" stroke="${T.color}" stroke-width="${1.5*u}"/></g>`
+        : `<circle cx="${p.x}" cy="${p.y}" r="${(cur?3.5:2.8)*u}" fill="${T.color}" opacity="${cur?0.95:0.6}"${p.auto?` stroke="#fff" stroke-width="${0.8*u}"`:''}/>`; }); });
+    // 자동 추적 상자
+    if(this._autoBox){ const B=this._autoBox; h+=`<rect x="${B.x-B.r}" y="${B.y-B.r}" width="${2*B.r}" height="${2*B.r}" fill="none" stroke="#ffd400" stroke-width="${1.5*u}" stroke-dasharray="${4*u} ${3*u}"/>`; }
+    this.svg.innerHTML=h;
+    this.paintPos(); this.paintMarks();
+  }
+  paintPos(){ if(!this.D) return; const D=this.D; const T=this.track(); const p=T&&T.pts[this.f];
+    const t=this.tOf(p||(this.vt!=null?{ vt:this.vt }:null), this.f);
+    this.$('.tr-pos').innerHTML=`프레임 <b>${this.f}</b> / ${this.N-1} · 영상 ${trTime(this.vt!=null?this.vt:this.f/D.fps)} · <b>t = ${t.toFixed(4)} s</b>${this.tscale()!==1?' <small>(슬로모션 보정)</small>':''}`; }
+  paintMarks(){ if(!this.D) return; const T=this.track(); const N=Math.max(1,this.N-1);
+    const fs=Object.keys(T.pts).map(Number); const key=T.id+':'+fs.length+':'+this.D.fa+':'+this.D.fb+':'+this.D.f0;
+    if(this._mk===key) return; this._mk=key;
+    this.$('.tr-marks').innerHTML = fs.length>2000 ? `<i class="tr-mkall" style="left:${Math.min(...fs)/N*100}%;width:${(Math.max(...fs)-Math.min(...fs))/N*100}%;background:${T.color}"></i>` : fs.map(f=>`<i style="left:${(f/N*100).toFixed(3)}%;background:${T.color}"></i>`).join('');
+    this.$('.tr-range').innerHTML=`<b style="left:${this.D.fa/N*100}%" title="시작"></b><b style="left:${this.D.fb/N*100}%" title="끝"></b><em style="left:${this.D.f0/N*100}%" title="t = 0"></em>`; }
+  /* ───────── 오른쪽 칸 ───────── */
+  paintSide(){
+    const D=this.D; const q=this.$;
+    if(!D){ q('.tr-tracks').innerHTML='<p class="tr-mute">영상을 열면 물체를 고를 수 있어요.</p>'; q('.tr-set').innerHTML=''; q('.tr-table').innerHTML=''; q('.tr-cnt').textContent=''; return; }
+    q('.tr-tracks').innerHTML=D.tracks.map(T=>`<div class="tr-trk${T.id===D.cur?' on':''}" data-t="${T.id}"><label class="tr-col" style="--c:${T.color}" title="색"><input type="color" value="${T.color}" data-tc="${T.id}"></label>
+      <input class="tr-tn" value="${ATW_esc(T.name)}" data-tn="${T.id}" aria-label="물체 이름"><span class="tr-tc">${Object.keys(T.pts).length}점</span>
+      <button type="button" class="gt-ib" data-th="${T.id}" title="${T.hide?'보이기':'숨기기'}" aria-label="숨기기">${T.hide?'◌':'◉'}</button>${D.tracks.length>1?`<button type="button" class="gt-ib" data-td="${T.id}" title="물체 지우기" aria-label="지우기">×</button>`:''}</div>`).join('');
+    q('.tr-tracks').querySelectorAll('[data-t]').forEach(el=>el.addEventListener('click', e=>{ if(e.target.closest('input,button')) return; D.cur=el.dataset.t; this.paintSide(); this.paint(); this.save(); }));
+    q('.tr-tracks').querySelectorAll('[data-tn]').forEach(i=>{ i.addEventListener('keydown', e=>e.stopPropagation()); i.onfocus=()=>{ D.cur=i.dataset.tn; }; i.onchange=()=>{ const T=D.tracks.find(t=>t.id===i.dataset.tn); T.name=i.value.trim()||T.name; this.save(); this.paintTable(); }; });
+    q('.tr-tracks').querySelectorAll('[data-tc]').forEach(i=>i.oninput=()=>{ D.tracks.find(t=>t.id===i.dataset.tc).color=i.value; this._mk=null; this.paint(); this.save(); });
+    q('.tr-tracks').querySelectorAll('[data-th]').forEach(b=>b.onclick=()=>{ const T=D.tracks.find(t=>t.id===b.dataset.th); T.hide=!T.hide; this.paintSide(); this.paint(); this.save(); });
+    q('.tr-tracks').querySelectorAll('[data-td]').forEach(b=>b.onclick=()=>{ const T=D.tracks.find(t=>t.id===b.dataset.td); if(Object.keys(T.pts).length && !confirm(`'${T.name}'과 점 ${Object.keys(T.pts).length}개를 지울까요?`)) return; this.pushU(); D.tracks=D.tracks.filter(t=>t!==T); if(D.cur===T.id) D.cur=D.tracks[0].id; this.paintSide(); this.paint(); this.save(); });
+    const S=this.scale();
+    q('.tr-set').innerHTML=`<div class="tr-sh"><b>설정</b></div><div class="tr-grid">
+      <label>프레임 속도 (fps)${D.fpsGuess?' <small class="ec-w">짐작</small>':''}<input data-s="fps" value="${D.fps}" inputmode="decimal" class="tr-in"></label>
+      <label title="슬로모션 영상: 실제로 찍은 fps(예: 240). 보통 영상이면 비워 두세요">촬영 fps (슬로모션)<input data-s="cap" value="${ATW_esc(D.cap)}" placeholder="보통 영상은 비움" class="tr-in"></label>
+      <label>찍을 때마다 넘길 프레임<select data-s="step">${[1,2,3,5,10].map(k=>`<option value="${k}"${+D.step===k?' selected':''}>${k}프레임</option>`).join('')}</select></label>
+      <label>점 자취<select data-s="trail"><option value="all"${D.trail==='all'?' selected':''}>모두</option><option value="30"${D.trail==='30'?' selected':''}>앞뒤 30프레임</option><option value="none"${D.trail==='none'?' selected':''}>지금 프레임만</option></select></label>
+      <label class="tr-wide">축척 <span>${D.cal ? `${gtFmt(D.cal.len,4)} ${ATW_esc(D.cal.unit)} = ${gtFmt(Math.hypot(D.cal.b.x-D.cal.a.x, D.cal.b.y-D.cal.a.y),5)} px → 1 px = ${gtFmt(S.s,4)} ${ATW_esc(S.u)}` : '<span class="ec-w">아직 없음 — 결과가 픽셀(px)로 나와요</span>'}</span></label>
+      <div class="tr-wide tr-axl"><span class="tr-axt">좌표축</span><span>${D.axes ? `원점 (${D.axes.x.toFixed(0)}, ${D.axes.y.toFixed(0)}) px · x축 ${(D.axes.ang*180/Math.PI).toFixed(1)}°` : '왼쪽 아래 구석(기본) — [축]으로 바꿔요'}</span><label class="gt-ck"><input type="checkbox" data-s="flip"${this.axes().flip?' checked':''}> y는 아래쪽이 +</label></div>
+      <label title="자동 추적에서 물체를 기억하는 상자 크기(영상 픽셀)">추적 상자 (px)<input data-s="tsize" value="${D.tsize}" class="tr-in"></label>
+      <label title="한 프레임에 물체가 움직일 수 있는 거리(영상 픽셀)">찾는 범위 (px)<input data-s="srad" value="${D.srad}" class="tr-in"></label>
+      <label title="이보다 덜 닮으면 자동 추적을 멈추고 물어봐요(0~1)">멈추는 일치도 (0~1)<input data-s="thr" value="${D.thr}" class="tr-in"></label></div>`;
+    q('.tr-set').querySelectorAll('[data-s]').forEach(i=>{ i.addEventListener('keydown', e=>e.stopPropagation()); i.addEventListener(i.tagName==='SELECT'||i.type==='checkbox'?'change':'change', ()=>{ const k=i.dataset.s;
+      if(k==='fps'){ const v=gtNum(i.value); if(v>0 && v<5000){ D.fps=v; D.fpsManual=true; D.fpsGuess=false; this.N=Math.max(1, Math.floor(this.video.duration*v+1e-6)); this.$('.tr-sl').max=this.N-1; D.fb=Math.min(D.fb, this.N-1); } }
+      else if(k==='flip'){ D.axes=Object.assign({}, this.axes(), { flip:i.checked }); }
+      else if(k==='tsize'||k==='srad'){ const v=Math.round(gtNum(i.value)); if(v>=8 && v<=400) D[k]=v; }
+      else if(k==='thr'){ const v=gtNum(i.value); if(v>0 && v<1) D.thr=v; }
+      else D[k]=i.value;
+      this._mk=null; this.save(); this.paintSide(); this.paint(); }); });
+    this.paintTable();
+  }
+  rows(T){
+    T=T||this.track(); const D=this.D; const fs=Object.keys(T.pts).map(Number).filter(f=>f>=D.fa && f<=D.fb).sort((a,b)=>a-b);
+    const R=fs.map(f=>{ const p=T.pts[f]; const P=this.phys(p); return { f, t:this.tOf(p, f), x:P.X, y:P.Y, auto:p.auto }; });
+    R.forEach((r,i)=>{ const a=R[Math.max(0,i-1)], b=R[Math.min(R.length-1,i+1)]; const dt=b.t-a.t; if(R.length>1 && dt>0){ r.vx=(b.x-a.x)/dt; r.vy=(b.y-a.y)/dt; r.v=Math.hypot(r.vx, r.vy); } });
+    return R;
+  }
+  paintTable(){
+    const D=this.D; if(!D) return; const T=this.track(); const R=this.rows(T); const u=this.scale().u;
+    this.$('.tr-cnt').textContent=`${T.name} · ${R.length}점${Object.keys(T.pts).length>R.length?` (범위 밖 ${Object.keys(T.pts).length-R.length})`:''}`;
+    const show=R.length>600 ? R.slice(0,300).concat([null], R.slice(-300)) : R;
+    this.$('.tr-table').innerHTML = R.length ? `<table class="tr-tb"><tr><th>프레임</th><th>t (s)</th><th>x (${u})</th><th>y (${u})</th><th>vx</th><th>vy</th><th></th></tr>${show.map(r=>r?`<tr data-f="${r.f}" class="${r.f===this.f?'on':''}"><td>${r.f}${r.auto?'<small>자동</small>':''}</td><td>${r.t.toFixed(4)}</td><td>${gtFmt(r.x,5)}</td><td>${gtFmt(r.y,5)}</td><td>${r.vx!=null?gtFmt(r.vx,4):''}</td><td>${r.vy!=null?gtFmt(r.vy,4):''}</td><td><button type="button" data-del="${r.f}" title="이 점 지우기" aria-label="지우기">×</button></td></tr>`:`<tr><td colspan="7" class="tr-mute">… 가운데 ${R.length-600}줄은 CSV · 그래프로 보내면 모두 들어가요 …</td></tr>`).join('')}</table>`
+      : `<p class="tr-mute">${D.cal?'':'① [축척]으로 길이를 맞추고, '}${'② [점]을 고르고 물체를 누르세요. 누를 때마다 다음 프레임으로 넘어가요. [자동]은 한 번 누르면 알아서 따라가요.'}</p>`;
+    this.$('.tr-table').querySelectorAll('tr[data-f]').forEach(tr=>tr.addEventListener('click', e=>{ if(e.target.closest('[data-del]')) return; this.pauseIfPlaying(); this.seekFrame(+tr.dataset.f); }));
+    this.$('.tr-table').querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ this.pushU(); delete T.pts[+b.dataset.del]; this.changed(); });
+  }
+  changed(){ this._mk=null; this.save(); this.paint(); this.paintTable(); const c=this.body.querySelector(`.tr-trk[data-t="${this.D.cur}"] .tr-tc`); if(c) c.textContent=Object.keys(this.track().pts).length+'점'; }
+  /* ───────── 저장 · 되돌리기 ───────── */
+  save(){ clearTimeout(this._st); this._st=setTimeout(()=>this.flush(), 600); }
+  flush(){ if(!this.D || !this.key) return; clearTimeout(this._st);
+    const ok=ATW_LS.set(this.key, this.D);
+    const idx=ATW_LS.get(TR_KEY0+':idx:'+TR_UID(), []).filter(k=>k!==this.key); idx.unshift(this.key);
+    idx.slice(20).forEach(k=>{ try{ localStorage.removeItem(k); }catch(e){} }); ATW_LS.set(TR_KEY0+':idx:'+TR_UID(), idx.slice(0,20));     // 영상 20개까지만 기억
+    if(!ok && !this._warned){ this._warned=true; ATW_say('점이 너무 많아 이 기기에 저장하지 못했어요 — CSV로 내보내 두세요.', 5000); } }
+  pushU(){ this.undo.push(JSON.stringify({ tracks:this.D.tracks, cal:this.D.cal, axes:this.D.axes })); if(this.undo.length>100) this.undo.shift(); this.redo=[]; }
+  restoreU(s){ const o=JSON.parse(s); Object.assign(this.D, o); this.paintSide(); this.changed(); }
+  /* ───────── 마우스 · 키보드 ───────── */
+  setMode(m){ this.mode=m; this.body.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('on', b.dataset.mode===m)); this.stage.dataset.mode=m; this.loupe.hidden=true; }
+  bindStage(){
+    const st=this.stage; let drag=null; this._space=false;
+    st.addEventListener('wheel', e=>{ if(!this.D) return; e.preventDefault(); this.zoomAt(e.clientX, e.clientY, Math.exp(-e.deltaY*0.0015)); }, { passive:false });
+    st.addEventListener('pointerdown', e=>{
+      if(!this.D || e.target.closest('.tr-load, .tr-empty')) return; st.focus({ preventScroll:true });
+      const P=this.toVid(e), z=this.z, near=(a,r)=>a && Math.hypot(a.x-P.x, a.y-P.y) < (r||10)/z;
+      if(e.button===1 || this.mode==='pan'){ drag={ k:'pan', sx:e.clientX, sy:e.clientY, tx:this.tx, ty:this.ty }; st.setPointerCapture(e.pointerId); st.classList.add('grab'); return; }
+      if(e.button!==0) return;
+      this.pauseIfPlaying();
+      const T=this.track(), cur=T.pts[this.f];
+      if(this.mode==='cal'){ const C=this.D.cal; if(C && near(C.a)) drag={ k:'ca' }; else if(C && near(C.b)) drag={ k:'cb' }; else { this._calDrag={ a:P, b:P }; drag={ k:'cnew' }; } this.pushU(); st.setPointerCapture(e.pointerId); return; }
+      if(this.mode==='axes'){ const A=this.axes(); this.pushU(); if(near(A, 12)) drag={ k:'ao' }; else { this.D.axes=Object.assign({}, A, { x:P.x, y:P.y }); drag={ k:'aang' }; } st.setPointerCapture(e.pointerId); this.paint(); return; }
+      if(this.mode==='mark' || this.mode==='auto'){
+        if(this.mode==='auto'){ this.startAuto(cur && near(cur, 12) ? cur : P); return; }       // 있는 점을 누르면 그 자리부터
+        if(cur && near(cur, 12)){ this.pushU(); drag={ k:'pt', moved:false }; st.setPointerCapture(e.pointerId); return; }
+        this.pushU(); T.pts[this.f]={ x:+P.x.toFixed(2), y:+P.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null }; this.changed();
+        const nf=this.f+(+this.D.step||1); if(nf<=this.D.fb) this.seekFrame(nf); else ATW_say('분석 범위 끝이에요.');
+      }
+    });
+    st.addEventListener('pointermove', e=>{
+      if(!this.D) return; const P=this.toVid(e);
+      if((this.mode==='mark'||this.mode==='auto'||this.mode==='cal') && !drag) this.drawLoupe(e, P); else this.loupe.hidden=true;
+      if(!drag) return;
+      if(drag.k==='pan'){ this.tx=drag.tx+e.clientX-drag.sx; this.ty=drag.ty+e.clientY-drag.sy; this._userZoom=true; this.applyView(); return; }
+      if(drag.k==='cnew'){ this._calDrag.b=P; this.paint(); }
+      else if(drag.k==='ca'||drag.k==='cb'){ this.D.cal[drag.k==='ca'?'a':'b']={ x:P.x, y:P.y }; this.paint(); }
+      else if(drag.k==='ao'){ this.D.axes.x=P.x; this.D.axes.y=P.y; this.paint(); }
+      else if(drag.k==='aang'){ const A=this.D.axes; const dx=P.x-A.x, dy=-(P.y-A.y); if(Math.hypot(dx,dy)>4/this.z){ let a=Math.atan2(dy,dx); if(e.shiftKey) a=Math.round(a/(Math.PI/12))*(Math.PI/12); A.ang=a; } this.paint(); }
+      else if(drag.k==='pt'){ drag.moved=true; this.track().pts[this.f]=Object.assign({}, this.track().pts[this.f], { x:+P.x.toFixed(2), y:+P.y.toFixed(2), auto:false }); this.paint(); this.drawLoupe(e, P); }
+    });
+    const up=e=>{ if(!drag) return; const k=drag.k; drag=null; st.classList.remove('grab');
+      if(k==='cnew'){ const C=this._calDrag; this._calDrag=null; if(Math.hypot(C.b.x-C.a.x, C.b.y-C.a.y)<5){ this.paint(); ATW_say('길이를 아는 물체의 한쪽 끝에서 다른 끝까지 끌어 주세요.'); return; } this.askLen(C); return; }
+      if(k==='ca'||k==='cb'||k==='ao'||k==='aang'||k==='pt'){ this.changed(); this.paintSide(); } };
+    st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up);
+    st.addEventListener('pointerleave', ()=>{ this.loupe.hidden=true; });
+    st.addEventListener('dblclick', e=>{ if(this.mode==='pan'){ this._userZoom=false; this.fitView(); } });
+    st.addEventListener('contextmenu', e=>{ if(!this.D) return; const P=this.toVid(e); const T=this.track(), p=T.pts[this.f]; if(p && Math.hypot(p.x-P.x,p.y-P.y)<14/this.z){ e.preventDefault(); this.pushU(); delete T.pts[this.f]; this.changed(); } });
+  }
+  drawLoupe(e, P){
+    const L=this.loupe, v=this.video; if(!this.D || v.readyState<2){ L.hidden=true; return; }
+    const r=this.stage.getBoundingClientRect(); const sz=150, mag=Math.max(3, this.z*3), src=sz/mag;
+    L.hidden=false; let lx=e.clientX-r.left+24, ly=e.clientY-r.top-sz-24; if(lx+sz>r.width) lx=e.clientX-r.left-sz-24; if(ly<0) ly=e.clientY-r.top+24;
+    L.style.left=lx+'px'; L.style.top=ly+'px';
+    const c=L.getContext('2d'); c.imageSmoothingEnabled=false; c.fillStyle='#000'; c.fillRect(0,0,sz,sz);
+    try{ c.drawImage(v, P.x-src/2, P.y-src/2, src, src, 0, 0, sz, sz); }catch(err){}
+    c.strokeStyle='rgba(255,40,40,.9)'; c.lineWidth=1; c.beginPath(); c.moveTo(sz/2,0); c.lineTo(sz/2,sz/2-6); c.moveTo(sz/2,sz/2+6); c.lineTo(sz/2,sz); c.moveTo(0,sz/2); c.lineTo(sz/2-6,sz/2); c.moveTo(sz/2+6,sz/2); c.lineTo(sz,sz/2); c.stroke();
+    c.fillStyle='rgba(0,0,0,.55)'; c.fillRect(0,sz-18,sz,18); c.fillStyle='#fff'; c.font='11px sans-serif'; c.fillText(`${P.x.toFixed(1)}, ${P.y.toFixed(1)} px`, 6, sz-5);
+  }
+  onKey(e){
+    if(!this.body.isConnected || !this.win.el.classList.contains('atw-front')) return;
+    if(e.target.closest('input, select, textarea') || !this.D) return;
+    if(e.code==='Space' && e.type==='keydown'){ e.preventDefault(); this.togglePlay(); return; }
+    const k=e.key, sh=e.shiftKey, ctrl=e.ctrlKey||e.metaKey;
+    if(k==='ArrowRight'||k==='.'){ e.preventDefault(); this.pauseIfPlaying(); this.seekFrame(this.f+(sh?10:1)); }
+    else if(k==='ArrowLeft'||k===','){ e.preventDefault(); this.pauseIfPlaying(); this.seekFrame(this.f-(sh?10:1)); }
+    else if(k==='Home'){ e.preventDefault(); this.seekFrame(this.D.fa); } else if(k==='End'){ e.preventDefault(); this.seekFrame(this.D.fb); }
+    else if(k==='Delete'||k==='Backspace'){ const T=this.track(); if(T.pts[this.f]){ e.preventDefault(); this.pushU(); delete T.pts[this.f]; this.changed(); } }
+    else if(ctrl && k.toLowerCase()==='z' && !sh){ e.preventDefault(); if(this.undo.length){ this.redo.push(JSON.stringify({ tracks:this.D.tracks, cal:this.D.cal, axes:this.D.axes })); this.restoreU(this.undo.pop()); } }
+    else if(ctrl && (k.toLowerCase()==='y' || (k.toLowerCase()==='z' && sh))){ e.preventDefault(); if(this.redo.length){ this.undo.push(JSON.stringify({ tracks:this.D.tracks, cal:this.D.cal, axes:this.D.axes })); this.restoreU(this.redo.pop()); } }
+    else if(k==='+'||k==='='){ const r=this.stage.getBoundingClientRect(); this.zoomAt(r.left+r.width/2, r.top+r.height/2, 1.25); }
+    else if(k==='-'){ const r=this.stage.getBoundingClientRect(); this.zoomAt(r.left+r.width/2, r.top+r.height/2, 0.8); }
+    else if(k==='0'){ this._userZoom=false; this.fitView(); }
+    else if(!ctrl && 'mpacx'.includes(k.toLowerCase()) && k.length===1){ const m={ m:'mark', a:'auto', c:'cal', x:'axes', p:'pan' }[k.toLowerCase()]; if(m) this.setMode(m); }
+  }
+  bindDrop(){
+    const st=this.body.querySelector('.tr'), dz=this.$('.tr-drop'); let n=0;
+    const isF=e=>e.dataTransfer && [...e.dataTransfer.types].includes('Files');
+    st.addEventListener('dragenter', e=>{ if(!isF(e)) return; n++; dz.hidden=false; }); st.addEventListener('dragover', e=>{ if(!isF(e)) return; e.preventDefault(); });
+    st.addEventListener('dragleave', e=>{ if(!isF(e)) return; if(--n<=0){ n=0; dz.hidden=true; } });
+    st.addEventListener('drop', e=>{ if(!isF(e)) return; e.preventDefault(); n=0; dz.hidden=true; const f=e.dataTransfer.files[0]; if(f) this.openFile(f); });
+  }
+  /* ───────── 축척 길이 묻기 ───────── */
+  askLen(C){
+    const ov=this.body.querySelector('.gt-dlg-ov'); ov.hidden=false; const px=Math.hypot(C.b.x-C.a.x, C.b.y-C.a.y);
+    const old=this.D.cal;
+    ov.innerHTML=`<div class="gt-dlg" style="width:min(420px,100%)"><div class="gt-dlg-h"><b>이 길이가 실제로 얼마예요?</b><span>${px.toFixed(1)} 영상 픽셀</span></div>
+      <div class="gt-row"><input class="tr-len" inputmode="decimal" value="${old?old.len:''}" placeholder="예: 30" style="width:120px;height:32px;font-size:16px"> <select class="tr-unit">${['m','cm','mm'].map(u=>`<option${(old?old.unit:'m')===u?' selected':''}>${u}</option>`).join('')}</select></div>
+      <p class="gps-tip">자 · 줄자 · 크기를 아는 물체처럼 <b>움직이는 물체와 같은 거리(깊이)</b>에 있는 것을 재야 정확해요. 화면 가장자리는 렌즈 때문에 휘어 보일 수 있어요 — 가운데 쪽을 쓰세요.</p>
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-x>취소</button><button type="button" class="gt-btn pri" data-ok>정하기</button></div></div>`;
+    const inp=ov.querySelector('.tr-len'); inp.focus(); inp.select();
+    const close=()=>{ ov.hidden=true; ov.innerHTML=''; this.paint(); };
+    const ok=()=>{ const v=gtNum(inp.value); if(!(v>0)) { inp.focus(); return ATW_say('0보다 큰 길이를 적어 주세요.'); } this.D.cal={ a:C.a, b:C.b, len:v, unit:ov.querySelector('.tr-unit').value }; close(); this.changed(); this.paintSide(); ATW_say('축척을 맞췄어요.'); this.setMode('mark'); };
+    ov.querySelector('[data-x]').onclick=close; ov.querySelector('[data-ok]').onclick=ok;
+    ov.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Enter') ok(); if(e.key==='Escape') close(); };
+  }
+  /* ───────── 자동 추적: 정규화 상호상관(NCC)으로 다음 프레임에서 같은 모양을 찾는다 ───────── */
+  grab(x, y, w, h){ const c=this._gc||(this._gc=document.createElement('canvas')); c.width=w; c.height=h; const g=c.getContext('2d', { willReadFrequently:true });
+    g.fillStyle='#000'; g.fillRect(0,0,w,h); g.drawImage(this.video, x, y, w, h, 0, 0, w, h); const d=g.getImageData(0,0,w,h).data; const out=new Float32Array(w*h);
+    for(let i=0,j=0;i<out.length;i++,j+=4) out[i]=0.299*d[j]+0.587*d[j+1]+0.114*d[j+2]; return out; }
+  tmpl(P){ const s=this.D.tsize|0, h=s>>1; const g=this.grab(Math.round(P.x)-h, Math.round(P.y)-h, s, s); let m=0; for(const v of g) m+=v; m/=g.length; let sd=0; const t=new Float32Array(g.length); for(let i=0;i<g.length;i++){ t[i]=g[i]-m; sd+=t[i]*t[i]; } return { t, s, norm:Math.sqrt(sd) }; }
+  match(Tm, C){
+    const s=Tm.s, h=s>>1, R=this.D.srad|0; const W=s+2*R; const x0=Math.round(C.x)-h-R, y0=Math.round(C.y)-h-R; const I=this.grab(x0, y0, W, W);
+    // 적분 영상으로 창마다 합 · 제곱합
+    const S=new Float64Array((W+1)*(W+1)), Q=new Float64Array((W+1)*(W+1));
+    for(let y=0;y<W;y++){ let rs=0, rq=0; for(let x=0;x<W;x++){ const v=I[y*W+x]; rs+=v; rq+=v*v; S[(y+1)*(W+1)+x+1]=S[y*(W+1)+x+1]+rs; Q[(y+1)*(W+1)+x+1]=Q[y*(W+1)+x+1]+rq; } }
+    const n=s*s; let best=-2, bx=0, by=0; const sc=new Float32Array((2*R+1)*(2*R+1));
+    if(!(Tm.norm>1e-6)) return null;
+    for(let dy=0;dy<=2*R;dy++) for(let dx=0;dx<=2*R;dx++){
+      const a=(dy)*(W+1)+dx, b=(dy)*(W+1)+dx+s, c=(dy+s)*(W+1)+dx, d=(dy+s)*(W+1)+dx+s;
+      const sum=S[d]-S[b]-S[c]+S[a], sq=Q[d]-Q[b]-Q[c]+Q[a]; const vr=sq-sum*sum/n; if(vr<=1e-6){ sc[dy*(2*R+1)+dx]=-1; continue; }
+      let cr=0; for(let ty=0;ty<s;ty++){ const ro=(dy+ty)*W+dx, to=ty*s; for(let tx=0;tx<s;tx++) cr+=I[ro+tx]*Tm.t[to+tx]; }
+      const v=cr/(Math.sqrt(vr)*Tm.norm); sc[dy*(2*R+1)+dx]=v; if(v>best){ best=v; bx=dx; by=dy; } }
+    // 포물선으로 1픽셀 아래까지
+    const g=(dx,dy)=>sc[Math.max(0,Math.min(2*R,dy))*(2*R+1)+Math.max(0,Math.min(2*R,dx))];
+    let ox=0, oy=0; if(bx>0 && bx<2*R){ const l=g(bx-1,by), c=g(bx,by), r=g(bx+1,by); const den=l-2*c+r; if(den<0) ox=0.5*(l-r)/den; }
+    if(by>0 && by<2*R){ const u=g(bx,by-1), c=g(bx,by), d=g(bx,by+1); const den=u-2*c+d; if(den<0) oy=0.5*(u-d)/den; }
+    return { x:x0+bx+h+ox, y:y0+by+h+oy, score:best, edge: bx===0||by===0||bx===2*R||by===2*R };
+  }
+  async startAuto(P){
+    if(this.autoRun) return; const T=this.track(); const D=this.D;
+    this.pushU();
+    if(!T.pts[this.f]) T.pts[this.f]={ x:+P.x.toFixed(2), y:+P.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null };
+    this.changed();
+    let Tm=this.tmpl(T.pts[this.f]); const step=+D.step||1; let prev=T.pts[this.f], prev2=null; let k=0; const total=Math.floor((D.fb-this.f)/step);
+    this.autoRun=true; this.stopAuto=false;
+    const bar=this.$('.tr-busy'); this.$('.tr-modes').classList.add('dis');
+    const stopBtn=document.createElement('button'); stopBtn.type='button'; stopBtn.className='gt-btn tr-stop'; stopBtn.textContent='멈추기 (Esc)'; stopBtn.onclick=()=>{ this.stopAuto=true; }; this.stage.appendChild(stopBtn);
+    const esc=e=>{ if(e.key==='Escape') this.stopAuto=true; }; document.addEventListener('keydown', esc, true);
+    let why='';
+    try{
+      while(!this.stopAuto){
+        const nf=this.f+step; if(nf>D.fb){ why='end'; break; }
+        await this.seekFrame(nf); k++;
+        const pred = prev2 ? { x:prev.x+(prev.x-prev2.x), y:prev.y+(prev.y-prev2.y) } : prev;    // 등속으로 다음 자리를 어림
+        this._autoBox={ x:pred.x, y:pred.y, r:(D.tsize>>1)+D.srad };
+        let m=this.match(Tm, pred); if(m && (m.score<D.thr || m.edge) && prev2){ const m2=this.match(Tm, prev); if(m2 && m2.score>m.score) m=m2; }
+        if(!m || m.score<D.thr){ why='lost'; this.lastScore=m?m.score:0; break; }
+        T.pts[this.f]={ x:+m.x.toFixed(2), y:+m.y.toFixed(2), vt:this.vt!=null?+this.vt.toFixed(6):null, auto:true, sc:+m.score.toFixed(3) };
+        prev2=prev; prev=T.pts[this.f];
+        if(m.score>0.85 && k%3===0){ const nt=this.tmpl(prev); for(let i=0;i<Tm.t.length;i++) Tm.t[i]=Tm.t[i]*0.7+nt.t[i]*0.3; let sd=0; for(const v of Tm.t) sd+=v*v; Tm.norm=Math.sqrt(sd); }   // 모양이 조금씩 바뀌면 따라 배운다
+        bar.hidden=false; bar.querySelector('span').textContent=`자동 추적 중 ${k} / ${total} · 일치도 ${m.score.toFixed(2)}`;
+        if(k%5===0){ this.paintTable(); this.paintMarks(); this._mk=null; }
+      }
+    } finally {
+      this.autoRun=false; this._autoBox=null; stopBtn.remove(); document.removeEventListener('keydown', esc, true); bar.hidden=true; this.$('.tr-modes').classList.remove('dis'); this.changed();
+      ATW_say(why==='end' ? `끝까지 따라갔어요 — ${k}프레임.` : why==='lost' ? `${k}프레임에서 물체를 놓쳤어요(일치도 ${(this.lastScore||0).toFixed(2)}). 물체를 다시 누르면 이어서 따라가요.` : `멈췄어요 — ${k}프레임.`, 5000);
+    }
+  }
+  /* ───────── 단추 ───────── */
+  action(a, btn){
+    const D=this.D;
+    if(a==='open'){ this.$('.tr-fi').click(); return; }
+    if(a==='view'){ return this.viewMenu(btn); }
+    if(!D){ if(a!=='addtr') ATW_say('먼저 영상을 여세요.'); return; }
+    const r=this.stage.getBoundingClientRect();
+    switch(a){
+      case 'play': return this.togglePlay();
+      case 'f1': this.pauseIfPlaying(); return this.seekFrame(this.f+1); case 'b1': this.pauseIfPlaying(); return this.seekFrame(this.f-1);
+      case 'f10': this.pauseIfPlaying(); return this.seekFrame(this.f+10); case 'b10': this.pauseIfPlaying(); return this.seekFrame(this.f-10);
+      case 'zin': return this.zoomAt(r.left+r.width/2, r.top+r.height/2, 1.25); case 'zout': return this.zoomAt(r.left+r.width/2, r.top+r.height/2, 0.8);
+      case 'fit': if(!this._userZoom && Math.abs(this.z-1)>0.01){ this._userZoom=true; this.zoomAt(r.left+r.width/2, r.top+r.height/2, 1/this.z); } else { this._userZoom=false; this.fitView(); } return;
+      case 'setA': if(this.f>D.fb) return ATW_say('끝보다 뒤예요.'); D.fa=this.f; if(D.f0<D.fa) D.f0=D.fa; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}부터 분석해요.`);
+      case 'setB': if(this.f<D.fa) return ATW_say('시작보다 앞이에요.'); D.fb=this.f; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}까지 분석해요.`);
+      case 'set0': D.f0=this.f; this._mk=null; this.save(); this.paint(); this.paintTable(); return ATW_say(`프레임 ${this.f}을 t = 0으로.`);
+      case 'addtr': { const n=D.tracks.length; const id=String.fromCharCode(65+n%26)+(n>=26?n:''); D.tracks.push({ id, name:'물체 '+id, color:TR_COLORS[n%TR_COLORS.length], pts:{} }); D.cur=id; this.save(); this.paintSide(); this.paint(); return; }
+      case 'clrtr': { const T=this.track(); const n=Object.keys(T.pts).length; if(!n) return; if(!confirm(`'${T.name}'의 점 ${n}개를 모두 지울까요? (Ctrl+Z로 되돌릴 수 있어요)`)) return; this.pushU(); T.pts={}; return this.changed(); }
+      case 'tograph': return this.toGraph(); case 'csv': return this.csv(); case 'snap': return this.snap();
+    }
+  }
+  viewMenu(btn){
+    const D=this.D||{}; const f=D.filt||{ b:100, c:100, g:false };
+    document.querySelectorAll('.gt-pop').forEach(p=>p.remove());
+    const pop=document.createElement('div'); pop.className='gt-pop'; pop.style.zIndex=ATW.z+5;
+    pop.innerHTML=`<div class="gt-pop-h"><b>보기</b><button type="button" class="gt-ib" data-x aria-label="닫기">×</button></div>
+      <div class="gt-f"><span>밝기</span><input type="range" min="40" max="250" value="${f.b}" data-f="b"></div><div class="gt-f"><span>대비</span><input type="range" min="40" max="300" value="${f.c}" data-f="c"></div>
+      <div class="gt-f gt-f2"><label class="gt-ck"><input type="checkbox" data-f="g"${f.g?' checked':''}> 흑백</label><label class="gt-ck" title="많이 확대했을 때 픽셀을 흐리게 메우지 않고 그대로"><input type="checkbox" data-px${D.pixel?' checked':''}> 픽셀 그대로</label><button type="button" class="gt-btn ghost" data-r>원래대로</button></div>
+      <p class="gps-tip">화면에만 쓰는 보정이에요. 자동 추적은 원본 프레임으로 해요.</p>`;
+    document.body.appendChild(pop); const r=btn.getBoundingClientRect(); pop.style.left=Math.max(6,Math.min(innerWidth-pop.offsetWidth-6, r.left))+'px'; pop.style.top=(r.bottom+4)+'px';
+    const apply=()=>{ this.video.style.filter=`brightness(${f.b}%) contrast(${f.c}%)${f.g?' grayscale(1)':''}`; if(this.D){ this.D.filt=f; this.save(); } };
+    pop.querySelectorAll('[data-f]').forEach(i=>i.addEventListener('input', ()=>{ f[i.dataset.f]= i.type==='checkbox' ? i.checked : +i.value; apply(); }));
+    pop.querySelector('[data-px]').onchange=e=>{ if(this.D){ this.D.pixel=e.target.checked; this.applyView(); this.save(); } };
+    pop.querySelector('[data-r]').onclick=()=>{ f.b=100; f.c=100; f.g=false; pop.querySelectorAll('[data-f]').forEach(i=>{ if(i.type==='checkbox') i.checked=false; else i.value=100; }); apply(); };
+    const close=()=>{ pop.remove(); document.removeEventListener('pointerdown', off, true); }; const off=e=>{ if(!pop.contains(e.target)) close(); };
+    pop.querySelector('[data-x]').onclick=close; setTimeout(()=>document.addEventListener('pointerdown', off, true), 0);
+  }
+  matrix(all){
+    const u=this.scale().u; const Ts=all ? this.D.tracks.filter(t=>Object.keys(t.pts).length) : [this.track()];
+    const head=[], cols=[], roles=[];
+    Ts.forEach(T=>{ const R=this.rows(T); const sfx=Ts.length>1?` · ${T.name}`:'';
+      [['t (s)'+sfx, r=>r.t.toFixed(5), 'x'], [`x (${u})${sfx}`, r=>+r.x.toPrecision(8), 'y'], [`y (${u})${sfx}`, r=>+r.y.toPrecision(8), 'y'],
+       [`vx (${u}/s)${sfx}`, r=>r.vx!=null?+r.vx.toPrecision(6):'', 'skip'], [`vy (${u}/s)${sfx}`, r=>r.vy!=null?+r.vy.toPrecision(6):'', 'skip'], [`|v| (${u}/s)${sfx}`, r=>r.v!=null?+r.v.toPrecision(6):'', 'skip']]
+        .forEach(([h, fn, role])=>{ head.push(h); cols.push(R.map(fn)); roles.push(role); }); });
+    const n=Math.max(0, ...cols.map(c=>c.length)); const mat=[head]; for(let i=0;i<n;i++) mat.push(cols.map(c=>c[i]!=null?String(c[i]):''));
+    return { mat, roles, n };
+  }
+  toGraph(){
+    const multi=this.D.tracks.filter(t=>Object.keys(t.pts).length).length>1;
+    const go=(all)=>{ const M=this.matrix(all); if(!M.n) return ATW_say('찍은 점이 없어요.');
+      const gw=openGraphTool(); const T=gw && gw.tool; if(!T) return;
+      T.importDialog(M.mat, { source:`영상 분석 — ${this.file?this.file.name:''} · ${M.n}점`, roles:M.roles, hdr:1 }); };
+    if(!multi) return go(false);
+    this.popChoice('그래프로 보낼 물체', [['지금 고른 물체만', ()=>go(false)], ['점이 있는 물체 모두', ()=>go(true)]]);
+  }
+  popChoice(title, items){ const ov=this.body.querySelector('.gt-dlg-ov'); ov.hidden=false;
+    ov.innerHTML=`<div class="gt-dlg" style="width:min(360px,100%)"><div class="gt-dlg-h"><b>${ATW_esc(title)}</b></div>${items.map((it,i)=>`<button type="button" class="gt-btn" data-i="${i}" style="justify-content:center">${ATW_esc(it[0])}</button>`).join('')}<div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-x>취소</button></div></div>`;
+    const close=()=>{ ov.hidden=true; ov.innerHTML=''; }; ov.querySelector('[data-x]').onclick=close; ov.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ close(); items[+b.dataset.i][1](); }); }
+  csv(){ const M=this.matrix(true); if(!M.n) return ATW_say('찍은 점이 없어요.'); const q=v=>/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v;
+    const blob=new Blob(['﻿'+M.mat.map(r=>r.map(q).join(',')).join('\r\n')], { type:'text/csv;charset=utf-8' }); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=(this.file?this.file.name.replace(/\.[^.]+$/,''):'영상')+' 추적.csv'; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); ATW_say('CSV로 저장했어요.'); }
+  async snap(){
+    const v=this.video, W=this.vw(), H=this.vh(); const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d');
+    g.filter=v.style.filter||'none'; g.drawImage(v, 0, 0, W, H); g.filter='none';
+    const z=this.z; this.z=Math.max(W,H)/1200; this.paint(); let svg=this.svg.outerHTML; if(!/xmlns=/.test(svg.slice(0,200))) svg=svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" '); this.z=z; this.paint();
+    const url=URL.createObjectURL(new Blob([svg], { type:'image/svg+xml' })); const im=new Image(); const okImg=await new Promise(r=>{ im.onload=()=>r(true); im.onerror=()=>r(false); im.src=url; }); if(okImg) g.drawImage(im, 0, 0, W, H); else ATW_say('점 · 축 겹쳐 그리기는 빠졌어요 — 영상 화면만 저장해요.'); URL.revokeObjectURL(url);
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${this.file?this.file.name.replace(/\.[^.]+$/,''):'영상'} 프레임${this.f}.png`; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); ATW_say(`원본 해상도(${W}×${H})로 저장했어요.`); }, 'image/png');
+  }
+}
+
 /* 상단 [도구] · 내 메뉴 [그래프 도구] */
 (function(){
   const b=document.getElementById('toolsBtn'); if(b) b.addEventListener('click', e=>{ e.stopPropagation(); openToolsMenu(b); });
-  const d=document.getElementById('dropTools'); if(d) d.addEventListener('click', e=>{ e.preventDefault(); try{ closeUserMenu(); }catch(_){} openGraphTool(); });
+  const d=document.getElementById('dropTools'); if(d) d.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); try{ closeUserMenu(); }catch(_){} setTimeout(()=>openToolsMenu(null), 0); });
 })();
 </script>
 </body>
