@@ -1067,6 +1067,28 @@ body.dark{ --star-on:#F0B429; --star-off:#393234; --star-edge:#B98D18; }
 
 /* ===== 편집기 상단 레이아웃 정리 ===== */
 .wk-head{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:4px;}
+/* ★DE3: 편집 머리 오른쪽 — 주소 · 저장 안 한 변경 · 취소 · 저장 */
+.wk-headr{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
+.wk-topbtn{width:auto !important;padding:7px 16px !important;margin:0 !important;}
+.wk-dirty{font-size:12px;font-weight:700;color:var(--warn);background:var(--warn-bg);padding:3px 9px;border-radius:999px;white-space:nowrap;}
+.wk-dirty[hidden]{display:none;}
+.hv-saves{font-size:11px;font-weight:700;color:var(--text-dim);background:var(--box-bg);border:1px solid var(--border);padding:0 7px;border-radius:999px;white-space:nowrap;}
+@media(max-width:640px){ .wk-head{flex-wrap:wrap;} .wk-headr{width:100%;justify-content:flex-start;} .wk-headr .wk-topbtn:last-child{margin-left:auto !important;} }
+/* ★DE3: 정보 틀 — 칸마다 사진 단추 · 맨 위 사진 · 미리보기 */
+.ib-vwrap{display:flex;align-items:center;gap:4px;min-width:0;} .ib-vwrap .ib-v{flex:1;min-width:0;}
+.ib-cam{flex:none;display:grid;place-items:center;width:30px;height:30px;border:1px solid var(--border);background:var(--card);color:var(--text-dim);border-radius:6px;cursor:pointer;}
+.ib-cam:hover{border-color:var(--accent);color:var(--accent);} .ib-cam .ic16{width:14px;height:14px;}
+.ib-imgbox{display:flex;align-items:center;min-height:30px;}
+.ib-imgbtn{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--border-strong);background:var(--card);color:var(--text);border-radius:7px;padding:5px 10px;font:inherit;font-size:12.5px;cursor:pointer;}
+.ib-imgbtn:hover{border-color:var(--accent);color:var(--accent);} .ib-imgbtn.ghost{color:var(--text-dim);} .ib-imgbtn .ic16{width:13px;height:13px;}
+.ib-imgrow.drag{outline:2px dashed var(--accent);outline-offset:3px;border-radius:8px;}
+.ib-upmsg{font-size:12px;color:var(--text-dim);margin-top:6px;min-height:1em;} .ib-upmsg.err{color:var(--danger);}
+.ib-hd .hint{font-weight:400;}
+.ibx-prevwrap{margin-top:10px;border-top:1px dashed var(--border);padding-top:8px;}
+.ibx-prevh{font-size:11px;font-weight:700;color:var(--text-dim);margin-bottom:6px;}
+.ibx-prev .infobox{margin:0;}                                    /* 문서 화면과 같은 모양(가로 격자) */
+.infobox td img.doc-img, .infobox th img.doc-img{display:block;max-width:100%;width:auto !important;height:auto;margin:4px 0;border-radius:4px;}
+.infobox td a{word-break:break-all;}
 .wk-head h1{margin:0;}
 .wk-keybox{display:flex;align-items:center;gap:5px;flex:none;padding-top:4px;}
 .wk-keybox label{margin:0;font-size:12.5px;color:var(--text-dim);font-weight:700;white-space:nowrap;}
@@ -9829,15 +9851,7 @@ async function renderDoc(key){
   if(error || !doc){ renderNotFound(key); return; }   // 삭제됐거나 없는 문서
   state.key = key;
   const info = doc.infobox, cat = doc.category;
-  let infoboxHtml='';
-  if(info && info.rows){
-    const rows = info.rows.map(r=>`<tr><th>${r[0]}</th><td>${r[1]}</td></tr>`).join('');
-    infoboxHtml = `<aside class="infobox"><div class="ib-title">${escapeHtml(info.title||'')}</div>`
-      + (info.sub?`<div class="ib-sub">${escapeHtml(info.sub)}</div>`:'')
-      + (info.image ? `<div class="ib-img"><img class="doc-img ib-photo" src="${escapeAttr(info.image)}" alt="" loading="lazy" data-full="${escapeAttr(info.image)}"></div>`
-         : (('image' in info) && canEdit() ? `<div class="ib-img ph">📷 사진 창고에서 이 문서로 끌어 놓으면 여기에 들어가요</div>` : ''))   // ★CU
-      + `<table>${rows}</table></aside>`;
-  }
+  const infoboxHtml = infoboxHTML(info, { placeholder: canEdit() });   // ★DE3: 문서 화면 · 편집 미리보기가 같은 함수
   const tabs = [];
   tabs.push(`<span class="doc-views" id="docViews" title="열람 수 (회원당 하루 1회 집계)">${eyeSVG(13)} <span id="docViewsN">${Number(doc.view_count)||0}</span></span>`);
   const canEditThis = canEdit() || isMyMemberDoc(key);                 // 회원 문서(71): 본인은 등급 무관 편집
@@ -9873,6 +9887,7 @@ async function renderDoc(key){
   readKitOn(key);                                       // ★읽기 집중 장치(CP-6) — 가지 색 · 진행 막대 · 지금 읽는 절
   noteRecentDoc(key);                                   // ★CP-7 빠른 이동의 '최근' (이 탭에서만)
   renderMath($('#doc').querySelector('.doc-body'));    // 문서 본문의 $수식$ 렌더 (기존엔 누락돼 있었음)
+  renderMath($('#doc').querySelector('.infobox'));     // ★DE3: 정보 틀 칸의 $수식$
   activateDynamic($('#doc').querySelector('.doc-body'), key);   // ★동적 블록(절차·그래프) 살리기
   renderLikeBar(key);
   if(featOn('tasks'))    renderTaskBar(key, _nav);     // 과제 바(77) — 없으면 아무것도 안 그린다 · ★기능 스위치(82)
@@ -10168,6 +10183,25 @@ function wInline(s){
   s=s.replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,'$1<i>$2</i>');
   s=s.replace(/~~([^~]+)~~/g,'<s>$1</s>');
   return s;
+}
+/* ★DE3: 정보 틀 한 칸 — 본문과 같은 안다 문법(링크 · 굵게 · 밑줄 · 사진 · 각주 · 수식).
+   예전 값에 HTML 태그가 들어 있으면(위키 시절 자료) 예전처럼 그대로 보여 준다. 줄바꿈은 <br>. */
+function ibCellHTML(v){
+  const s=String(v==null?'':v);
+  if(/<\/?[a-z][a-z0-9]*(\s[^>]*)?>/i.test(s)) return s;
+  const math=[]; let t=s.replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+\$/g, m=>{ math.push(m); return '\uE000'+(math.length-1)+'\uE001'; });
+  t=wInline(wEsc(t)).replace(/ data-i="\d+"/g,'').replace(/\n/g,'<br>');
+  return t.replace(/\uE000(\d+)\uE001/g, (m,i)=>wEsc(math[Number(i)]||''));
+}
+function infoboxHTML(info, opts){
+  opts=opts||{};
+  if(!info || !(info.rows || info.image || info.title)) return '';
+  const rows=(Array.isArray(info.rows)?info.rows:[]).map(r=>`<tr><th>${ibCellHTML(r[0])}</th><td>${ibCellHTML(r[1])}</td></tr>`).join('');
+  return `<aside class="infobox">${info.title?`<div class="ib-title">${escapeHtml(info.title)}</div>`:''}`
+    + (info.sub?`<div class="ib-sub">${escapeHtml(info.sub)}</div>`:'')
+    + (info.image ? `<div class="ib-img"><img class="doc-img ib-photo" src="${escapeAttr(info.image)}" alt="" loading="lazy" data-full="${escapeAttr(info.image)}"></div>`
+       : (('image' in info) && opts.placeholder ? `<div class="ib-img ph">📷 사진 창고에서 이 문서로 끌어 놓거나 편집에서 [사진 넣기]</div>` : ''))   // ★CU
+    + (rows?`<table>${rows}</table>`:'')+`</aside>`;
 }
 function wTable(rows){
   const cells=r=>r.replace(/^\s*\|/,'').replace(/\|\s*$/,'').split('|').map(c=>wInline(c.trim()));
@@ -10890,29 +10924,97 @@ function INFOBOX_FORM_HTML(info){
         <div><label style="margin-top:0">부제 <span class="hint">(선택)</span></label>
           <input id="ib-sub" value="${escapeAttr((info&&info.sub)||'')}" placeholder="예: 경기북과학고 물리 동아리"></div>
       </div>
-      ${(info && ('image' in info)) ? `<div class="ib-imgrow"><input type="hidden" id="ib-img" value="${escapeAttr(info.image||'')}">${info.image?`<img src="${escapeAttr(info.image)}" alt="">`:'<span class="hint">사진 칸 — 사진 창고에서 문서로 끌어 놓으면 채워져요</span>'}${info.image?'<button type="button" class="ib-x" id="ibImgX" title="사진 빼기">×</button>':''}</div>` : ''}
-      <div class="ib-hd"><span>항목명</span><span>값</span><span></span></div>
+      ${ibImgRowHTML(info)}
+      <div class="ib-hd"><span>항목명</span><span>값 <span class="hint">— 본문 문법이 돼요: [글자](주소) · **굵게** · ![사진](주소) · $수식$</span></span><span></span></div>
       <div id="ibRows">${rows.map(r=>ibRowHTML(r[0],r[1])).join('')}</div>
       <button type="button" class="ib-add" id="ibAdd">${ic('plus')} 항목 추가</button>
+      <div class="ib-upmsg" id="ibUpMsg" aria-live="polite"></div>
+      <div class="ibx-prevwrap"><div class="ibx-prevh">미리보기</div><div id="ibPrev" class="ibx-prev"></div></div>
     </div>
   </details>`;
 }
 function ibRowHTML(k,v){
   return `<div class="ib-row">
     <input class="ib-k" value="${escapeAttr(k||'')}" placeholder="예: 창립">
-    <input class="ib-v" value="${escapeAttr(v||'')}" placeholder="예: 2016년">
+    <span class="ib-vwrap"><input class="ib-v" value="${escapeAttr(v||'')}" placeholder="예: 2016년 · [관련 문서](#D-0012)"><button type="button" class="ib-cam" title="이 칸에 사진 넣기 (끌어 놓기 · 붙여넣기도 돼요)" aria-label="이 칸에 사진 넣기">${ic('camera')}</button></span>
     <button type="button" class="ib-x" title="이 행 삭제">×</button>
   </div>`;
 }
+/* ★DE3: 정보 틀 맨 위 사진 칸 — 모든 문서에서 쓸 수 있다. 원래 사진 칸이 없던 문서는 사진을 넣을 때만 칸이 생긴다(data-had). */
+function ibImgRowHTML(info){
+  const had = !!(info && ('image' in info)), url=(info&&info.image)||'';
+  return `<div class="ib-imgrow" id="ibImgRow" data-had="${had?1:0}"><input type="hidden" id="ib-img" value="${escapeAttr(url)}">
+    <span class="ib-imgbox" id="ibImgBox">${url?`<img src="${escapeAttr(url)}" alt="">`:`<span class="hint">상자 맨 위 사진 ${had?'칸이 비어 있어요':'(선택)'}</span>`}</span>
+    <button type="button" class="ib-imgbtn" id="ibImgPick">${ic('camera')}${url?'사진 바꾸기':'사진 넣기'}</button>
+    ${url?`<button type="button" class="ib-imgbtn ghost" id="ibImgX">빼기</button>`:''}</div>`;
+}
+/* 사진 한 장 → 압축 → doc-images에 올리고 주소를 돌려준다(본문 사진과 같은 상한 · 같은 버킷) */
+async function ibUploadOne(f){
+  if(!f || !/^image\//.test(f.type||'')) throw new Error('이미지 파일만 넣을 수 있어요.');
+  if(f.size > IMG_RAW_MAX) throw new Error('25MB 이하 이미지만 올릴 수 있어요.');
+  const out = await compressImage(f, { mode:'contain', dim:DOC_IMG_DIM, target:(LIMITS.lim_doc_img_kb||150)*1024, minQuality:0.45 });
+  const ext = out.type==='image/webp' ? 'webp' : 'jpg';
+  const path = `${state.user.id}/${Date.now()}_${Math.random().toString(36).slice(2,7)}.${ext}`;
+  const up = await sb.storage.from('doc-images').upload(path, out.blob, { contentType: out.type, cacheControl:'31536000', upsert:false });
+  if(up.error) throw up.error;
+  return { url: sb.storage.from('doc-images').getPublicUrl(path).data.publicUrl, kb: Math.round(out.blob.size/1024), alt:(f.name||'사진').replace(/\.[^.]+$/,'').replace(/[\[\]()]/g,'').slice(0,40) };
+}
+function ibMsg(t, bad){ const m=$('#ibUpMsg'); if(m){ m.textContent=t||''; m.classList.toggle('err', !!bad); } }
+function ibPickFile(multi){ return new Promise(res=>{ const inp=document.createElement('input'); inp.type='file'; inp.accept='image/*'; inp.multiple=!!multi; inp.onchange=()=>res([...(inp.files||[])]); inp.click(); }); }
+/* 칸(.ib-v)에 사진 넣기: 커서 자리에 ![이름](주소) */
+async function ibPutImagesInto(inp, files){
+  for(const f of files){
+    const tok='![올리는 중…]'; const st=inp.selectionStart ?? inp.value.length, en=inp.selectionEnd ?? st;
+    inp.setRangeText((inp.value&&st>0&&!/\s$/.test(inp.value.slice(0,st))?' ':'')+tok, st, en, 'end'); ibPaintPreview();
+    try{ ibMsg('사진 올리는 중…'); const r=await ibUploadOne(f); inp.value=inp.value.replace(tok, `![${r.alt}](${r.url})`); ibMsg(`올렸어요 · ${r.kb}KB`); }
+    catch(e){ inp.value=inp.value.replace(tok,''); ibMsg('사진을 못 올렸어요: '+((e&&e.message)||e), true); }
+    ibPaintPreview(); inp.dispatchEvent(new Event('input', { bubbles:true }));
+  }
+}
+async function ibSetMainImage(f){
+  try{ ibMsg('사진 올리는 중…'); const r=await ibUploadOne(f); $('#ib-img').value=r.url; ibRepaintImgRow(); ibMsg(`올렸어요 · ${r.kb}KB`); }
+  catch(e){ ibMsg('사진을 못 올렸어요: '+((e&&e.message)||e), true); }
+}
+function ibRepaintImgRow(){
+  const row=$('#ibImgRow'); if(!row) return;
+  const had=row.dataset.had==='1', url=$('#ib-img').value;
+  row.outerHTML=ibImgRowHTML(had||url ? { image:url } : {});
+  const nr=$('#ibImgRow'); if(nr) nr.dataset.had = had ? '1' : '0';           // 원래 칸이 없던 문서는 '없음' 그대로(사진이 있을 때만 저장)
+  ibBindImgRow(); ibPaintPreview(); wkDirtyPaint();
+}
+function ibBindImgRow(){
+  const pk=$('#ibImgPick'); if(pk) pk.onclick=async()=>{ const fs=await ibPickFile(false); if(fs[0]) ibSetMainImage(fs[0]); };
+  const x=$('#ibImgX'); if(x) x.onclick=()=>{ $('#ib-img').value=''; ibRepaintImgRow(); ibMsg('사진을 뺐어요 — 저장하면 반영돼요'); };
+  const row=$('#ibImgRow'); if(row){
+    row.addEventListener('dragover', e=>{ if(e.dataTransfer && [...e.dataTransfer.types].includes('Files')){ e.preventDefault(); row.classList.add('drag'); } });
+    row.addEventListener('dragleave', ()=>row.classList.remove('drag'));
+    row.addEventListener('drop', e=>{ row.classList.remove('drag'); const f=e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0]; if(f){ e.preventDefault(); ibSetMainImage(f); } });
+  }
+}
+function ibPaintPreview(){
+  const pv=$('#ibPrev'); if(!pv) return;
+  let info=null; try{ info=collectInfobox(); }catch(e){ pv.innerHTML=`<span class="hint">${escapeHtml(e.message||'')}</span>`; return; }
+  pv.innerHTML = info ? infoboxHTML(info, { placeholder:true }) : '<span class="hint">비어 있으면 문서에 정보 틀이 안 보여요.</span>';
+  renderMath(pv);                                   // 문서와 같은 안전 설정
+}
 function bindInfoboxForm(){
   const box=$('#ibRows'); if(!box) return;
-  { const x=$('#ibImgX'); if(x) x.onclick=()=>{ $('#ib-img').value=''; const r=x.closest('.ib-imgrow'); r.querySelector('img').remove(); x.remove(); r.insertAdjacentHTML('beforeend','<span class="hint">사진을 뺐어요 — 저장하면 반영돼요</span>'); }; }
-  const bindX=()=>box.querySelectorAll('.ib-x').forEach(b=>{ b.onclick=()=>{ b.closest('.ib-row').remove(); }; });
+  ibBindImgRow();
+  const bindX=()=>{
+    box.querySelectorAll('.ib-x').forEach(b=>{ b.onclick=()=>{ b.closest('.ib-row').remove(); ibPaintPreview(); wkDirtyPaint(); }; });
+    box.querySelectorAll('.ib-cam').forEach(b=>{ b.onmousedown=e=>e.preventDefault(); b.onclick=async()=>{ const inp=b.parentNode.querySelector('.ib-v'); const fs=await ibPickFile(true); if(fs.length) ibPutImagesInto(inp, fs); }; });
+  };
   bindX();
+  /* 칸에 사진 끌어 놓기 · 붙여넣기 */
+  box.addEventListener('dragover', e=>{ if(e.target.closest('.ib-v') && e.dataTransfer && [...e.dataTransfer.types].includes('Files')) e.preventDefault(); });
+  box.addEventListener('drop', e=>{ const inp=e.target.closest('.ib-v'); const fs=e.dataTransfer && [...(e.dataTransfer.files||[])].filter(f=>/^image\//.test(f.type)); if(inp && fs && fs.length){ e.preventDefault(); ibPutImagesInto(inp, fs); } });
+  box.addEventListener('paste', e=>{ const inp=e.target.closest('.ib-v'); if(!inp) return; const fs=[...((e.clipboardData&&e.clipboardData.items)||[])].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean); if(fs.length){ e.preventDefault(); ibPutImagesInto(inp, fs); } });
+  const form=box.closest('.ib-form'); if(form) form.addEventListener('input', ()=>{ clearTimeout(form._t); form._t=setTimeout(()=>{ ibPaintPreview(); wkDirtyPaint(); }, 150); });
+  ibPaintPreview();
   const add=$('#ibAdd');
   if(add) add.onclick=()=>{
     box.insertAdjacentHTML('beforeend', ibRowHTML('',''));
-    bindX();
+    bindX(); ibPaintPreview();
     const last=box.lastElementChild; if(last) last.querySelector('.ib-k').focus();
   };
 }
@@ -10931,7 +11033,8 @@ function collectInfobox(){
     .filter(r=>r[0]!=='' || r[1]!=='');
   const imgEl=$('#ib-img');                                                              // ★CU: 사진 칸을 지킨다(없애면 다음 저장 때 사라졌다)
   if(!title && !sub && !rows.length && !(imgEl && imgEl.value)) return null;
-  return imgEl ? { title, sub, rows, image:imgEl.value||'' } : { title, sub, rows };
+  const had = $('#ibImgRow') ? $('#ibImgRow').dataset.had==='1' : !!imgEl;                // ★DE3: 원래 칸이 없던 문서는 사진을 넣었을 때만 image
+  return (imgEl && (had || imgEl.value)) ? { title, sub, rows, image:imgEl.value||'' } : { title, sub, rows };
 }
 
 /* ================== 문서 작성 팁 (편집기 우측 패널) ==================
@@ -11613,8 +11716,13 @@ async function enterWikiEdit(doc, opts){
   $('#doc').innerHTML=`
     <div class="wk-head">
       <h1>문서 편집</h1>
-      <div class="wk-keybox" title="주소는 번호로 고정돼요 — 제목을 바꿔도 링크·QR은 그대로">
-        <span class="wk-addr">${escapeHtml(docAddr(doc.key))}</span>
+      <div class="wk-headr">
+        <div class="wk-keybox" title="주소는 번호로 고정돼요 — 제목을 바꿔도 링크·QR은 그대로">
+          <span class="wk-addr">${escapeHtml(docAddr(doc.key))}</span>
+        </div>
+        <span class="wk-dirty" id="wkDirty" hidden>저장 안 한 변경</span>
+        <button class="btn ghost wk-topbtn" id="cancelBtnTop" type="button">취소</button>
+        <button class="btn primary wk-topbtn" id="saveBtnTop" type="button" title="저장 (Ctrl+S)">저장</button>
       </div>
     </div>
     <div class="notice lock-lost" id="e-lockmsg" hidden></div>
@@ -11675,6 +11783,12 @@ async function enterWikiEdit(doc, opts){
   ta.addEventListener('input', ()=>{ wkPush(); wkRenderPreview(); wkAutosave(doc.key); });
   $('#cancelBtn').onclick=()=>{ location.hash=docHash(doc.key); };
   $('#saveBtn').onclick=()=>saveDoc(doc.key);
+  $('#cancelBtnTop').onclick=()=>{ location.hash=docHash(doc.key); };                  // ★DE3: 맨 위에도
+  $('#saveBtnTop').onclick=()=>saveDoc(doc.key);
+  ta.addEventListener('input', ()=>{ clearTimeout(ta._dt); ta._dt=setTimeout(wkDirtyPaint, 200); });
+  ['e-title','e-eng','e-notice'].forEach(id=>{ const el=document.getElementById(id); if(el) el.addEventListener('input', wkDirtyPaint); });
+  document.querySelector('.editor').addEventListener('change', wkDirtyPaint);
+  state.editKey = doc.key; state.editSnap = null;
   /* ★제목 규칙(118) — 회원 문서는 대상 밖. 원래 제목 그대로면 검사하지 않는다(예전 규칙으로 지은 제목 보호) */
   state.editOrigTitle = doc.title || '';
   /* ★보관 위치·상태(121) — 위치는 고르는 즉시 저장, 상태는 [저장] 때 */
@@ -11697,6 +11811,8 @@ async function enterWikiEdit(doc, opts){
   catPickerize($('#e-cat'));                         // ★CP-7: 분류 고르개
   segFromSelect($('#e-status'), { cls:'st-seg', toggle:true, skipEmpty:true });   // ★CP-7: 상태 세그먼트(다시 누르면 '적지 않음')
   if(!isMemberDocKey(doc.key)) wireTitleCheck($('#e-title'), $('#e-title-chk'), doc.key, state.editOrigTitle);
+  state.editSnap = wkSnapNow();                         // ★DE3: 나가기 확인의 기준(문서 원래 값)
+  if(opts.converted) state.editSnap = null;             // 예전 HTML → 새 문법 변환본은 저장 전까지 늘 '변경'으로 친다
   // 임시저장 복구: 저장 없이 닫혔던 초안이 문서보다 최신이면 제안
   if(!opts.converted){
     let d=null; try{ d=JSON.parse(localStorage.getItem(wkDraftKey(doc.key))||'null'); }catch(e){}
@@ -11707,8 +11823,53 @@ async function enterWikiEdit(doc, opts){
     }
   }
   wkRenderPreview();
+  wkDirtyPaint();
   window.scrollTo(0,0);
 }
+/* ★DE3: 저장 안 한 변경 — 편집 화면의 값(본문 · 제목 · 정보 틀 · 분류 · 상태 · 태그)을 처음과 비교한다 */
+function wkSnapNow(){
+  const v=id=>{ const e=document.getElementById(id); return e ? String(e.value) : ''; };
+  let ib=''; try{ ib=JSON.stringify(collectInfobox()); }catch(e){ ib='!bad'; }
+  return JSON.stringify([v('e-title'), v('e-eng'), v('e-notice'), v('e-body'), v('e-cat'), v('e-status'), v('e-stnote'), ib]);
+}
+function wkTagsDirty(){
+  const T=state.editTags; if(!T) return false;
+  const nf=state.editTagPicker ? state.editTagPicker.get() : ($('#e-ftags') ? parseTagInput($('#e-ftags').value) : T.field);
+  if(nf.join('|')!==T.field.join('|')) return true;
+  const ot=$('#e-otags'); if(ot){ const oa=[...ot.querySelectorAll('input:checked')].map(c=>c.value).sort().join('|'); if(oa!==T.admin.slice().sort().join('|')) return true; }
+  return false;
+}
+function wkDirty(){
+  if(!$('#e-body') || !state.editKey) return false;
+  if(state.editSnap===null) return true;                       // 변환본 · 이어 쓴 초안
+  return wkSnapNow()!==state.editSnap || wkTagsDirty();
+}
+function wkDirtyPaint(){ const d=$('#wkDirty'); if(d) d.hidden=!wkDirty(); }
+function wkSaveBtns(dis){ ['saveBtn','saveBtnTop'].forEach(id=>{ const b=document.getElementById(id); if(b) b.disabled=!!dis; }); }
+function wkLeaveGuard(){
+  return new Promise(resolve=>{
+    const ov=document.createElement('div'); ov.className='modal-ov';
+    ov.innerHTML=`<div class="modal-box"><div class="modal-msg">저장하지 않으시겠습니까?</div>
+      <div class="modal-sub">고친 내용이 아직 저장되지 않았어요. 저장하지 않고 나가면 이 화면의 변경은 사라져요.</div>
+      <div class="modal-btns"><button class="modal-cancel" data-v="discard">저장 안 하고 나가기</button><button class="modal-cancel" data-v="stay">계속 편집</button><button class="modal-ok" data-v="save">저장하고 나가기</button></div></div>`;
+    document.body.appendChild(ov);
+    const done=v=>{ ov.remove(); document.removeEventListener('keydown', esc, true); resolve(v); };
+    const esc=e=>{ if(e.key==='Escape'){ e.preventDefault(); done('stay'); } };
+    document.addEventListener('keydown', esc, true);
+    ov.querySelectorAll('[data-v]').forEach(b=>{ b.onclick=()=>done(b.dataset.v); });
+    ov.addEventListener('click', e=>{ if(e.target===ov) done('stay'); });
+    const ok=ov.querySelector('.modal-ok'); if(ok) ok.focus();
+  });
+}
+let _wkGuarding=false;
+document.addEventListener('keydown', e=>{                                    // ★DE3: Ctrl/⌘+S = 저장(문서 편집 화면에서만, 도구 창 안은 제외)
+  if(!(e.ctrlKey||e.metaKey) || e.shiftKey || e.altKey || e.code!=='KeyS') return;
+  if(!state.editKey || !/^#\/\/edit\//.test(location.hash||'')) return;
+  if(e.target && e.target.closest && e.target.closest('.atw, .modal-ov')) return;
+  const b=$('#saveBtnTop'); if(!b) return;
+  e.preventDefault(); if(!b.disabled) saveDoc(state.editKey);
+});
+window.addEventListener('beforeunload', e=>{ if(!_wkGuarding && wkDirty() && /^#\/\/edit\//.test(location.hash||'')){ e.preventDefault(); e.returnValue=''; } });
 
 
 /* ================== 편집 잠금 (119 · 세션 CP) ==================
@@ -11793,7 +11954,7 @@ function editLockLost(r){
     box.innerHTML=`<b>편집 잠금을 잃었어요.</b> 지금은 ${escapeHtml(who)}이(가) 편집하고 있어요. 저장하면 그 내용과 겹치므로 저장을 잠갔어요.
       쓰던 내용은 이 기기에 초안으로 남아 있어요 — 그 편집이 끝난 뒤 다시 [편집]을 누르면 이어 쓸 수 있어요.`;
   }
-  const sv=$('#saveBtn'); if(sv) sv.disabled=true;
+  wkSaveBtns(true);
 }
 async function editLockAskIdle(){
   const L=EDIT_LOCK; if(!L || L.asking) return;
@@ -11925,7 +12086,7 @@ function enterEdit(doc){
   }
   enterWikiEdit(doc);
 }
-async function saveDoc(key){
+async function saveDoc(key, goTo){
   const msg=$('#e-msg'); msg.className='msg';
   // ★용량 방어: 본문에 base64(data:) 이미지가 들어오면 리비전이 편집마다 사진 전체를 복사한다.
   //   (10년 78GB → DB 한도의 160배). 사진은 반드시 Storage로.
@@ -11957,7 +12118,7 @@ async function saveDoc(key){
     updated_at: new Date().toISOString(),
     format: state.editFmt || undefined      // 'wiki' 저장 시 변환 확정, html은 그대로
   };
-  $('#saveBtn').disabled=true;
+  wkSaveBtns(true);
 
   // ── 동시 편집 충돌 보호 ──
   // 예전엔 두 명이 같은 문서를 고치면 '나중에 저장한 사람'이 앞사람 걸 소리 없이 덮어썼다.
@@ -11978,7 +12139,7 @@ async function saveDoc(key){
           `${who}님이 ${fmtKST(cur.updated_at)}에 이 문서를 저장했습니다.\n그대로 저장하면 그 내용이 사라집니다. (역사에서 복구는 가능)`,
           '내 것으로 덮어쓰기');
         if(!ok){
-          $('#saveBtn').disabled=false;
+          wkSaveBtns(false);
           msg.className='msg err';
           msg.textContent='저장하지 않았습니다. 새로고침해서 최신 내용을 확인한 뒤 다시 편집해 주세요.';
           return;
@@ -11990,11 +12151,11 @@ async function saveDoc(key){
   /* ★저장된 줄을 돌려받아 0줄이면 실패로 본다 — RLS에 막히거나 그 사이 문서가 지워지면
      오류 없이 '0줄 수정'으로 끝나 저장된 줄 알고 나가게 된다(초안까지 지워짐). */
   const { data:saved, error } = await sb.from('documents').update(payload).eq('key', key).select('key');
-  if(error){ $('#saveBtn').disabled=false;
+  if(error){ wkSaveBtns(false);
     if(handleErr(error,'doc_edit')) return;
     msg.className='msg err'; msg.textContent=docErrMsg(error, '저장 실패: '); return; }
   if(Array.isArray(saved) && saved.length===0){
-    $('#saveBtn').disabled=false;
+    wkSaveBtns(false);
     msg.className='msg err';
     msg.textContent='저장되지 않았어요 — 문서가 삭제됐거나 편집 권한이 없어요. 쓰던 내용은 이 기기에 초안으로 남아 있어요.';
     return;
@@ -12002,7 +12163,7 @@ async function saveDoc(key){
   /* ★주소는 번호로 고정(118) — 예전의 '주소 바꾸기'는 없앴다 */
   const finalKey = key;
   state.editOrigTitle = payload.title;
-  $('#saveBtn').disabled=false;
+  wkSaveBtns(false);
   state.editBase = payload.updated_at;                            // 기준 시각 갱신
   /* ★분류 나무 자리·태그(120) — 본문 저장과 따로 간다. 실패해도 본문은 이미 저장됐다 → 알리기만 */
   const after=[];
@@ -12026,9 +12187,12 @@ async function saveDoc(key){
   }
   editLockRelease(true);                                          // ★편집 잠금(119) 내려놓기 → 기다리던 사람에게 '마쳤어요' 알림
   try{ localStorage.removeItem('anda_draft:'+key); }catch(e){}   // 저장 성공 → 임시 초안 제거
+  state.editKey = null; state.editSnap = null;                    // ★DE3: 저장했으니 나가기 확인 없음
   await loadDocs();
+  if(goTo && goTo!==location.hash){ location.hash = goTo; return true; }   // ★DE3: '저장하고 나가기' — 가려던 곳으로
   location.hash = docHash(finalKey);   // 저장 후 문서 화면으로 (편집 경로에 머물지 않게)
   if((location.hash||'') === docHash(finalKey)) await renderDoc(finalKey);   // 해시가 이미 같으면 직접 렌더
+  return true;
 }
 /* ================== 새 문서 템플릿 (백지 제거) ==================
    비용 0원(정적 데이터). AI와 달리 사실을 지어내지 않고 '뼈대'만 제공한다.
@@ -12535,7 +12699,7 @@ async function showHistory(key){
     return `<div class="hv${i===0?' now':''}" data-hi="${i}">
       <span class="hv-dot" aria-hidden="true"></span>
       <div class="hv-card">
-        <div class="hv-top"><span class="hv-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span><b>${escapeHtml(who)}</b><span class="muted">${fmtKST(r.edited_at)}</span>${stat}
+        <div class="hv-top"><span class="hv-ava" style="background:${av.bg}">${escapeHtml(av.ch)}</span><b>${escapeHtml(who)}</b><span class="muted">${fmtKST(r.edited_at)}${Number(r.saves)>1&&r.last_at?` ~ ${escapeHtml(new Date(r.last_at).toLocaleTimeString('ko-KR',{timeZone:'Asia/Seoul',timeStyle:'short'}))}`:''}</span>${Number(r.saves)>1?`<span class="hv-saves" title="짧은 사이에 저장한 것을 한 기록으로 묶었어요(136)">${Number(r.saves)}번 저장</span>`:''}${stat}
           <button type="button" class="tg-more hv-more" data-hm="${i}" aria-label="이 편집 메뉴" title="메뉴">⋯</button></div>
         ${titleCh}
         <button type="button" class="hv-tog" data-ht="${i}" aria-expanded="false">${d && (d.add||d.del) ? '바뀐 줄 보기' : (d ? '바뀐 글 없음' : '바뀐 곳이 많아요 — 열람으로 보기')}</button>
@@ -13531,7 +13695,7 @@ const MIG_LEDGER = [
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
   ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
-  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}], ['135','저장 용량 정리',{f:'purge_status'}],
+  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}], ['135','저장 용량 정리',{f:'purge_status'}], ['136','편집 기록 합치기',{t:'revisions',c:'saves'}],
 ];
 async function migProbe(p){
   try{
@@ -24180,6 +24344,27 @@ function route(){
       _meDirty={}; _meGuarding=false; route();
     });
     return;
+  }
+  /* ★DE3: 문서 편집에 저장 안 한 변경이 있으면 떠나기 전에 묻는다.
+     hashchange는 취소할 수 없어 주소만 편집 화면으로 되돌리고(replaceState — 다시 그리지 않아 쓰던 내용이 그대로) 답을 기다린다. */
+  if(state.editKey && !_wkGuarding){
+    const eh='#//edit/'+encodeURIComponent(state.editKey);
+    if((location.hash||'')!==eh){
+      if(wkDirty()){
+        const to=location.hash||'#//';
+        try{ history.replaceState(null, '', eh); }catch(e){}
+        _wkGuarding=true;
+        wkLeaveGuard().then(async v=>{
+          if(v==='stay'){ _wkGuarding=false; return; }
+          if(v==='save'){ const key=state.editKey; let ok=false; try{ ok=await saveDoc(key, to); }catch(e){} _wkGuarding=false; if(!ok) toast('저장하지 못해 편집 화면에 남았어요.'); return; }
+          try{ localStorage.removeItem(wkDraftKey(state.editKey)); }catch(e){}   // 저장 안 함 → 이 기기의 초안도 버린다
+          state.editKey=null; state.editSnap=null; _wkGuarding=false;
+          location.hash=to;
+        });
+        return;
+      }
+      state.editKey=null; state.editSnap=null;
+    }
   }
   if(state.recovery){ renderPassword(); return; }   // 복구 모드: 비번 바꿀 때까지 고정
   semUnplaceSide();        // ★CS-2: 세미나 진행자 레일 모양은 그 방에서만 (레일 내용은 railReserve가 비운다)
