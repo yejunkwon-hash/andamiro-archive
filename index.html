@@ -15587,6 +15587,9 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-08', text:"[도구] 그래프 그리기에 '수식 열'이 생겼어요. [ƒx 수식 열]이나 열 메뉴 ⋯ → [ƒx 수식으로 채우기]에서 0.5*y1^2 · y1/100 · ln(y1)처럼 다른 열로 값을 계산해요(열 이름표는 머리의 x1 · y1). deriv(y1, x1)로 미분(위치 → 속도), cumint(y1, x1)로 누적 적분, mean · sd · delta 같은 열 함수도 있고, 쓴 열에 ± 오차가 있으면 오차도 자동으로 전파해요. 원본을 고치면 저절로 다시 계산돼요." },
+  { date:'2026-10-08', text:"[도구] 그래프 그리기를 손봤어요. 그래프 위 막대가 [형식] · [추세선] · [설정] · [저장]으로 줄었어요. [형식]에서 선 + 점 · 점만(이웃한 점을 선으로 잇지 않기) · 선만 · 매끄러운 곡선 · 계단 · 줄기 · 막대 · 면적을 모든 계열 또는 계열마다 고르고, [추세선]에서 직선 · 원점 지나는 직선 · 2~6차 다항식 · 지수 · 지수 감쇠 + 상수 · 포화 · 거듭제곱 · 로그 · 반비례 · 역제곱 · 사인 · 감쇠 진동 · 가우스 · 로렌츠 · 이동 평균, 그리고 직접 쓴 식(예: a*exp(-b*x)*cos(w*x+p)+c)으로 맞춰요. 맞출 x 범위를 정할 수 있고, 값마다 ± 표준오차와 R² · χ²/ν가 나와요." },
+  { date:'2026-10-08', text:"[도구] 그래프 그리기 · 이미지 분석 · KYPT 발표 타이머는 창 제목줄의 ⧉ 단추로 새 브라우저 창으로 꺼낼 수 있어요. 그 창은 따로 크기를 바꾸고, 원래 탭을 닫아도 남아요. 영상 · 이미지 분석에서 [그래프로] 보내면 새 창의 그래프로 들어가요." },
   { date:'2026-10-08', text:"[도구] 이미지 분석을 크게 고쳤어요. 위에 메뉴(파일 · 편집 · 보기 · 사진 · 처리 · 분석 · 물리 · 도움말), 왼쪽에 이름이 붙은 도구판 20개(좌표축 · 점 좌표 · 두 선 각 · 세 점 원 · 화살표 · 마술봉 · 궤적 · 글자 등), 그 아래 옵션 막대에서 선 굵기 · 점 크기 · 글자 크기 · 채우기 · 색을 도형마다 바꿔요. 고른 도형은 손잡이로 고치고 끌어 옮겨요. [물리] 칸에서 섬광 사진의 궤적으로 속도 · 가속도 · g ± 오차, 원 맞춤 · 곡률, 스넬 법칙 굴절률, 간섭 · 회절 무늬로 파장, 빔 폭을 구해요. 흐리게 · 배경 빼기 · 윤곽 등 처리와 색 지도, 돋보기 창, 작업 저장(.json)도 생겼고 예제 사진 두 장으로 바로 해 볼 수 있어요." },
   { date:'2026-10-07', text:"[도구] 새 도구 '이미지 분석(ImageJ식)' — 사진을 열고 자 · 눈금으로 축척을 맞춘 뒤 길이 · 각도 · 넓이 · 둘레 · 밝기를 재고, 선을 따라 밝기 프로파일(간섭 무늬 간격 자동 계산) · 히스토그램 · 입자 세기를 해요. 결과는 CSV나 그래프 그리기로 보낼 수 있고, 사진은 올리지 않아요. 도구 목록의 '오차 분석'은 뺐어요." },
   { date:'2026-10-07', text:"[문서] 새 문서 틀을 새로 짰어요. 묶음(기본 · 연구·KYPT · 기자재·도구 · 사람·동아리)과 찾기로 고르고, 어떤 제목과 표가 들어가는지 미리 봐요. 논문 정리 · 세미나 노트 · 문제 해결 기록이 새로 생겼고, 뼈대의 '✎ 작성 안내'는 채운 뒤 그 줄을 지우면 사라져요." },
@@ -25050,6 +25053,10 @@ init();
 .atw.atw-moving{ transition:none; user-select:none; }
 .atw.atw-max{ left:8px !important; top:60px !important; right:8px; bottom:8px; width:auto !important; height:auto !important; }
 .atw.atw-full{ inset:0 !important; width:auto !important; height:auto !important; border-radius:0; border:0; }
+/* ★DJ: 새 창으로 꺼낸 도구 — 앱 화면은 숨기고 도구만 창 가득 */
+body.atw-solo #app, body.atw-solo #login, body.atw-solo #botnav{ display:none !important; }
+body.atw-solo .atw [data-a="min"], body.atw-solo .atw [data-a="max"], body.atw-solo .atw-rs{ display:none !important; }
+body.atw-solo .atw .atw-bar{ cursor:default; }
 .atw.atw-mini{ height:auto !important; width:300px !important; }
 .atw.atw-mini .atw-body, .atw.atw-mini .atw-rs{ display:none; }
 body.dark .atw{ box-shadow:0 18px 50px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4); }
@@ -25124,7 +25131,7 @@ body.dark .atw{ box-shadow:0 18px 50px rgba(0,0,0,.6), 0 2px 8px rgba(0,0,0,.4);
 .gs-hm:hover{ background:var(--box-bg); color:var(--text); }
 .gs-meta{ display:flex; align-items:center; gap:4px; font-size:11px; color:var(--text-dim); min-width:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .gs-hc.e .gs-meta{ display:block; }
-.gs-ax{ padding-left:3px; }
+.gs-ax{ padding-left:3px; display:inline-flex; align-items:center; gap:4px; }
 .gs-dot{ flex:none; width:14px; height:14px; border-radius:50%; border:2px solid var(--card); box-shadow:0 0 0 1px var(--border-strong); background:var(--c); cursor:pointer; padding:0; }
 .gs-pair{ min-width:0; flex:1; height:20px; font-size:11px; border:1px solid var(--border); border-radius:5px; background:var(--card); color:var(--text-dim); padding:0 2px; }
 .gs-pm{ font-weight:700; font-size:12px; padding:2px 3px; }
@@ -25198,6 +25205,54 @@ body.dark .gp{ background:#f4f2f2; }
 .gt-seg2{ display:inline-flex; border:1px solid var(--border-strong); border-radius:7px; overflow:hidden; }
 .gt-seg2 button{ border:0; background:var(--card); padding:4px 8px; font:inherit; font-size:12px; cursor:pointer; color:var(--text-dim); } .gt-seg2 button + button{ border-left:1px solid var(--border); }
 .gt-seg2 button.on{ background:var(--accent); color:#fff; }
+/* ★DJ: 그래프 형식 · 추세선 */
+.gt-kpop{ width:340px; }
+.gt-kgrid{ display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin:6px 0 8px; }
+.gt-kgrid button{ display:flex; flex-direction:column; align-items:center; gap:3px; padding:7px 2px 6px; border:1px solid var(--border); border-radius:9px; background:var(--card); color:var(--text); font:inherit; font-size:11.5px; cursor:pointer; line-height:1.15; text-align:center; }
+.gt-kgrid button:hover{ border-color:var(--border-strong); background:var(--box-bg); }
+.gt-kgrid button.on{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); color:var(--accent); }
+.gt-kline{ display:flex; align-items:center; gap:6px; padding:7px 0; border-top:1px solid var(--border); }
+.gt-krows{ border-top:1px solid var(--border); padding-top:6px; display:flex; flex-direction:column; gap:5px; } .gt-krows > small{ color:var(--text-dim); }
+.gt-krow{ display:flex; align-items:center; gap:6px; } .gt-krow i, .gt-trn i{ width:10px; height:10px; border-radius:50%; background:var(--c); flex:none; }
+.gt-krow span{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gt-krow select{ height:28px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; font-size:12px; max-width:170px; }
+.gt-ktip{ margin:8px 0 0; font-size:11.5px; color:var(--text-dim); }
+.gt-tsec h4{ color:var(--text) !important; font-size:13px !important; }
+.gt-trn{ display:flex; align-items:center; gap:6px; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gt-tsec > select{ height:32px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; padding:0 6px; }
+.gt-trr{ display:flex; align-items:center; gap:5px; font-size:12px; color:var(--text-dim); } .gt-trr span:first-child{ flex:none; }
+.gt-trr input{ width:0; flex:1; min-width:50px; height:28px; border:1px solid var(--border-strong); border-radius:7px; padding:0 6px; background:var(--card); color:var(--text); font:inherit; }
+.gt-trk{ display:flex; flex-wrap:wrap; gap:4px 12px; }
+.gt-ex{ display:flex; flex-wrap:wrap; gap:4px; } .gt-ex button{ border:1px solid var(--border); background:var(--box-bg); color:var(--text); border-radius:99px; padding:2px 9px; font:inherit; font-size:11.5px; cursor:pointer; }
+.gt-trres:empty{ display:none; }
+/* ★DK: 수식 열 */
+.gs-ref{ font-family:var(--mono); font-size:10.5px; font-weight:700; color:var(--accent); background:color-mix(in srgb, var(--accent) 9%, transparent); border-radius:4px; padding:0 4px; flex:none; }
+.gs-fx{ flex:none; height:17px; padding:0 4px; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius:5px; background:var(--card); color:var(--accent); font:italic 700 11px/16px Georgia, 'Times New Roman', serif; cursor:pointer; }
+.gs-fx.bad{ color:var(--warn); border-color:var(--warn); background:var(--warn-bg); }
+.gs-c.fx{ color:color-mix(in srgb, var(--accent) 70%, var(--text)); background:color-mix(in srgb, var(--accent) 3%, transparent); cursor:default; }
+.gt-fxi{ font:italic 700 13px Georgia, 'Times New Roman', serif; margin-right:4px; color:var(--accent); }
+.gt-fxd{ width:min(620px, 100%); gap:6px; } .gt-fxd > *{ flex:none; }
+.gt-fxd .gt-row label{ display:flex; align-items:center; gap:6px; } .gt-fxd .gt-row input[type=text]{ height:30px; border:1px solid var(--border-strong); border-radius:7px; padding:0 8px; background:var(--card); color:var(--text); font:inherit; width:220px; }
+.gt-fxd .gt-row select, .gt-fxr{ height:30px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; padding:0 6px; } .gt-fxr{ width:90px; }
+.gt-fxl{ display:flex; align-items:flex-start; gap:8px; margin:8px 0; } .gt-fxl > span{ font:italic 700 20px/36px Georgia, serif; color:var(--accent); }
+.gt-fxf{ flex:1; min-height:44px; resize:vertical; border:1px solid var(--border-strong); border-radius:9px; padding:8px 10px; font:14px/1.45 var(--mono); background:var(--card); color:var(--text); }
+.gt-fxf:focus{ outline:none; border-color:var(--accent); box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 15%, transparent); }
+.gt-fxc{ display:flex; gap:8px; align-items:flex-start; margin:5px 0; } .gt-fxc > small{ flex:none; width:64px; color:var(--text-dim); padding-top:4px; font-size:11.5px; }
+.gt-fxrefs, .gt-fxfn, .gt-fxex{ display:flex; flex-wrap:wrap; gap:4px; flex:1; min-width:0; }
+.gt-fxrefs button, .gt-fxfn button, .gt-fxex button{ display:inline-flex; align-items:center; gap:5px; border:1px solid var(--border); background:var(--box-bg); color:var(--text); border-radius:7px; padding:3px 8px; font:inherit; font-size:12px; cursor:pointer; max-width:220px; }
+.gt-fxrefs button b{ font-family:var(--mono); color:var(--accent); } .gt-fxrefs button i{ font-style:normal; color:var(--text-dim); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.gt-fxrefs button:hover, .gt-fxfn button:hover, .gt-fxex button:hover{ border-color:var(--accent); }
+.gt-fxex button{ border-radius:99px; }
+.gt-fxo{ margin-top:8px; } .gt-fxo small{ color:var(--text-dim); } .gt-fxrows[hidden]{ display:none !important; }
+.gt-fxp{ margin:8px 0; padding:8px 10px; border:1px solid var(--border); border-radius:9px; background:var(--box-bg); font-size:12.5px; min-height:24px; }
+.gt-fxp table{ border-collapse:collapse; font-variant-numeric:tabular-nums; margin-bottom:4px; } .gt-fxp th, .gt-fxp td{ padding:2px 10px 2px 0; text-align:right; } .gt-fxp th{ color:var(--text-dim); font-weight:600; font-family:var(--mono); font-size:11.5px; }
+.gt-fxm{ color:var(--text-dim); font-size:11.5px; }
+.gt-fxh summary{ cursor:pointer; color:var(--text-dim); font-size:12px; } .gt-fxh p{ font-size:12px; line-height:1.65; margin:6px 0; } .gt-fxh code{ font-family:var(--mono); background:var(--box-bg); padding:0 4px; border-radius:4px; }
+.gt.gt-ptrend .gt-fits{ display:none; }   /* 추세선 판이 열려 있으면 결과는 판 안에 */
+.gt-trres{ border:1px solid var(--border); border-radius:9px; padding:8px 10px; background:var(--box-bg); display:flex; flex-direction:column; gap:3px; }
+.gt-trres code{ font-family:var(--mono); font-size:12px; font-weight:700; overflow-wrap:anywhere; margin-bottom:3px; }
+.gt-trres div{ display:flex; justify-content:space-between; gap:8px; font-size:12px; } .gt-trres div span{ color:var(--text-dim); } .gt-trres div b{ font-family:var(--mono); font-weight:600; text-align:right; }
+.gt-trres small{ color:var(--text-dim); font-size:11.5px; line-height:1.45; } .gt-trres .gt-link{ align-self:flex-end; }
 /* 표 넣기 창 */
 .gt-dlg-ov{ position:absolute; inset:0; z-index:20; background:rgba(20,10,10,.35); display:flex; align-items:center; justify-content:center; padding:12px; }
 .gt-dlg-ov[hidden]{ display:none; }
@@ -25445,6 +25500,7 @@ const ATW_ICON={
   max:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="3" width="10" height="10" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>',
   unmax:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="3" y="5.5" width="7.5" height="7.5" rx="1.2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M5.5 5.5V3.8c0-.4.3-.8.8-.8h6c.4 0 .7.3.7.7v6c0 .5-.3.8-.8.8H10.5" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>',
   close:'<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>',
+  pop:'<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5L8 8"/><path d="M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>',
   graph:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4v16h16"/><path d="M7 15l4-5 3 3 5-7"/><circle cx="11" cy="10" r=".6" fill="currentColor"/><circle cx="14" cy="13" r=".6" fill="currentColor"/></svg>',
   timer:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9.5 2.5h5M12 2.5V5"/></svg>',
   track:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="5" width="13" height="14" rx="2"/><path d="M15.5 10l6-3.5v11l-6-3.5"/><circle cx="7" cy="14.5" r="1" fill="currentColor"/><circle cx="9.5" cy="11.5" r="1" fill="currentColor"/><circle cx="12" cy="9.5" r="1" fill="currentColor"/></svg>',
@@ -25459,6 +25515,7 @@ const ATW={
     const el=document.createElement('div'); el.className='atw'; el.dataset.id=id;
     el.setAttribute('role','dialog'); el.setAttribute('aria-label', o.title);
     el.innerHTML=`<div class="atw-bar"><span class="atw-ic">${o.icon||''}</span><b class="atw-t">${ATW_esc(o.title)}</b><span class="atw-sub">${ATW_esc(o.sub||'')}</span><span class="atw-sp"></span>
+        ${(o.solo || (typeof ANDA_TOOLS!=='undefined' && (ANDA_TOOLS.find(t=>t.id===id)||{}).solo)) && !ATW_SOLO && !this.phone() ? `<button type="button" class="atw-b" data-a="pop" title="새 창으로 꺼내기 — 브라우저 창과 따로 크기를 바꾸고, 이 탭을 닫아도 남아요" aria-label="새 창으로 꺼내기">${ATW_ICON.pop}</button>` : ''}
         <button type="button" class="atw-b" data-a="min" title="작게 (제목줄만)" aria-label="작게">${ATW_ICON.min}</button>
         <button type="button" class="atw-b" data-a="max" title="크게 / 원래대로 (제목줄 두 번 누르기)" aria-label="크게">${ATW_ICON.max}</button>
         <button type="button" class="atw-b atw-x" data-a="close" title="${ATW_esc(o.closeTitle||'닫기 — 내용은 이 기기에 남아요')}" aria-label="닫기">${ATW_ICON.close}</button></div>
@@ -25485,7 +25542,7 @@ const ATW={
     r.x=Math.min(Math.max(r.x, -(r.w-120)), vw-120); r.y=Math.min(Math.max(r.y, 0), vh-40);
   },
   apply(win){
-    const el=win.el, phone=this.phone();
+    const el=win.el, phone=this.phone() || !!win.solo;
     el.classList.toggle('atw-full', phone); el.classList.toggle('atw-max', !phone && win.max); el.classList.toggle('atw-mini', win.min);
     const mb=el.querySelector('[data-a="max"]'); if(mb){ mb.innerHTML = win.max ? ATW_ICON.unmax : ATW_ICON.max; }
     if(phone || win.max){ el.style.left=el.style.top=el.style.width=el.style.height=''; }
@@ -25509,10 +25566,10 @@ const ATW={
     const el=win.el, bar=el.querySelector('.atw-bar');
     el.addEventListener('pointerdown', ()=>this.focus(win), true);
     bar.querySelectorAll('.atw-b').forEach(b=>b.onclick=e=>{ e.stopPropagation(); const a=b.dataset.a;
-      if(a==='close') this.close(win.id); else if(a==='max') this.toggleMax(win); else if(a==='min') this.toggleMin(win); });
-    bar.addEventListener('dblclick', e=>{ if(e.target.closest('button')) return; if(win.min){ this.toggleMin(win); return; } this.toggleMax(win); });
+      if(a==='close'){ if(win.solo) ATW_soloClose(win.id); else this.close(win.id); } else if(a==='max') this.toggleMax(win); else if(a==='min') this.toggleMin(win); else if(a==='pop') ATW_popOut(win.id); });
+    bar.addEventListener('dblclick', e=>{ if(e.target.closest('button') || win.solo) return; if(win.min){ this.toggleMin(win); return; } this.toggleMax(win); });
     bar.addEventListener('pointerdown', e=>{
-      if(e.button!==0 || e.target.closest('button') || this.phone()) return;
+      if(e.button!==0 || e.target.closest('button') || this.phone() || win.solo) return;
       if(win.max){                                         // 크게 된 창을 끌면 원래 크기로 돌아오며 손가락 아래에 붙는다
         const fx=e.clientX/innerWidth; win.max=false; win.rect.x=Math.round(e.clientX - win.rect.w*fx); win.rect.y=Math.max(0, e.clientY-16); this.apply(win);
       }
@@ -25523,7 +25580,7 @@ const ATW={
       bar.addEventListener('pointermove', mv); bar.addEventListener('pointerup', up); bar.addEventListener('pointercancel', up);
     });
     el.querySelectorAll('.atw-rs').forEach(h=>h.addEventListener('pointerdown', e=>{
-      if(e.button!==0 || this.phone() || win.max || win.min) return;
+      if(e.button!==0 || this.phone() || win.max || win.min || win.solo) return;
       const d=h.dataset.d, s={ px:e.clientX, py:e.clientY, r:Object.assign({}, win.rect) }, m=this.minSize(win);
       h.setPointerCapture(e.pointerId); el.classList.add('atw-moving'); e.preventDefault(); e.stopPropagation();
       const mv=ev=>{ const dx=ev.clientX-s.px, dy=ev.clientY-s.py, r=win.rect, o=s.r;
@@ -25541,17 +25598,17 @@ window.addEventListener('resize', ()=>{ clearTimeout(ATW._rt); ATW._rt=setTimeou
 
 /* ── 도구 모음 — 상단바 [도구]를 누르면 뜨는 작은 목록. 도구가 늘면 여기에 한 줄씩 */
 const ANDA_TOOLS=[
-  { id:'graph', name:'그래프 그리기', sub:'표 · CSV · 붙여넣기 → 실험 그래프, 맞춤 · 오차 막대 · 내보내기', icon:ATW_ICON.graph, open:()=>openGraphTool() },
+  { id:'graph', name:'그래프 그리기', sub:'표 · CSV · 붙여넣기 → MATLAB식 실험 그래프, 추세선 · 오차 막대 · 내보내기', icon:ATW_ICON.graph, open:()=>openGraphTool(), solo:true },
   { id:'tracker', name:'영상 분석 (Tracker)', sub:'실험 영상에서 물체 위치를 찍어 시간 · 위치 · 속도 표로 — 원본 화질, 업로드 없음', icon:ATW_ICON.track, open:()=>openTracker() },
-  { id:'imagej', name:'이미지 분석 (ImageJ식)', sub:'축척 · 좌표축 → 길이 · 각도 · 원 · 넓이 · 밝기, 궤적으로 g, 무늬로 파장, 입자 세기 — 업로드 없음', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>', open:()=>openImageLab() },   // ★DH (오차 분석은 메뉴에서 뺐다 — 사용자 결정, 코드 openErrCalc는 남겨 둠)
+  { id:'imagej', name:'이미지 분석 (ImageJ식)', sub:'축척 · 좌표축 → 길이 · 각도 · 원 · 넓이 · 밝기, 궤적으로 g, 무늬로 파장, 입자 세기 — 업로드 없음', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>', open:()=>openImageLab(), solo:true },   // ★DH (오차 분석은 메뉴에서 뺐다 — 사용자 결정, 코드 openErrCalc는 남겨 둠)
   { id:'reader', name:'논문 열람기', sub:'PDF를 앱 안에서 — 형광펜 · 메모 · 캡처를 개인 / 공용으로, 자동 목차', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5c2.8-1.2 5.6-1.2 8.5.5 2.9-1.7 5.7-1.7 8.5-.5v13c-2.8-1.2-5.6-1.2-8.5.5-2.9-1.7-5.7-1.7-8.5-.5z"/><path d="M12 6v13"/></svg>', open:()=>openPaperReader(), hide:()=>!featOn('reader') },
-  { id:'kytimer', name:'KYPT 발표 타이머', sub:'Physics Fight 단계별 시간 · 소리 · 발표장 큰 화면', icon:ATW_ICON.timer, open:()=>openKyptTimer() },
+  { id:'kytimer', name:'KYPT 발표 타이머', sub:'Physics Fight 단계별 시간 · 소리 · 발표장 큰 화면', icon:ATW_ICON.timer, open:()=>openKyptTimer(), solo:true },
 ];
 function openToolsMenu(anchor){
   const old=document.querySelector('.atw-menu'); if(old){ old.remove(); return; }
   const m=document.createElement('div'); m.className='atw-menu'; m.setAttribute('role','menu');
   m.innerHTML=`<div class="atw-menu-h">도구 <small>떠 있는 창으로 열려요 — 다른 화면을 보면서 쓸 수 있어요</small></div>`+
-    ANDA_TOOLS.filter(t=>!t.hide || !t.hide()).map(t=>`<button type="button" class="atw-menu-it" role="menuitem" data-t="${t.id}"><span class="atw-menu-ic">${t.icon}</span><span><b>${ATW_esc(t.name)}</b><small>${ATW_esc(t.sub)}</small></span>${ATW.wins[t.id]?'<em>열려 있음</em>':''}</button>`).join('');
+    ANDA_TOOLS.filter(t=>!t.hide || !t.hide()).map(t=>`<button type="button" class="atw-menu-it" role="menuitem" data-t="${t.id}"><span class="atw-menu-ic">${t.icon}</span><span><b>${ATW_esc(t.name)}</b><small>${ATW_esc(t.sub)}</small></span>${ATW.wins[t.id]?'<em>열려 있음</em>':(t.solo && ATW_soloAlive(t.id))?'<em>새 창에 열려 있음</em>':''}</button>`).join('');
   document.body.appendChild(m);
   const r=anchor ? anchor.getBoundingClientRect() : { left:innerWidth/2-150, bottom:60, right:innerWidth/2+150 };
   const left=Math.max(8, Math.min(innerWidth-m.offsetWidth-8, r.right-m.offsetWidth));
@@ -25560,8 +25617,46 @@ function openToolsMenu(anchor){
   const off=e=>{ if(!m.contains(e.target) && e.target!==anchor && !(anchor && anchor.contains(e.target))){ m.remove(); document.removeEventListener('pointerdown', off, true); document.removeEventListener('keydown', esc, true); } };
   const esc=e=>{ if(e.key==='Escape'){ m.remove(); document.removeEventListener('pointerdown', off, true); document.removeEventListener('keydown', esc, true); } };
   setTimeout(()=>{ document.addEventListener('pointerdown', off, true); document.addEventListener('keydown', esc, true); }, 0);
-  m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ m.remove(); document.removeEventListener('pointerdown', off, true); const t=ANDA_TOOLS.find(x=>x.id===b.dataset.t); if(t) t.open(); });
+  m.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ m.remove(); document.removeEventListener('pointerdown', off, true); const t=ANDA_TOOLS.find(x=>x.id===b.dataset.t); if(!t) return; if(t.solo && !ATW_SOLO && ATW_soloAlive(t.id)) ATW_popOut(t.id, true); else t.open(); });
   const f=m.querySelector('[data-t]'); if(f) f.focus();
+}
+/* ================================================================
+   ★세션 DJ: 도구를 새 창으로 꺼내기 — ?solo=<도구 id> 로 앱을 따로 띄우고 그 도구만 창 가득.
+   · 새 창은 브라우저의 다른 창이라 크기를 마음대로 바꾸고, 원래 탭을 닫아도 남는다(로그인은 같은 기기라 그대로).
+   · 꺼낼 때 이 탭의 도구는 저장하고 닫는다 — 같은 기기 저장소를 두 곳에서 동시에 고치지 않게.
+   · 새 창은 2초마다 anda_solo_<id>에 '살아 있음'을 적는다. 살아 있으면 이 탭에서 다시 열 때 그 창을 앞으로 부른다.
+   · 영상 분석 · 이미지 분석이 그래프로 보낼 때 그래프가 새 창에 있으면 BroadcastChannel('anda_tools')로 넘긴다.
+   ================================================================ */
+function ATW_soloAlive(id){ try{ return Date.now()-(+localStorage.getItem('anda_solo_'+id)||0) < 5000; }catch(e){ return false; } }
+function ATW_soloURL(id){ const u=new URL(location.href); u.search='?solo='+encodeURIComponent(id); u.hash=''; return u.toString(); }
+function ATW_popOut(id, quiet){
+  const w=ATW.wins[id]; let W=1180, H=760; if(w){ const r=w.el.getBoundingClientRect(); W=Math.max(640, Math.round(r.width)); H=Math.max(460, Math.round(r.height)); }
+  const ref=window.open('', 'anda_solo_'+id, `popup=yes,width=${W},height=${H},left=${Math.max(0,(window.screenX||0)+60)},top=${Math.max(0,(window.screenY||0)+60)}`);
+  if(!ref){ ATW_say('브라우저가 새 창을 막았어요 — 주소창 오른쪽에서 이 사이트의 팝업을 허용해 주세요.', 5500); return false; }
+  let blank=true; try{ blank = ref.location.href==='about:blank'; }catch(e){ blank=false; }
+  if(w) ATW.close(id, true);                                   // 저장하고 닫기(onClose → destroy → 저장)
+  if(blank){ try{ ref.location.href=ATW_soloURL(id); }catch(e){} }
+  try{ ref.focus(); }catch(e){}
+  if(!quiet) ATW_say(blank ? '새 창으로 꺼냈어요 — 크기를 마음대로 바꾸고, 이 탭을 닫아도 남아요.' : '새 창에 열려 있어요.', 3800);
+  return true;
+}
+function ATW_soloClose(id){ ATW.close(id).then(ok=>{ if(!ok) return; try{ localStorage.removeItem('anda_solo_'+id); }catch(e){} window.close(); setTimeout(()=>{ location.href=location.pathname; }, 400); }); }
+function ATW_soloStart(id){
+  const t=ANDA_TOOLS.find(x=>x.id===id && x.solo); if(!t){ location.href=location.pathname; return; }
+  document.body.classList.add('atw-solo'); document.title=t.name+' · 안다 아카이브';
+  try{ t.open(); }catch(e){ console.error(e); }
+  const w=ATW.wins[id]; if(w){ w.solo=true; ATW.apply(w); }
+  const beat=()=>{ try{ localStorage.setItem('anda_solo_'+id, String(Date.now())); }catch(e){} }; beat(); setInterval(beat, 2000);
+  addEventListener('pagehide', ()=>{ try{ localStorage.removeItem('anda_solo_'+id); }catch(e){} });
+  if(id==='graph' && window.BroadcastChannel){ const bc=new BroadcastChannel('anda_tools'); bc.onmessage=e=>{ const m=e.data||{}; if(m.t!=='graph-import' || !m.mat) return;
+    const gw=openGraphTool({ newTab:m.newTab, name:m.name }); const T=gw && gw.tool; if(!T) return; if(m.note && T.noteFile) T.noteFile(m.note); T.importDialog(m.mat, m.o||{}); try{ window.focus(); }catch(_){} }; }
+}
+/* 그래프가 새 창에 있을 때: 보내는 쪽이 쓰는 모양(gw.tool.noteFile · importDialog) 그대로 받아 넘겨 준다 */
+function ATW_graphProxy(opts){ const msg={ t:'graph-import', newTab:!!opts.newTab, name:opts.name||'', note:null };
+  return { tool:{ noteFile(n){ msg.note=n; }, hasData(){ return true; }, importDialog(mat, o){ msg.mat=mat; msg.o=o; try{ const bc=new BroadcastChannel('anda_tools'); bc.postMessage(msg); bc.close(); }catch(e){} ATW_popOut('graph', true); } } }; }
+const ATW_SOLO=(()=>{ try{ return new URLSearchParams(location.search).get('solo')||''; }catch(e){ return ''; } })();
+if(ATW_SOLO){ document.documentElement.classList.add('atw-solo-boot');
+  (function wait(){ const app=document.getElementById('app'); if(document.readyState==='complete' && typeof state!=='undefined' && state.user && app && app.style.display==='block') ATW_soloStart(ATW_SOLO); else setTimeout(wait, 200); })();
 }
 
 /* ================================================================
@@ -25666,7 +25761,15 @@ const GT_PALETTES={
 };
 const GT_DASH={ solid:'', dash:'7 4', dot:'1.6 3.2', dashdot:'7 3 1.6 3', none:'' };
 const GT_MARKERS=['none','o','s','^','v','d','x','+','*'];
-const GT_FITS={ none:'없음', lin:'직선 y = ax + b', prop:'원점 지나는 직선 y = ax', poly2:'2차 y = ax² + bx + c', poly3:'3차', exp:'지수 y = A·e^(Bx)', pow:'거듭제곱 y = A·x^B', log:'로그 y = A·ln x + B', sin:'사인 y = A·sin(ωx + φ) + C' };
+const GT_KINDS=[['line','선 + 점'],['scatter','점만 (선 잇지 않음)'],['lineonly','선만'],['spline','매끄러운 곡선'],['stairs','계단'],['stem','줄기'],['bar','막대'],['area','면적']];   // ★DJ: MATLAB plot · scatter · stairs · stem · bar · area
+function gtKindIcon(k){ const P={
+  line:'<path d="M2 12l5-5 4 3 7-7"/><circle cx="2" cy="12" r="1.3" fill="currentColor"/><circle cx="7" cy="7" r="1.3" fill="currentColor"/><circle cx="11" cy="10" r="1.3" fill="currentColor"/><circle cx="18" cy="3" r="1.3" fill="currentColor"/>',
+  scatter:'<circle cx="3" cy="12" r="1.6" fill="currentColor"/><circle cx="7" cy="6" r="1.6" fill="currentColor"/><circle cx="11" cy="10" r="1.6" fill="currentColor"/><circle cx="15" cy="4" r="1.6" fill="currentColor"/><circle cx="18" cy="8" r="1.6" fill="currentColor"/>',
+  lineonly:'<path d="M2 12l5-5 4 3 7-7"/>', spline:'<path d="M2 13C5 1 10 15 18 3"/>', stairs:'<path d="M2 13h4V9h5V5h7"/>',
+  stem:'<path d="M2 14.5h16M4 14.5V8M9 14.5V4M14 14.5V9"/><circle cx="4" cy="8" r="1.4" fill="currentColor"/><circle cx="9" cy="4" r="1.4" fill="currentColor"/><circle cx="14" cy="9" r="1.4" fill="currentColor"/>',
+  bar:'<rect x="2.5" y="8" width="3.5" height="6.5" fill="currentColor" fill-opacity=".35"/><rect x="8.2" y="3" width="3.5" height="11.5" fill="currentColor" fill-opacity=".35"/><rect x="14" y="6" width="3.5" height="8.5" fill="currentColor" fill-opacity=".35"/>',
+  area:'<path d="M2 14.5V10l5-4 4 3 7-6v11.5z" fill="currentColor" fill-opacity=".25"/><path d="M2 10l5-4 4 3 7-6"/>' };
+  return `<svg viewBox="0 0 20 16" width="22" height="17" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[k]||''}</svg>`; }
 
 /* ── 숫자 읽기: 사람이 적는 여러 모양을 받아 준다 ── */
 function gtNum(raw){
@@ -25796,59 +25899,6 @@ function gtLinLSQ(xs, ys, ws, fs){
   return { coef, se, cov };
 }
 function gtR2(xs, ys, f){ const m=ys.reduce((a,b)=>a+b,0)/ys.length; let st=0, sr=0; for(let i=0;i<ys.length;i++){ st+=(ys[i]-m)**2; sr+=(ys[i]-f(xs[i]))**2; } return st>0 ? 1-sr/st : (sr===0?1:NaN); }
-function gtFit(kind, X, Y, EY){
-  const pts=X.map((x,i)=>[x,Y[i],EY?EY[i]:null]).filter(p=>isFinite(p[0]) && isFinite(p[1]));
-  let xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
-  const wsAll = EY && pts.every(p=>isFinite(p[2]) && p[2]>0) ? pts.map(p=>1/(p[2]*p[2])) : null;
-  const need={ lin:2, prop:1, poly2:3, poly3:4, exp:2, pow:2, log:2, sin:4 }[kind]||2;
-  if(xs.length<need) return { err:`점이 ${need}개 이상 있어야 해요` };
-  const g=(v)=>Number.isFinite(v)?v:NaN;
-  let res=null, f=null, eq='', params=[], note=wsAll?'오차로 가중':'';
-  if(kind==='lin' || kind==='prop' || kind==='poly2' || kind==='poly3'){
-    const xm = kind==='prop' ? 0 : xs.reduce((a,b)=>a+b,0)/xs.length, xsd = Math.max(1e-300, Math.sqrt(xs.reduce((a,b)=>a+(b-xm)**2,0)/xs.length)) || 1;
-    if(kind==='lin'){ res=gtLinLSQ(xs, ys, wsAll, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요(x가 모두 같아요?)' };
-      const [a,b]=res.coef; f=x=>a*x+b; params=[['a',a,res.se&&res.se[0]],['b',b,res.se&&res.se[1]]]; eq=`y = ${gtFmt(a)}x ${gtSgn(b)}`; }
-    else if(kind==='prop'){ res=gtLinLSQ(xs, ys, wsAll, [x=>x]); if(!res) return { err:'계산이 안 돼요' };
-      const [a]=res.coef; f=x=>a*x; params=[['a',a,res.se&&res.se[0]]]; eq=`y = ${gtFmt(a)}x`; }
-    else{ const deg = kind==='poly2'?2:3;                    // 가운데 맞춰 크기를 줄여 풀고 되돌린다(수치 안정)
-      const fs=[]; for(let k=deg;k>=0;k--) fs.push(x=>((x-xm)/xsd)**k);
-      res=gtLinLSQ(xs, ys, wsAll, fs); if(!res) return { err:'계산이 안 돼요' };
-      const t=res.coef;                                      // t_k (t^deg ... t^0), t=(x-xm)/xsd → x 다항식으로 전개
-      const pc=Array(deg+1).fill(0);                          // pc[j] = x^j 계수
-      for(let k=0;k<=deg;k++){ const ck=t[deg-k]/xsd**k; for(let j=0;j<=k;j++){ pc[j]+=ck*gtBinom(k,j)*(-xm)**(k-j); } }
-      f=x=>pc.reduce((s,c,j)=>s+c*x**j,0);
-      // 오차 전파: x 계수 = M · (t 계수) → 공분산 M·Cov·Mᵀ
-      let pse=null;
-      if(res.cov){ const M=Array.from({length:deg+1},()=>Array(deg+1).fill(0));
-        for(let k=0;k<=deg;k++) for(let j=0;j<=k;j++) M[j][deg-k]+=gtBinom(k,j)*(-xm)**(k-j)/xsd**k;
-        pse=M.map(row=>{ let v=0; for(let a=0;a<=deg;a++) for(let b=0;b<=deg;b++) v+=row[a]*res.cov[a][b]*row[b]; return Math.sqrt(Math.abs(v)); }); }
-      const names=deg===2?['a','b','c']:['a','b','c','d'];
-      params=pc.slice().reverse().map((c,i)=>[names[i],c,pse?pse[deg-i]:null]);
-      eq='y = '+pc.slice().reverse().map((c,i)=>{ const pw=deg-i; const term = pw===0?'':pw===1?'x':`x${pw===2?'²':'³'}`; return (i===0?gtFmt(c):(c<0?'− ':'+ ')+gtFmt(Math.abs(c)))+term; }).join(' ');
-    }
-  } else if(kind==='exp'){
-    const ok=pts.filter(p=>p[1]>0); if(ok.length<2) return { err:'y가 0보다 큰 점이 2개 이상 필요해요' };
-    const lx=ok.map(p=>p[0]), ly=ok.map(p=>Math.log(p[1])); const w=ok.map(p=>p[1]*p[1]);   // 로그를 취한 만큼 가중(작은 y가 과하게 끌지 않게)
-    res=gtLinLSQ(lx, ly, w, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요' };
-    const B=res.coef[0], A=Math.exp(res.coef[1]); f=x=>A*Math.exp(B*x); params=[['A',A,res.se&&A*res.se[1]],['B',B,res.se&&res.se[0]]];
-    eq=`y = ${gtFmt(A)}·e^(${gtFmt(B)}x)`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); note=(note?note+' · ':'')+(ok.length<pts.length?`y ≤ 0인 점 ${pts.length-ok.length}개 뺌`:'');
-  } else if(kind==='pow'){
-    const ok=pts.filter(p=>p[0]>0 && p[1]>0); if(ok.length<2) return { err:'x, y가 모두 0보다 큰 점이 2개 이상 필요해요' };
-    res=gtLinLSQ(ok.map(p=>Math.log(p[0])), ok.map(p=>Math.log(p[1])), null, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요' };
-    const B=res.coef[0], A=Math.exp(res.coef[1]); f=x=>A*Math.pow(x,B); params=[['A',A,res.se&&A*res.se[1]],['B',B,res.se&&res.se[0]]];
-    eq=`y = ${gtFmt(A)}·x^${gtFmt(B)}`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); note=ok.length<pts.length?`0 이하인 점 ${pts.length-ok.length}개 뺌`:'';
-  } else if(kind==='log'){
-    const ok=pts.filter(p=>p[0]>0); if(ok.length<2) return { err:'x가 0보다 큰 점이 2개 이상 필요해요' };
-    res=gtLinLSQ(ok.map(p=>p[0]), ok.map(p=>p[1]), null, [x=>Math.log(x), ()=>1]); if(!res) return { err:'계산이 안 돼요' };
-    const [A,B]=res.coef; f=x=>A*Math.log(x)+B; params=[['A',A,res.se&&res.se[0]],['B',B,res.se&&res.se[1]]];
-    eq=`y = ${gtFmt(A)}·ln x ${gtSgn(B)}`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]);
-  } else if(kind==='sin'){
-    const r=gtFitSin(xs, ys); if(!r) return { err:'사인 맞춤이 안 돼요(점이 더 필요하거나 주기가 안 보여요)' };
-    f=r.f; params=r.params; eq=`y = ${gtFmt(r.A)}·sin(${gtFmt(r.w)}x ${gtSgn(r.ph)}) ${gtSgn(r.C)}`; note=`주기 T = ${gtFmt(2*Math.PI/Math.abs(r.w))}`;
-  } else return { err:'모르는 맞춤' };
-  const R2=gtR2(xs, ys, f);
-  return { kind, f, eq, params, R2, n:xs.length, xmin:Math.min(...xs), xmax:Math.max(...xs), note };
-}
 function gtFitSin(xs, ys){
   const n=xs.length; if(n<5) return null;
   const idx=xs.map((x,i)=>i).sort((a,b)=>xs[a]-xs[b]); const X=idx.map(i=>xs[i]), Y=idx.map(i=>ys[i]);
@@ -25869,6 +25919,306 @@ function gtFitSin(xs, ys){
       if(!b2 || s<b2.s) b2={ s, w:ww, c:r.coef }; } if(b2){ best=b2; w=b2.w; } }
   const [a,b,C]=best.c; const A=Math.hypot(a,b), ph=Math.atan2(b,a);
   return { A, w, ph, C, f:x=>A*Math.sin(w*x+ph)+C, params:[['A',A,null],['ω',w,null],['φ',ph,null],['C',C,null]] };
+}
+/* ★세션 DJ: 추세선 — 종류(묶음) · 식 읽기(직접 입력) · 비선형 최소제곱(레벤버그–마쿼트) */
+const GT_FIT_GROUPS=[
+  ['직선 · 다항식', [['lin','직선  y = ax + b'],['prop','원점 지나는 직선  y = ax'],['poly','다항식  (2~6차)']]],
+  ['지수 · 거듭제곱 · 로그', [['exp','지수  y = A·e^(Bx)'],['expc','지수 감쇠 + 상수  y = A·e^(−x/τ) + C'],['sat','포화(충전)  y = A(1 − e^(−x/τ)) + C'],['pow','거듭제곱  y = A·x^B'],['log','로그  y = A·ln x + B'],['inv','반비례  y = A/x + B'],['inv2','역제곱  y = A/x² + B']]],
+  ['진동 · 봉우리', [['sin','사인  y = A·sin(ωx + φ) + C'],['dsin','감쇠 진동  y = A·e^(−bx)·sin(ωx + φ) + C'],['gauss','가우스  y = A·e^(−(x−μ)²/2σ²) + C'],['lorentz','로렌츠(공명)  y = A/(1 + ((x−x₀)/γ)²) + C']]],
+  ['그 밖', [['mavg','이동 평균 (n점)'],['custom','식 직접 입력…']]],
+];
+const GT_FITS=Object.assign({ none:'없음', poly2:'2차 다항식', poly3:'3차 다항식' }, Object.fromEntries(GT_FIT_GROUPS.flatMap(g=>g[1]).map(([k,t])=>[k, t.split('  ')[0]])));
+/* 예전 저장(poly2 · poly3)을 새 이름으로 */
+function gtFitKind(col){ const k=col.fit||'none'; if(k==='poly2') return { kind:'poly', deg:2 }; if(k==='poly3') return { kind:'poly', deg:3 }; return { kind:k, deg:Math.min(6, Math.max(2, +col.fitdeg||2)) }; }
+
+/* ── 식 읽기: + − * / ^ · 괄호 · 함수 · pi · e · x, 나머지 이름은 맞출 매개변수 ── */
+const GT_FN={ sin:Math.sin, cos:Math.cos, tan:Math.tan, asin:Math.asin, acos:Math.acos, atan:Math.atan, sinh:Math.sinh, cosh:Math.cosh, tanh:Math.tanh,
+  exp:Math.exp, ln:Math.log, log:Math.log, log10:Math.log10, sqrt:Math.sqrt, abs:Math.abs, sign:Math.sign, floor:Math.floor, sinc:t=>t===0?1:Math.sin(t)/t, erf:t=>{ const s=Math.sign(t), a=Math.abs(t), k=1/(1+0.3275911*a); return s*(1-((((1.061405429*k-1.453152027)*k+1.421413741)*k-0.284496736)*k+0.254829592)*k*Math.exp(-a*a)); } };
+function gtExpr(src){
+  const s=String(src||'').replace(/^\s*y\s*=\s*/i,'').replace(/[·×]/g,'*').replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/³/g,'^3').replace(/π/g,'pi').replace(/\\([A-Za-z]+)/g,(m,w)=>w);
+  let i=0, hasX=false; const params=[];
+  const peek=()=>{ while(s[i]===' ') i++; return s[i]; };
+  const err=m=>{ throw new Error(m); };
+  const num=()=>{ const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i); if(!m) return null; i+=m[0].length; const v=+m[0]; return ()=>v; };
+  const prim=()=>{
+    const c=peek(); if(c==null) err('식이 끝났어요');
+    if(c==='('){ i++; const e=add(); if(peek()!==')') err('괄호 ) 가 빠졌어요'); i++; return e; }
+    if(/[\d.]/.test(c)){ const n=num(); if(!n) err('숫자를 읽지 못했어요'); return n; }
+    const m=s.slice(i).match(/^[A-Za-zα-ωΑ-Ω_][A-Za-z0-9α-ωΑ-Ω_]*/); if(!m) err(`'${c}' 을(를) 읽지 못했어요`); i+=m[0].length; const w=m[0];
+    if(peek()==='('){ const fn=GT_FN[w]; if(!fn) err(`'${w}' 함수는 몰라요`); i++; const a=add(); if(peek()!==')') err('괄호 ) 가 빠졌어요'); i++; return (x,p)=>fn(a(x,p)); }
+    if(w==='x'){ hasX=true; return x=>x; } if(w==='pi') return ()=>Math.PI; if(w==='e') return ()=>Math.E;
+    let k=params.indexOf(w); if(k<0){ params.push(w); k=params.length-1; } return (x,p)=>p[k];
+  };
+  const unary=()=>{ const c=peek(); if(c==='-'){ i++; const a=unary(); return (x,p)=>-a(x,p); } if(c==='+'){ i++; return unary(); } return pow(); };
+  const pow=()=>{ const a=prim(); if(peek()==='^'){ i++; const b=unary(); return (x,p)=>Math.pow(a(x,p), b(x,p)); } return a; };
+  const mul=()=>{ let a=unary(); for(;;){ const c=peek();
+      if(c==='*'||c==='/'){ i++; const b=unary(), A=a; a = c==='*' ? (x,p)=>A(x,p)*b(x,p) : (x,p)=>A(x,p)/b(x,p); }
+      else if(c!=null && /[A-Za-z(\dα-ω]/.test(c)){ const b=unary(), A=a; a=(x,p)=>A(x,p)*b(x,p); }      // 2x · a(x+1) 처럼 곱하기 생략
+      else return a; } };
+  const add=()=>{ let a=mul(); for(;;){ const c=peek(); if(c==='+'||c==='-'){ i++; const b=mul(), A=a; a = c==='+' ? (x,p)=>A(x,p)+b(x,p) : (x,p)=>A(x,p)-b(x,p); } else return a; } };
+  try{ if(!s.trim()) err('식을 넣어 주세요'); const f=add(); if(peek()!=null) err(`'${s.slice(i,i+6)}' 부분을 읽지 못했어요`); if(!hasX) err('x 가 들어간 식이어야 해요'); if(!params.length) err('맞출 매개변수(a, b, …)가 없어요'); if(params.length>8) err('매개변수는 8개까지예요'); return { f, params }; }
+  catch(e){ return { err:e.message }; }
+}
+function gtParseInit(str){ const o={}; String(str||'').split(/[,;\s]+/).forEach(t=>{ const m=t.match(/^([A-Za-zα-ω_][\w]*)=(.+)$/); if(m && gtIsNum(m[2])) o[m[1]]=gtNum(m[2]); }); return o; }
+
+/* ── 레벤버그–마쿼트: f(x, p) 를 (x, y, 가중 w)에 맞춘다 ── */
+function gtLM(f, xs, ys, ws, p0, maxIt){
+  const n=xs.length, m=p0.length; if(n<m) return null; let p=p0.slice(); maxIt=maxIt||300;
+  const res=q=>{ let s=0; for(let i=0;i<n;i++){ const r=ys[i]-f(xs[i],q); if(!isFinite(r)) return Infinity; s+=(ws?ws[i]:1)*r*r; } return s; };
+  let S=res(p); if(!isFinite(S)) return null; let lam=1e-3;
+  const jac=q=>{ const J=[]; const f0=xs.map(x=>f(x,q)); for(let k=0;k<m;k++){ const h=1e-6*Math.max(Math.abs(q[k]),1e-6)+1e-12; const qq=q.slice(); qq[k]+=h; const col=xs.map((x,i)=>(f(x,qq)-f0[i])/h); J.push(col); } return { J, f0 }; };
+  for(let it=0; it<maxIt; it++){
+    const { J, f0 }=jac(p); const A=Array.from({length:m},()=>Array(m).fill(0)), g=Array(m).fill(0);
+    for(let i=0;i<n;i++){ const w=ws?ws[i]:1, r=ys[i]-f0[i]; for(let a=0;a<m;a++){ g[a]+=w*J[a][i]*r; for(let b=0;b<=a;b++) A[a][b]+=w*J[a][i]*J[b][i]; } }
+    for(let a=0;a<m;a++) for(let b=a+1;b<m;b++) A[a][b]=A[b][a];
+    let improved=false;
+    for(let tries=0; tries<12; tries++){
+      const B=A.map((r,a)=>r.map((v,b)=>a===b ? v*(1+lam)+1e-300 : v)); const d=gtSolve(B, g);
+      if(!d || d.some(v=>!isFinite(v))){ lam*=10; continue; }
+      const q=p.map((v,k)=>v+d[k]); const S2=res(q);
+      if(S2<S){ const rel=(S-S2)/Math.max(S,1e-300); p=q; S=S2; lam=Math.max(lam/10, 1e-12); improved=true; if(rel<1e-12) it=maxIt; break; }
+      lam*=10;
+    }
+    if(!improved) break;
+  }
+  const { J }=jac(p); const A=Array.from({length:m},()=>Array(m).fill(0));
+  for(let i=0;i<n;i++){ const w=ws?ws[i]:1; for(let a=0;a<m;a++) for(let b=0;b<m;b++) A[a][b]+=w*J[a][i]*J[b][i]; }
+  const inv=gtInv(A); let se=null; if(inv && n>m){ const s2=S/(n-m); se=inv.map((r,k)=>Math.sqrt(Math.abs(r[k]*s2))); }
+  return { p, se, ssr:S };
+}
+/* 봉우리 처음값: 바닥 · 높이 · 위치 · 반폭 */
+function gtPeakGuess(xs, ys){
+  const idx=xs.map((_,i)=>i).sort((a,b)=>xs[a]-xs[b]); const X=idx.map(i=>xs[i]), Y=idx.map(i=>ys[i]); const n=X.length;
+  const base=(Y[0]+Y[n-1])/2; let im=0; Y.forEach((v,i)=>{ if(Math.abs(v-base)>Math.abs(Y[im]-base)) im=i; });
+  const A=Y[im]-base, half=base+A/2; let l=im, r=im; while(l>0 && (Y[l]-half)*Math.sign(A)>0) l--; while(r<n-1 && (Y[r]-half)*Math.sign(A)>0) r++;
+  const hw=Math.max((X[r]-X[l])/2, (X[n-1]-X[0])/50); return { C:base, A, mu:X[im], hw };
+}
+/* 비선형 추세선 묶음: 식 · 매개변수 이름 · 처음값 · 보이는 식 */
+const GT_NL={
+  expc:{ names:['A','τ','C'], f:(x,p)=>p[0]*Math.exp(-x/p[1])+p[2],
+    init:(X,Y)=>{ const o=X.map((_,i)=>i).sort((a,b)=>X[a]-X[b]); const y0=Y[o[0]], yl=Y[o[o.length-1]]; const span=X[o[o.length-1]]-X[o[0]]||1; const C=yl; const A=(y0-C)*Math.exp(X[o[0]]/(span/3)); return [A, span/3, C]; },
+    eq:p=>`y = ${gtFmt(p[0])}·e^(−x/${gtFmt(p[1])}) ${gtSgn(p[2])}` },
+  sat:{ names:['A','τ','C'], f:(x,p)=>p[0]*(1-Math.exp(-x/p[1]))+p[2],
+    init:(X,Y)=>{ const o=X.map((_,i)=>i).sort((a,b)=>X[a]-X[b]); const y0=Y[o[0]], yl=Y[o[o.length-1]]; const span=X[o[o.length-1]]-X[o[0]]||1; return [yl-y0, span/3, y0]; },
+    eq:p=>`y = ${gtFmt(p[0])}·(1 − e^(−x/${gtFmt(p[1])})) ${gtSgn(p[2])}` },
+  gauss:{ names:['A','μ','σ','C'], f:(x,p)=>p[0]*Math.exp(-((x-p[1])**2)/(2*p[2]*p[2]))+p[3],
+    init:(X,Y)=>{ const g=gtPeakGuess(X,Y); return [g.A, g.mu, g.hw/1.1774, g.C]; },
+    eq:p=>`y = ${gtFmt(p[0])}·e^(−(x ${gtSgn(-p[1])})²/(2·${gtFmt(Math.abs(p[2]))}²)) ${gtSgn(p[3])}`, note:p=>`반치폭 FWHM = ${gtFmt(2.3548*Math.abs(p[2]))}` },
+  lorentz:{ names:['A','x₀','γ','C'], f:(x,p)=>p[0]/(1+((x-p[1])/p[2])**2)+p[3],
+    init:(X,Y)=>{ const g=gtPeakGuess(X,Y); return [g.A, g.mu, g.hw, g.C]; },
+    eq:p=>`y = ${gtFmt(p[0])}/(1 + ((x ${gtSgn(-p[1])})/${gtFmt(Math.abs(p[2]))})²) ${gtSgn(p[3])}`, note:p=>`반치폭 FWHM = 2γ = ${gtFmt(2*Math.abs(p[2]))} · Q ≈ x₀/2γ = ${gtFmt(Math.abs(p[1]/(2*p[2])))}` },
+  dsin:{ names:['A','b','ω','φ','C'], f:(x,p)=>p[0]*Math.exp(-p[1]*x)*Math.sin(p[2]*x+p[3])+p[4],
+    init:(X,Y)=>{ const r=gtFitSin(X,Y); return r ? [r.A, 0, r.w, r.ph, r.C] : null; },
+    eq:p=>`y = ${gtFmt(p[0])}·e^(−${gtFmt(p[1])}x)·sin(${gtFmt(p[2])}x ${gtSgn(p[3])}) ${gtSgn(p[4])}`, note:p=>`주기 T = ${gtFmt(2*Math.PI/Math.abs(p[2]))} · 감쇠 시간 1/b = ${gtFmt(1/p[1])}` },
+};
+function gtFit(kind, X, Y, EY, o){
+  o=o||{};
+  let pts=X.map((x,i)=>[x,Y[i],EY?EY[i]:null]).filter(p=>isFinite(p[0]) && isFinite(p[1]));
+  if(o.x0!=null && isFinite(o.x0)) pts=pts.filter(p=>p[0]>=o.x0); if(o.x1!=null && isFinite(o.x1)) pts=pts.filter(p=>p[0]<=o.x1);
+  let xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const wsAll = EY && pts.length && pts.every(p=>isFinite(p[2]) && p[2]>0) ? pts.map(p=>1/(p[2]*p[2])) : null;
+  if(kind==='poly2'){ kind='poly'; o.deg=2; } if(kind==='poly3'){ kind='poly'; o.deg=3; }
+  const deg=Math.min(6, Math.max(2, +o.deg||2));
+  const need={ lin:2, prop:1, poly:deg+1, exp:2, pow:2, log:2, inv:2, inv2:2, sin:5, expc:3, sat:3, gauss:4, lorentz:4, dsin:6, mavg:2, custom:1 }[kind]||2;
+  if(xs.length<need) return { err:`점이 ${need}개 이상 있어야 해요${o.x0!=null||o.x1!=null?' (맞출 범위 안에)':''}` };
+  let res=null, f=null, eq='', params=[], note=wsAll?'오차로 가중':'', curve=null, dof=null;
+  const addNote=t=>{ if(t) note=note?note+' · '+t:t; };
+  if(kind==='lin' || kind==='prop' || kind==='poly'){
+    const xm = kind==='prop' ? 0 : xs.reduce((a,b)=>a+b,0)/xs.length, xsd = Math.max(1e-300, Math.sqrt(xs.reduce((a,b)=>a+(b-xm)**2,0)/xs.length)) || 1;
+    if(kind==='lin'){ res=gtLinLSQ(xs, ys, wsAll, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요(x가 모두 같아요?)' };
+      const [a,b]=res.coef; f=x=>a*x+b; params=[['a',a,res.se&&res.se[0]],['b',b,res.se&&res.se[1]]]; eq=`y = ${gtFmt(a)}x ${gtSgn(b)}`; if(a) addNote(`x절편 = ${gtFmt(-b/a)}`); }
+    else if(kind==='prop'){ res=gtLinLSQ(xs, ys, wsAll, [x=>x]); if(!res) return { err:'계산이 안 돼요' };
+      const [a]=res.coef; f=x=>a*x; params=[['a',a,res.se&&res.se[0]]]; eq=`y = ${gtFmt(a)}x`; }
+    else{ const fs=[]; for(let k=deg;k>=0;k--) fs.push(x=>((x-xm)/xsd)**k);           // 가운데 맞춰 크기를 줄여 풀고 되돌린다(수치 안정)
+      res=gtLinLSQ(xs, ys, wsAll, fs); if(!res) return { err:'계산이 안 돼요' };
+      const t=res.coef; const pc=Array(deg+1).fill(0);
+      for(let k=0;k<=deg;k++){ const ck=t[deg-k]/xsd**k; for(let j=0;j<=k;j++){ pc[j]+=ck*gtBinom(k,j)*(-xm)**(k-j); } }
+      f=x=>pc.reduce((s,c,j)=>s+c*x**j,0);
+      let pse=null;
+      if(res.cov){ const M=Array.from({length:deg+1},()=>Array(deg+1).fill(0));
+        for(let k=0;k<=deg;k++) for(let j=0;j<=k;j++) M[j][deg-k]+=gtBinom(k,j)*(-xm)**(k-j)/xsd**k;
+        pse=M.map(row=>{ let v=0; for(let a=0;a<=deg;a++) for(let b=0;b<=deg;b++) v+=row[a]*res.cov[a][b]*row[b]; return Math.sqrt(Math.abs(v)); }); }
+      const names='abcdefg'.split(''); const SUP=['','','²','³','⁴','⁵','⁶'];
+      { const cm=Math.max(...pc.map(Math.abs)); for(let j=0;j<pc.length;j++) if(Math.abs(pc[j])<cm*1e-11) pc[j]=0; }   // 계산 찌꺼기(10⁻¹³ 같은 것)는 0으로
+      params=pc.slice().reverse().map((c,i)=>[names[i],c,pse?pse[deg-i]:null]);
+      eq='y = '+pc.slice().reverse().map((c,i)=>{ const pw=deg-i; const term = pw===0?'':pw===1?'x':`x${SUP[pw]}`; return (i===0?gtFmt(c):(c<0?'− ':'+ ')+gtFmt(Math.abs(c)))+term; }).join(' ');
+      if(deg===2 && pc[2]) addNote(`꼭짓점 x = ${gtFmt(-pc[1]/(2*pc[2]))} · 2a = ${gtFmt(2*pc[2])}`);
+    }
+    dof=xs.length-(kind==='prop'?1:kind==='lin'?2:deg+1);
+  } else if(kind==='exp'){
+    const ok=pts.filter(p=>p[1]>0); if(ok.length<2) return { err:'y가 0보다 큰 점이 2개 이상 필요해요' };
+    const lx=ok.map(p=>p[0]), ly=ok.map(p=>Math.log(p[1])); const w=ok.map(p=>p[1]*p[1]);
+    res=gtLinLSQ(lx, ly, w, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요' };
+    let B=res.coef[0], A=Math.exp(res.coef[1]);
+    const nl=gtLM((x,p)=>p[0]*Math.exp(p[1]*x), ok.map(p=>p[0]), ok.map(p=>p[1]), wsAll?ok.map(p=>1/(p[2]*p[2])):null, [A,B]);   // 로그로 처음값 → 원래 식에서 다듬기
+    let se=res.se?[A*res.se[1], res.se[0]]:null; if(nl){ A=nl.p[0]; B=nl.p[1]; se=nl.se; }
+    f=x=>A*Math.exp(B*x); params=[['A',A,se&&se[0]],['B',B,se&&se[1]]];
+    eq=`y = ${gtFmt(A)}·e^(${gtFmt(B)}x)`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); if(ok.length<pts.length) addNote(`y ≤ 0인 점 ${pts.length-ok.length}개 뺌`); if(B) addNote(B<0?`반감 x½ = ${gtFmt(Math.LN2/-B)}`:`두 배 x₂ = ${gtFmt(Math.LN2/B)}`); dof=xs.length-2;
+  } else if(kind==='pow'){
+    const ok=pts.filter(p=>p[0]>0 && p[1]>0); if(ok.length<2) return { err:'x, y가 모두 0보다 큰 점이 2개 이상 필요해요' };
+    res=gtLinLSQ(ok.map(p=>Math.log(p[0])), ok.map(p=>Math.log(p[1])), null, [x=>x, ()=>1]); if(!res) return { err:'계산이 안 돼요' };
+    let B=res.coef[0], A=Math.exp(res.coef[1]);
+    const nl=gtLM((x,p)=>p[0]*Math.pow(x,p[1]), ok.map(p=>p[0]), ok.map(p=>p[1]), wsAll?ok.map(p=>1/(p[2]*p[2])):null, [A,B]);
+    let se=res.se?[A*res.se[1], res.se[0]]:null; if(nl){ A=nl.p[0]; B=nl.p[1]; se=nl.se; }
+    f=x=>A*Math.pow(x,B); params=[['A',A,se&&se[0]],['B',B,se&&se[1]]];
+    eq=`y = ${gtFmt(A)}·x^${gtFmt(B)}`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); if(ok.length<pts.length) addNote(`0 이하인 점 ${pts.length-ok.length}개 뺌`); dof=xs.length-2;
+  } else if(kind==='log'){
+    const ok=pts.filter(p=>p[0]>0); if(ok.length<2) return { err:'x가 0보다 큰 점이 2개 이상 필요해요' };
+    res=gtLinLSQ(ok.map(p=>p[0]), ok.map(p=>p[1]), wsAll?ok.map(p=>1/(p[2]*p[2])):null, [x=>Math.log(x), ()=>1]); if(!res) return { err:'계산이 안 돼요' };
+    const [A,B]=res.coef; f=x=>A*Math.log(x)+B; params=[['A',A,res.se&&res.se[0]],['B',B,res.se&&res.se[1]]];
+    eq=`y = ${gtFmt(A)}·ln x ${gtSgn(B)}`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); dof=xs.length-2;
+  } else if(kind==='inv' || kind==='inv2'){
+    const k2=kind==='inv2'?2:1; const ok=pts.filter(p=>p[0]!==0); if(ok.length<2) return { err:'x가 0이 아닌 점이 2개 이상 필요해요' };
+    res=gtLinLSQ(ok.map(p=>p[0]), ok.map(p=>p[1]), wsAll?ok.map(p=>1/(p[2]*p[2])):null, [x=>1/x**k2, ()=>1]); if(!res) return { err:'계산이 안 돼요' };
+    const [A,B]=res.coef; f=x=>A/x**k2+B; params=[['A',A,res.se&&res.se[0]],['B',B,res.se&&res.se[1]]];
+    eq=`y = ${gtFmt(A)}/x${k2===2?'²':''} ${gtSgn(B)}`; xs=ok.map(p=>p[0]); ys=ok.map(p=>p[1]); dof=xs.length-2;
+  } else if(kind==='sin'){
+    const r=gtFitSin(xs, ys); if(!r) return { err:'사인 맞춤이 안 돼요(점이 더 필요하거나 주기가 안 보여요)' };
+    const nl=gtLM((x,p)=>p[0]*Math.sin(p[1]*x+p[2])+p[3], xs, ys, wsAll, [r.A, r.w, r.ph, r.C]);
+    const p=nl?nl.p:[r.A,r.w,r.ph,r.C], se=nl&&nl.se; f=x=>p[0]*Math.sin(p[1]*x+p[2])+p[3];
+    params=[['A',p[0],se&&se[0]],['ω',p[1],se&&se[1]],['φ',p[2],se&&se[2]],['C',p[3],se&&se[3]]];
+    eq=`y = ${gtFmt(p[0])}·sin(${gtFmt(p[1])}x ${gtSgn(p[2])}) ${gtSgn(p[3])}`; addNote(`주기 T = ${gtFmt(2*Math.PI/Math.abs(p[1]))} · 진동수 f = ${gtFmt(Math.abs(p[1])/(2*Math.PI))}`); dof=xs.length-4;
+  } else if(GT_NL[kind]){
+    const M=GT_NL[kind]; const p0=M.init(xs, ys); if(!p0 || p0.some(v=>!isFinite(v))) return { err:'처음값을 찾지 못했어요 — 점이 더 필요해요' };
+    const nl=gtLM(M.f, xs, ys, wsAll, p0); if(!nl) return { err:'맞춤이 수렴하지 않았어요' };
+    const p=nl.p; f=x=>M.f(x,p); params=M.names.map((n,k)=>[n,p[k],nl.se&&nl.se[k]]); eq=M.eq(p); if(M.note) addNote(M.note(p)); dof=xs.length-p.length;
+  } else if(kind==='mavg'){
+    const n=Math.max(2, Math.min(xs.length, Math.round(+o.n||5))); const o2=xs.map((_,i)=>i).sort((a,b)=>xs[a]-xs[b]); const X2=o2.map(i=>xs[i]), Y2=o2.map(i=>ys[i]);
+    curve=[]; for(let i=0;i+n<=X2.length;i++){ let sx=0, sy=0; for(let k=i;k<i+n;k++){ sx+=X2[k]; sy+=Y2[k]; } curve.push([sx/n, sy/n]); }
+    return { kind, curve, eq:`${n}점 이동 평균`, params:[], R2:NaN, n:xs.length, xmin:Math.min(...xs), xmax:Math.max(...xs), note:'맞춤식이 아니라 이웃 점의 평균을 이은 선이에요' };
+  } else if(kind==='custom'){
+    const E=gtExpr(o.expr); if(E.err) return { err:'식: '+E.err };
+    const ini=gtParseInit(o.init); const p0=E.params.map(n=>ini[n]!=null?ini[n]:1);
+    const nl=gtLM(E.f, xs, ys, wsAll, p0, 600); if(!nl) return { err:'계산이 안 돼요 — 처음값(예: a=2, b=0.5)을 넣어 보세요' };
+    const p=nl.p; f=x=>E.f(x,p); params=E.params.map((n,k)=>[n,p[k],nl.se&&nl.se[k]]);
+    eq='y = '+String(o.expr).replace(/^\s*y\s*=\s*/i,'').trim(); addNote(E.params.map((n,k)=>`${n} = ${gtFmt(p[k],5)}`).join(', ')); dof=xs.length-p.length;
+    if(xs.some((x,i)=>!isFinite(f(x)))) addNote('식이 일부 x에서 계산되지 않아요');
+  } else return { err:'모르는 맞춤' };
+  const R2=gtR2(xs, ys, f);
+  let chi2r=null; if(wsAll && dof>0){ let c=0; pts.forEach(p=>{ const r=(p[1]-f(p[0]))/p[2]; if(isFinite(r)) c+=r*r; }); chi2r=c/dof; }
+  let rmse=0; xs.forEach((x,i)=>{ rmse+=(ys[i]-f(x))**2; }); rmse=Math.sqrt(rmse/xs.length);
+  return { kind, f, eq, params, R2, n:xs.length, xmin:Math.min(...xs), xmax:Math.max(...xs), note, chi2r, rmse };
+}
+/* ================================================================
+   ★세션 DK: 수식 열 — 다른 열로 이 열의 값을 계산한다 (엑셀 · Origin의 '열 값 정하기')
+   · 열 이름표: X 열 x1, x2 … · Y 열 y1, y2 … · 그 오차 열 ex1 · ey1 … (첫 열은 x, y로도)
+   · 줄마다 계산: + − * / ^ 괄호 · sin cos tan … exp ln log10 sqrt abs … · pi e · i(줄 번호 1부터) · n(줄 수)
+   · 열 전체를 보는 함수: deriv(y,x) 미분 · cumint(y,x) 누적 적분 · delta(y) 앞 줄과 차 · prev(y) · next(y)
+                         mean · sum · min · max · sd · first · last · count — 예: y1 - mean(y1)
+   · 오차 전파: 쓰인 열에 ± 오차가 있으면 √Σ(∂f/∂v · σv)² 로 이 열의 ± 를 자동으로
+   · 값은 계산한 글자로 vals에 저장 → 그래프 · CSV · 맞춤은 그대로. 원본이 바뀌면 다시 계산(순서 맞춰, 서로 물면 멈춤)
+   ================================================================ */
+const GT_FX_COLFN=['deriv','cumint','delta','prev','next','mean','sum','min','max','sd','first','last','count'];
+function gtFxRefs(G){                                       // 이름표 → { c, part }
+  const m=new Map();
+  G.xs.forEach((c,i)=>{ m.set('x'+(i+1), { c, part:'v' }); if(c.err) m.set('ex'+(i+1), { c, part:'e' }); });
+  G.ys.forEach((c,i)=>{ m.set('y'+(i+1), { c, part:'v' }); if(c.err) m.set('ey'+(i+1), { c, part:'e' }); });
+  if(G.xs[0]) m.set('x', m.get('x1')); if(G.ys[0]) m.set('y', m.get('y1'));
+  return m; }
+function gtFxRefOf(G, c){ const i=G.xs.indexOf(c); if(i>=0) return 'x'+(i+1); const j=G.ys.indexOf(c); return j>=0 ? 'y'+(j+1) : ''; }
+/* 저장 모양 ↔ 보이는 모양: 저장할 땐 이름표를 {{열 id:v|e}} 로 바꿔 둔다(열을 옮기거나 더해도 같은 열을 가리키게) */
+function gtFxToStore(G, str){ const R=gtFxRefs(G); return String(str||'').replace(/[A-Za-z_][A-Za-z0-9_]*/g, (w, off, all)=>{ if(/[\d.]/.test(all[off-1]||'') && /^e\d/i.test(w)) return w; if(/^\s*\(/.test(all.slice(off+w.length))) return w; const o=R.get(w); return o ? `{{${o.c.id}:${o.part}}}` : w; }); }
+function gtFxShow(G, st){ const all=[...G.xs, ...G.ys]; return String(st||'').replace(/\{\{([^:}]+):([ve])\}\}/g, (m, id, part)=>{ const c=all.find(z=>z.id===id); if(!c) return 'deleted_col'; const r=gtFxRefOf(G, c); return part==='e' ? 'e'+r : r; }); }
+/* 식 → { ev(ctx, row) , refs:Set, rowwise:boolean } 또는 { err } */
+function gtFxParse(src){
+  const s=String(src||'').replace(/^\s*=\s*/,'').replace(/[·×]/g,'*').replace(/[−–]/g,'-').replace(/²/g,'^2').replace(/³/g,'^3').replace(/π/g,'pi').replace(/÷/g,'/');
+  let i=0; const refs=new Set(); let rowwise=true;
+  const peek=()=>{ while(s[i]===' '||s[i]==='\t'||s[i]==='\n') i++; return s[i]; };
+  const err=m=>{ throw new Error(m); };
+  const ident=()=>{ peek(); const m=s.slice(i).match(/^[A-Za-z_][A-Za-z0-9_]*/); if(!m) return null; i+=m[0].length; return m[0]; };
+  const prim=()=>{
+    const c=peek(); if(c==null) err('식이 끝났어요');
+    if(c==='('){ i++; const e=add(); if(peek()!==')') err('괄호 ) 가 빠졌어요'); i++; return e; }
+    if(/[\d.]/.test(c)){ const m=s.slice(i).match(/^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i); if(!m) err('숫자를 읽지 못했어요'); i+=m[0].length; const v=+m[0]; return ()=>v; }
+    const w=ident(); if(!w) err(`'${c}' 을(를) 읽지 못했어요`);
+    if(peek()==='('){ i++;
+      if(GT_FX_COLFN.includes(w)){ rowwise=false;
+        const a=ident(); if(!a) err(`${w}( ) 안에는 열 이름표(y1, x1 …)를 써요`); refs.add(a); let b=null;
+        if(peek()===','){ i++; b=ident(); if(!b) err(`${w}( , ) 두 번째도 열 이름표예요`); refs.add(b); }
+        if(peek()!==')') err('괄호 ) 가 빠졌어요'); i++;
+        if((w==='deriv'||w==='cumint') && !b) err(`${w}(y, x) — x 열도 써 주세요`);
+        return (ctx,r)=>ctx.colfn(w, a, b, r); }
+      const args=[add()]; while(peek()===','){ i++; args.push(add()); }
+      if(peek()!==')') err('괄호 ) 가 빠졌어요'); i++;
+      const fn=GT_FN[w]; if(!fn && w!=='pow' && w!=='atan2') err(`'${w}' 함수는 몰라요`);
+      if(w==='pow' && args.length===2) return (ctx,r)=>Math.pow(args[0](ctx,r), args[1](ctx,r));
+      if(w==='atan2' && args.length===2) return (ctx,r)=>Math.atan2(args[0](ctx,r), args[1](ctx,r));
+      if(args.length!==1 || !fn) err(`${w}( )에는 값 하나만 넣어요`);
+      const a0=args[0]; return (ctx,r)=>fn(a0(ctx,r)); }
+    if(w==='pi') return ()=>Math.PI; if(w==='e') return ()=>Math.E;
+    if(w==='i') return (ctx,r)=>r+1; if(w==='n') return ctx=>ctx.n;
+    refs.add(w); return (ctx,r)=>ctx.val(w, r);
+  };
+  const unary=()=>{ const c=peek(); if(c==='-'){ i++; const a=unary(); return (x,r)=>-a(x,r); } if(c==='+'){ i++; return unary(); } return pow(); };
+  const pow=()=>{ const a=prim(); if(peek()==='^'){ i++; const b=unary(); return (x,r)=>Math.pow(a(x,r), b(x,r)); } return a; };
+  const mul=()=>{ let a=unary(); for(;;){ const c=peek();
+      if(c==='*'||c==='/'){ i++; const b=unary(), A=a; a = c==='*' ? (x,r)=>A(x,r)*b(x,r) : (x,r)=>A(x,r)/b(x,r); }
+      else if(c!=null && /[A-Za-z(\d]/.test(c)){ const b=unary(), A=a; a=(x,r)=>A(x,r)*b(x,r); }
+      else return a; } };
+  const add=()=>{ let a=mul(); for(;;){ const c=peek(); if(c==='+'||c==='-'){ i++; const b=mul(), A=a; a = c==='+' ? (x,r)=>A(x,r)+b(x,r) : (x,r)=>A(x,r)-b(x,r); } else return a; } };
+  try{ if(!s.trim()) err('식을 넣어 주세요'); const ev=add(); if(peek()!=null) err(`'${s.slice(i,i+8)}' 부분을 읽지 못했어요`); return { ev, refs, rowwise }; }
+  catch(e){ return { err:e.message }; }
+}
+/* 한 열 계산: 결과 값 · 오차 배열(글자) */
+function gtFxEval(G, c, opt){
+  opt=opt||{};
+  const P=gtFxParse(opt.shown!=null ? opt.shown : gtFxShow(G, c.formula)); if(P.err) return { err:P.err };
+  const R=gtFxRefs(G), me=opt.self||c;
+  for(const r of P.refs){ if(r==='deleted_col') return { err:'지운 열을 쓰고 있어요 — 식을 고쳐 주세요' }; if(!R.has(r)) return { err:`'${r}' 열이 없어요 — 쓸 수 있는 이름표: ${[...R.keys()].filter(k=>k!=='x'&&k!=='y').join(', ')||'없음'}` }; if(R.get(r).c===me) return { err:'자기 자신을 쓸 수 없어요' }; }
+  const arr={}; let n=0;
+  for(const r of P.refs){ const o=R.get(r); const a=(o.part==='e'?o.c.err:o.c.vals)||[]; arr[r]=a.map(v=>String(v??'').trim()===''?NaN:gtNum(v)); n=Math.max(n, a.length); }
+  if(!P.refs.size) n=Math.max(1, Math.min(100000, +opt.rows || +c.frows || 0));
+  const cache={};
+  const colfn=(w, a, b, r)=>{ const A=arr[a], B=b?arr[b]:null; const key=w+a+(b||'');
+    if(['mean','sum','min','max','sd','first','last','count'].includes(w)){ if(!(key in cache)){ const v=A.filter(isFinite); let out=NaN;
+        if(w==='count') out=v.length; else if(v.length){ const s=v.reduce((p,q)=>p+q,0);
+          out = w==='mean'?s/v.length : w==='sum'?s : w==='min'?Math.min(...v) : w==='max'?Math.max(...v) : w==='first'?v[0] : w==='last'?v[v.length-1] : (v.length>1?Math.sqrt(v.reduce((p,q)=>p+(q-s/v.length)**2,0)/(v.length-1)):NaN); }
+        cache[key]=out; } return cache[key]; }
+    if(w==='prev') return r>0?A[r-1]:NaN; if(w==='next') return A[r+1]??NaN; if(w==='delta') return r>0?A[r]-A[r-1]:NaN;
+    if(w==='deriv'){ const yP=A[r-1], yN=A[r+1], xP=B[r-1], xN=B[r+1], y0=A[r], x0=B[r];      // 가운데 차분, 끝은 한쪽 차분
+      if(isFinite(yP)&&isFinite(yN)&&isFinite(xP)&&isFinite(xN)&&xN!==xP) return (yN-yP)/(xN-xP);
+      if(isFinite(yN)&&isFinite(xN)&&isFinite(y0)&&isFinite(x0)&&xN!==x0) return (yN-y0)/(xN-x0);
+      if(isFinite(yP)&&isFinite(xP)&&isFinite(y0)&&isFinite(x0)&&x0!==xP) return (y0-yP)/(x0-xP); return NaN; }
+    if(w==='cumint'){ if(!cache[key]){ const out=[]; let acc=0, started=false; for(let k=0;k<A.length;k++){ if(!isFinite(A[k])||!isFinite(B[k])){ out.push(NaN); continue; }
+          if(!started){ started=true; out.push(0); continue; } let j=k-1; while(j>=0 && !(isFinite(A[j])&&isFinite(B[j]))) j--; acc+=(A[k]+A[j])/2*(B[k]-B[j]); out.push(acc); } cache[key]=out; }
+      return cache[key][r]; }
+    return NaN; };
+  const ctx={ n, colfn, val:(ref,r)=>arr[ref][r] };
+  const vals=[], errs=[]; let bad=0;
+  // 오차 전파: 줄마다 쓰인 열의 그 줄 값을 살짝 움직여 편미분
+  const errOf={}; if(c.ferr && P.rowwise){ for(const r of P.refs){ const o=R.get(r); if(o.part==='v' && o.c.err) errOf[r]=o.c.err.map(v=>String(v??'').trim()===''?NaN:Math.abs(gtNum(v))); } }
+  for(let r=0;r<n;r++){
+    const anyInput = !P.refs.size || [...P.refs].some(k=>isFinite(arr[k][r]));
+    if(!anyInput){ vals.push(''); errs.push(''); continue; }
+    let v; try{ v=P.ev(ctx, r); }catch(e){ v=NaN; }
+    if(!isFinite(v)){ vals.push(''); errs.push(''); if([...P.refs].every(k=>isFinite(arr[k][r]))) bad++; continue; }
+    vals.push(String(+v.toPrecision(8)));
+    if(c.ferr && P.rowwise){ let s2=0, any=false;
+      for(const k in errOf){ const e=errOf[k][r]; if(!(e>0)) continue; const x0=arr[k][r]; const h=Math.max(Math.abs(x0)*1e-6, e*1e-3, 1e-12);
+        arr[k][r]=x0+h; const fp=P.ev(ctx,r); arr[k][r]=x0-h; const fm=P.ev(ctx,r); arr[k][r]=x0; const d=(fp-fm)/(2*h); if(isFinite(d)){ s2+=(d*e)**2; any=true; } }
+      errs.push(any?String(+Math.sqrt(s2).toPrecision(4)):''); }
+  }
+  while(vals.length && vals[vals.length-1]===''){ vals.pop(); errs.pop(); }
+  return { vals, errs, refs:P.refs, rowwise:P.rowwise, bad, n };
+}
+/* 표 전체 다시 계산 — 수식 열끼리 쓰면 앞의 것부터. 서로 물면 그 열들은 멈추고 표시 */
+function gtFxRecalc(G){
+  const R=gtFxRefs(G); const fx=[...G.xs, ...G.ys].filter(c=>c.formula);
+  if(!fx.length) return 0;
+  const dep=new Map(fx.map(c=>{ const P=gtFxParse(gtFxShow(G, c.formula)); const d=P.err?[]:[...P.refs].map(r=>R.get(r)).filter(o=>o && o.c.formula && o.c!==c).map(o=>o.c); return [c, d]; }));
+  const order=[], state=new Map(); let cyc=new Set();
+  const visit=(c, stack)=>{ if(state.get(c)===2) return; if(state.get(c)===1){ stack.slice(stack.indexOf(c)).forEach(x=>cyc.add(x)); return; } state.set(c,1); stack.push(c); (dep.get(c)||[]).forEach(d=>visit(d, stack)); stack.pop(); state.set(c,2); order.push(c); };
+  fx.forEach(c=>visit(c, []));
+  let changed=0;
+  order.forEach(c=>{
+    if(cyc.has(c)){ c.fxerr='수식 열끼리 서로를 쓰고 있어요(돌고 돌아요)'; return; }
+    const r=gtFxEval(G, c); if(r.err){ c.fxerr=r.err; return; }
+    c.fxerr=r.bad?`${r.bad}줄은 계산이 안 돼요(0으로 나누기 · 음수의 제곱근 등)`:'';
+    const sv=JSON.stringify(c.vals), se=JSON.stringify(c.err);
+    c.vals=r.vals; if(c.ferr && r.rowwise){ c.err=r.errs; }
+    if(sv!==JSON.stringify(c.vals) || se!==JSON.stringify(c.err)) changed++;
+  });
+  return changed;
 }
 function gtBinom(n,k){ let r=1; for(let i=1;i<=k;i++) r=r*(n-k+i)/i; return r; }
 function gtFmt(v, sig){
@@ -25977,7 +26327,8 @@ function gtRender(G, W, H, opt){
   // 맞춤
   const fits=[];
   vis.forEach(s=>{ const k=s.col.fit; if(!k || k==='none') return; const good=s.pts.filter(Boolean);
-    const r=gtFit(k, good.map(p=>p.x), good.map(p=>p.y), (s.col.fitw!==false && good.every(p=>p.ey>0)) ? good.map(p=>p.ey) : null);
+    const c=s.col, num=v=>String(v??'').trim()!=='' && gtIsNum(v) ? gtNum(v) : null;
+    const r=gtFit(k, good.map(p=>p.x), good.map(p=>p.y), (c.fitw!==false && good.length && good.every(p=>p.ey>0)) ? good.map(p=>p.ey) : null, { deg:gtFitKind(c).deg, n:c.fitn, expr:c.fitexpr, init:c.fitinit, x0:num(c.fitx0), x1:num(c.fitx1) });
     fits.push(Object.assign({ s }, r)); });
   // 범위
   const T=v=>xlog?Math.log10(v):v, U=v=>ylog?Math.log10(v):v;
@@ -26046,11 +26397,15 @@ function gtRender(G, W, H, opt){
   const barSeries=vis.filter(s=>s.col.bar); let barW=0;
   if(barSeries.length){ const xsAll=[...new Set(P.flatMap(q=>q.pts.filter(Boolean).map(p=>px(p))))].sort((a,b)=>a-b); let md=Infinity; for(let i=1;i<xsAll.length;i++) md=Math.min(md, xsAll[i]-xsAll[i-1]); if(!isFinite(md)) md=(x1-x0)/4; barW=md*0.8/barSeries.length; }
   P.forEach(({s, pts})=>{
-    const C=s.color, st=s.col, lwS=(st.lw||1.5)*lw, ms=(st.ms||6)*lw;
+    const C=s.color, st=s.col, lwS=(st.lw||1.5)*lw, ms=(st.ms||6)*lw, dr=st.bar?'bar':(st.draw||'');
     let use=pts;
     if(st.sortx){ use=pts.filter(Boolean).slice().sort((a,b)=>a.x-b.x); }
-    if(st.bar){ const bi=barSeries.indexOf(s); const base=ylog?y1:Y(Math.min(Math.max(0,yr[0]),yr[1]));
-      svg+=`<g fill="${C}" fill-opacity="0.85" stroke="${C}" stroke-width="${lw*0.6}">`+use.filter(Boolean).map(p=>{ const cx=px(p)+(bi-(barSeries.length-1)/2)*barW, yy=py(p); return `<rect x="${(cx-barW/2).toFixed(2)}" y="${Math.min(yy,base).toFixed(2)}" width="${barW.toFixed(2)}" height="${Math.abs(base-yy).toFixed(2)}"/>`; }).join('')+'</g>'; }
+    const baseY=ylog?y1:Y(Math.min(Math.max(0,yr[0]),yr[1]));
+    const runs=[]; { let cur=[]; use.forEach(p=>{ if(!p){ if(cur.length) runs.push(cur); cur=[]; } else cur.push([px(p), py(p)]); }); if(cur.length) runs.push(cur); }   // 빈 줄에서 끊긴 조각들
+    if(dr==='bar'){ const bi=barSeries.indexOf(s);
+      svg+=`<g fill="${C}" fill-opacity="0.85" stroke="${C}" stroke-width="${lw*0.6}">`+use.filter(Boolean).map(p=>{ const cx=px(p)+(bi-(barSeries.length-1)/2)*barW, yy=py(p); return `<rect x="${(cx-barW/2).toFixed(2)}" y="${Math.min(yy,baseY).toFixed(2)}" width="${barW.toFixed(2)}" height="${Math.abs(baseY-yy).toFixed(2)}"/>`; }).join('')+'</g>'; }
+    if(dr==='area'){ svg+=`<g fill="${C}" fill-opacity="0.2" stroke="none">`+runs.filter(r=>r.length>1).map(r=>`<path d="M${r[0][0].toFixed(2)} ${baseY.toFixed(2)}${r.map(q=>'L'+q[0].toFixed(2)+' '+q[1].toFixed(2)).join('')}L${r[r.length-1][0].toFixed(2)} ${baseY.toFixed(2)}Z"/>`).join('')+'</g>'; }
+    if(dr==='stem'){ let d=''; use.forEach(p=>{ if(!p) return; const a=px(p); d+=`M${a.toFixed(2)} ${baseY.toFixed(2)}V${py(p).toFixed(2)}`; }); if(d) svg+=`<path d="${d}" stroke="${C}" stroke-width="${lwS.toFixed(2)}" fill="none"/>`; }
     // 오차 막대
     const ebSeen=new Set(); const eb=use.filter(p=>{ if(!p || !(p.ey||p.ex)) return false; const k=Math.round(px(p))+','+Math.round(py(p))+','+Math.round((p.ey||0)*1e6); if(ebSeen.has(k)) return false; ebSeen.add(k); return true; });
     if(eb.length && st.errbars!==false){ const cap=Math.max(3, ms*0.6);
@@ -26058,26 +26413,32 @@ function gtRender(G, W, H, opt){
         if(p.ey){ const a=ylog?(p.y-p.ey>0?Y(U(p.y-p.ey)):y1+5):Y(U(p.y-p.ey)), b=Y(U(p.y+p.ey)); d+=`M${cx.toFixed(2)} ${a.toFixed(2)}V${b.toFixed(2)}M${(cx-cap).toFixed(2)} ${a.toFixed(2)}h${2*cap}M${(cx-cap).toFixed(2)} ${b.toFixed(2)}h${2*cap}`; }
         if(p.ex){ const a=xlog?(p.x-p.ex>0?X(T(p.x-p.ex)):x0-5):X(T(p.x-p.ex)), b=X(T(p.x+p.ex)); d+=`M${a.toFixed(2)} ${cy.toFixed(2)}H${b.toFixed(2)}M${a.toFixed(2)} ${(cy-cap).toFixed(2)}v${2*cap}M${b.toFixed(2)} ${(cy-cap).toFixed(2)}v${2*cap}`; } });
       svg+=`<path d="${d}" stroke="${C}" stroke-width="${lw*0.9}" fill="none"/>`; }
-    // 선 (점이 많으면 화면 칸마다 처음 · 최소 · 최대 · 마지막만 — 모양은 같고 가볍다)
-    if(st.line!=='none' && !st.bar){
-      let d='', pen=false; const seg=[];
-      use.forEach(p=>{ if(!p){ pen=false; return; } seg.push([px(p), py(p), pen]); pen=true; });
-      const dec = seg.length > (x1-x0)*4 ? gtDecimate(seg) : seg;
-      dec.forEach(([a,b,on])=>{ d+=(on?'L':'M')+a.toFixed(2)+' '+b.toFixed(2); });
+    // 선 — 보통 · 매끄러운 곡선 · 계단 (점이 많으면 화면 칸마다 처음 · 최소 · 최대 · 마지막만 — 모양은 같고 가볍다)
+    if(st.line!=='none' && dr!=='bar' && dr!=='stem'){
+      let d='';
+      runs.forEach(r=>{
+        if(dr==='stairs'){ d+='M'+r[0][0].toFixed(2)+' '+r[0][1].toFixed(2); for(let i=1;i<r.length;i++) d+='H'+r[i][0].toFixed(2)+'V'+r[i][1].toFixed(2); return; }
+        if(dr==='spline' && r.length>2 && r.length<=(x1-x0)*2){ d+='M'+r[0][0].toFixed(2)+' '+r[0][1].toFixed(2);       // 캣멀–롬 → 3차 베지어(점을 모두 지난다)
+          for(let i=0;i<r.length-1;i++){ const p0=r[Math.max(0,i-1)], p1=r[i], p2=r[i+1], p3=r[Math.min(r.length-1,i+2)];
+            d+=`C${(p1[0]+(p2[0]-p0[0])/6).toFixed(2)} ${(p1[1]+(p2[1]-p0[1])/6).toFixed(2)} ${(p2[0]-(p3[0]-p1[0])/6).toFixed(2)} ${(p2[1]-(p3[1]-p1[1])/6).toFixed(2)} ${p2[0].toFixed(2)} ${p2[1].toFixed(2)}`; } return; }
+        const seg=r.map((q,i)=>[q[0], q[1], i>0]); const dec = seg.length > (x1-x0)*4 ? gtDecimate(seg) : seg;
+        dec.forEach(([a,b,on])=>{ d+=(on?'L':'M')+a.toFixed(2)+' '+b.toFixed(2); }); });
       if(d) svg+=`<path d="${d}" fill="none" stroke="${C}" stroke-width="${lwS.toFixed(2)}" stroke-linejoin="round" stroke-linecap="round"${GT_DASH[st.line]?` stroke-dasharray="${GT_DASH[st.line].split(' ').map(v=>(v*lwS/1.5).toFixed(2)).join(' ')}"`:''}/>`;
     }
-    if(st.marker && st.marker!=='none' && !st.bar){
+    if(st.marker && st.marker!=='none' && dr!=='bar'){
       const many=use.filter(Boolean).length>4000; const mk=gtMarker(st.marker, many?ms*0.6:ms);
-      const seen=new Set(), out=[];                         // 같은 반 픽셀에 겹치는 표식은 한 번만 · 화면 밖은 빼기(모양은 같고 훨씬 가볍다)
+      const seen=new Set(), out=[];                         // 같은 반 픽셀에 겹치는 표식은 한 번만 · 화면 밖은 빼기
       for(const p of use){ if(!p) continue; const a=px(p), b=py(p); if(a<x0-ms||a>x1+ms||b<y0-ms||b>y1+ms) continue; const k=Math.round(a*2)+','+Math.round(b*2); if(seen.has(k)) continue; seen.add(k); out.push(mk(a,b)); }
       svg+=`<g fill="${st.mfill===false?'#ffffff':C}" stroke="${C}" stroke-width="${(lw*0.9).toFixed(2)}">`+out.join('')+'</g>';
     }
   });
-  // 맞춤 곡선
-  fits.forEach(ft=>{ if(ft.err) return; const C=ft.s.color; const a=Math.max(T(ft.xmin), xr[0]), b=Math.min(T(ft.xmax), xr[1]);
-    const ext = ft.s.col.fitext ? [xr[0], xr[1]] : [a,b]; let d=''; const N=240;
-    for(let k=0;k<=N;k++){ const tv=ext[0]+(ext[1]-ext[0])*k/N; const xv=xlog?10**tv:tv; const yv=ft.f(xv); if(!isFinite(yv) || (ylog && yv<=0)){ continue; } const yy=Y(U(yv)); if(yy<y0-2000||yy>y1+2000) continue; d+=(d?'L':'M')+X(tv).toFixed(2)+' '+yy.toFixed(2); }
-    if(d) svg+=`<path d="${d}" fill="none" stroke="${C}" stroke-width="${(lw*1.3).toFixed(2)}" stroke-dasharray="${(6*lw).toFixed(1)} ${(3.5*lw).toFixed(1)}" opacity="0.9"/>`; });
+  // 추세선 (맞춘 곡선 · 이동 평균)
+  fits.forEach(ft=>{ if(ft.err) return; const C=ft.s.col.fitcolor||ft.s.color; const sty=` fill="none" stroke="${C}" stroke-width="${(lw*(ft.s.col.fitlw||1.3)).toFixed(2)}"${ft.s.col.fitdash==='solid'?'':` stroke-dasharray="${(6*lw).toFixed(1)} ${(3.5*lw).toFixed(1)}"`} opacity="0.95"`;
+    if(ft.curve){ let d=''; ft.curve.forEach(([xv,yv])=>{ if((xlog&&xv<=0)||(ylog&&yv<=0)) return; d+=(d?'L':'M')+X(T(xv)).toFixed(2)+' '+Y(U(yv)).toFixed(2); }); if(d) svg+=`<path d="${d}"${sty}/>`; return; }
+    const a=Math.max(T(Math.max(ft.xmin, xlog?1e-300:-Infinity)), xr[0]), b=Math.min(T(ft.xmax), xr[1]);
+    const ext = ft.s.col.fitext ? [xr[0], xr[1]] : [a,b]; let d=''; const N=400; let pen=false;
+    for(let k=0;k<=N;k++){ const tv=ext[0]+(ext[1]-ext[0])*k/N; const xv=xlog?10**tv:tv; const yv=ft.f(xv); if(!isFinite(yv) || (ylog && yv<=0)){ pen=false; continue; } const yy=Y(U(yv)); if(yy<y0-2000||yy>y1+2000){ pen=false; continue; } d+=(pen?'L':'M')+X(tv).toFixed(2)+' '+yy.toFixed(2); pen=true; }
+    if(d) svg+=`<path d="${d}"${sty}/>`; });
   svg+='</g>';
   // 축 상자 · 눈금(안쪽, MATLAB처럼)
   const tl=Math.max(4, fs*0.45);
@@ -26109,8 +26470,10 @@ function gtRender(G, W, H, opt){
     legBox={ x:lx, y:ly, w:lw2, h:lhT };
     svg+=`<g font-size="${legFs.toFixed(2)}"><rect x="${lx}" y="${ly}" width="${lw2}" height="${lhT}" fill="#ffffff" stroke="${ink}" stroke-width="${lw*0.8}"/>`;
     legItems.forEach((it,k)=>{ const cy=ly+legFs*0.35+lh*(k+0.5), sx=lx+legFs*0.5, sw=legFs*2.2, C=it.s.color, st=it.s.col;
-      if(it.fit) svg+=`<line x1="${sx}" x2="${sx+sw}" y1="${cy}" y2="${cy}" stroke="${C}" stroke-width="${lw*1.3}" stroke-dasharray="${(4*lw).toFixed(1)} ${(2.5*lw).toFixed(1)}"/>`;
+      if(it.fit) svg+=`<line x1="${sx}" x2="${sx+sw}" y1="${cy}" y2="${cy}" stroke="${C}" stroke-width="${lw*1.3}"${st.fitdash==='solid'?'':` stroke-dasharray="${(4*lw).toFixed(1)} ${(2.5*lw).toFixed(1)}"`}/>`;
       else{ if(st.bar) svg+=`<rect x="${sx+sw*0.2}" y="${cy-legFs*0.4}" width="${sw*0.6}" height="${legFs*0.8}" fill="${C}" fill-opacity="0.85"/>`;
+        else if(st.draw==='area') svg+=`<rect x="${sx}" y="${cy-legFs*0.35}" width="${sw}" height="${legFs*0.7}" fill="${C}" fill-opacity="0.25" stroke="${C}" stroke-width="${lw}"/>`;
+        else if(st.draw==='stem') svg+=`<line x1="${sx+sw/2}" x2="${sx+sw/2}" y1="${cy+legFs*0.45}" y2="${cy}" stroke="${C}" stroke-width="${((st.lw||1.5)*lw).toFixed(2)}"/><g fill="${st.mfill===false?'#ffffff':C}" stroke="${C}" stroke-width="${lw*0.9}">${gtMarker(st.marker&&st.marker!=='none'?st.marker:'o', (st.ms||6)*lw)(sx+sw/2, cy)}</g>`;
         else{ if(st.line!=='none') svg+=`<line x1="${sx}" x2="${sx+sw}" y1="${cy}" y2="${cy}" stroke="${C}" stroke-width="${((st.lw||1.5)*lw).toFixed(2)}"${GT_DASH[st.line]?` stroke-dasharray="${GT_DASH[st.line]}"`:''}/>`;
           if(st.marker && st.marker!=='none') svg+=`<g fill="${st.mfill===false?'#ffffff':C}" stroke="${C}" stroke-width="${lw*0.9}">${gtMarker(st.marker, (st.ms||6)*lw)(sx+sw/2, cy)}</g>`; } }
       svg+=`<text x="${sx+sw+legFs*0.5}" y="${cy+legFs*0.35}" fill="${ink}">${gtRichSVG(it.text)}</text>`; });
@@ -26164,7 +26527,7 @@ function GT_KEY_NOW(){ let u='anon'; try{ if(typeof state!=='undefined' && state
 const GT_RH=24, GT_HEAD_BAND=26, GT_HEAD_NAME=48, GT_NUMW=42;
 function gtUid(p){ return p+Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function gtNewCol(ax, n){ const c={ id:gtUid(ax), name:(ax==='x'?'X':'Y')+n, vals:[], err:null };
-  if(ax==='y') Object.assign(c, { pair:null, color:null, line:'solid', lw:1.5, marker:'o', ms:6, mfill:true, bar:false, fit:'none', fitw:true, fitext:false, sortx:false, show:true, errbars:true });
+  if(ax==='y') Object.assign(c, { pair:null, color:null, line:'solid', lw:1.5, marker:'o', ms:6, mfill:true, bar:false, fit:'none', fitw:true, fitext:false, sortx:false, show:true, errbars:true, draw:'', fitdeg:2, fitn:5, fitexpr:'', fitinit:'', fitx0:'', fitx1:'', fitdash:'dash' });
   return c; }
 function gtDefaultFig(){ return { title:'', xlabel:'', ylabel:'', xr:{min:'',max:''}, yr:{min:'',max:''}, xlog:false, ylog:false, grid:'major', box:true, legend:'ne', legendOne:false, font:'sans', fs:1, palette:'anda', tight:false, zero:true, size:'auto', w:800, h:560, scale:2, bg:'white', fitLegend:true }; }
 function gtDefault(){ const x=gtNewCol('x',1), y=gtNewCol('y',1); y.pair=x.id; return { v:1, xs:[x], ys:[y], fig:gtDefaultFig(), tips:[], view:null, ui:{ split:0.42, mode:'cursor' } }; }
@@ -26204,6 +26567,7 @@ const GT_TABS={
 /* opts.newTab: 새 탭에서(지금 탭이 비어 있으면 그 탭을 쓴다) · opts.name: 탭 이름 */
 function openGraphTool(opts){
   opts=opts||{};
+  if(ATW_SOLO!=='graph' && !ATW.wins.graph && ATW_soloAlive('graph')) return ATW_graphProxy(opts);   // ★DJ: 새 창에 열린 그래프로
   const w=ATW.open('graph', { title:'그래프 그리기', sub:'', icon:ATW_ICON.graph, w:1160, h:700, minW:620, minH:420,
     mount:(body, win)=>{ new ToolTabs(body, win, GT_TABS); },
     onClose:(win)=>{ try{ win.tabs && win.tabs.tabs.forEach(t=>{ try{ t.inst && t.inst.destroy(); }catch(e){} }); }catch(e){} } });
@@ -26218,7 +26582,7 @@ function openGraphTool(opts){
 class GraphTool{
   constructor(body, win, tab, host){
     this.body=body; this.win=win; this.tab=tab||null; this.host=host||null;
-    this.key= tab ? GT_KEY_TAB(tab.id) : GT_KEY_NOW(); this.G=gtLoad(this.key); this.undo=[]; this.redo=[];
+    this.key= tab ? GT_KEY_TAB(tab.id) : GT_KEY_NOW(); this.G=gtLoad(this.key); try{ gtFxRecalc(this.G); }catch(e){ console.error(e); } this.undo=[]; this.redo=[];
     this.sel={ c:0, r:0, c2:0, r2:0 }; this.hover=null; this.png=null; this.saveWarned=false;
     this.build(); this.renderGrid(); this.draw();
     this.onResize=()=>{ if(this.hiddenTab()) return; this.root.classList.toggle('narrow', this.body.clientWidth<760); this.layoutSplit(); this.renderRows(); this.draw(); };
@@ -26239,6 +26603,8 @@ class GraphTool{
           <span class="gt-sep"></span>
           <button type="button" class="gt-ib" data-a="undo" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기">${gtI('undo')}</button>
           <button type="button" class="gt-ib" data-a="redo" title="다시 하기 (Ctrl+Y)" aria-label="다시 하기">${gtI('redo')}</button>
+          <span class="gt-sep"></span>
+          <button type="button" class="gt-btn" data-a="fx" title="수식 열 — 다른 열로 값을 계산하는 새 열 (예: 0.5*y1^2 · deriv(y1, x1) · y1/100)"><b class="gt-fxi">ƒx</b>수식 열</button>
           <span class="gt-sp"></span>
           <button type="button" class="gt-btn ghost" data-a="example" title="예시 데이터(자유 낙하)로 채우기">예시</button>
           <button type="button" class="gt-btn ghost" data-a="new" title="표와 그래프를 모두 비우기">새로</button>
@@ -26256,11 +26622,13 @@ class GraphTool{
             <button type="button" data-mode="pan" title="이동 — 끌어서 옮기기">${gtI('pan')}<span>이동</span></button>
           </span>
           <button type="button" class="gt-ib" data-a="home" title="원래 범위로 (그래프 두 번 누르기)" aria-label="원래 범위로">${gtI('home')}</button>
-          <button type="button" class="gt-btn" data-a="settings" title="제목 · 축 이름 · 범위 · 로그 · 격자 · 범례 · 글꼴 · 색 · 크기">${gtI('gear')}설정</button>
+          <span class="gt-sep"></span>
+          <button type="button" class="gt-btn" data-a="kind" title="그래프 형식 — 선 + 점 · 점만(선 잇지 않기) · 선만 · 매끄러운 곡선 · 계단 · 줄기 · 막대 · 면적" aria-haspopup="menu">${gtI('kind')}<span>형식</span></button>
+          <button type="button" class="gt-btn" data-a="trend" title="추세선 — 직선 · 다항식 · 지수 · 거듭제곱 · 로그 · 사인 · 감쇠 진동 · 가우스 · 로렌츠 · 이동 평균 · 식 직접 입력">${gtI('trend')}<span>추세선</span></button>
+          <button type="button" class="gt-btn" data-a="settings" title="제목 · 축 이름 · 범위 · 로그 · 격자 · 범례 · 글꼴 · 색 · 크기">${gtI('gear')}<span>설정</span></button>
           <span class="gt-sp"></span>
-          <span class="gt-drag" draggable="true" title="끌어서 문서 편집 · 채팅 · 사진 창고 · 바탕화면 · 다른 프로그램에 그대로 넣기">${gtI('grip')}<span>끌어서 넣기</span></span>
-          <button type="button" class="gt-btn" data-a="png" title="PNG 그림으로 저장">${gtI('down')}PNG</button>
-          <button type="button" class="gt-btn" data-a="more" title="SVG · 복사 · 인쇄 · CSV" aria-haspopup="menu">더 보기 ▾</button>
+          <span class="gt-drag" draggable="true" title="끌어서 문서 편집 · 채팅 · 사진 창고 · 바탕화면 · 다른 프로그램에 그림으로 넣기" aria-label="끌어서 넣기">${gtI('grip')}</span>
+          <button type="button" class="gt-btn" data-a="more" title="PNG · SVG · 그림 복사 · 인쇄 · CSV" aria-haspopup="menu">${gtI('down')}<span>저장</span> ▾</button>
         </div>
         <div class="gp"><div class="gp-svg"></div><div class="gp-zoom"></div><div class="gp-tip" hidden></div><div class="gp-set" hidden></div></div>
         <div class="gt-status"><span class="gt-info"></span><span class="gt-xy"></span></div>
@@ -26311,7 +26679,7 @@ class GraphTool{
   restore(s){ const o=JSON.parse(s); this.G.xs=o.xs; this.G.ys=o.ys; this.G.fig=o.fig; this.G.tips=o.tips||[]; this.G.view=null; this.changed(true); this.closeSettings(); }
   doUndo(){ if(!this.undo.length) return ATW_say('되돌릴 것이 없어요.'); this.redo.push(this.snap()); this.restore(this.undo.pop()); }
   doRedo(){ if(!this.redo.length) return; this.undo.push(this.snap()); this.restore(this.redo.pop()); }
-  changed(structure){ if(structure) this.renderGrid(); else this.renderRows(); this.draw(); this.save(); }
+  changed(structure){ try{ gtFxRecalc(this.G); }catch(e){ console.error(e); } if(structure) this.renderGrid(); else this.renderRows(); this.draw(); this.save(); }   // ★DK: 수식 열 먼저 다시 계산
   /* ───────── 표 ───────── */
   vcols(){ const v=[]; const add=(c,ax,i)=>{ v.push({ c, ax, part:'v', i }); if(c.err) v.push({ c, ax, part:'e', i }); }; this.G.xs.forEach((c,i)=>add(c,'x',i)); this.G.ys.forEach((c,i)=>add(c,'y',i)); return v; }
   colW(vc){ if(vc.part==='e') return 74; return Math.round(Math.max(96, Math.min(190, gtTW(vc.c.name||'', 12.5, GT_FONT_SANS, 700)+50))); }   // 이름이 보이게(최대 190px)
@@ -26330,10 +26698,11 @@ class GraphTool{
     const headCell=(v,k)=>{ const w=this.colW(v), c=v.c;
       if(v.part==='e') return `<div class="gs-hc e" style="left:${this.lefts[k]}px;width:${w}px" data-k="${k}"><span class="gs-pm">± 오차</span><button type="button" class="gs-hx" data-errx="${c.id}" title="오차 열 지우기" aria-label="오차 열 지우기">×</button><span class="gs-meta" title="${ATW_esc(c.name)}의 오차">${ATW_esc(c.name)}</span></div>`;
       const yi=G.ys.indexOf(c);
+      const fxB=c.formula?`<button type="button" class="gs-fx${c.fxerr?' bad':''}" data-fx="${c.id}" title="수식 열: = ${ATW_esc(gtFxShow(G, c.formula))}${c.fxerr?'\n⚠ '+ATW_esc(c.fxerr):''} — 눌러서 고치기" aria-label="수식 고치기">ƒx</button>`:'';
       return `<div class="gs-hc ${v.ax}" style="left:${this.lefts[k]}px;width:${w}px" data-k="${k}">
         <input class="gs-nm" value="${ATW_esc(c.name)}" data-nm="${c.id}" spellcheck="false" title="이름 — 범례 · 축 이름에 쓰여요. x^2 · v_0 · \\theta 처럼 쓸 수 있어요" aria-label="열 이름">
         <button type="button" class="gs-hm" data-menu="${c.id}" title="이 열 메뉴" aria-label="이 열 메뉴">⋯</button>
-        <span class="gs-meta">${v.ax==='y' ? `<button type="button" class="gs-dot" data-style="${c.id}" style="--c:${ATW_esc(c.color||gtColor(G, yi))}" title="선 · 표식 · 색 · 맞춤" aria-label="모양"></button><select class="gs-pair" data-pair="${c.id}" title="이 Y와 짝이 되는 X">${xOpts(c)}</select>` : `<span class="gs-ax">X ${G.xs.indexOf(c)+1}</span>`}</span></div>`; };
+        <span class="gs-meta">${v.ax==='y' ? `<span class="gs-ref" title="수식에서 쓰는 이름표">y${yi+1}</span>${fxB}<button type="button" class="gs-dot" data-style="${c.id}" style="--c:${ATW_esc(c.color||gtColor(G, yi))}" title="선 · 표식 · 색 · 맞춤" aria-label="모양"></button><select class="gs-pair" data-pair="${c.id}" title="이 Y와 짝이 되는 X">${xOpts(c)}</select>` : `<span class="gs-ax"><span class="gs-ref" title="수식에서 쓰는 이름표">x${G.xs.indexOf(c)+1}</span>${fxB}</span>`}</span></div>`; };
     this.ghead.style.width=this.totalW+'px';
     this.ghead.innerHTML=`<div class="gs-band" style="height:${GT_HEAD_BAND}px">
         <div class="gs-bx" style="left:${GT_NUMW}px;width:${wX+addW}px">X 축 <button type="button" class="gs-add" data-add="x" title="X 데이터 묶음 추가">＋</button></div>
@@ -26353,6 +26722,7 @@ class GraphTool{
     this.ghead.querySelectorAll('[data-pair]').forEach(s=>s.onchange=()=>{ const c=this.colById(s.dataset.pair); this.push(); c.pair=s.value; this.draw(); this.save(); });
     this.ghead.querySelectorAll('[data-style]').forEach(btn=>btn.onclick=()=>this.openStyle(btn.dataset.style, btn));
     this.ghead.querySelectorAll('[data-menu]').forEach(btn=>btn.onclick=()=>this.colMenu(btn.dataset.menu, btn));
+    this.ghead.querySelectorAll('[data-fx]').forEach(btn=>btn.onclick=()=>this.fxDialog(this.colById(btn.dataset.fx)));
     this.ghead.querySelectorAll('[data-errx]').forEach(btn=>btn.onclick=()=>{ const c=this.colById(btn.dataset.errx); if(c.err && c.err.some(v=>String(v).trim()) && !confirm('오차 열의 값을 지울까요?')) return; this.push(); c.err=null; this.changed(true); });
     this.clampSel(); this.renderRows();
   }
@@ -26376,7 +26746,8 @@ class GraphTool{
     for(let r=a;r<b;r++){
       h+=`<div class="gs-r" style="top:${top+r*GT_RH}px;width:${this.totalW}px"><div class="gs-rn" style="width:${GT_NUMW}px">${r+1}</div>`;
       this.V.forEach((v,k)=>{ const val=this.getv(v,r); const s=String(val); const bad = s.trim() && !(v.ax==='x' && v.part==='v') && !gtIsNum(s);
-        h+=`<div class="gs-c ${v.ax}${v.part==='e'?' e':''}${bad?' bad':''}" style="left:${this.lefts[k]}px;width:${this.colW(v)}px" data-k="${k}" data-r="${r}">${ATW_esc(s)}</div>`; });
+        const fxc = v.c.formula && (v.part==='v' || v.c.ferr);
+        h+=`<div class="gs-c ${v.ax}${v.part==='e'?' e':''}${bad?' bad':''}${fxc?' fx':''}" style="left:${this.lefts[k]}px;width:${this.colW(v)}px" data-k="${k}" data-r="${r}">${ATW_esc(s)}</div>`; });
       h+='</div>';
     }
     this.grows.innerHTML=h; this.paintSel();
@@ -26451,6 +26822,7 @@ class GraphTool{
     this.paintSel(); this.scrollIntoView(); this.renderRows(); }
   startEdit(ch, f2){
     const v=this.V[this.sel.c]; if(!v) return;
+    if(v.c.formula && (v.part==='v' || v.c.ferr)){ ATW_say(`'${v.c.name}'은(는) 수식 열이에요 — 머리의 ƒx를 눌러 식을 고치거나 수식을 풀어 주세요.`, 3500); return; }
     this.sel.c2=this.sel.c; this.sel.r2=this.sel.r; this.scrollIntoView(); this.renderRows();
     const ed=this.ed, top=GT_HEAD_BAND+GT_HEAD_NAME;
     Object.assign(ed.style, { display:'block', left:this.lefts[this.sel.c]+'px', top:(top+this.sel.r*GT_RH)+'px', width:this.colW(v)+'px', height:GT_RH+'px' });
@@ -26485,7 +26857,9 @@ class GraphTool{
     const c=this.colById(id), isX=this.G.xs.includes(c), arr=isX?this.G.xs:this.G.ys, i=arr.indexOf(c);
     const r=btn.getBoundingClientRect();
     this.popMenu(r.left, r.bottom+2, [
-      !isX ? ['모양 · 색 · 맞춤…', ()=>this.openStyle(id, btn)] : false,
+      [c.formula ? 'ƒx 수식 고치기…' : 'ƒx 수식으로 채우기…', ()=>this.fxDialog(c)],
+      c.formula ? ['수식 풀기 (값만 남기기)', ()=>{ this.push(); delete c.formula; delete c.ferr; delete c.fxerr; delete c.frows; this.changed(true); }] : false,
+      !isX ? ['모양 · 색 · 추세선…', ()=>this.openStyle(id, btn)] : false,
       [c.err ? '± 오차 열 빼기' : '± 오차 열 붙이기', ()=>{ this.push(); if(c.err){ c.err=null; } else c.err=[]; this.changed(true); }],
       ['이름 바꾸기', ()=>{ const inp=this.ghead.querySelector(`[data-nm="${id}"]`); if(inp){ inp.focus(); inp.select(); } }],
       isX ? ['이 X를 기준으로 정렬 (짝 Y도 함께)', ()=>this.sortBy(c)] : false,
@@ -26536,10 +26910,13 @@ class GraphTool{
     if(a==='open') this.$('.gt-file').click();
     else if(a==='paste'){ if(navigator.clipboard && navigator.clipboard.readText){ navigator.clipboard.readText().then(t=>t?this.handlePasteText(t):ATW_say('복사해 둔 글이 없어요.'), ()=>ATW_say('표를 복사한 뒤 이 창을 누르고 Ctrl+V를 눌러 주세요.')); } else ATW_say('표를 복사한 뒤 Ctrl+V를 눌러 주세요.'); }
     else if(a==='undo') this.doUndo(); else if(a==='redo') this.doRedo();
+    else if(a==='fx') this.fxDialog(null);
     else if(a==='example'){ if(this.hasData() && !confirm('지금 표를 예시 데이터로 바꿀까요? (되돌리기 Ctrl+Z)')) return; this.push(); const ex=gtExample(); Object.assign(this.G, { xs:ex.xs, ys:ex.ys, fig:ex.fig, tips:[], view:null }); this.changed(true); }
     else if(a==='new'){ if(this.hasData() && !confirm('표와 그래프 설정을 모두 비울까요? (되돌리기 Ctrl+Z)')) return; this.push(); const d=gtDefault(); Object.assign(this.G, { xs:d.xs, ys:d.ys, fig:d.fig, tips:[], view:null }); this.changed(true); }
     else if(a==='home'){ this.G.view=null; this.draw(); this.save(); }
-    else if(a==='settings') this.gset.hidden ? this.openSettings() : this.closeSettings();
+    else if(a==='settings') this.panel==='set' ? this.closeSettings() : this.openSettings();
+    else if(a==='trend') this.panel==='trend' ? this.closeSettings() : this.openTrend();
+    else if(a==='kind') this.kindMenu(btn);
     else if(a==='png') this.exportPNG();
     else if(a==='more'){ const r=btn.getBoundingClientRect(); this.popMenu(r.left, r.bottom+2, [
         ['PNG 그림 저장', ()=>this.exportPNG()], ['SVG 저장 (확대해도 선명 — 보고서 · 포스터용)', ()=>this.exportSVG()],
@@ -26661,13 +27038,12 @@ class GraphTool{
     const mkName={ none:'없음', o:'●', s:'■', '^':'▲', v:'▼', d:'◆', x:'×', '+':'+', '*':'✱' };
     pop.innerHTML=`<div class="gt-pop-h"><b>${ATW_esc(c.name)}</b><button type="button" class="gt-ib" data-x aria-label="닫기">×</button></div>
       <div class="gt-f"><span>색</span><div class="gt-sw">${pal.map(h=>`<button type="button" data-col="${h}" style="--c:${h}" class="${h.toLowerCase()===String(cur).toLowerCase()?'on':''}" aria-label="${h}"></button>`).join('')}<label class="gt-cpick" title="원하는 색"><input type="color" value="${/^#[0-9a-f]{6}$/i.test(cur)?cur:'#c00000'}">＋</label></div></div>
-      <div class="gt-f"><span>그리기</span><div class="gt-seg2">${[['line','선 + 점'],['scatter','점만'],['lineonly','선만'],['bar','막대']].map(([k,t])=>`<button type="button" data-kind="${k}" class="${this.kindOf(c)===k?'on':''}">${t}</button>`).join('')}</div></div>
+      <div class="gt-f"><span>형식</span><select data-kd>${GT_KINDS.map(([k,t])=>`<option value="${k}"${this.kindOf(c)===k?' selected':''}>${t}</option>`).join('')}</select></div>
       <div class="gt-f"><span>선</span><select data-k="line">${[['solid','실선 ───'],['dash','파선 – – –'],['dot','점선 ·····'],['dashdot','일점쇄선 –·–'],['none','없음']].map(([k,t])=>`<option value="${k}"${c.line===k?' selected':''}>${t}</option>`).join('')}</select>
         <label>굵기 <input type="number" data-k="lw" min="0.25" max="8" step="0.25" value="${c.lw}"></label></div>
       <div class="gt-f"><span>표식</span><select data-k="marker">${GT_MARKERS.map(k=>`<option value="${k}"${c.marker===k?' selected':''}>${mkName[k]}</option>`).join('')}</select>
         <label>크기 <input type="number" data-k="ms" min="1" max="30" step="0.5" value="${c.ms}"></label><label class="gt-ck"><input type="checkbox" data-k="mfill"${c.mfill!==false?' checked':''}> 채우기</label></div>
-      <div class="gt-f"><span>맞춤</span><select data-k="fit">${Object.entries(GT_FITS).map(([k,t])=>`<option value="${k}"${c.fit===k?' selected':''}>${t}</option>`).join('')}</select></div>
-      <div class="gt-f gt-f2"><label class="gt-ck"><input type="checkbox" data-k="fitw"${c.fitw!==false?' checked':''}> 오차가 있으면 가중 맞춤</label><label class="gt-ck"><input type="checkbox" data-k="fitext"${c.fitext?' checked':''}> 맞춤 곡선을 축 끝까지</label></div>
+      <div class="gt-f"><span>추세선</span><button type="button" class="gt-btn ghost" data-trend>${c.fit&&c.fit!=='none'?ATW_esc(GT_FITS[gtFitKind(c).kind]||'')+' — 바꾸기':'추가하기'}…</button></div>
       <div class="gt-f gt-f2"><label class="gt-ck"><input type="checkbox" data-k="sortx"${c.sortx?' checked':''}> x 순서대로 이어 그리기</label><label class="gt-ck"><input type="checkbox" data-k="errbars"${c.errbars!==false?' checked':''}> 오차 막대</label><label class="gt-ck"><input type="checkbox" data-k="show"${c.show!==false?' checked':''}> 보이기</label></div>
       <div class="gt-f gt-f2"><button type="button" class="gt-btn ghost" data-err>${c.err?'± 오차 열 빼기':'± 오차 열 붙이기'}</button><button type="button" class="gt-btn ghost" data-all>이 모양을 모든 Y에</button></div>`;
     document.body.appendChild(pop);
@@ -26680,16 +27056,15 @@ class GraphTool{
     pop.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape') close(); });
     pop.querySelectorAll('[data-col]').forEach(b=>b.onclick=()=>ch(()=>{ c.color=b.dataset.col; pop.querySelectorAll('[data-col]').forEach(x=>x.classList.toggle('on', x===b)); }));
     const cp=pop.querySelector('.gt-cpick input'); cp.oninput=()=>ch(()=>{ c.color=cp.value; });
-    pop.querySelectorAll('[data-kind]').forEach(b=>b.onclick=()=>ch(()=>{ const k=b.dataset.kind; c.bar=k==='bar'; if(k==='line'){ if(c.line==='none') c.line='solid'; if(c.marker==='none') c.marker='o'; } if(k==='scatter'){ c.line='none'; if(c.marker==='none') c.marker='o'; } if(k==='lineonly'){ if(c.line==='none') c.line='solid'; c.marker='none'; }
-      pop.querySelectorAll('[data-kind]').forEach(x=>x.classList.toggle('on', x===b)); pop.querySelector('[data-k=line]').value=c.line; pop.querySelector('[data-k=marker]').value=c.marker; }));
+    pop.querySelector('[data-kd]').onchange=e=>ch(()=>{ this.setKind(c, e.target.value); pop.querySelector('[data-k=line]').value=c.line; pop.querySelector('[data-k=marker]').value=c.marker; });
+    pop.querySelector('[data-trend]').onclick=()=>{ close(); this.openTrend(c.id); };
     pop.querySelectorAll('[data-k]').forEach(el=>el.addEventListener(el.type==='number'?'input':'change', ()=>ch(()=>{ const k=el.dataset.k; c[k] = el.type==='checkbox' ? el.checked : el.type==='number' ? Math.max(+el.min, Math.min(+el.max, +el.value||c[k])) : el.value; })));
     pop.querySelector('[data-err]').onclick=()=>{ ch(()=>{ c.err = c.err ? null : []; }); close(); };
-    pop.querySelector('[data-all]').onclick=()=>{ ch(()=>{ this.G.ys.forEach(y=>{ if(y!==c) ['line','lw','marker','ms','mfill','bar','errbars','sortx'].forEach(k=>y[k]=c[k]); }); }); ATW_say('모든 Y에 같은 모양을 입혔어요(색은 그대로).'); };
+    pop.querySelector('[data-all]').onclick=()=>{ ch(()=>{ this.G.ys.forEach(y=>{ if(y!==c) ['line','lw','marker','ms','mfill','bar','draw','errbars','sortx'].forEach(k=>y[k]=c[k]); }); }); ATW_say('모든 Y에 같은 모양을 입혔어요(색은 그대로).'); };
   }
-  kindOf(c){ if(c.bar) return 'bar'; if(c.line==='none') return 'scatter'; if(c.marker==='none') return 'lineonly'; return 'line'; }
   /* ───────── 그림 설정 ───────── */
   openSettings(focus){
-    const F=this.G.fig, s=this.gset; s.hidden=false; this.$('[data-a="settings"]').classList.add('on');
+    const F=this.G.fig, s=this.gset; s.hidden=false; this.panel='set'; this.markPanel();
     const v=(k,o)=>ATW_esc(o?o[k]:F[k]);
     const cur=this.lastL ? this.lastL : null;
     const rng=(ax)=>{ const R=F[ax+'r']; const vv=this.G.view && this.G.view[ax]; const shown = vv ? vv.map(t=>((ax==='x'?F.xlog:F.ylog)?10**t:t)) : null;
@@ -26736,7 +27111,147 @@ class GraphTool{
     s.querySelectorAll('[data-wh]').forEach(b=>b.onclick=()=>ch(()=>{ const [w,h]=b.dataset.wh.split('×').map(Number); F.w=w; F.h=h; q('[data-f=w]').value=w; q('[data-f=h]').value=h; }));
     if(focus==='size'){ const sec=q('[data-sec=size]'); sec.scrollIntoView({ block:'start' }); }
   }
-  closeSettings(){ this.gset.hidden=true; this.gset.innerHTML=''; const b=this.$('[data-a="settings"]'); if(b) b.classList.remove('on'); }
+  closeSettings(){ this.gset.hidden=true; this.gset.innerHTML=''; this.panel=null; this.markPanel(); }
+  /* ───────── ★DK: 수식 열 창 ───────── */
+  fxDialog(col){
+    const G=this.G, self=this, isNew=!col;
+    const ov=this.$('.gt-dlg-ov'); ov.hidden=false;
+    let ax='y', name='', src=col ? gtFxShow(G, col.formula||'') : '', ferr=col ? !!col.ferr : true, rows=col ? (col.frows||'') : '';
+    const R=gtFxRefs(G);
+    const refChips=()=>[...R.entries()].filter(([k])=>k!=='x' && k!=='y' && !(col && R.get(k).c===col)).map(([k,o])=>`<button type="button" data-ins="${k}" title="${ATW_esc(o.c.name)}${o.part==='e'?'의 ± 오차':''}"><b>${k}</b><i>${ATW_esc(o.part==='e'?'± '+o.c.name:o.c.name)}</i></button>`).join('');
+    const FN=[['sqrt(','√'],['^2','x²'],['sin(','sin'],['cos(','cos'],['tan(','tan'],['exp(','eˣ'],['ln(','ln'],['log10(','log₁₀'],['abs(','|x|'],['pi','π'],['i','줄 번호'],['deriv(','미분 d/dx'],['cumint(','누적 적분'],['delta(','앞 줄과 차'],['mean(','평균'],['sd(','표준편차'],['sum(','합'],['max(','최대'],['min(','최소']];
+    const y1=G.ys[0]?gtFxRefOf(G,G.ys[0]):'y1', x1=G.xs[0]?gtFxRefOf(G,G.xs[0]):'x1';
+    const EX=[[`${y1}/100`,'cm → m'],[`${x1}^2`,'제곱'],[`ln(${y1})`,'로그'],[`deriv(${y1}, ${x1})`,'속도(미분)'],[`cumint(${y1}, ${x1})`,'넓이(누적 적분)'],[`${y1} - mean(${y1})`,'평균에서 차'],[`(i-1)*0.05`,'번호 → 시간']];
+    const paint=()=>{
+      ov.innerHTML=`<div class="gt-dlg gt-fxd" role="dialog" aria-label="수식 열">
+        <div class="gt-dlg-h"><b>ƒx 수식 열</b><span>${isNew?'다른 열로 새 열의 값을 계산해요':`'${ATW_esc(col.name)}' (${gtFxRefOf(G,col)})`}</span></div>
+        ${isNew?`<div class="gt-row"><label>이름 <input type="text" class="gt-fxn" value="${ATW_esc(name)}" placeholder="예: 속도 v (m/s)" spellcheck="false"></label><label>어디에 <select class="gt-fxax"><option value="y"${ax==='y'?' selected':''}>Y 데이터</option><option value="x"${ax==='x'?' selected':''}>X 데이터</option></select></label></div>`:''}
+        <div class="gt-fxl"><span>=</span><textarea class="gt-fxf" rows="2" spellcheck="false" placeholder="예: 0.5*${y1}^2 · deriv(${y1}, ${x1}) · ${y1}/100">${ATW_esc(src)}</textarea></div>
+        <div class="gt-fxc"><small>열 — 누르면 넣어요</small><div class="gt-fxrefs">${refChips()||'<em>아직 열이 없어요</em>'}</div></div>
+        <div class="gt-fxc"><small>함수</small><div class="gt-fxfn">${FN.map(([t,l])=>`<button type="button" data-ins="${ATW_esc(t)}" title="${ATW_esc(t)}">${ATW_esc(l)}</button>`).join('')}</div></div>
+        <div class="gt-fxc"><small>예</small><div class="gt-fxex">${EX.map(([e,l])=>`<button type="button" data-ex="${ATW_esc(e)}" title="${ATW_esc(e)}">${ATW_esc(l)}</button>`).join('')}</div></div>
+        <div class="gt-row gt-fxo"><label class="gt-ck"><input type="checkbox" class="gt-fxe"${ferr?' checked':''}> ± 오차 자동 계산 <small>(쓴 열에 오차가 있으면 전파)</small></label><label class="gt-fxrows" hidden>줄 수 <input type="number" class="gt-fxr" min="1" max="100000" value="${ATW_esc(rows)}" placeholder="${Math.max(10, ...[...G.xs,...G.ys].map(c=>c.vals.length))}"></label></div>
+        <div class="gt-fxp"></div>
+        <details class="gt-fxh"><summary>쓰는 법</summary><p>줄마다 계산해요: <code>+ − * / ^ ( )</code>, <code>2${x1}</code>처럼 곱하기는 생략해도 돼요. <code>i</code> = 줄 번호(1부터), <code>n</code> = 줄 수, <code>pi</code>, <code>e</code>.<br>
+          열 전체를 보는 함수: <code>deriv(y, x)</code> 미분(가운데 차분) · <code>cumint(y, x)</code> 사다리꼴 누적 적분 · <code>delta(y)</code> 앞 줄과 차 · <code>prev(y)</code> · <code>next(y)</code> · <code>mean</code> <code>sd</code> <code>sum</code> <code>min</code> <code>max</code> <code>first</code> <code>last</code> <code>count</code>.<br>
+          오차 열은 <code>ey1</code>(y1의 ±)처럼 써요. 원본 열을 고치면 이 열이 저절로 다시 계산돼요. 열을 옮기거나 더해도 같은 열을 가리켜요.</p></details>
+        <div class="gt-dlg-b">${!isNew?'<button type="button" class="gt-btn ghost" data-unfx title="계산한 값은 그대로 두고 수식만 떼어 내요 — 이후 직접 고칠 수 있어요">수식 풀기 (값만 남기기)</button><span class="gt-sp"></span>':''}<button type="button" class="gt-btn ghost" data-x>취소</button><button type="button" class="gt-btn pri" data-ok>${isNew?'열 만들기':'적용'}</button></div></div>`;
+      const q=x=>ov.querySelector(x); const ta=q('.gt-fxf');
+      const preview=()=>{ src=ta.value; const box=q('.gt-fxp');
+        const P=gtFxParse(src); q('.gt-fxrows').hidden = !(!P.err && !P.refs.size);
+        const tmp={ id:'_tmp', name:name||'새 열', formula:'', ferr, frows:+rows||Math.max(10, ...[...G.xs,...G.ys].map(c=>c.vals.length)), vals:[], err:null };
+        if(!src.trim()){ box.innerHTML='<span class="gt-fxm">식을 넣으면 여기서 미리 봐요.</span>'; q('[data-ok]').disabled=true; return; }
+        const r=gtFxEval(G, tmp, { shown:src, self:col||tmp, rows:tmp.frows });
+        if(r.err){ box.innerHTML=`<span class="gt-fe">${ATW_esc(r.err)}</span>`; q('[data-ok]').disabled=true; return; }
+        q('[data-ok]').disabled=false;
+        const refs=[...r.refs].slice(0,3); const filled=r.vals.filter(v=>v!=='').length;
+        box.innerHTML=`<table><thead><tr><th>줄</th>${refs.map(k=>`<th>${ATW_esc(k)}</th>`).join('')}<th>= 결과</th>${ferr&&r.rowwise&&r.errs.some(Boolean)?'<th>±</th>':''}</tr></thead><tbody>${r.vals.slice(0,6).map((v,k)=>`<tr><td>${k+1}</td>${refs.map(ref=>{ const o=R.get(ref); const a=(o.part==='e'?o.c.err:o.c.vals)||[]; return `<td>${ATW_esc(a[k]??'')}</td>`; }).join('')}<td><b>${ATW_esc(v)}</b></td>${ferr&&r.rowwise&&r.errs.some(Boolean)?`<td>${ATW_esc(r.errs[k]||'')}</td>`:''}</tr>`).join('')}</tbody></table>
+          <span class="gt-fxm">${filled}줄 계산${r.bad?` · <b class="gt-fe">${r.bad}줄은 계산 안 됨</b>`:''}${ferr&&!r.rowwise?' · 열 전체 함수(deriv 등)가 들어가면 오차 자동 계산은 쉬어요':''}${ferr&&r.rowwise&&!r.errs.some(Boolean)?' · 쓴 열에 오차가 없어 ± 는 비어요':''}</span>`; };
+      let t=null; ta.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(preview, 180); });
+      ta.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); if(!q('[data-ok]').disabled) q('[data-ok]').click(); } });
+      const ins=txt=>{ const a=ta.selectionStart??ta.value.length, b=ta.selectionEnd??a; ta.value=ta.value.slice(0,a)+txt+ta.value.slice(b); const p=a+txt.length; ta.focus(); ta.setSelectionRange(p,p); preview(); };
+      ov.querySelectorAll('[data-ins]').forEach(bn=>bn.onclick=()=>ins(bn.dataset.ins));
+      ov.querySelectorAll('[data-ex]').forEach(bn=>bn.onclick=()=>{ ta.value=bn.dataset.ex; if(isNew && !q('.gt-fxn').value) { q('.gt-fxn').value=bn.textContent; name=bn.textContent; } preview(); ta.focus(); });
+      if(q('.gt-fxn')){ q('.gt-fxn').oninput=e=>{ name=e.target.value; }; q('.gt-fxn').onkeydown=e=>e.stopPropagation(); }
+      if(q('.gt-fxax')) q('.gt-fxax').onchange=e=>{ ax=e.target.value; };
+      q('.gt-fxe').onchange=e=>{ ferr=e.target.checked; preview(); };
+      q('.gt-fxr').oninput=e=>{ rows=e.target.value; preview(); }; q('.gt-fxr').onkeydown=e=>e.stopPropagation();
+      q('[data-x]').onclick=close;
+      if(q('[data-unfx]')) q('[data-unfx]').onclick=()=>{ self.push(); delete col.formula; delete col.ferr; delete col.fxerr; delete col.frows; close(); self.changed(true); ATW_say(`'${col.name}'의 수식을 뗐어요 — 값은 그대로예요.`); };
+      q('[data-ok]').onclick=()=>{ const shown=ta.value.trim(); const P=gtFxParse(shown); if(P.err) return;
+        self.push(); let c=col;
+        if(isNew){ c=gtNewCol(ax, (ax==='x'?G.xs:G.ys).length+1); c.name=(name||'').trim()||(ax==='x'?'X':'Y')+((ax==='x'?G.xs:G.ys).length+1);
+          if(ax==='y'){ c.pair=G.xs[0]?G.xs[0].id:'#'; G.ys.push(c); } else G.xs.push(c); }
+        c.formula=gtFxToStore(G, shown); c.ferr=ferr && P.rowwise; c.frows=P.refs.size?'':(+rows||Math.max(10, ...[...G.xs,...G.ys].filter(z=>z!==c).map(z=>z.vals.length)));
+        if(c.ferr){ if(!c.err) c.err=[]; } else if(col && col.ferr && !ferr){ c.err=null; }
+        close(); self.changed(true); if(isNew) ATW_say(`수식 열 '${c.name}'을(를) 만들었어요 — 원본을 고치면 저절로 다시 계산돼요.`); };
+      preview(); setTimeout(()=>{ ta.focus(); const L=ta.value.length; ta.setSelectionRange(L,L); }, 30);
+    };
+    const close=()=>{ ov.hidden=true; ov.innerHTML=''; ov.onkeydown=null; this.gs.focus({ preventScroll:true }); };
+    ov.onkeydown=e=>{ e.stopPropagation(); if(e.key==='Escape') close(); };
+    paint();
+  }
+  /* ───────── ★DJ: 그래프 형식 ───────── */
+  kindOf(c){ if(c.bar) return 'bar'; if(c.draw) return c.draw; if(c.line==='none') return 'scatter'; if(c.marker==='none') return 'lineonly'; return 'line'; }
+  setKind(c, k){
+    c.bar = k==='bar'; c.draw = ['spline','stairs','stem','area'].includes(k) ? k : '';
+    if(['line','lineonly','spline','stairs','area'].includes(k) && c.line==='none') c.line=c._line||'solid';
+    if(k==='scatter'){ if(c.line!=='none') c._line=c.line; c.line='none'; }
+    if(['line','scatter','stem'].includes(k) && c.marker==='none') c.marker='o';
+    if(k==='lineonly' || k==='area' || k==='stairs') c.marker='none';
+  }
+  kindMenu(btn){
+    document.querySelectorAll('.gt-pop').forEach(p=>p.remove());
+    const G=this.G, ys=G.ys; if(!ys.length) return;
+    const pop=document.createElement('div'); pop.className='gt-pop gt-kpop'; pop.style.zIndex=ATW.z+5;
+    const paint=()=>{ const s2=ys.every(c=>this.kindOf(c)===this.kindOf(ys[0])) ? this.kindOf(ys[0]) : null; const al=ys.some(c=>c.line!=='none' && !c.bar && c.draw!=='stem');
+      pop.innerHTML=`<div class="gt-pop-h"><b>그래프 형식</b><button type="button" class="gt-ib" data-x aria-label="닫기">×</button></div>
+        <div class="gt-kgrid">${GT_KINDS.map(([k,t])=>`<button type="button" data-k="${k}" class="${s2===k?'on':''}" title="${ATW_esc(t)}${ys.length>1?' — 모든 Y에':''}">${gtKindIcon(k)}<span>${ATW_esc(t.split(' (')[0])}</span></button>`).join('')}</div>
+        <label class="gt-ck gt-kline"><input type="checkbox" data-join${al?' checked':''}> 이웃한 점을 선으로 잇기</label>
+        ${ys.length>1?`<div class="gt-krows"><small>계열마다 따로</small>${ys.map((c,i)=>`<div class="gt-krow"><i style="--c:${ATW_esc(c.color||gtColor(G,i))}"></i><span title="${ATW_esc(c.name)}">${ATW_esc(c.name)}</span><select data-ck="${c.id}">${GT_KINDS.map(([k,t])=>`<option value="${k}"${this.kindOf(c)===k?' selected':''}>${ATW_esc(t)}</option>`).join('')}</select></div>`).join('')}</div>`:''}
+        <p class="gt-ktip">선 굵기 · 표식 · 색은 표 머리의 ● 단추에서.</p>`;
+      pop.querySelector('[data-x]').onclick=close;
+      pop.querySelectorAll('[data-k]').forEach(b=>b.onclick=()=>ch(()=>ys.forEach(c=>this.setKind(c, b.dataset.k))));
+      pop.querySelectorAll('[data-ck]').forEach(s=>s.onchange=()=>ch(()=>this.setKind(this.colById(s.dataset.ck), s.value)));
+      pop.querySelector('[data-join]').onchange=e=>ch(()=>ys.forEach(c=>{ if(c.bar) return; if(e.target.checked){ if(this.kindOf(c)==='scatter') this.setKind(c,'line'); } else if(c.draw!=='stem'){ c.draw=''; this.setKind(c,'scatter'); } }));
+    };
+    let pushed=false; const ch=fn=>{ if(!pushed){ this.push(); pushed=true; } fn(); this.renderGrid(); this.draw(); this.save(); paint(); };
+    const close=()=>{ pop.remove(); document.removeEventListener('pointerdown', off, true); };
+    const off=e=>{ if(!pop.contains(e.target) && e.target!==btn && !btn.contains(e.target)) close(); };
+    paint(); document.body.appendChild(pop);
+    const r=btn.getBoundingClientRect(); pop.style.left=Math.max(6, Math.min(innerWidth-pop.offsetWidth-6, r.left))+'px'; pop.style.top=Math.max(6, Math.min(innerHeight-pop.offsetHeight-6, r.bottom+4))+'px';
+    setTimeout(()=>document.addEventListener('pointerdown', off, true), 0);
+    pop.addEventListener('keydown', e=>{ e.stopPropagation(); if(e.key==='Escape') close(); });
+  }
+  /* ───────── ★DJ: 추세선 판 ───────── */
+  openTrend(focusId){
+    const s=this.gset, G=this.G; this.panel='trend'; s.hidden=false; this.markPanel();
+    const ys=G.ys.filter(c=>c.show!==false);
+    const kindSel=c=>{ const cur=gtFitKind(c).kind; return `<select data-t="fit" data-c="${c.id}"><option value="none"${cur==='none'?' selected':''}>없음</option>${GT_FIT_GROUPS.map(([g,list])=>`<optgroup label="${ATW_esc(g)}">${list.map(([k,t])=>`<option value="${k}"${cur===k?' selected':''}>${ATW_esc(t)}</option>`).join('')}</optgroup>`).join('')}</select>`; };
+    s.innerHTML=`<div class="gps-h"><b>추세선</b><button type="button" class="gt-ib" data-close aria-label="닫기">×</button></div>
+      ${!ys.length?'<p class="gps-tip">보이는 Y 계열이 없어요.</p>':''}
+      ${ys.map(c=>{ const i=G.ys.indexOf(c), K=gtFitKind(c), k=K.kind, hasErr=c.err && c.err.some(v=>String(v).trim());
+        return `<div class="gps-sec gt-tsec" data-tc="${c.id}"><h4><span class="gt-trn"><i style="--c:${ATW_esc(c.color||gtColor(G,i))}"></i>${ATW_esc(c.name)}</span></h4>
+        ${kindSel(c)}
+        ${k==='poly'?`<label>차수<select data-t="fitdeg" data-c="${c.id}">${[2,3,4,5,6].map(n=>`<option value="${n}"${K.deg===n?' selected':''}>${n}차</option>`).join('')}</select></label>`:''}
+        ${k==='mavg'?`<label>몇 점씩 평균<input type="number" min="2" max="200" step="1" data-t="fitn" data-c="${c.id}" value="${+c.fitn||5}"></label>`:''}
+        ${k==='custom'?`<label>식 y =<input type="text" data-t="fitexpr" data-c="${c.id}" value="${ATW_esc(c.fitexpr||'')}" placeholder="예: a*exp(-b*x)*cos(w*x+p)+c" spellcheck="false"></label>
+          <label>처음값 <small class="gps-v">(모르면 비워 두기 — 안 맞으면 대충 넣기)</small><input type="text" data-t="fitinit" data-c="${c.id}" value="${ATW_esc(c.fitinit||'')}" placeholder="예: a=2, b=0.5, w=6.3" spellcheck="false"></label>
+          <div class="gt-ex">${[['a*exp(-b*x)*cos(w*x+p)+c','감쇠 진동'],['a*x^n','거듭제곱'],['a/(1+exp(-(x-b)/c))','로지스틱'],['a*sqrt(x)+b','√x'],['a*sin(w*x)^2','sin²']].map(([e,t])=>`<button type="button" data-ex="${ATW_esc(e)}" data-c="${c.id}" title="${ATW_esc(e)}">${t}</button>`).join('')}</div>
+          <p class="gps-tip">x 말고 나머지 이름(a, b, w, τ …)이 맞출 값이에요. 함수: sin cos tan exp ln log10 sqrt abs sinh cosh tanh erf · 상수 pi, e · 거듭제곱 ^ · 2x처럼 곱하기 생략 가능.</p>`:''}
+        ${k!=='none'?`<div class="gt-trr"><span>맞출 x 범위</span><input type="text" inputmode="decimal" data-t="fitx0" data-c="${c.id}" value="${ATW_esc(c.fitx0||'')}" placeholder="처음"><span>~</span><input type="text" inputmode="decimal" data-t="fitx1" data-c="${c.id}" value="${ATW_esc(c.fitx1||'')}" placeholder="끝"></div>
+        <div class="gt-trk">${k!=='mavg'?`<label class="gt-ck"><input type="checkbox" data-t="fitext" data-c="${c.id}"${c.fitext?' checked':''}> 축 끝까지 늘이기</label>`:''}${hasErr&&k!=='mavg'?`<label class="gt-ck"><input type="checkbox" data-t="fitw" data-c="${c.id}"${c.fitw!==false?' checked':''}> 오차로 가중</label>`:''}<label class="gt-ck"><input type="checkbox" data-t="fitsolid" data-c="${c.id}"${c.fitdash==='solid'?' checked':''}> 실선</label></div>
+        <div class="gt-trres" data-fr="${c.id}"></div>`:''}</div>`; }).join('')}
+      <div class="gps-sec"><label class="gt-ck"><input type="checkbox" data-t="fitLegend"${G.fig.fitLegend!==false?' checked':''}> 범례에 식 · R² 보이기</label>
+        <p class="gps-tip">R² 는 1에 가까울수록 잘 맞아요. 오차 열이 있으면 χ²/ν(1 근처면 오차 크기와 맞음)도 나와요. 맞춤값의 ± 는 표준오차예요.</p></div>`;
+    const q=x=>s.querySelector(x);
+    q('[data-close]').onclick=()=>this.closeSettings();
+    let pushed=false; const ch=(fn, re)=>{ if(!pushed){ this.push(); pushed=true; } fn(); this.draw(); this.save(); if(re) this.openTrend(); };
+    s.querySelectorAll('[data-t]').forEach(el=>{
+      const k=el.dataset.t, c=el.dataset.c?this.colById(el.dataset.c):null;
+      el.addEventListener('keydown', e=>e.stopPropagation());
+      if(k==='fitLegend'){ el.onchange=()=>ch(()=>{ G.fig.fitLegend=el.checked; }); return; }
+      if(el.type==='checkbox'){ el.onchange=()=>ch(()=>{ if(k==='fitsolid') c.fitdash=el.checked?'solid':'dash'; else c[k]=el.checked; }); return; }
+      if(el.tagName==='SELECT'){ el.onchange=()=>ch(()=>{ if(k==='fit'){ c.fit=el.value; if(el.value==='poly' && !c.fitdeg) c.fitdeg=2; } else c[k]=+el.value; }, true); return; }
+      let t=null; el.addEventListener('input', ()=>{ clearTimeout(t); t=setTimeout(()=>ch(()=>{ c[k]= el.type==='number' ? Math.max(2, Math.round(+el.value||5)) : el.value; }), 350); });
+    });
+    s.querySelectorAll('[data-ex]').forEach(b=>b.onclick=()=>ch(()=>{ const c=this.colById(b.dataset.c); c.fitexpr=b.dataset.ex; c.fitinit=''; }, true));
+    if(this.last) this.paintTrendResults(this.last.info.fits);
+    if(focusId){ const sec=s.querySelector(`[data-tc="${focusId}"]`); if(sec) sec.scrollIntoView({ block:'nearest' }); }
+  }
+  paintTrendResults(fits){
+    if(this.panel!=='trend') return;
+    this.gset.querySelectorAll('[data-fr]').forEach(box=>{ const f=fits.find(x=>x.s.col.id===box.dataset.fr);
+      if(!f){ box.innerHTML=''; return; }
+      if(f.err){ box.innerHTML=`<span class="gt-fe">${ATW_esc(f.err)}</span>`; return; }
+      box.innerHTML=`<code>${ATW_esc(f.eq)}</code>${isFinite(f.R2)?`<div><span>R²</span><b>${f.R2.toFixed(5)}</b></div>`:''}${f.chi2r!=null?`<div><span>χ²/ν</span><b>${gtFmt(f.chi2r,3)}</b></div>`:''}${f.rmse!=null&&isFinite(f.rmse)?`<div><span>RMS 잔차</span><b>${gtFmt(f.rmse,3)}</b></div>`:''}
+        ${f.params.map(p=>`<div><span>${ATW_esc(p[0])}</span><b>${ATW_esc(p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6))}</b></div>`).join('')}<div><span>점</span><b>${f.n}개</b></div>${f.note?`<small>${ATW_esc(f.note)}</small>`:''}
+        ${f.params.length?`<button type="button" class="gt-link" data-cpf>식 · 값 복사</button>`:''}`;
+      const cp=box.querySelector('[data-cpf]'); if(cp) cp.onclick=()=>this.copyText(`${f.s.name}: ${f.eq}${isFinite(f.R2)?`  (R² = ${f.R2.toFixed(5)})`:''}\n`+f.params.map(p=>`${p[0]} = ${p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6)}`).join('\n'));
+    });
+  }
+  markPanel(){ const sb=this.$('[data-a="settings"]'), tb=this.$('[data-a="trend"]'); this.root.classList.toggle('gt-ptrend', this.panel==='trend'); if(sb) sb.classList.toggle('on', this.panel==='set'); if(tb) tb.classList.toggle('on', this.panel==='trend'); }
+
   /* ───────── 그래프 ───────── */
   figSize(){ const F=this.G.fig; if(F.size==='fixed') return { w:Math.max(200,+F.w||800), h:Math.max(150,+F.h||560) }; const r=this.gp.getBoundingClientRect(); return { w:Math.max(260, Math.round(r.width)), h:Math.max(200, Math.round(r.height)) }; }
   draw(){
@@ -26754,10 +27269,11 @@ class GraphTool{
     this.$('.gt-info').textContent=bits.join(' · ');
     // 맞춤 결과
     const fe=this.$('.gt-fits');
-    fe.innerHTML = I.fits.length ? I.fits.map(f=>`<div class="gt-fit" style="--c:${ATW_esc(f.s.color)}"><i></i><b>${ATW_esc(f.s.name)}</b> <span class="gt-fk">${ATW_esc(GT_FITS[f.s.col.fit]||'')}</span>
-        ${f.err?`<span class="gt-fe">${ATW_esc(f.err)}</span>`:`<code>${ATW_esc(f.eq)}</code> <span>R² = ${isFinite(f.R2)?f.R2.toFixed(5):'—'}</span> <span class="gt-fp">${f.params.map(p=>`${ATW_esc(p[0])} = ${ATW_esc(p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6))}`).join(' · ')}</span>${f.note?`<span class="gt-fn">${ATW_esc(f.note)}</span>`:''}
+    fe.innerHTML = I.fits.length ? I.fits.map(f=>`<div class="gt-fit" style="--c:${ATW_esc(f.s.color)}"><i></i><b>${ATW_esc(f.s.name)}</b> <span class="gt-fk">${ATW_esc((GT_FITS[gtFitKind(f.s.col).kind]||'')+(gtFitKind(f.s.col).kind==='poly'?` ${gtFitKind(f.s.col).deg}차`:''))}</span>
+        ${f.err?`<span class="gt-fe">${ATW_esc(f.err)}</span>`:`<code>${ATW_esc(f.eq)}</code> ${isFinite(f.R2)?`<span>R² = ${f.R2.toFixed(5)}</span>`:''}${f.chi2r!=null?` <span>χ²/ν = ${gtFmt(f.chi2r,3)}</span>`:''} <span class="gt-fp">${f.params.map(p=>`${ATW_esc(p[0])} = ${ATW_esc(p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6))}`).join(' · ')}</span>${f.note?`<span class="gt-fn">${ATW_esc(f.note)}</span>`:''}
         <button type="button" class="gt-link" data-cp="${ATW_esc(f.eq+'  (R² = '+(isFinite(f.R2)?f.R2.toFixed(5):'')+'; '+f.params.map(p=>`${p[0]} = ${p[2]?gtFmtPM(p[1],p[2]):gtFmt(p[1],6)}`).join(', ')+')')}">복사</button>`}</div>`).join('') : '';
     fe.querySelectorAll('[data-cp]').forEach(b=>b.onclick=()=>this.copyText(b.dataset.cp));
+    this.paintTrendResults(I.fits);
     this.queuePNG();
   }
   svgPt(e){ const svg=this.gsvg.querySelector('svg'); if(!svg) return null; const p=svg.createSVGPoint(); p.x=e.clientX; p.y=e.clientY; const m=svg.getScreenCTM(); if(!m) return null; return p.matrixTransform(m.inverse()); }
@@ -26897,6 +27413,8 @@ function gtI(n){
     home:'<path d="M4 11l8-7 8 7v8a1 1 0 0 1-1 1h-5v-6h-4v6H5a1 1 0 0 1-1-1z"/>',
     gear:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/>',
     down:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+    kind:'<path d="M3 20h18M5 17l4-6 4 3 6-9"/><circle cx="5" cy="17" r="1.2"/><circle cx="13" cy="14" r="1.2"/>',
+    trend:'<circle cx="5" cy="16" r="1.4"/><circle cx="9" cy="11" r="1.4"/><circle cx="14" cy="12" r="1.4"/><circle cx="18" cy="6" r="1.4"/><path d="M3 19L21 4" stroke-dasharray="3 2.5"/>',
     grip:'<circle cx="9" cy="6" r="1.3"/><circle cx="15" cy="6" r="1.3"/><circle cx="9" cy="12" r="1.3"/><circle cx="15" cy="12" r="1.3"/><circle cx="9" cy="18" r="1.3"/><circle cx="15" cy="18" r="1.3"/>',
   };
   return `<svg class="gt-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||''}</svg>`;
