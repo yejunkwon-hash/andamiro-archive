@@ -5048,6 +5048,7 @@ body.dark .kv2-sc.c4{ background:#333133; } body.dark .kv2-sc{ color:#EDEAEA; }
 <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.3 9.2a2.8 2.8 0 0 1 5.4 1c0 1.9-2.7 2.3-2.7 4"/><circle cx="12" cy="17.6" r="1.05" fill="currentColor" stroke="none"/></symbol>
 <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2"/><path d="M3 19.5c0-3.1 2.7-5 6-5s6 1.9 6 5"/><path d="M16.5 6.6a3.2 3.2 0 0 1 0 5.6"/><path d="M17.5 19.5c0-2.4-.9-4-2.4-4.6"/></symbol>
 <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z" /><circle cx="12" cy="13" r="3.4"/></symbol>
+<symbol id="i-video" viewBox="0 0 24 24"><rect x="3" y="6.5" width="12.5" height="11" rx="2"/><path d="M15.5 10.5l5-3v9l-5-3z"/></symbol>
 <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><circle cx="9" cy="9" r="1.2" class="dot"/><circle cx="15" cy="15" r="1.2" class="dot"/><circle cx="12" cy="12" r="1.2" class="dot"/></symbol>
 <symbol id="i-book" viewBox="0 0 24 24"><path d="M3.5 4.5h6a2.5 2.5 0 0 1 2.5 2.5v13a2 2 0 0 0-2-2h-6.5z"/><path d="M20.5 4.5h-6A2.5 2.5 0 0 0 12 7v13a2 2 0 0 1 2-2h6.5z"/></symbol>
 <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
@@ -5266,7 +5267,7 @@ async function flushSignQueue(){
 }
 function storageFixEl(el){
   if(!el || el.nodeType!==1) return;
-  ['src','href'].forEach(a=>{
+  ['src','href','poster'].forEach(a=>{   // ★DG: 영상 표지(poster)도
     const v=el.getAttribute(a);
     if(!v || v.indexOf(STORAGE_PUB_MARK)<0) return;
     signedStorageUrl(v).then(nu=>{
@@ -5289,7 +5290,7 @@ function storageFixEl(el){
 function storageFixTree(node){
   if(!node || node.nodeType!==1) return;
   storageFixEl(node);
-  node.querySelectorAll('[src*="/object/public/"],[href*="/object/public/"],[style*="/object/public/"]').forEach(storageFixEl);
+  node.querySelectorAll('[src*="/object/public/"],[href*="/object/public/"],[style*="/object/public/"],[poster*="/object/public/"]').forEach(storageFixEl);
 }
 const _storageObs = new MutationObserver(muts=>{
   if(!state || !state.user) return;
@@ -5298,7 +5299,7 @@ const _storageObs = new MutationObserver(muts=>{
     else mu.addedNodes.forEach(storageFixTree);
   });
 });
-_storageObs.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','href','style'] });
+_storageObs.observe(document.documentElement, { childList:true, subtree:true, attributes:true, attributeFilter:['src','href','style','poster'] });
 
 /* ===== Cloudflare Turnstile (CAPTCHA) ===== */
 const TS_SITEKEY = '0x4AAAAAADxloShb4WCYFvpB';
@@ -5725,6 +5726,7 @@ async function onLoggedIn(){
   startPulse();              // ★10초 변경 확인(124) — 바뀐 부분만 제자리에서 다시 그린다
   route();
   setTimeout(()=>{ autoCleanChatImages().catch(()=>{}); }, 4000);   // 30일 지난 채팅 사진 자동 정리(관리자·하루 1회)
+  setTimeout(()=>{ if(isAdmin() && typeof AndaVideo!=='undefined') AndaVideo.cleanExpired().catch(()=>{}); }, 9000);   // ★DG-2 30일 지난 채팅 · 질문 영상(관리자·하루 1회)
   setTimeout(()=>{ purgeOldTrash(); }, 6000);                                    // 휴지통 30일 지난 문서 영구 삭제
 }
 const ROLE_RANK={ viewer:0, teacher:0, editor:1, admin:2, owner:3 };
@@ -7973,7 +7975,8 @@ async function treeAddNode(parent){
    ★SQL 변경 없음: tree_node_add · tree_node_template(판 번호를 이어 받음) · doc_create · doc_place_set · doc_tag_set 을 차례로 부른다. */
 const BULK_LS='anda_tree_bulk_draft';
 const TPL_ALIAS={ '기자재':'gear','장비':'gear','프로그램':'program','소프트웨어':'program','안전':'safety','안내':'guide','규정':'guide',
-  '대회':'contest_prep','실험':'experiment','연구':'research','회의':'meeting','회의록':'meeting','개념':'concept','역사':'history','인물':'person','행사':'event','자유':'free' };
+  '대회':'contest_prep','실험':'experiment','연구':'research','회의':'meeting','회의록':'meeting','개념':'concept','역사':'history','인물':'person','행사':'event','자유':'free',
+  '논문':'paper','논문정리':'paper','세미나':'seminar','스터디':'seminar','문제해결':'troubleshoot','고장':'troubleshoot','발표':'contest_prep','반론':'contest_prep','빈문서':'free','기록':'history','활동':'event','프로토콜':'experiment','kypt':'kypt' };   // ★DG 새 틀
 function tplKeyOf(raw){
   const s=normTitle(raw);
   if(!s) return { err:"'@' 뒤에 틀 이름을 적어 주세요." };
@@ -8294,7 +8297,7 @@ async function treeRename(id){
 async function treeTemplate(id){
   const T=state.tree; const n=T.byId[id]; if(!n) return;
   const opts=[{ value:'', label:'틀 없음 (위 분류의 틀을 따라가요)' }].concat(
-    Object.entries(DOC_TEMPLATES).map(([k,t])=>({ value:k, label:`${t.icon} ${t.name}`, hint:(n.template===k?'지금':'') })));
+    Object.entries(DOC_TEMPLATES).filter(([k,t])=>!t.hidden || n.template===k).map(([k,t])=>({ value:k, label:`${t.icon} ${t.name}`, hint:(n.template===k?'지금':'') })));
   const v=await selectModal(`'${n.name}'의 기본 틀`, '이 분류(와 그 아래)에서 새 문서를 만들면 이 틀이 먼저 골라져요.', opts);
   if(v==null) return;
   await treeCall('tree_node_template', { p_id:id, p_template:v||null, p_version:T.version });
@@ -10221,16 +10224,19 @@ function wItem(img, kv){
 }
 /* [[영상: URL]] — 유튜브/직접 링크. 기자재 조작은 사진 10장보다 15초 영상이 낫다. */
 function wVideo(u){
+  /* ★DG-2: 문서 · KYPT의 영상은 YouTube 링크만 — 영상 파일 주소는 재생하지 않는다(용량). '| 표지:'가 붙은 예전 줄은 표지를 떼고 본다 */
+  u=String(u||'').replace(/\s*\|\s*표지\s*[:：]\s*\S+\s*$/,'');
   const url=String(u||'').trim();
   if(!/^(https?:)?\/\//i.test(url) && !/^[\w.-]+\.[a-z]{2,}\//i.test(url)) return '<p class="wk-empty wk-vid-empty">🎬 조작 영상을 아직 안 넣었어요 — 편집에서 <code>[[영상: 유튜브 주소]]</code>로 바꿔 주세요.</p>';   // ★CV: 틀의 안내 문구가 가짜 링크로 보이던 것
   const yt=url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/);
   /* ★개인정보(세션 CP): 쿠키를 심지 않는 youtube-nocookie 주소로 넣는다 — 재생 전에는 추적 쿠키가 생기지 않는다.
      referrerpolicy로 우리 문서 주소(번호)가 YouTube로 넘어가지 않게 한다. */
-  if(yt) return '<div class="wk-video"><iframe src="https://www.youtube-nocookie.com/embed/'+wAttr(yt[1])+
+  const ytT=(url.match(/[?&#](?:t|start)=(\d+)/)||[])[1];   // ★DG-2: ?t=30 → 30초부터
+  if(yt) return '<div class="wk-video"><iframe src="https://www.youtube-nocookie.com/embed/'+wAttr(yt[1])+(ytT?'?start='+ytT:'')+
     '" title="영상" loading="lazy" allowfullscreen frameborder="0" referrerpolicy="strict-origin-when-cross-origin"></iframe></div>';
   const safe=wUrl(url);
-  if(/\.(mp4|webm|ogg)(\?|$)/i.test(safe))
-    return '<div class="wk-video"><video src="'+wAttr(safe)+'" controls preload="metadata" playsinline></video></div>';
+  if(/\.(mp4|webm|ogg|mov|m4v)(\?|$)/i.test(safe))
+    return '<p class="wk-empty wk-vid-empty">🎬 문서의 영상은 YouTube 링크만 재생돼요 — 영상을 YouTube(일부 공개)에 올리고 편집의 [영상]으로 링크를 넣어 주세요. <a href="'+wAttr(safe)+'" target="_blank" rel="noopener">원래 파일</a></p>';
   return '<p><a href="'+wAttr(safe)+'" target="_blank" rel="noopener">영상 링크</a></p>';
 }
 
@@ -10309,6 +10315,7 @@ function wikiToHtml(src){
       while(i<lines.length && /^\|.*\|\s*$/.test(lines[i])){ rows.push(lines[i]); i++; }
       out.push(wTable(rows)); continue; }
     /* ★동적 블록 — 정적 위키를 벗어나는 지점. 물리 동아리 문서엔 글보다 이게 낫다. */
+    if(m=L.match(/^\[\[안내:\s*(.+?)\]\]\s*$/)){ endPara(); endList(); out.push('<p class="wk-hint">'+wInline(m[1])+'</p>'); i++; continue; }   // ★DG 틀의 작성 안내
     if(m=L.match(/^\[\[영상:\s*(.+?)\]\]\s*$/) || (m=L.match(/^\[\[video:\s*(.+?)\]\]\s*$/i))){
       endPara(); endList(); out.push(wVideo(m[1].trim())); i++; continue; }
     if(/^\[\[절차\]\]\s*$/.test(L) || /^\[\[steps\]\]\s*$/i.test(L)){
@@ -10895,6 +10902,24 @@ function wkPickImage(){
   inp.onchange=()=>{ wkUploadImages(inp.files||[]); };
   inp.click();
 }
+/* ★DG-2: 문서 영상 = YouTube 링크만. 영상 파일을 끌어 놓거나 붙여 넣으면 안내만 한다 */
+function wkUploadVideos(files){
+  const vids=[...files].filter(f=>/^video\//.test(f.type||'') || /\.(mp4|webm|mov|m4v|ogv|mkv)$/i.test(f.name||'')); if(!vids.length) return;
+  wkUpMsg('문서에는 영상 파일 대신 YouTube 링크를 넣어 주세요 — YouTube에 "일부 공개"로 올린 뒤 위 [영상] 단추.', true);
+}
+function wkPickVideo(){
+  const ta=wkTa(); if(!ta) return;
+  const raw=prompt('YouTube 영상 주소를 붙여 넣어 주세요.\n(예: https://youtu.be/… · 문서엔 YouTube 링크만 들어가요 — 몇 초부터 볼지 ?t=30 도 돼요)');
+  if(raw==null) return;
+  const u=String(raw).trim(); const y=ytIdOf(u);
+  if(!y || !/^[\w-]{11}$/.test(y.id||'')){ wkUpMsg('YouTube 주소가 아니에요 — youtube.com/watch?v=… 또는 youtu.be/… 를 넣어 주세요.', true); return; }
+  const t=parseInt(String(y.t||'').replace(/s$/,''),10)||0;
+  const line='[[영상: https://youtu.be/'+y.id+(t?'?t='+t:'')+']]';
+  const v=ta.value; const st=ta.selectionStart, en=ta.selectionEnd;
+  const pre=(st===0 || v[st-1]==='\n') ? '' : '\n'; const post=(v[en]==null || v[en]==='\n') ? '\n' : '\n\n';
+  wkApply(st, en, pre+line+post, st+pre.length+line.length+1);
+  wkUpMsg('YouTube 영상을 넣었어요 — 문서에서 그 자리에 재생돼요.');
+}
 function wkBindImageDrop(){
   const ta=$('#e-body'), split=$('#wkSplit'); if(!ta) return;
   ['dragenter','dragover'].forEach(ev=>ta.addEventListener(ev, e=>{
@@ -10903,12 +10928,14 @@ function wkBindImageDrop(){
   ['dragleave','drop'].forEach(ev=>ta.addEventListener(ev, ()=>split.classList.remove('drag')));
   ta.addEventListener('drop', e=>{
     const fs=e.dataTransfer && e.dataTransfer.files;
-    if(fs && fs.length){ e.preventDefault(); wkUploadImages(fs); }
+    if(fs && fs.length){ e.preventDefault(); wkUploadImages(fs); wkUploadVideos(fs); }   // ★DG 영상도
   });
   ta.addEventListener('paste', e=>{
     const items=(e.clipboardData && e.clipboardData.items) || [];
     const files=[...items].filter(i=>i.kind==='file' && /^image\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
     if(files.length){ e.preventDefault(); wkUploadImages(files); }
+    const vfs=[...items].filter(i=>i.kind==='file' && /^video\//.test(i.type)).map(i=>i.getAsFile()).filter(Boolean);
+    if(vfs.length){ e.preventDefault(); wkUploadVideos(vfs); }   // ★DG
   });
 }
 
@@ -11435,6 +11462,7 @@ const WK_TOOLBAR=[
   { act:'ol',    label:'1. 번호',   tip:`번호 목록 (${KMOD}+Shift+7)` },
   { act:'table', label:'표',        tip:'표 넣기' },
   { act:'image', label:'사진',      tip:'사진 올리기 (끌어다 놓기·붙여넣기도 돼요)', icon:'camera' },
+  { act:'video', label:'영상',      tip:'YouTube 영상 넣기 — 문서에는 YouTube 링크만 들어가요(영상 파일은 용량 때문에 받지 않아요). 문서에서 그 자리에 바로 재생돼요', icon:'video' },
   { act:'steps', label:'절차',      tip:'따라 하기 체크리스트' },
   { act:'set',   label:'＋ 물품 세트', tip:'사진 · 규격 · 비고 표와 소제목 다섯이 달린 물품 세트를 하나 더 — 맨 아래 관련 문서 앞에 붙어요' },
   { act:'hr',    label:'구분선',    tip:'가로 구분선' },
@@ -11631,6 +11659,7 @@ function wkDo(act){
     case 'table': case 'steps': case 'hr': return wkInsertBlock(act);
     case 'set': return wkAddSet();
     case 'image': return wkPickImage();
+    case 'video': return wkPickVideo();
     case 'cut': case 'copy': { const ta=wkTa(); if(ta){ ta.focus(); try{ document.execCommand(act); }catch(e){} if(act==='cut'){ wkPush(true); wkRenderPreview(); wkAutosave(state.key); } } return; }
   }
 }
@@ -12216,85 +12245,202 @@ function gearItemBody(name, photoLine){
     + `### 자주 하는 실수 · 주의사항\n- \n\n`
     + `### 관련 물품\n- ${GEAR_RELATED_HINT}\n`;
 }
+/* ★세션 DG: 새 문서 틀 전면 개편
+   · 틀마다 group(고르는 화면의 묶음) · desc(언제 쓰나) · body(뼈대) · infobox.
+   · 뼈대 속 [[안내: …]] 줄 = 작성 안내 — 문서 화면엔 점선 상자로 보이고(비어 있다는 표시), 채운 뒤 편집에서 그 줄을 지우면 사라진다.
+     예전처럼 "(…를 적어 주세요.)" 문단이 본문에 그대로 남지 않게.
+   · ★키는 그대로 둔다 — 분류 나무의 '새 문서 기본 틀'(120)이 이 키를 저장한다. equipment는 gear와 같아 고르는 화면에서만 숨긴다(hidden).
+   · 새 틀: paper(논문 정리) · seminar(세미나 · 스터디 노트) · troubleshoot(문제 해결 기록). */
+const TL = a=>a.join('\n')+'\n';
+const TPL_GROUPS = [
+  { id:'basic',  name:'기본' },
+  { id:'study',  name:'연구 · KYPT' },
+  { id:'gear',   name:'기자재 · 도구' },
+  { id:'people', name:'사람 · 동아리' },
+];
 const DOC_TEMPLATES = {
-  free: { icon:'📄', name:'자유 형식', desc:'빈 문서로 시작합니다.', body:'', infobox:null },
+  /* ── 기본 ── */
+  free: { group:'basic', icon:'📄', name:'빈 문서', desc:'틀 없이 빈 문서로 시작해요. 무엇을 쓸지 아직 정해지지 않았을 때.', body:'', infobox:null },
 
-  gear: { icon:'🔧', name:'기자재·장비', desc:'실험 기구 한 세트마다 사진 · 규격 · 사용 방법 · 실수 · 관련 물품. 사진을 여러 장 넣으면 세트가 하나씩 늘어요.',
+  guide: { group:'basic', icon:'📘', name:'안내 · 사용법', desc:'동아리 절차 · 규칙 · "이건 이렇게 한다"를 알려 주는 문서. 처음 온 사람이 이것만 보고 따라 할 수 있게.',
+    body:TL(['## 한눈에','[[안내: 이 문서를 읽고 나면 무엇을 할 수 있는지 한두 문장. 바쁜 사람은 여기까지만 읽어요.]]','',
+      '## 언제 · 누가','- 언제: ','- 누가: ','- 준비물: ','',
+      '## 이렇게 해요','[[절차]]','- ','- ','[[/절차]]','',
+      '## 자주 막히는 곳','- **증상** — 해결: ','',
+      '## 바뀐 점','[[안내: 규칙 · 방법이 바뀌면 날짜와 함께 한 줄씩. 예: 2026-10 · 신청 마감이 금요일로 바뀜]]']),
+    infobox:null },
+
+  meeting: { group:'basic', icon:'📝', name:'회의록', desc:'회의 한 번 = 문서 하나. 무엇을 정했고 누가 무엇을 언제까지 하는지가 남게.',
+    body:TL(['## 개요','- 일시: ','- 장소: ','- 참석: ','- 기록: ','',
+      '## 안건','1. ','2. ','',
+      '## 논의','### 1. ','[[안내: 누가 무슨 말을 했는지보다 "어떤 선택지가 있었고 왜 골랐는지"를 남겨 주세요.]]','',
+      '## 정한 것','- ','',
+      '## 할 일','| 담당 | 할 일 | 기한 | 확인 |','| --- | --- | --- | --- |','|  |  |  |  |','',
+      '## 다음 회의','- 일시: ','- 미리 볼 것: ']),
+    infobox:null },
+
+  event: { group:'basic', icon:'🎪', name:'활동 · 행사 기록', desc:'MT · 체험 · 학교 행사 · 외부 활동. 내년 담당자가 이 문서만 보고 그대로 준비할 수 있게.',
+    body:TL(['## 개요','[[안내: 언제 · 어디서 · 무엇을 했는지 두세 문장.]]','',
+      '## 준비','| 할 일 | 언제까지 | 담당 |','| --- | --- | --- |','|  |  |  |','',
+      '## 진행','- ','',
+      '## 사진 · 영상','[[안내: 사진은 편집기 [사진]으로, 영상은 YouTube 링크를 [영상]으로. 얼굴이 나온 사진 · 영상은 당사자에게 먼저 물어봐 주세요.]]','',
+      '## 잘된 점 · 아쉬운 점','- 잘된 점: ','- 아쉬운 점: ','',
+      '## 다음 담당자에게','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'활동', rows:[['일시',''],['장소',''],['참가',''],['담당','']] } },
+
+  /* ── 연구 · KYPT ── */
+  kypt: { group:'study', icon:'🏆', name:'KYPT 문제 분석', desc:'KYPT 문제 하나를 처음부터 발표까지 — 질문 쪼개기 · 변수 지도 · 이론 · 실험 · 반론 대비를 한 문서에.',
+    body:TL(['## 문제','[[안내: 공식 문제 원문(영어)을 그대로 붙이고, 아래에 우리말 풀이를 적어 주세요.]]','> ','',
+      '## 무엇을 묻는가','- 핵심 질문: ','- 재야 할 것(출력): ','- 바꿀 수 있는 것(입력): ','[[안내: "Investigate how … depends on …" 의 … 가 변수예요. 문제 문장을 낱말 단위로 쪼개 보세요.]]','',
+      '## 변수 지도','| 변수 | 기호 | 범위 | 바꾸는/재는 방법 | 예상 영향 |','| --- | --- | --- | --- | --- |','|  |  |  |  |  |','',
+      '## 현상 관찰','[[안내: 처음 해 본 실험의 사진과 "무엇이 눈에 띄었는지". 영상은 YouTube(일부 공개)에 올리고 편집의 [영상]으로 링크를 넣으면 이 자리에서 재생돼요.]]','',
+      '## 이론 · 모형','### 가정','- ','### 식','[[안내: 수식은 $F = ma$ 처럼. 먼저 차원 분석으로 어떤 무차원 수가 중요한지 찾아보세요.]]','### 예측','[[그래프: A*exp(-g*x)*cos(w*x), x=0..20, A=1..3, g=0..0.5, w=0.5..3]]','',
+      '## 실험 설계','[[절차]]','- 장치 구성','- 통제 변인 고정','- 측정 (반복 횟수 · 불확도)','[[/절차]]','',
+      '## 결과','| 조건 | 측정값 | 불확도 | 비고 |','| --- | --- | --- | --- |','|  |  |  |  |','[[안내: 그래프는 [도구 → 그래프 그리기]에서 이론 곡선과 함께 그려 끌어 놓으세요.]]','',
+      '## 반론 대비','| 예상 질문 (상대 팀 · 심사위원) | 우리 답 | 근거 |','| --- | --- | --- |','|  |  |  |','',
+      '## 남은 일','- ','',
+      '## 참고 자료','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'KYPT', rows:[['문제 번호',''],['연도',''],['담당',''],['단계','현상 탐색']] } },
+
+  research: { group:'study', icon:'🧪', name:'연구 프로젝트', desc:'여러 주에 걸친 탐구 — 질문 · 가설 · 방법 · 일정 · 결과 · 결론의 흐름을 한 문서로.',
+    body:TL(['## 한 줄 요약','[[안내: 끝나고 나서 채우는 칸 — "~를 바꾸면 ~가 ~하게 변한다"처럼 결과 한 문장.]]','',
+      '## 연구 질문','- 질문: ','- 가설: ','- 왜 궁금한가: ','',
+      '## 배경','[[안내: 관련 이론과 앞선 연구. 읽은 논문은 [논문 정리] 문서로 따로 만들고 여기엔 링크만.]]','',
+      '## 방법','### 장치','- ','### 변인','| 구분 | 변인 | 값 · 범위 |','| --- | --- | --- |','| 독립 |  |  |','| 종속 |  |  |','| 통제 |  |  |','### 절차','[[절차]]','- ','[[/절차]]','',
+      '## 일정','| 주 | 할 일 | 상태 |','| --- | --- | --- |','| 1 |  |  |','',
+      '## 결과','',
+      '## 논의','- 예상과 다른 점: ','- 오차 원인과 크기: ','- 한계: ','',
+      '## 결론 · 다음 질문','',
+      '## 참고 문헌','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'연구', rows:[['기간',''],['참여',''],['지도 교사',''],['분야',''],['상태','진행 중']] } },
+
+  experiment: { group:'study', icon:'⚗️', name:'실험 기록 · 프로토콜', desc:'실험 한 번을 다른 사람이 똑같이 다시 할 수 있게 — 장치 · 안전 · 절차 · 데이터 · 분석.',
+    body:TL(['## 목적','[[안내: 이 실험으로 확인하려는 것 한 문장.]]','',
+      '## 장치 · 준비물','| 물품 | 수량 | 규격 · 비고 |','| --- | --- | --- |','|  |  |  |','[[안내: 장치 전체 사진 한 장 + 구성도. 기자재 문서가 있으면 [글자](#문서주소)로 이어 주세요.]]','',
+      '## 안전','> ⚠ ','',
+      '## 절차','[[절차]]','- ','- ','- ','[[/절차]]','',
+      '## 데이터','| 회차 | 조건 | 측정값 | 비고 |','| --- | --- | --- | --- |','| 1 |  |  |  |','',
+      '## 분석','[[안내: 평균 · 표준편차 · 불확도 전파에 쓴 식을 $\\bar{x} = \\frac{1}{n}\\sum x_i$ 처럼 남겨 주세요. 사진 속 길이 · 넓이는 [도구 → 이미지 분석]으로 잴 수 있어요.]]','',
+      '## 결과 · 메모','- ','',
+      '## 다음에 바꿀 것','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'실험', rows:[['날짜',''],['실험자',''],['소요 시간',''],['관련 문제','']] } },
+
+  paper: { group:'study', icon:'📑', name:'논문 정리', desc:'읽은 논문 한 편 = 문서 하나. 무엇을 했고, 우리 문제에 무엇을 쓸 수 있는지. 논문 열람기의 [모아 복사]를 붙여 넣기 좋아요.',
+    body:TL(['## 한 줄 요약','[[안내: 이 논문이 보인 것을 한 문장으로. 초록을 옮기지 말고 내 말로.]]','',
+      '## 서지','- 저자: ','- 제목: ','- 학술지 · 연도: ','- 링크(DOI · arXiv): ','',
+      '## 무엇을 물었나','',
+      '## 어떻게 했나','- 모형 · 가정: ','- 실험 · 장치: ','',
+      '## 핵심 결과','[[안내: 그림 번호와 함께. 열람기에서 그림을 캡처해 [저장]한 뒤 넣거나, 형광펜 [모아 복사]를 붙여 넣으세요.]]','- 그림 1: ','',
+      '## 우리에게 쓸모','- 그대로 쓸 수 있는 것: ','- 우리 조건과 다른 점: ','',
+      '## 의문 · 반론','- ','',
+      '## 인용하고 싶은 문장','> ']),
+    infobox:{ title:'{{TITLE}}', sub:'논문', rows:[['저자',''],['연도',''],['분야',''],['관련 문제','']] } },
+
+  concept: { group:'study', icon:'💡', name:'개념 · 이론 정리', desc:'물리 개념 하나를 처음 보는 후배가 이해하도록 — 직관부터 식, 크기 어림, 흔한 오해까지.',
+    body:TL(['## 한 문장 정의','','## 직관','[[안내: 식 없이 그림 · 비유로 먼저. "왜 그렇게 되는가"를 한 문단.]]','',
+      '## 식과 유도','[[안내: 문장 속 식은 $...$, 가운데 식은 $$...$$. 기호마다 뜻과 단위를 함께 적어 주세요.]]','',
+      '## 차원 · 크기 어림','- ','',
+      '## 예시 · 실험','- ','',
+      '## 흔한 오해','- ✗ ','- ✓ ','',
+      '## 더 보기','- [관련 문서](#문서주소)']),
+    infobox:{ title:'{{TITLE}}', sub:'개념', rows:[['분야',''],['먼저 알 것',''],['수준','']] } },
+
+  seminar: { group:'study', icon:'🎤', name:'세미나 · 스터디 노트', desc:'세미나 · 스터디 한 번의 정리. 못 온 사람이 이것만 봐도 따라오게.',
+    body:TL(['## 개요','- 일시: ','- 발표: ','- 주제: ','',
+      '## 핵심 세 줄','1. ','2. ','3. ','',
+      '## 내용','### ','',
+      '## 나온 질문','| 질문 | 답 · 결론 |','| --- | --- |','|  |  |','',
+      '## 다음 시간까지','- ','',
+      '## 자료','[[안내: 발표 PDF · 슬라이드 · 영상 링크.]]']),
+    infobox:null },
+
+  contest_prep: { group:'study', icon:'📐', name:'발표 · 반론 준비', desc:'KYPT 발표(Report) · 반론(Opposition) · 심사(Review) 준비 — 발표 흐름 · 예상 질문 · 연습 기록.',
+    body:TL(['## 대회 형식','[[안내: 단계 · 시간 · 점수 기준. 올해 규정 링크를 같이.]]','',
+      '## 우리 발표 흐름','| 순서 | 내용 | 시간 | 담당 |','| --- | --- | --- | --- |','| 1 | 문제 소개 |  |  |','| 2 | 이론 |  |  |','| 3 | 실험 · 결과 |  |  |','| 4 | 결론 |  |  |','',
+      '## 예상 질문과 답','| 질문 | 답 | 근거 |','| --- | --- | --- |','|  |  |  |','',
+      '## 반론할 때 볼 것','- 가정이 실험 조건과 맞는가','- 변수를 충분히 넓게 바꿨는가','- 불확도를 어떻게 다뤘는가','- 이론과 실험을 숫자로 비교했는가','',
+      '## 연습 기록','| 날짜 | 무엇을 | 피드백 |','| --- | --- | --- |','|  |  |  |']),
+    infobox:{ title:'{{TITLE}}', sub:'발표 준비', rows:[['대회',''],['연도',''],['문제',''],['발표자','']] } },
+
+  report: { group:'study', icon:'📊', name:'결과 보고서', desc:'활동 · 연구가 끝났을 때 밖으로 내는 최종 정리 — 요약만 읽어도 알 수 있게.',
+    body:TL(['## 요약','[[안내: 3줄 이내 — 무엇을, 어떻게, 그래서 무엇을 알았는지.]]','> ','',
+      '## 서론','','## 방법','','## 결과','','## 논의','','## 결론','','## 부록','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'보고서', rows:[['작성',''],['날짜',''],['분야','']] } },
+
+  contest: { group:'study', icon:'🥇', name:'대회 참가 기록', desc:'대회에 다녀온 뒤 — 준비 과정 · 당일 · 결과 · 다음 팀에게 남길 말.',
+    body:TL(['## 대회 개요','- 대회: ','- 일시 · 장소: ','- 형식: ','',
+      '## 참가 팀','| 이름 | 역할 |','| --- | --- |','|  |  |','',
+      '## 준비 과정','| 시기 | 한 일 |','| --- | --- |','|  |  |','',
+      '## 당일','- ','',
+      '## 결과','',
+      '## 다음 팀에게','[[안내: 다시 한다면 무엇을 다르게 할지. 이 문서에서 가장 값진 칸이에요.]]','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'대회', rows:[['대회',''],['일시',''],['참가',''],['성적','']] } },
+
+  /* ── 기자재 · 도구 ── */
+  gear: { group:'gear', icon:'🔧', name:'기자재 · 장비', desc:'기구 한 세트마다 사진 · 규격 · 비고 표와 사용 방법 · 조작 영상 · 실수 · 관련 물품. 사진을 여러 장 넣으면 세트가 늘어요.',
     body: gearItemBody('{{TITLE}}'),
-    infobox:null },                                              // ★CU: 담당자 · 수량 · 상태 · 구입/도입은 뺐다(사용자 결정) — 표는 본문의 [[물품]]
+    infobox:null },                                              // ★CU: 표는 본문의 [[물품]]
 
-  program: { icon:'💻', name:'프로그램·소프트웨어', desc:'프로그램 사용법 · 설치 · 분석 방법.',
-    body:'## 무엇에 쓰나\n(어떤 상황에서 이 프로그램을 쓰는지.)\n\n'
-       + '## 설치\n[[절차]]\n- 내려받기\n- 설치\n- 첫 실행 설정\n[[/절차]]\n\n'
-       + '## 기본 사용법\n[[절차]]\n- \n- \n[[/절차]]\n\n'
-       + '## 자주 하는 실수\n- \n\n## 우리 동아리에서 쓰는 방식\n(우리만의 설정·관례가 있다면.)\n\n## 참고 자료\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'프로그램', image:'', rows:[['용도',''],['운영체제',''],['라이선스',''],['비고','']] } },   // ★CU: 사진 칸 · 담당자 뺌
+  equipment: { group:'gear', hidden:true, icon:'🔬', name:'기자재 사용법', desc:'기자재 · 장비와 같은 물품 세트 구조예요. (예전 틀 — 고르는 화면에선 숨김)',
+    body: gearItemBody('{{TITLE}}'),
+    infobox:null },
 
-  kypt: { icon:'🏆', name:'KYPT 문제·준비', desc:'문제 분석 · 실험 설계 · 이론 정리.',
-    body:'## 문제\n(문제 원문을 그대로 옮겨 적어 주세요.)\n\n'
-       + '## 핵심 현상\n(무엇이 일어나는지, 무엇이 궁금한지.)\n\n'
-       + '## 이론\n(수식은 $v = f\\lambda$ 처럼 쓰면 됩니다.)\n\n'
-       + '## 모형 · 그래프\n[[그래프: sin(k*x), x=0..10, k=1..5]]\n(슬라이더를 움직여 파라미터 영향을 직접 보여줄 수 있어요.)\n\n'
-       + '## 실험 설계\n[[절차]]\n- 준비물\n- 변인 통제\n- 측정\n[[/절차]]\n\n'
-       + '## 측정 결과\n| 조건 | 측정값 | 비고 |\n| --- | --- | --- |\n|  |  |  |\n\n'
-       + '## 막힌 것 · 다음에 할 것\n- \n(막힌 건 질문 게시판에도 남겨 주세요.)\n',
-    infobox:{ title:'{{TITLE}}', sub:'KYPT', rows:[['문제 번호',''],['담당자',''],['대회/기수',''],['진행 상태','분석 중']] } },
+  program: { group:'gear', icon:'💻', name:'프로그램 · 소프트웨어', desc:'분석 · 측정 프로그램 — 설치부터 우리 동아리에서 쓰는 방식까지.',
+    body:TL(['## 무엇에 쓰나','[[안내: 어떤 실험 · 분석에서 이 프로그램을 쓰는지 한두 문장.]]','',
+      '## 설치','[[절차]]','- 내려받기 (공식 주소)','- 설치','- 첫 실행 설정','[[/절차]]','',
+      '## 기본 사용법','[[절차]]','- ','- ','[[/절차]]','',
+      '## 우리 동아리 방식','[[안내: 우리만의 설정 · 파일 이름 규칙 · 저장 위치.]]','',
+      '## 자주 막히는 곳','- **증상** — 해결: ','',
+      '## 참고 자료','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'프로그램', image:'', rows:[['용도',''],['운영체제',''],['라이선스',''],['비고','']] } },
 
-  person: { icon:'👤', name:'인물', desc:'회원·선배 등 사람에 대한 문서입니다.',
-    body:'## 개요\n(어떤 사람인지 한두 문장으로 소개해 주세요.)\n\n## 활동\n- \n- \n\n## 여담\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'', rows:[['기수',''],['소속',''],['활동 기간',''],['한마디','']] } },
+  troubleshoot: { group:'gear', icon:'🩹', name:'문제 해결 기록', desc:'장비 · 프로그램이 말썽일 때 — 증상 · 원인 · 해결을 남겨 다음 사람이 5분 만에 고치게.',
+    body:TL(['## 증상','[[안내: 오류 문구는 그대로 복사, 화면은 사진으로.]]','',
+      '## 환경','- 장비 · 프로그램: ','- 버전 · 기기: ','- 언제부터: ','',
+      '## 원인','',
+      '## 해결','[[절차]]','- ','[[/절차]]','',
+      '## 해 봤지만 안 된 것','- ','',
+      '## 다시 안 생기게','- ']),
+    infobox:{ title:'{{TITLE}}', sub:'문제 해결', rows:[['대상',''],['처음 생김',''],['해결','']] } },
 
-  event: { icon:'🎪', name:'행사·활동', desc:'대회·MT·세미나 등 행사 기록입니다.',
-    body:'## 개요\n(언제, 어디서, 무엇을 했는지 한두 문장.)\n\n## 진행\n- \n- \n\n## 결과\n- \n\n## 사진\n(편집기의 사진 버튼으로 추가할 수 있어요.)\n',
-    infobox:{ title:'{{TITLE}}', sub:'', rows:[['일시',''],['장소',''],['참가 인원',''],['주최','']] } },
+  safety: { group:'gear', icon:'🦺', name:'안전 수칙', desc:'실험실 · 장비를 쓸 때 반드시 지킬 규칙과 사고 때 할 일.',
+    body:TL(['## 적용 범위','[[안내: 어느 실험 · 장비 · 장소에 해당하는지.]]','',
+      '## 필수 보호구','- ','',
+      '## 반드시 지킬 것','> ⚠ ','1. ','2. ','',
+      '## 사고가 나면','| 상황 | 바로 할 일 | 연락 |','| --- | --- | --- |','|  |  |  |']),
+    infobox:null },
 
-  concept: { icon:'💡', name:'개념·용어', desc:'용어·이론 등 지식 문서입니다.',
-    body:'## 정의\n(한 문장으로 정의해 주세요.)\n\n## 자세한 설명\n(수식이 필요하면 $x^2$ 처럼 쓰면 됩니다.)\n\n## 예시\n- \n\n## 관련 문서\n- [문서 이름](#문서주소)\n',
-    infobox:{ title:'{{TITLE}}', sub:'', rows:[['분야',''],['관련 개념','']] } },
+  /* ── 사람 · 동아리 ── */
+  person: { group:'people', icon:'👤', name:'인물', desc:'회원 · 선배 소개. 본인이 쓰거나 본인 동의를 받아 — 활동과 연구 중심으로.',
+    body:TL(['## 소개','[[안내: 어떤 사람인지 한두 문장. 본인이 직접 쓰는 걸 권해요.]]','',
+      '## 활동','| 시기 | 활동 |','| --- | --- |','|  |  |','',
+      '## 연구 · 발표','- ','',
+      '## 한마디','> ']),
+    infobox:{ title:'{{TITLE}}', sub:'', rows:[['기수',''],['소속',''],['활동 기간',''],['관심 분야','']] } },
 
-  history: { icon:'📜', name:'동아리 역사', desc:'연혁·회칙 등 동아리 공식 기록입니다.',
-    body:'## 개요\n(이 문서가 다루는 범위를 적어주세요.)\n\n## 연표\n| 시기 | 내용 |\n| 2016 |  |\n|  |  |\n\n## 상세\n### 초기\n\n### 이후\n',
+  history: { group:'people', icon:'📜', name:'동아리 기록 · 역사', desc:'연혁 · 회칙 · 전통처럼 오래 남길 공식 기록.',
+    body:TL(['## 개요','[[안내: 이 문서가 다루는 범위와 기간.]]','',
+      '## 연표','| 시기 | 일 |','| --- | --- |','|  |  |','',
+      '## 자세히','### ','',
+      '## 출처','[[안내: 기억에만 기댄 내용은 "구술"이라고 적고, 사진 · 회의록이 있으면 링크로.]]']),
     infobox:{ title:'{{TITLE}}', sub:'', rows:[['시작',''],['현재',''],['비고','']] } },
-
-  guide: { icon:'📘', name:'안내·규정', desc:'사용법·규칙 등 안내 문서입니다.',
-    body:'## 요약\n> (가장 중요한 내용을 한 줄로.)\n\n## 내용\n1. \n2. \n\n## 주의사항\n- \n',
-    infobox:null },
-
-  /* ── 연구 · 대회 · 기자재 (더보기) ── */
-  equipment: { icon:'🔬', name:'기자재 사용법', desc:'기자재·장비와 같은 물품 세트 구조예요(사진 · 규격 · 비고 · 사용 방법 · 실수 · 관련 물품).',
-    body: gearItemBody('{{TITLE}}'),
-    infobox:null },
-
-  research: { icon:'🧪', name:'연구 프로젝트', desc:'연구 주제·가설·방법·결과를 담는 문서입니다.',
-    body:'## 연구 배경\n(왜 이 주제를 골랐는지.)\n\n## 연구 질문 · 가설\n- 질문: \n- 가설: \n\n## 방법\n### 준비물\n- \n### 절차\n1. \n2. \n\n## 결과\n(표·그래프·사진)\n\n## 논의\n- 예상과 달랐던 점: \n- 오차 원인: \n\n## 결론\n\n## 참고 문헌\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'연구', rows:[['연구 기간',''],['참여자',''],['지도교사',''],['분야',''],['상태','진행 중']] } },
-
-  experiment: { icon:'⚗️', name:'실험 프로토콜', desc:'재현 가능하도록 실험 절차를 정리합니다.',
-    body:'## 목적\n\n## 준비물\n| 물품 | 수량 | 비고 |\n|  |  |  |\n\n## 안전 수칙\n> ⚠ \n\n## 절차\n1. \n2. \n3. \n\n## 데이터 기록표\n| 회차 | 측정값 | 비고 |\n| 1 |  |  |\n\n## 분석 방법\n(계산식: $\\bar{x} = \\frac{1}{n}\\sum x_i$ 처럼 쓸 수 있어요.)\n\n## 폐기물 처리\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'실험', rows:[['소요 시간',''],['난이도',''],['필요 장비',''],['위험도','']] } },
-
-  contest: { icon:'🏆', name:'대회 참가 기록', desc:'대회 개요·준비 과정·결과를 남깁니다.',
-    body:'## 대회 개요\n(주최·일정·형식.)\n\n## 참가 팀\n| 이름 | 역할 |\n|  |  |\n\n## 준비 과정\n- \n\n## 당일 진행\n- \n\n## 결과\n\n## 배운 점 · 다음에 할 것\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'대회', rows:[['대회명',''],['일시',''],['장소',''],['참가자',''],['성적','']] } },
-
-  contest_prep: { icon:'📐', name:'대회 대비 자료', desc:'기출·핵심 개념·풀이 전략을 모읍니다.',
-    body:'## 대회 소개\n(출제 범위·형식·시간.)\n\n## 핵심 개념\n### \n\n## 기출 유형\n| 연도 | 유형 | 난이도 |\n|  |  |  |\n\n## 전략\n- \n\n## 추천 자료\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'대비 자료', rows:[['대상 대회',''],['대상 학년',''],['갱신일','']] } },
-
-  meeting: { icon:'📝', name:'회의록', desc:'회의 안건·결정 사항·할 일을 기록합니다.',
-    body:'## 개요\n- 일시: \n- 참석: \n\n## 안건\n1. \n\n## 논의 내용\n- \n\n## 결정 사항\n- \n\n## 할 일\n| 담당 | 할 일 | 기한 |\n|  |  |  |\n',
-    infobox:null },
-
-  report: { icon:'📊', name:'결과 보고서', desc:'활동·연구의 최종 보고서 형식입니다.',
-    body:'## 요약\n> (3줄 이내로.)\n\n## 서론\n\n## 본론\n### 방법\n### 결과\n\n## 결론\n\n## 부록\n- \n',
-    infobox:{ title:'{{TITLE}}', sub:'보고서', rows:[['작성자',''],['작성일',''],['분야','']] } },
-
-  safety: { icon:'🦺', name:'안전 수칙', desc:'실험실·장비 사용 시 지켜야 할 안전 규칙.',
-    body:'## 적용 범위\n\n## 필수 보호구\n- \n\n## 반드시 지킬 것\n> ⚠ \n1. \n2. \n\n## 사고 시 대응\n| 상황 | 즉시 할 일 | 연락처 |\n|  |  |  |\n',
-    infobox:null }
 };
-/* 더보기를 눌러야 보이는 템플릿 (기본 6종 아래에 펼쳐진다) */
-const TPL_BASIC = ['free','person','event','concept','history','guide'];
+/* 고르는 화면에서 '전체'를 펼치기 전 먼저 보이는 틀 (예전 '더보기' 앞의 6종 자리) */
+const TPL_BASIC = ['free','guide','meeting','event','kypt','experiment','paper','gear'];
+/* 틀 뼈대 → 미리 보기용 개요(제목 · 블록) */
+function tplOutline(t){
+  const out=[]; let rows=0;
+  String((t && t.body)||'').split('\n').forEach(L=>{ let m;
+    if((m=L.match(/^##\s+(.+)/))) out.push({ k:'h2', t:m[1].replace(/\{\{TITLE\}\}/g,'(제목)') });
+    else if((m=L.match(/^###\s+(.+)/))) out.push({ k:'h3', t:m[1].replace(/\{\{TITLE\}\}/g,'(제목)') });
+    else if(/^\[\[절차\]\]/.test(L)) out.push({ k:'b', t:'✓ 따라 하기 체크리스트' });
+    else if(/^\[\[그래프:/.test(L)) out.push({ k:'b', t:'📈 슬라이더 그래프' });
+    else if(/^\[\[물품\]\]/.test(L)) out.push({ k:'b', t:'▦ 사진 · 규격 · 비고 표' });
+    else if(/^\[\[영상:/.test(L)) out.push({ k:'b', t:'🎬 영상 칸' });
+    else if(/^\|/.test(L)){ if(!rows) out.push({ k:'b', t:'▦ 표' }); rows++; return; }
+    rows=0; });
+  return out;
+}
 
 /* 새 문서 만들기: 템플릿 선택 → 주소·제목 → 생성 후 뼈대 주입 */
 function openNewDocModal(prefill){
@@ -12302,17 +12448,18 @@ function openNewDocModal(prefill){
   let pick='free';
   let tplTouched=false;
   const ov=document.createElement('div'); ov.className='modal-ov';
-  ov.innerHTML=`<div class="modal-box" style="max-width:480px">
+  ov.innerHTML=`<div class="modal-box ntp-box">
     <div class="modal-msg">새 문서 만들기</div>
-    <div class="modal-sub">어떤 문서인가요? 고르면 <b>기본 뼈대가 자동으로 채워집니다</b>.</div>
-    <div class="tpl-grid" id="ndTpl">
-      ${Object.entries(DOC_TEMPLATES).map(([k,t])=>`
-        <div class="tpl-card ${k==='free'?'on':''} ${TPL_BASIC.includes(k)?'':'tpl-more'}" data-tpl="${k}">
-          <span class="tpl-ic">${t.icon}</span><span class="tpl-nm">${escapeHtml(t.name)}</span>
-        </div>`).join('')}
+    <div class="modal-sub">어떤 문서인가요? 틀을 고르면 <b>뼈대와 작성 안내</b>가 채워져요 — 어떤 제목 · 표가 들어갈지 미리 볼 수 있어요.</div>
+    <div class="ntp" id="ndTpl">
+      <div class="ntp-bar"><div class="ntp-tabs" role="tablist">${[{ id:'all', name:'자주 쓰는' }].concat(TPL_GROUPS).map(g=>`<button type="button" role="tab" class="ntp-tab${g.id==='all'?' on':''}" data-g="${g.id}">${escapeHtml(g.name)}</button>`).join('')}</div>
+        <input class="ntp-q" id="ndTplQ" type="search" placeholder="틀 찾기 — 예: 논문 · 회의 · 실험" aria-label="틀 찾기" autocomplete="off"></div>
+      <div class="ntp-main">
+        <div class="ntp-list" role="listbox" aria-label="문서 틀">${Object.entries(DOC_TEMPLATES).filter(([k,t])=>!t.hidden).map(([k,t])=>`<button type="button" role="option" class="ntp-card${k==='free'?' on':''}" data-tpl="${k}" data-g="${t.group||'basic'}"><span class="ntp-ic">${t.icon}</span><span class="ntp-tx"><b>${escapeHtml(t.name)}</b><small>${escapeHtml(t.desc)}</small></span></button>`).join('')}</div>
+        <aside class="ntp-prev" id="ndPrev" aria-live="polite"></aside>
+      </div>
     </div>
-    <button type="button" class="tpl-morebtn" id="ndMore">더보기 (연구 · 대회 · 기자재 등 ${Object.keys(DOC_TEMPLATES).length-TPL_BASIC.length}종) ▾</button>
-    <div class="tpl-desc" id="ndDesc">${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
+    <div class="tpl-desc" id="ndDesc" hidden>${escapeHtml(DOC_TEMPLATES.free.desc)}</div>
     <button type="button" class="btn ghost nd-copy" id="ndCopy">${ic('docs')} 기존 문서로 사본 만들기</button>
     <div class="nd-copyinfo" id="ndCopyInfo" style="display:none"></div>
     <label class="nd-label">문서 제목 <span style="color:var(--text-dim);font-weight:400">(주소는 번호로 자동 — 예: D-0078)</span></label>
@@ -12335,20 +12482,27 @@ function openNewDocModal(prefill){
   if(title.value) checkTitle();
   ov.querySelector('.modal-cancel').onclick=close;
   ov.addEventListener('click',e=>{ if(e.target===ov) close(); });
-  ov.querySelectorAll('.tpl-card').forEach(c=>{
-    c.onclick=()=>{
-      pick=c.dataset.tpl; tplTouched=true;
-      copySrc=null; renderCopyInfo();                 // 템플릿을 고르면 사본 모드 해제
-      ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x===c));
-      desc.textContent=DOC_TEMPLATES[pick].desc;
-    };
-  });
-  // 더보기: 연구·대회·기자재 등 나머지 템플릿 펼치기
-  const moreBtn=ov.querySelector('#ndMore'), grid=ov.querySelector('#ndTpl');
-  if(moreBtn) moreBtn.onclick=()=>{
-    const open=grid.classList.toggle('show-more');
-    moreBtn.textContent = open ? '접기 ▴' : `더보기 (연구 · 대회 · 기자재 등 ${Object.keys(DOC_TEMPLATES).length-TPL_BASIC.length}종) ▾`;
-  };
+  /* ★DG: 틀 고르기 — 묶음 탭 · 찾기 · 미리 보기(제목 개요 · 정보 틀 · 작성 안내 수) */
+  const tplPrev=ov.querySelector('#ndPrev'), tplQ=ov.querySelector('#ndTplQ');
+  let tplTab='all';
+  const tplShowPrev=k=>{ const t=DOC_TEMPLATES[k]; if(!t || !tplPrev) return; const ol=tplOutline(t); const hints=(String(t.body||'').match(/^\[\[안내:/gm)||[]).length;
+    const g=(TPL_GROUPS.find(x=>x.id===t.group)||{}).name||'';
+    tplPrev.innerHTML=`<div class="ntp-ph"><span class="ntp-pic">${t.icon}</span><div><b>${escapeHtml(t.name)}</b><small>${escapeHtml(g)}</small></div></div><p class="ntp-pd">${escapeHtml(t.desc)}</p>`
+      +(ol.length?`<div class="ntp-ol">${ol.map(o=>`<div class="ntp-o ${o.k}">${escapeHtml(o.t)}</div>`).join('')}</div>`:`<div class="ntp-empty">빈 문서 — 제목만 정하고 바로 써요.</div>`)
+      +(t.infobox?`<div class="ntp-ib"><span>정보 틀</span>${t.infobox.rows.map(r=>`<i>${escapeHtml(r[0])}</i>`).join('')}</div>`:'')
+      +(hints?`<div class="ntp-hint">✎ 작성 안내 ${hints}곳 — 채운 뒤 그 줄을 지우면 돼요</div>`:''); };
+  const tplSelect=(k, user)=>{ if(!DOC_TEMPLATES[k]) k='free'; pick=k; if(user){ tplTouched=true; copySrc=null; renderCopyInfo(); }
+    ov.querySelectorAll('.ntp-card').forEach(x=>x.classList.toggle('on', x.dataset.tpl===k)); desc.textContent=DOC_TEMPLATES[k].desc; tplShowPrev(k); };
+  const tplFilter=()=>{ const q=(tplQ && tplQ.value || '').trim().toLowerCase().replace(/\s+/g,'');
+    ov.querySelectorAll('.ntp-tab').forEach(b=>b.classList.toggle('on', !q && b.dataset.g===tplTab));
+    ov.querySelectorAll('.ntp-card').forEach(c=>{ const t=DOC_TEMPLATES[c.dataset.tpl];
+      const hay=(t.name+t.desc+(TPL_GROUPS.find(x=>x.id===t.group)||{}).name).toLowerCase().replace(/\s+/g,'');
+      c.hidden = q ? !hay.includes(q) : (tplTab==='all' ? !TPL_BASIC.includes(c.dataset.tpl) : c.dataset.g!==tplTab); }); };
+  ov.querySelectorAll('.ntp-card').forEach(c=>{ c.onclick=()=>tplSelect(c.dataset.tpl, true); c.onmouseenter=()=>tplShowPrev(c.dataset.tpl); c.onfocus=()=>tplShowPrev(c.dataset.tpl); });
+  { const lst=ov.querySelector('.ntp-list'); if(lst) lst.onmouseleave=()=>tplShowPrev(pick); }
+  ov.querySelectorAll('.ntp-tab').forEach(b=>b.onclick=()=>{ tplTab=b.dataset.g; if(tplQ) tplQ.value=''; tplFilter(); });
+  if(tplQ){ tplQ.oninput=tplFilter; tplQ.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); const f=[...ov.querySelectorAll('.ntp-card')].find(c=>!c.hidden); if(f) tplSelect(f.dataset.tpl, true); } }; }
+  tplFilter(); tplShowPrev('free');
 
   /* ── 기존 문서로 사본 만들기 ── */
   let copySrc = null;                                  // {key,title,...}
@@ -12361,7 +12515,7 @@ function openNewDocModal(prefill){
       <span class="pick-key">${escapeHtml(docAddr(copySrc.key))}</span> 의 내용을 그대로 복사합니다.<br>
       <span class="muted">아래에 <b>새 제목</b>을 입력하고 [만들기]를 누르세요.</span>`;
     const x=ov.querySelector('#ndCopyX'); if(x) x.onclick=()=>{ copySrc=null; renderCopyInfo(); };
-    ov.querySelectorAll('.tpl-card').forEach(c=>c.classList.remove('on'));   // 템플릿 선택 해제
+    ov.querySelectorAll('.ntp-card').forEach(c=>c.classList.remove('on'));   // 템플릿 선택 해제
   }
   ov.querySelector('#ndCopy').onclick=()=>{
     openDocPicker((doc)=>{                              // 선택하면 이 모달로 돌아온다
@@ -12380,12 +12534,9 @@ function openNewDocModal(prefill){
   if(ndCat) ndCat.addEventListener('change', ()=>{
     if(tplTouched || copySrc) return;
     const cs=docCatValue(ndCat.value); const t=cs.nodeId!=null ? nodeTemplate(cs.nodeId) : null;
-    const want=(t && DOC_TEMPLATES[t]) ? t : 'free';
-    pick=want;
-    ov.querySelectorAll('.tpl-card').forEach(x=>x.classList.toggle('on', x.dataset.tpl===want));
-    const card=ov.querySelector(`.tpl-card[data-tpl="${want}"]`);
-    if(card && card.classList.contains('tpl-more')){ const g=ov.querySelector('#ndTpl'); if(g) g.classList.add('show-more'); }
-    desc.textContent=DOC_TEMPLATES[want].desc;
+    const want=(t && DOC_TEMPLATES[t]) ? (DOC_TEMPLATES[t].hidden ? 'gear' : t) : 'free';   // ★DG: 숨긴 예전 틀(equipment)은 같은 구조의 gear로
+    const tw=DOC_TEMPLATES[want]; if(!TPL_BASIC.includes(want)){ tplTab=tw.group||'basic'; if(tplQ) tplQ.value=''; tplFilter(); }
+    tplSelect(want, false);
   });
   const doCreate=async()=>{
     if(_creating) return;                               // ★Enter 연타·한글 조합 Enter로 두 번 만들지 않게
@@ -13696,7 +13847,7 @@ const MIG_LEDGER = [
   ['123','분야 담당·점검',{f:'owner_set'}], ['124','10초 변경 확인',{f:'anda_pulse'}], ['125','teacher 등급',{f:'set_member_teacher'}],
   ['126','분류 지우기',{f:'tree_node_delete'}], ['127','탈퇴 정리',{na:'함수 본문만 바뀌어 구별 불가'}], ['128','분야 태그 권한',{na:'함수 본문만 바뀌어 구별 불가'}],
   ['129','동아리 색',{t:'clubs',c:'color'}], ['130','세미나 준비 · 채팅 파일',{t:'messages',c:'files'}], ['131','세미나 영구 보존',{f:'seminar_delete'}], ['132','선생님 알림',{f:'order_push_teachers'}],
-  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}], ['135','저장 용량 정리',{f:'purge_status'}], ['136','편집 기록 합치기',{t:'revisions',c:'saves'}], ['137','논문 열람기 표시',{t:'paper_marks',c:'id'}],
+  ['133','저장 용량 자세히',{f:'capacity_report'}], ['134','회원 문서 논란 절 정리',{f:'member_doc_trim'}], ['135','저장 용량 정리',{f:'purge_status'}], ['136','편집 기록 합치기',{t:'revisions',c:'saves'}], ['137','논문 열람기 표시',{t:'paper_marks',c:'id'}], ['138','회원 문서 정리 · 30일 영상',{b:'chat-videos'}],
 ];
 async function migProbe(p){
   try{
@@ -13904,6 +14055,8 @@ function healthTasks(){
       hsT('seminar_script.note · est_sec — 준비 화면 (130)', 'seminar_script', 'note,est_sec'),
       hsT('messages.files — 채팅 파일 (130)', 'messages', 'files'),
       hsB('chat-files (채팅 파일 130)', 'chat-files'),
+      hsB('chat-videos — 채팅 · 질문 영상 30일 (138)', 'chat-videos'),
+      hsT('paper_marks — 논문 열람기 개인 · 공용 표시 (137)', 'paper_marks', 'id,paper_key,scope'),
       hsF('seminar_kept_paths / seminar_delete — 세미나 영구 보존 (131)', 'seminar_kept_paths','seminar_delete','anda_seminar_can_delete'),
       hsNA('111 보관 기록 · 113 발사 권한', '이름으로 구별할 수 없어요 — 대본 발사 때 "permission denied for sequence"가 나면 113, 보관 기록에 기각된 답이 섞이면 111을 실행'),
     ]},
@@ -13919,7 +14072,7 @@ function healthTasks(){
       ['로그인 없이 profiles 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 profiles 읽기 (116 ⑤)', 'profiles', 'id')],
       ['로그인 없이 members_public 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 members_public 읽기 (116 ⑤)', 'members_public', 'id')],
       ['로그인 없이 messages 읽기 (116 ⑤)', ()=>chkAnonRead('로그인 없이 messages 읽기 (116 ⑤)', 'messages', 'id')],
-      ...['avatars','doc-images','chat-images','question-images','history','kypt','seminar','labmap','chat-files'].map(b=>[`버킷 ${b} 비공개 (116 ⑥)`, ()=>chkBucketPrivate(`버킷 ${b} 비공개 (116 ⑥)`, b)]),
+      ...['avatars','doc-images','chat-images','question-images','history','kypt','seminar','labmap','chat-files','chat-videos'].map(b=>[`버킷 ${b} 비공개 (116 ⑥)`, ()=>chkBucketPrivate(`버킷 ${b} 비공개 (116 ⑥)`, b)]),
       hsF('anda_withdraw_user — 탈퇴 처리 (116 · 서버 전용)', 'anda_withdraw_user'),
       ['Edge withdraw-self — 즉시 탈퇴 (116)', ()=>chkEdgeFn('Edge withdraw-self — 즉시 탈퇴 (116)','withdraw-self')],
       hsF('anda_purge_old — 보관 기간 자동 삭제 (117)', 'anda_purge_old'),
@@ -14058,7 +14211,7 @@ async function renderMaintenance(target){
           <td><button class="abtn" id="gcDocBtn">${ic('broom')}찾기</button></td>
         </tr>
         <tr>
-          <td><b>채팅 사진 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요). <b>세미나 사진은 건너뛰어요</b>(영구 보존)</div></td>
+          <td><b>채팅 사진 · 영상 30일 정리</b><div class="hs-note">관리자가 접속하면 <b>하루 한 번 자동 실행</b>됩니다 (버튼 불필요). 사진은 <b>세미나 사진을 건너뛰고</b>(영구 보존), 채팅 · 질문 영상(chat-videos)은 <b>세미나 것까지 모두</b> 30일 뒤 지워요(138)</div></td>
           <td id="gcChatMsg" class="hs-dt">${gcAt?('마지막 자동 정리: '+escapeHtml(fmtKST(new Date(gcAt).toISOString()))):'아직 자동 정리 기록이 없어요.'}</td>
           <td><button class="abtn" id="gcChatBtn">${ic('refresh')}지금 실행</button></td>
         </tr>
@@ -14078,7 +14231,7 @@ async function renderMaintenance(target){
           <td><button class="abtn" id="mtKyptBtn">${ic('broom')}찾기</button></td>
         </tr>
         <tr>
-          <td><b>채팅 파일 · 영상</b><div class="hs-note">📎로 올린 파일(chat-files, 130). 압축하지 않아 용량을 빨리 써요 — 일반 채팅방 파일만 오래된 것부터 지울 수 있어요. <b>세미나 파일은 영구 보존</b>이라 건너뛰어요.</div></td>
+          <td><b>채팅 파일</b><div class="hs-note">📎로 올린 파일(chat-files, 130 — 영상은 이제 chat-videos로 가서 30일 뒤 자동 삭제). 압축하지 않아 용량을 빨리 써요 — 일반 채팅방 파일만 오래된 것부터 지울 수 있어요. <b>세미나 파일은 영구 보존</b>이라 건너뛰어요.</div></td>
           <td id="mtCfMsg" class="hs-dt">아직 보지 않았어요.</td>
           <td><button class="abtn" id="mtCfBtn">${ic('broom')}용량 보기</button></td>
         </tr>
@@ -14098,6 +14251,8 @@ async function renderMaintenance(target){
         <tr><th style="width:190px">무엇을</th><th>언제 · 어디서</th></tr>
         ${[
           ['채팅 사진 30일 (세미나 사진 제외)', '관리자가 앱을 열면 하루 한 번(이 브라우저)'],
+          ['채팅 · 질문 영상 30일 (세미나 포함)', '관리자가 앱을 열면 하루 한 번(이 브라우저) — 기간이 지난 영상은 그 전에도 화면에서 \'만료\'로 보이고 받지 않아요 (138)'],
+          ['논문 열람기 — 최근 파일', '그 기기에만 최근 10개(합계 400MB)까지, 넘으면 오래된 것부터 지움 (서버에 안 올라감)'],
           ['세미나 기록 전부', '지우지 않음 — 세미나를 연 사람이 세미나를 지울 때만 (131)'],
           ['가입 기록의 이메일', '1시간 뒤 서버가 지움 (116 · pg_cron)'],
           ['가입 기록 · 푸시 기록 30일, 의견 · 문의 1년', '매일 04:10 서버가 지움 (117 anda_purge_old)'],
@@ -14228,6 +14383,9 @@ async function renderMaintenance(target){
       ? `${icOk()} ${r.deleted}개 삭제 · ${escapeHtml(fmtBytes(r.bytes))} 회수 (전체 ${r.scanned}개 검사)`
       : `${icOk()} 30일 지난 사진이 없어요 (전체 ${r.scanned}개 검사)`;
     if(r.kept) msg.innerHTML += ` · 세미나 사진 ${r.kept}개는 영구 보존`;
+    if(typeof AndaVideo!=='undefined'){ const v=await AndaVideo.cleanExpired(true);   // ★DG-2 영상도 함께
+      if(v && !v.error) msg.innerHTML += ` · 30일 지난 영상 ${v.deleted}개${v.deleted?' ('+escapeHtml(fmtBytes(v.bytes))+')':''} 정리`;
+      else if(v && v.error && !/not.?found/i.test(v.error)) msg.innerHTML += ` · 영상 정리 실패: ${escapeHtml(v.error)}`; }
   };
 }
 /* ================== 시스템 (owner 전용) ==================
@@ -14602,7 +14760,8 @@ const LIMIT_FIELDS = [
     { title:'채팅 메시지',  note:'한 번에 보내는 메시지 한 개', controls:[ {key:'lim_chat_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_chat_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
     { title:'질문 본문',      note:'질문 게시판에 올리는 글', controls:[ {key:'lim_q_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_m}, {key:'lim_q_img_kb', kind:'kb', label:'사진 합계(질문 1건)', presets:LIM_PRESETS.kb_m} ] },
     { title:'질문 답변',      note:'답변 한 개', controls:[ {key:'lim_ans_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_ans_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
-    { title:'채팅 파일 · 영상', note:'📎로 올리는 파일 1개(압축 없음). 서버 버킷 상한이 50MB라 그보다 크게는 올라가지 않아요(130). 긴 영상은 YouTube 링크로.', controls:[ {key:'lim_chat_file_kb', kind:'mb', label:'파일 1개', presets:[5, 10, 20, 30, 50], min:1, max:50} ] },
+    { title:'채팅 · 질문 영상 (30일)', note:'채팅 📎 · 질문 [영상 추가]로 올리는 영상 1개. 올리기 전에 언제나 480p로 줄이고(1분 ≈ 7.5MB), 넘으면 앞부분만 올리거나 YouTube 링크를 권해요. 30일 뒤 자동으로 사라져요(138). 문서 · KYPT는 YouTube 링크만.', controls:[ {key:'lim_video_kb', kind:'mb', label:'영상 1개', presets:[5, 10, 15, 25, 30], min:1, max:30} ] },
+    { title:'채팅 파일', note:'📎로 올리는 파일 1개(압축 없음 · 영상 제외). 서버 버킷 상한이 50MB라 그보다 크게는 올라가지 않아요(130).', controls:[ {key:'lim_chat_file_kb', kind:'mb', label:'파일 1개', presets:[5, 10, 20, 30, 50], min:1, max:50} ] },
     { title:'쪽지',           note:'쪽지 한 통', controls:[ {key:'lim_dm_chars', kind:'chars', label:'글자수', presets:LIM_PRESETS.chars_s}, {key:'lim_dm_img_kb', kind:'kb', label:'사진 1장', presets:LIM_PRESETS.kb_s} ] },
   ]},
   { sec:'문서', items:[
@@ -14697,7 +14856,8 @@ async function renderSysMaint(){
    ════════════════════════════════════════════════════════════════ */
 const ST_BUCKETS={
   'doc-images':['문서 사진','문서 · 기자재 · 사진 창고 — 지우기 전까지 보관'], 'chat-images':['채팅 사진','30일 지나면 자동 삭제(세미나 사진은 보존)'],
-  'chat-files':['채팅 파일 · 영상','압축하지 않아 빨리 차요 — [유지 보수]에서 오래된 것 정리'], 'question-images':['질문 사진','지우기 전까지 보관'],
+  'chat-files':['채팅 파일','압축하지 않아 빨리 차요 — [유지 보수]에서 오래된 것 정리'], 'question-images':['질문 사진','지우기 전까지 보관'],
+  'chat-videos':['채팅 · 질문 영상','480p로 줄여 저장 · 30일 지나면 자동 삭제(관리자 기기에서 매일, 138)'], 'doc-media':['(안 씀) 예전 영상 저장소','DG 첫 138로 생겼다면 비어 있을 때 지워도 돼요'],
   'avatars':['프로필 사진','256px로 줄여 저장'], 'seminar':['세미나 슬라이드','세미나를 연 사람이 지울 때까지 보관'], 'kypt':['KYPT 자료함','실험 기록 · 자료 파일'],
   'labmap':['물리실 도면',''], 'landing':['대문 사진',''], 'history':['연혁','story.json + 사진'],
 };
@@ -14711,8 +14871,8 @@ const ST_TABLES={
 const ST_SCHEMAS={ public:'내 데이터(public)', auth:'로그인 · 계정(auth)', storage:'저장소 파일 목록(storage)', realtime:'실시간(realtime)', cron:'예약 작업(cron)', net:'외부 호출(net)', pg_catalog:'DB 자체(시스템)', supabase_functions:'Edge 함수 기록', vault:'비밀값(vault)', extensions:'확장', graphql:'GraphQL' };
 const ST_DEVICE=[
   ['anda_graph_v1','그래프 그리기 — 표 · 설정'], ['anda_tr_v1','영상 분석 — 저장한 점'], ['anda_tr_pref','영상 분석 — 설정'], ['anda_tabs_','도구 — 열린 탭'], ['anda_hist_','도구 — 닫은 탭 기록'],
-  ['anda_err_v1','오차 분석'], ['anda_kt_','KYPT 발표 타이머'], ['anda_tw_','도구 창 위치 · 크기'], ['anda_draft','문서 임시 저장본'], ['anda_kypt_draft','KYPT 임시 저장본'],
-  ['anda_tree_bulk_draft','분류 한꺼번에 만들기 초안'], ['anda_photos','사진 창고'], ['sb-','로그인 정보'],
+  ['anda_err_v1','오차 분석(메뉴에서 뺌)'], ['anda_ij_','이미지 분석 — 측정 · 축척 (사진은 IndexedDB anda_imagej)'], ['anda_kt_','KYPT 발표 타이머'], ['anda_tw_','도구 창 위치 · 크기'], ['anda_draft','문서 임시 저장본'], ['anda_kypt_draft','KYPT 임시 저장본'],
+  ['anda_tree_bulk_draft','분류 한꺼번에 만들기 초안'], ['anda_photos','사진 창고'], ['anda_rdr_','논문 열람기 — 설정 (읽던 위치 · 최근 파일은 IndexedDB anda_reader)'], ['anda_vid_gc_at','영상 30일 정리 — 마지막 실행'], ['sb-','로그인 정보'],
 ];
 function stPct(u,l){ return l>0 ? Math.min(100, u/l*100) : 0; }
 function stCol(p){ return p>=90 ? 'var(--link-red, var(--accent))' : p>=70 ? 'var(--warn)' : 'var(--ok)'; }
@@ -15427,6 +15587,9 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-07', text:"[도구] 새 도구 '이미지 분석(ImageJ식)' — 사진을 열고 자 · 눈금으로 축척을 맞춘 뒤 길이 · 각도 · 넓이 · 둘레 · 밝기를 재고, 선을 따라 밝기 프로파일(간섭 무늬 간격 자동 계산) · 히스토그램 · 입자 세기를 해요. 결과는 CSV나 그래프 그리기로 보낼 수 있고, 사진은 올리지 않아요. 도구 목록의 '오차 분석'은 뺐어요." },
+  { date:'2026-10-07', text:"[문서] 새 문서 틀을 새로 짰어요. 묶음(기본 · 연구·KYPT · 기자재·도구 · 사람·동아리)과 찾기로 고르고, 어떤 제목과 표가 들어가는지 미리 봐요. 논문 정리 · 세미나 노트 · 문제 해결 기록이 새로 생겼고, 뼈대의 '✎ 작성 안내'는 채운 뒤 그 줄을 지우면 사라져요." },
+  { date:'2026-10-07', text:"[물리실] 채팅 📎와 질문 [영상 추가]로 영상을 올릴 수 있어요. 올리기 전에 480p로 줄여(1분 ≈ 7.5MB) 그 자리에서 재생되고, 30일 뒤 자동으로 사라져요. 문서 · KYPT에는 YouTube 링크만 넣을 수 있고(편집기 [영상]), 누르면 앱 안에서 YouTube가 재생돼요." },
   { date:'2026-10-07', text:"[도구] 논문 열람기가 생겼어요. 채팅 · KYPT 자료함의 PDF를 누르거나 [도구 → 논문 열람기]에서 파일을 고르면 앱 안에서 주변을 어둡게 하고 종이만 보여 줘요. 오른쪽 동그라미로 🔒개인(나만) / 👥공용(회원 모두)을 고르고 형광펜 · 펜 · 글자 형광펜 · 메모를 남길 수 있어요. 태블릿에선 펜으로만 쓰고 손가락은 넘기기 · 확대(두 손가락 톡 = 되돌리기). 화면 일부를 캡처해 띄워 두거나 질문으로 올릴 수 있고, 왼쪽엔 자동으로 만든 목차가 있어 📌로 고정할 수 있어요." },
   { date:'2026-10-04', text:"[문서] 문서 맨 위 분류 경로(예: 기자재 › 전자·코딩 › 소자·브레드보드)를 누르면 그 분류 페이지가 열려요 — 나무위키 '분류:' 문서처럼 하위 분류와 그 분류에 든 문서가 보이고, 분류마다 주소(#//cat/번호)가 있어 링크로 보낼 수 있어요. 분류 나무의 ··· 메뉴에도 [분류 페이지 열기]가 생겼어요. 편집기에 [＋ 물품 세트] 단추가 생겨 종류를 하나씩 더 붙일 수 있고, 새 세트는 맨 아래 '관련 문서' 앞에 들어가요." },
   { date:'2026-10-04', text:"[도구] 영상 분석의 [그래프로 보내기]가 안 보이던 문제를 고쳤어요(문서 분류 나무의 단추와 이름이 겹쳐 투명하게 숨어 있었어요). 이제 위 도구 줄에도 있고, 오른쪽 칸 맨 아래 단추 줄은 늘 보여요. 오차 분석은 [＋ 변수]로 변수를 직접 만들어 값을 넣고, 이름을 누르면 식에 들어가요. 식이 잠깐 틀려도 넣은 값은 그대로 남고, v₀ 같은 아래 첨자 · ½ · 10⁻³도 써요." },
@@ -18773,6 +18936,7 @@ function kv2BindAssetRows(box, p, e, canEd){
       try{
         const { data, error } = await sb.storage.from('kypt').createSignedUrl(b.dataset.open, 3600);
         if(error || !data || !data.signedUrl) throw error||new Error('no url');
+        if(typeof AndaVideo!=='undefined' && /\.(mp4|webm|mov|m4v|ogv)$/i.test(b.dataset.open)){ AndaVideo.play(data.signedUrl, (b.textContent||'').trim()); return; }   // ★DG 영상은 이 자리에서
         if(/\.pdf$/i.test(b.dataset.open) && featOn('reader') && typeof openPaperReader==='function'){ openPaperReader({ url:data.signedUrl }, { title:(b.textContent||'').trim().replace(/\.pdf$/i,''), origin:'KYPT 자료함' }); return; }   // ★DF 논문 열람기
         window.open(data.signedUrl, '_blank', 'noopener');
       }catch(x){ toast('파일을 열지 못했어요.'); }
@@ -18834,6 +18998,9 @@ async function kv2AddLink(p, url, note){
   return (_kv2[p.id].assets.find(a=>a.id===data.id)) || { id:data.id };
 }
 async function kv2Upload(p, e, file, note){
+  if(/^video\//.test(file.type||'') || /\.(mp4|webm|mov|m4v|ogv|mkv|avi)$/i.test(file.name||'')){   // ★DG-2: KYPT엔 영상 파일 대신 YouTube 링크
+    toast('KYPT 자료함엔 영상 파일 대신 YouTube 링크를 넣어 주세요 — YouTube에 "일부 공개"로 올린 뒤 [링크 추가]. 앱 안에서 바로 재생돼요.', 5200); return null;
+  }
   if(file.size > kyptUploadMax()){ toast(`파일은 ${Math.round(kyptUploadMax()/1024/1024)}MB까지예요. 긴 영상은 YouTube 미등록 링크로 올려 주세요.`); return null; }
   const safe = String(file.name||'file').replace(/[^\w.\-가-힣]+/g,'_').slice(0,80);
   const path = `p${p.id}/e${e?e.id:0}/${Date.now()}_${safe}`;
@@ -20235,12 +20402,16 @@ async function uploadChatFiles(files, onMsg){
   try{
     for(let i=0;i<files.length;i++){ const f=files[i];
       if(onMsg) onMsg(`파일 올리는 중… ${i+1}/${files.length} · ${f.name} (${fmtBytes(f.size)})`);
+      if(f.__andaVid && typeof AndaVideo!=='undefined'){   // ★DG-2: 줄인 영상 → chat-videos(30일) · 표지 함께
+        const u=await AndaVideo.upload(f.__andaVid, onMsg);
+        out.push({ path:u.path, name:String(f.name||'영상').slice(0,120), size:u.size||0, type:f.type||'video/mp4', bucket:AndaVideo.BUCKET, poster:u.posterPath||'' }); continue; }
       const path=`${me}/${Date.now().toString(36)}${Math.random().toString(36).slice(2,6)}/${chatFileSafeName(f.name)}`;
       const up=await sb.storage.from('chat-files').upload(path, f, { contentType:f.type||'application/octet-stream', cacheControl:'31536000', upsert:false });
       if(up.error) throw up.error;
       out.push({ path, name:String(f.name||'파일').slice(0,120), size:f.size||0, type:f.type||'' });
     }
-  }catch(e){ if(out.length){ try{ await sb.storage.from('chat-files').remove(out.map(x=>x.path)); }catch(_){} } throw e; }
+  }catch(e){ if(out.length){ try{ const cf=out.filter(x=>!x.bucket); if(cf.length) await sb.storage.from('chat-files').remove(cf.map(x=>x.path));
+      const cv=out.filter(x=>x.bucket); if(cv.length) await sb.storage.from(cv[0].bucket).remove(cv.flatMap(x=>[x.path].concat(x.poster?[x.poster]:[]))); }catch(_){} } throw e; }
   return out;
 }
 function chatFileErrMsg(e){
@@ -20256,6 +20427,10 @@ function addChatFiles(list){
   for(const f of list){
     if(chatFilesPick.length>=CHAT_FILE_MAX_N){ warn.push(`파일은 한 번에 ${CHAT_FILE_MAX_N}개까지예요.`); break; }
     if(!f.size){ warn.push(`'${f.name}'은 빈 파일이에요.`); continue; }
+    if(typeof AndaVideo!=='undefined' && fileKindOf(f.name,f.type)==='video'){   // ★DG-2: 영상은 언제나 줄여서 · chat-videos(30일 뒤 만료)
+      AndaVideo.prepare(f, { purpose:'채팅' }).then(r=>{ if(!r) return; if(chatFilesPick.length>=CHAT_FILE_MAX_N){ toast(`파일은 한 번에 ${CHAT_FILE_MAX_N}개까지예요.`); return; }
+        const nf=r.blob instanceof File ? r.blob : new File([r.blob], r.name, { type:r.blob.type||'video/mp4' }); nf.__andaVid=r; chatFilesPick.push(nf); drawChatFileTray(); });
+      continue; }
     if(f.size>max){ warn.push(`'${f.name}'(${fmtBytes(f.size)})은 ${fmtBytes(max)}를 넘어요.${fileKindOf(f.name,f.type)==='video'?' 긴 영상은 YouTube(일부 공개) 링크로 붙여 주세요.':''}`); continue; }
     chatFilesPick.push(f);
   }
@@ -20277,6 +20452,9 @@ function pickChatFiles(){
 function msgFilesHTML(files, mine){
   const arr=Array.isArray(files)?files:[]; if(!arr.length) return '';
   return `<div class="msg-files${mine?' mine':''}">${arr.map(f=>{
+    if(f.bucket && typeof AndaVideo!=='undefined' && f.bucket===AndaVideo.BUCKET){   // ★DG-2: 30일 영상
+      const pub=p=>{ try{ return sb.storage.from(f.bucket).getPublicUrl(p).data.publicUrl; }catch(e){ return ''; } };
+      return `<div class="mf mf-video">${AndaVideo.embedHTML(pub(f.path), { poster:f.poster?pub(f.poster):'', name:f.name })}</div>`; }
     const k=fileKindOf(f.name,f.type), url=chatFileUrl(f.path), dl=url+(url.includes('?')?'&':'?')+'download='+encodeURIComponent(f.name||'file');
     const cap=`<span class="mf-cap"><span class="mf-ic">${FILE_ICON[k]}</span><span class="mf-n" title="${escapeAttr(f.name||'')}">${escapeHtml(f.name||'파일')}</span><small>${escapeHtml(fmtBytes(f.size||0))}</small><a class="mf-dl" href="${escapeAttr(dl)}" download="${escapeAttr(f.name||'file')}" title="내려받기">저장</a></span>`;
     if(k==='video') return `<div class="mf mf-video"><video controls preload="metadata" playsinline src="${escapeAttr(url)}"></video>${cap}</div>`;
@@ -21004,7 +21182,8 @@ async function renderQuestion(qid){
             ${canDel?`<button class="qh-del" id="qDel" title="${isPost?'게시글 삭제':'질문 삭제'}"${canEditQ?'':' style="margin-left:auto"'}>${ic('trash')}</button>`:''}
           </div>
           <h2 class="qh-title">${kindTag}${escapeHtml(q.title||'')}</h2>
-          ${q.body?`<div class="qh-body">${escapeHtml(q.body)}</div>`:''}
+          ${(()=>{ const vl=[]; const tx=String(q.body||'').replace(/^\[\[영상:\s*(.+?)\]\]\s*$/gm,(m0,u)=>{ vl.push(u); return ''; }).trim();   // ★DG 질문 속 영상
+            return (tx?`<div class="qh-body">${escapeHtml(tx)}</div>`:'')+(vl.length?`<div class="qh-vids">${vl.map(u=>{ const y=ytIdOf(u.replace(/\s*\|.*$/,'')); return y ? wVideo(u) : (typeof AndaVideo!=='undefined' ? AndaVideo.embedHTML(u) : ''); }).join('')}</div>`:''); })()}
           ${imgs?`<div class="qh-imgs">${imgs}</div>`:''}
           <div class="kind-note">${kindNote}</div>
         </div>
@@ -21124,8 +21303,9 @@ function openQuestionCompose(asPost, pre){
     <div class="modal-sub">이미지는 <b>몇 장이든</b> 올릴 수 있어요. 질문 하나당 합계 <b>100KB</b>가 되도록 자동으로 압축됩니다.</div>
     <input id="qcTitle" type="text" maxlength="200" placeholder="질문 제목" style="width:100%;margin-top:12px;padding:9px 10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;background:var(--card);color:var(--text)">
     <textarea id="qcBody" rows="5" maxlength="${LIMITS.lim_q_chars}" placeholder="궁금한 내용을 자세히 적어주세요… (최대 ${LIMITS.lim_q_chars}자)" style="width:100%;margin-top:8px;padding:10px;border:1px solid var(--border-strong);border-radius:8px;font:inherit;font-size:14px;resize:vertical;background:var(--card);color:var(--text)"></textarea>
-    <div style="margin-top:8px"><button class="btn ghost" id="qcPick">이미지 추가</button>
+    <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn ghost" id="qcPick">이미지 추가</button>${typeof AndaVideo!=='undefined'?'<button class="btn ghost" id="qcVid" title="영상 1개 — 480p로 줄여 올리고 30일 뒤 사라져요. 오래 남길 영상은 YouTube 링크를 본문에 붙여 주세요">영상 추가 (30일)</button>':''}
       <input type="file" id="qcFile" accept="image/*" multiple style="display:none"></div>
+    <div class="qc-vid" id="qcVidBox" style="display:none;margin-top:6px;font-size:13px;color:var(--text-dim)"></div>
     <div class="qc-thumbs" id="qcThumbs"></div>
     <div class="modal-sub" id="qcMsg" style="min-height:16px"></div>
     <div class="modal-btns">
@@ -21140,6 +21320,11 @@ function openQuestionCompose(asPost, pre){
   ov.querySelector('#qcCancel').onclick=close;
   ov.querySelector('#qcPick').onclick=()=>ov.querySelector('#qcFile').click();
   ov.querySelector('#qcTitle').focus();
+  let pickedVid=null;                                     // ★DG: 영상 1개 (AndaVideo.prepare 결과)
+  const drawVid=()=>{ const b=ov.querySelector('#qcVidBox'); if(!b) return; b.style.display=pickedVid?'block':'none';
+    b.innerHTML=pickedVid?`🎬 ${escapeHtml(pickedVid.name)} · ${AndaVideo.fmtB(pickedVid.blob.size)}${pickedVid.shrunk?' (줄임)':''} <button type="button" class="qc-x" id="qcVidX" style="position:static;margin-left:6px">×</button>`:'';
+    const x=ov.querySelector('#qcVidX'); if(x) x.onclick=()=>{ pickedVid=null; drawVid(); }; };
+  { const vb=ov.querySelector('#qcVid'); if(vb) vb.onclick=async()=>{ const fs=await AndaVideo.pick(false); if(!fs.length) return; const r=await AndaVideo.prepare(fs[0], { purpose:'질문' }); if(r){ pickedVid=r; drawVid(); } }; }
 
   const drawThumbs=()=>{
     const box=ov.querySelector('#qcThumbs');
@@ -21187,8 +21372,10 @@ function openQuestionCompose(asPost, pre){
           urls.push(pub.data.publicUrl);
         }
       }
+      let qbody=body;
+      if(pickedVid){ const u=await AndaVideo.upload(pickedVid, t=>{ msg.textContent=t; }); qbody=(body?body+'\n\n':'')+AndaVideo.line(u); }   // ★DG
       msg.textContent='등록 중…';
-      const { data, error } = await sb.rpc('create_question', { p_title:title, p_body:body, p_images:urls });
+      const { data, error } = await sb.rpc('create_question', { p_title:title, p_body:qbody, p_images:urls });
       if(error) throw error;
       if(asPost){ try{ await sb.rpc('mark_post', { p_id: data }); }catch(e){} }   // 게시글로 전환(2분 내 본인 글만) — 실패해도 질문으로 남아 글은 살아있다
       close();
@@ -21442,7 +21629,7 @@ async function renderCommunity(){
             </svg>
           </button>
           <button class="cimg-btn" id="chatImgBtn" title="사진 첨부 (최대 5장 · Ctrl+V 가능) · 1장 ${LIMITS.lim_chat_img_kb}KB로 자동 압축">${ic2('camera','ic20')}</button>
-          <button class="cimg-btn cfile-btn" id="chatFileBtn" title="파일 · 영상 첨부 (PDF · 문서 · 영상 · 음성 — 1개 ${Math.round(chatFileMaxBytes()/1024/1024)}MB까지, 한 번에 ${CHAT_FILE_MAX_N}개) · 채팅창에 끌어 놓아도 돼요" aria-label="파일 첨부"><svg class="ic20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5l-8.2 8.2a5 5 0 0 1-7.1-7.1l8.6-8.6a3.4 3.4 0 0 1 4.8 4.8l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg></button>
+          <button class="cimg-btn cfile-btn" id="chatFileBtn" title="파일 · 영상 첨부 (PDF · 문서 · 음성 — 1개 ${Math.round(chatFileMaxBytes()/1024/1024)}MB까지, 한 번에 ${CHAT_FILE_MAX_N}개 · 영상은 480p로 줄여 올리고 30일 뒤 사라져요) · 채팅창에 끌어 놓아도 돼요" aria-label="파일 첨부"><svg class="ic20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 11.5l-8.2 8.2a5 5 0 0 1-7.1-7.1l8.6-8.6a3.4 3.4 0 0 1 4.8 4.8l-8.6 8.6a1.7 1.7 0 0 1-2.4-2.4l7.9-7.9"/></svg></button>
           <textarea id="chatText" maxlength="${LIMITS.lim_chat_chars}" rows="1" placeholder="메시지를 입력하고 Enter로 전송 · Ctrl+Enter 줄바꿈 (수식: $x^2$) · 최대 ${LIMITS.lim_chat_chars}자"></textarea>
           <button id="chatSend">전송</button>
         </div>
@@ -23536,7 +23723,8 @@ const LIMITS = {
   /* ★세션 CQ: 고정값이던 것 2개를 상한 화면으로 (기본값은 예전 고정값 그대로) */
   lim_sem_pdf_kb:20480,         // 세미나 PDF 파일 1개 (예전 SEM_PDF_MAX 20MB)
   lim_labmap_img_kb:700,        // 물리실 도면 사진 (예전 700KB 고정)
-  lim_chat_file_kb:51200        // ★CR 채팅 파일 1개(130 chat-files 버킷 상한 50MB와 같게)
+  lim_chat_file_kb:51200,       // ★CR 채팅 파일 1개(130 chat-files 버킷 상한 50MB와 같게)
+  lim_video_kb:15360            // ★DG-2 채팅 · 질문 영상 1개(줄인 뒤) — 138 chat-videos 버킷(30MB · 30일)
 };
 async function loadLimits(){
   try{
@@ -25354,7 +25542,7 @@ window.addEventListener('resize', ()=>{ clearTimeout(ATW._rt); ATW._rt=setTimeou
 const ANDA_TOOLS=[
   { id:'graph', name:'그래프 그리기', sub:'표 · CSV · 붙여넣기 → 실험 그래프, 맞춤 · 오차 막대 · 내보내기', icon:ATW_ICON.graph, open:()=>openGraphTool() },
   { id:'tracker', name:'영상 분석 (Tracker)', sub:'실험 영상에서 물체 위치를 찍어 시간 · 위치 · 속도 표로 — 원본 화질, 업로드 없음', icon:ATW_ICON.track, open:()=>openTracker() },
-  { id:'errcalc', name:'오차 분석', sub:'식과 측정값 ± 오차 → 결과 ± 오차, 어느 값이 오차를 키우는지', icon:ATW_ICON.err, open:()=>openErrCalc() },
+  { id:'imagej', name:'이미지 분석 (ImageJ식)', sub:'사진에서 길이 · 각도 · 넓이 · 밝기 재기, 밝기 프로파일 · 입자 세기 — 업로드 없음', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>', open:()=>openImageLab() },   // ★DH (오차 분석은 메뉴에서 뺐다 — 사용자 결정, 코드 openErrCalc는 남겨 둠)
   { id:'reader', name:'논문 열람기', sub:'PDF를 앱 안에서 — 형광펜 · 메모 · 캡처를 개인 / 공용으로, 자동 목차', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5c2.8-1.2 5.6-1.2 8.5.5 2.9-1.7 5.7-1.7 8.5-.5v13c-2.8-1.2-5.6-1.2-8.5.5-2.9-1.7-5.7-1.7-8.5-.5z"/><path d="M12 6v13"/></svg>', open:()=>openPaperReader(), hide:()=>!featOn('reader') },
   { id:'kytimer', name:'KYPT 발표 타이머', sub:'Physics Fight 단계별 시간 · 소리 · 발표장 큰 화면', icon:ATW_ICON.timer, open:()=>openKyptTimer() },
 ];
@@ -28136,6 +28324,981 @@ body.rdr-open .qc-ov{ z-index:1260; }
 }
 @media (prefers-reduced-motion:reduce){ .rdr *, .rdr-bg{ animation:none !important; transition:none !important; } }
 </style>
+<style id="anda-imagej-css">
+/* ★세션 DH: 이미지 분석 (ij-) */
+.ij{ position:relative; flex:1; min-width:0; display:flex; flex-direction:column; min-height:0; background:var(--card); color:var(--text); }
+.ij-tb{ display:flex; align-items:center; gap:6px; padding:6px 8px; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+.ij-tools{ display:flex; gap:2px; flex-wrap:wrap; }
+.ij-tool.on{ background:var(--accent); color:#fff; border-color:var(--accent); }
+.ij-zoom{ font-family:var(--mono); font-size:12px; color:var(--text-dim); min-width:46px; text-align:center; }
+.ij-cam{ display:none; }
+@media (hover:none){ .ij-cam{ display:inline-flex; } }
+.ij-main{ flex:1; min-height:0; display:grid; grid-template-columns:minmax(0,1fr) 330px; }
+.ij-stage{ position:relative; min-height:0; overflow:hidden; background:repeating-conic-gradient(#d9d6d6 0 25%, #eceaea 0 50%) 0 0/18px 18px; touch-action:none; outline:none; cursor:crosshair; }
+body.dark .ij-stage{ background:repeating-conic-gradient(#2a2627 0 25%, #221f20 0 50%) 0 0/18px 18px; }
+.ij-stage[data-tool="hand"], .ij-stage.ij-grab{ cursor:grab; }
+.ij-stage[data-tool="sel"]{ cursor:default; }
+.ij-stage.drag{ box-shadow:inset 0 0 0 3px var(--accent); }
+.ij-cv{ position:absolute; inset:0; width:100%; height:100%; display:block; }
+.ij-empty{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; text-align:center; pointer-events:none; }
+.ij-empty[hidden]{ display:none; }
+.ij-empty > div{ display:flex; flex-direction:column; align-items:center; gap:6px; padding:22px 26px; border:2px dashed var(--border-strong); border-radius:16px; background:var(--card); max-width:340px; }
+.ij-empty .gt-i{ width:34px; height:34px; color:var(--accent); }
+.ij-empty b{ font-size:15px; } .ij-empty span{ font-size:12.5px; color:var(--text-dim); line-height:1.55; }
+.ij-hint{ position:absolute; left:50%; top:10px; transform:translateX(-50%); max-width:92%; padding:6px 12px; border-radius:99px; background:rgba(20,16,18,.82); color:#fff; font-size:12px; pointer-events:none; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.ij-hint[hidden]{ display:none; }
+.ij-side{ border-left:1px solid var(--border); display:flex; flex-direction:column; min-height:0; }
+.ij-stabs{ display:flex; gap:2px; padding:6px; border-bottom:1px solid var(--border); }
+.ij-stabs button{ flex:1; height:30px; border:0; border-radius:8px; background:transparent; color:var(--text-dim); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; }
+.ij-stabs button.on{ background:var(--box-bg); color:var(--text); }
+.ij-pane{ flex:1; min-height:0; overflow:auto; padding:10px; font-size:12.5px; }
+.ij-pane[hidden]{ display:none; }
+.ij-pane h4{ margin:14px 0 6px; font-size:12.5px; } .ij-pane h4:first-child{ margin-top:0; } .ij-pane h4 small{ font-weight:400; color:var(--text-dim); }
+.ij-note{ color:var(--text-dim); font-size:12px; line-height:1.55; margin:4px 0 8px; }
+.ij-row{ display:flex; align-items:center; gap:6px; margin:6px 0; flex-wrap:wrap; }
+.ij-f{ display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--text-dim); }
+.ij-f input[type=range]{ flex:1; min-width:90px; accent-color:var(--accent); }
+.ij-in{ height:28px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; font-size:12.5px; padding:0 6px; }
+.ij-chk{ display:flex; align-items:center; gap:6px; margin:4px 0; cursor:pointer; } .ij-chk input{ accent-color:var(--accent); }
+.ij-thv{ font-family:var(--mono); font-size:12px; min-width:30px; text-align:right; }
+.ij-cal{ display:flex; align-items:center; gap:8px; justify-content:space-between; padding:8px 10px; border-radius:10px; background:var(--box-bg); border:1px solid var(--border); margin-bottom:8px; }
+.ij-tblw{ overflow:auto; max-height:260px; border:1px solid var(--border); border-radius:10px; }
+.ij-res{ width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
+.ij-res th{ position:sticky; top:0; background:var(--table-head); font-weight:600; text-align:right; padding:5px 6px; white-space:nowrap; }
+.ij-res th small{ display:block; font-weight:400; color:var(--text-dim); font-size:10.5px; }
+.ij-res td{ text-align:right; padding:4px 6px; border-top:1px solid var(--border); white-space:nowrap; }
+.ij-res td:nth-child(2), .ij-res th:nth-child(2){ text-align:left; }
+.ij-res td:first-child{ text-align:left; } .ij-res td i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px; }
+.ij-res tr{ cursor:pointer; } .ij-res tr:hover td{ background:var(--box-bg); } .ij-res tr.on td{ background:var(--red-50); }
+body.dark .ij-res tr.on td{ background:color-mix(in srgb, var(--accent) 16%, var(--card)); }
+.ij-del{ width:24px; height:24px; }
+.ij-acts{ margin-top:8px; }
+.ij-detail{ margin-top:10px; padding:10px; border:1px solid var(--border); border-radius:10px; }
+.ij-detail > b{ display:block; margin-bottom:4px; }
+.ij-detail > div:not(.ij-row){ display:flex; justify-content:space-between; gap:10px; padding:3px 0; border-top:1px dashed var(--border); }
+.ij-detail > div > span:first-child{ color:var(--text-dim); } .ij-detail > div > span:last-child{ font-family:var(--mono); font-size:12px; text-align:right; }
+.ij-plot{ display:block; width:100%; height:150px; border:1px solid var(--border); border-radius:8px; background:var(--card); }
+.ij-peaks, .ij-hstat{ margin:6px 0; font-size:12px; line-height:1.55; } .ij-peaks small{ display:block; color:var(--text-dim); }
+.ij-th{ padding:6px 0; } .ij-th[hidden]{ display:none; }
+.ij-status{ display:flex; gap:14px; align-items:center; padding:4px 10px; border-top:1px solid var(--border); font-family:var(--mono); font-size:11.5px; color:var(--text-dim); min-height:26px; flex-wrap:wrap; }
+.ij-warn{ color:var(--warn); font-family:inherit; }
+.ij-wrap .gt-btn{ flex:1 1 auto; }
+.ij.narrow .ij-main{ grid-template-columns:1fr; grid-template-rows:minmax(240px,1fr) minmax(0,46%); }
+.ij.narrow .ij-side{ border-left:0; border-top:1px solid var(--border); }
+</style>
+<script id="anda-imagej-js">
+/* ================================================================
+   ★세션 DH: 이미지 분석 (ImageJ식) — 떠 있는 도구 창 · 탭 여러 개
+   사진 한 장에서: 축척 맞추기 → 길이 · 각도 · 넓이 · 둘레 · 밝기 재기 → 결과 표 → CSV / 그래프로 보내기
+   · 도구: 손 · 축척 · 직선 · 꺾은선 · 각도 · 사각형 · 타원 · 다각형 · 자유 곡선 · 점 세기 · 고르기
+   · 분석: 선 밝기 프로파일(간섭 · 회절 무늬) · 히스토그램 · 이진화(오츠 자동) + 입자 분석(개수 · 넓이 · 중심 · 원형도)
+   · 보기 조정(밝기 · 대비 · 감마 · 회색조 · 반전 — 재는 값은 언제나 원본 밝기) · 90° 회전 · 뒤집기 · 고른 선을 수평으로 · 사각형으로 자르기
+   · 저장: 이 기기에만(IndexedDB anda_imagej = 사진, localStorage anda_ij_<탭> = 측정 · 축척 · 조정). 서버로 안 보낸다.
+   의존: ATW · ToolTabs · ATW_LS · ATW_say · ATW_esc · openGraphTool (도구 스크립트)
+   ================================================================ */
+(function(){
+'use strict';
+const esc=s=>ATW_esc(s);
+if(typeof ATW_ICON!=='undefined' && !ATW_ICON.img) ATW_ICON.img='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/><path d="M14 3.5v3M12.5 5h3"/></svg>';
+const say=(m,ms)=>ATW_say(m,ms);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const IJ_MAX=4096;                 // 긴 변이 이보다 크면 줄여서 연다(메모리)
+const IJ_KEEP_BYTES=25*1048576;    // 이보다 큰 원본은 기기에 남기지 않는다
+const UNITS=['px','nm','µm','mm','cm','m'];
+const COLS=['#E8483F','#1E6BE0','#1F9D55','#D97706','#8B5CF6','#0E9FB0'];
+const IJI=n=>{ const P={
+  open:'<path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>',
+  paste:'<rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6"/>',
+  cam:'<path d="M3.5 8.5h3l1.6-2.5h7.8l1.6 2.5h3v10h-17z"/><circle cx="12" cy="13" r="3.4"/>',
+  hand:'<path d="M8 13V5.5a1.5 1.5 0 013 0V12M11 11V4.5a1.5 1.5 0 013 0V11M14 11V6.5a1.5 1.5 0 013 0V14c0 4-2.5 7-6.5 7-2.6 0-4-1.2-5.6-3.6L3.4 14.6a1.6 1.6 0 012.6-1.8L8 15"/>',
+  sel:'<path d="M5 3l14 8-6 2-2 6z"/>',
+  scale:'<path d="M3 17h18M3 14v6M21 14v6M7 17v-2M11 17v-3M15 17v-2M19 17v-3"/><path d="M8 7h8M8 7l2-2M8 7l2 2M16 7l-2-2M16 7l-2 2"/>',
+  line:'<path d="M4 20L20 4"/><circle cx="4" cy="20" r="1.6"/><circle cx="20" cy="4" r="1.6"/>',
+  poly:'<path d="M3 18l5-9 5 5 8-10"/>',
+  angle:'<path d="M4 20h16M4 20L16 6"/><path d="M10 20a6 6 0 0 0-1.6-4.2"/>',
+  rect:'<rect x="4" y="6" width="16" height="12" rx="1"/>',
+  ell:'<ellipse cx="12" cy="12" rx="8.5" ry="6"/>',
+  pgon:'<path d="M5 8l6-4 8 5-2 10H7z"/>',
+  free:'<path d="M4 15c2-6 5 2 8-4s5-4 7-1-1 7-4 7-6-2-11-2z"/>',
+  pts:'<circle cx="7" cy="8" r="2"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="16" r="2"/><circle cx="18" cy="16" r="2"/>',
+  undo:'<path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/>',
+  redo:'<path d="M15 14l5-5-5-5"/><path d="M20 9H10a6 6 0 0 0 0 12h3"/>',
+  fit:'<path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/>',
+  graph:'<path d="M4 4v16h16"/><path d="M7 15l4-5 3 3 5-7"/>',
+  down:'<path d="M12 4v11M7 10l5 5 5-5M5 20h14"/>',
+  copy:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5.5A1.5 1.5 0 0014.5 4h-9A1.5 1.5 0 004 5.5v9A1.5 1.5 0 005.5 16H8"/>',
+  trash:'<path d="M4.5 7h15M10 11v6M14 11v6M6.5 7l1 12.5h9l1-12.5M9.5 7V4.5h5V7"/>',
+  rot:'<path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/>',
+  flip:'<path d="M12 3v18"/><path d="M8 7L3 12l5 5zM16 7l5 5-5 5z"/>',
+  crop:'<path d="M6 2v16h16"/><path d="M2 6h16v16"/>',
+  level:'<path d="M3 12h18"/><path d="M6 8l-3 4 3 4M18 8l3 4-3 4"/>',
+  img:'<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
+}; return `<svg class="gt-i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${P[n]||''}</svg>`; };
+const TOOLS=[
+  ['sel','고르기 — 측정한 도형을 눌러 고르고 Delete로 지워요','V'], ['hand','손 — 끌어서 옮기기 (어느 도구에서든 Space 누른 채 끌기 · 휠 = 확대)','H'],
+  ['scale','축척 — 길이를 아는 곳(자 · 눈금)을 따라 선을 긋고 실제 길이를 넣어요','K'],
+  ['line','직선 — 길이 · 각도 · 밝기 프로파일','L'], ['poly','꺾은선 — 눌러 가며 점을 찍고 두 번 눌러 끝 (굽은 길이)','N'],
+  ['angle','각도 — 한쪽 끝 · 꼭짓점 · 다른 끝 순서로 세 번','A'],
+  ['rect','사각형 — 넓이 · 둘레 · 밝기','R'], ['ell','타원 — 넓이 · 둘레 · 밝기','O'], ['pgon','다각형 — 눌러 가며 꼭짓점, 첫 점을 누르거나 두 번 눌러 닫기','G'],
+  ['free','자유 곡선 — 끌어서 둘레를 따라 그리기','F'], ['pts','점 세기 — 누를 때마다 하나씩 (같은 묶음에 쌓여요)','P'],
+];
+/* ── 기기 저장소 ── */
+const IDB={ _p:null,
+  open(){ if(this._p) return this._p; this._p=new Promise(res=>{ try{ const r=indexedDB.open('anda_imagej',1); r.onupgradeneeded=()=>{ r.result.createObjectStore('img',{ keyPath:'id' }); }; r.onsuccess=()=>res(r.result); r.onerror=()=>res(null); }catch(e){ res(null); } }); return this._p; },
+  async run(mode, fn){ const d=await this.open(); if(!d) return null; return new Promise(res=>{ try{ const t=d.transaction('img', mode); const q=fn(t.objectStore('img')); t.oncomplete=()=>res(q && 'result' in q ? q.result : true); t.onerror=()=>res(null); }catch(e){ res(null); } }); },
+  get(id){ return this.run('readonly', s=>s.get(id)); }, put(v){ return this.run('readwrite', s=>s.put(v)); }, del(id){ return this.run('readwrite', s=>s.delete(id)); },
+};
+const LSK=id=>'anda_ij_'+id;
+/* ── 수학 ── */
+const luma=(r,g,b)=>0.299*r+0.587*g+0.114*b;
+function polyArea(p){ let a=0; for(let i=0;i<p.length;i++){ const [x1,y1]=p[i], [x2,y2]=p[(i+1)%p.length]; a+=x1*y2-x2*y1; } return Math.abs(a)/2; }
+function polyLen(p, closed){ let L=0; for(let i=1;i<p.length;i++) L+=Math.hypot(p[i][0]-p[i-1][0], p[i][1]-p[i-1][1]); if(closed && p.length>2) L+=Math.hypot(p[0][0]-p[p.length-1][0], p[0][1]-p[p.length-1][1]); return L; }
+function ellPts(x,y,w,h,n){ n=n||64; const o=[]; for(let i=0;i<n;i++){ const t=i/n*Math.PI*2; o.push([x+w/2+Math.cos(t)*w/2, y+h/2+Math.sin(t)*h/2]); } return o; }
+function ellPerim(a,b){ a=Math.abs(a); b=Math.abs(b); const h=((a-b)/(a+b))**2; return Math.PI*(a+b)*(1+3*h/(10+Math.sqrt(4-3*h))); }   // 라마누잔
+function segDist(px,py,a,b){ const dx=b[0]-a[0], dy=b[1]-a[1]; const L=dx*dx+dy*dy; let t=L?((px-a[0])*dx+(py-a[1])*dy)/L:0; t=clamp(t,0,1); return Math.hypot(px-a[0]-t*dx, py-a[1]-t*dy); }
+function inPoly(x,y,p){ let c=false; for(let i=0,j=p.length-1;i<p.length;j=i++){ const [xi,yi]=p[i],[xj,yj]=p[j]; if(((yi>y)!==(yj>y)) && x<(xj-xi)*(y-yi)/(yj-yi)+xi) c=!c; } return c; }
+function otsu(hist, n){ let sum=0; for(let i=0;i<256;i++) sum+=i*hist[i]; let sB=0, wB=0, best=0, th=128; for(let t=0;t<256;t++){ wB+=hist[t]; if(!wB) continue; const wF=n-wB; if(!wF) break; sB+=t*hist[t]; const mB=sB/wB, mF=(sum-sB)/wF; const v=wB*wF*(mB-mF)*(mB-mF); if(v>best){ best=v; th=t; } } return th; }
+const fmt=(v,d)=>{ if(v==null || !isFinite(v)) return ''; const a=Math.abs(v); d = d!=null ? d : (a>=1000?1: a>=100?2 : a>=1?3 : 4); return (+v.toFixed(d)).toString(); };
+
+class ImageLab{
+  constructor(body, win, tab, host){
+    this.body=body; this.win=win; this.tab=tab||null; this.host=host||null;
+    this.tool='line'; this.z=1; this.tx=0; this.ty=0; this.rois=[]; this.sel=null; this.draft=null; this.undoS=[]; this.redoS=[]; this.n=0; this.ptGroup=null;
+    this.cal={ px:0, len:0, unit:'mm' }; this.adj={ b:0, c:0, g:1, gray:false, inv:false }; this.th={ on:false, lo:0, hi:128, dark:true }; this.prof={ w:1 }; this.side='res';
+    this.build();
+    this.onResize=()=>{ if(this.hidden()) return; this.root.classList.toggle('narrow', this.body.clientWidth<880); this.sizeStage(); this.draw(); };
+    if(!host) win.onResize=this.onResize;
+    this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH); this.keyU=e=>{ if(e.key===' ' && this._space){ this._space=false; this.stage.classList.remove('ij-grab'); } }; document.addEventListener('keyup', this.keyU);
+    this.restore();
+  }
+  hidden(){ return !!(this.host && this.host.active!==this.tab); }
+  active(){ return this.host ? this.host.isActive(this) : true; }
+  destroy(){ document.removeEventListener('keydown', this.keyH); document.removeEventListener('keyup', this.keyU); try{ this._ro && this._ro.disconnect(); }catch(e){} this.persist(true); }
+  $(s){ return this.root.querySelector(s); }
+  /* ───────── 뼈대 ───────── */
+  build(){
+    this.body.innerHTML=`<div class="ij">
+      <div class="ij-tb">
+        <button type="button" class="gt-btn" data-a="open" title="사진 열기 (PNG · JPG · WebP · BMP …) — 창에 끌어 놓거나 Ctrl+V로 붙여 넣어도 돼요">${IJI('open')}열기</button>
+        <button type="button" class="gt-btn ij-cam" data-a="cam" title="휴대폰 카메라로 바로 찍기">${IJI('cam')}찍기</button>
+        <span class="gt-sep"></span>
+        <div class="ij-tools" role="toolbar" aria-label="측정 도구">${TOOLS.map(([id,t,k])=>`<button type="button" class="gt-ib ij-tool${id===this.tool?' on':''}" data-tool="${id}" title="${esc(t)} (${k})" aria-label="${esc(t.split(' — ')[0])}">${IJI(id)}</button>`).join('')}</div>
+        <span class="gt-sep"></span>
+        <button type="button" class="gt-ib" data-a="undo" title="되돌리기 (Ctrl+Z)" aria-label="되돌리기">${IJI('undo')}</button>
+        <button type="button" class="gt-ib" data-a="redo" title="다시 하기 (Ctrl+Y)" aria-label="다시 하기">${IJI('redo')}</button>
+        <span class="gt-sp"></span>
+        <button type="button" class="gt-ib" data-a="fit" title="화면에 맞추기 (0)" aria-label="맞추기">${IJI('fit')}</button>
+        <span class="ij-zoom" title="확대 비율 — 휠 · +/− · 두 손가락">100%</span>
+        <button type="button" class="gt-btn" data-a="png" title="측정 표시를 얹은 그림 저장 (축척 막대 포함)">${IJI('down')}그림</button>
+      </div>
+      <div class="ij-main">
+        <div class="ij-stage" tabindex="0"><canvas class="ij-cv"></canvas>
+          <div class="ij-empty"><div>${IJI('img')}<b>분석할 사진을 끌어 놓거나 [열기]</b><span>Ctrl+V로 붙여 넣기 · 휴대폰은 [찍기]<br>사진은 이 기기 안에서만 열려요(올리지 않아요)</span></div></div>
+          <div class="ij-hint" hidden></div>
+        </div>
+        <aside class="ij-side">
+          <div class="ij-stabs" role="tablist"><button type="button" data-side="res" class="on">측정</button><button type="button" data-side="ana">분석</button><button type="button" data-side="adj">보기 · 사진</button></div>
+          <div class="ij-pane" data-pane="res"></div>
+          <div class="ij-pane" data-pane="ana" hidden></div>
+          <div class="ij-pane" data-pane="adj" hidden></div>
+        </aside>
+      </div>
+      <div class="ij-status"><span class="ij-pos">—</span><span class="ij-val"></span><span class="gt-sp"></span><span class="ij-cal-s"></span></div>
+      <div class="gt-dlg-ov" hidden></div>
+      <input type="file" accept="image/*" class="ij-file" hidden><input type="file" accept="image/*" capture="environment" class="ij-camfile" hidden>
+    </div>`;
+    this.root=this.body.querySelector('.ij'); this.stage=this.$('.ij-stage'); this.cv=this.$('.ij-cv'); this.ctx=this.cv.getContext('2d');
+    this.root.addEventListener('click', e=>{ const a=e.target.closest('[data-a]'); if(a && this.root.contains(a)){ this.act(a.dataset.a, a); return; }
+      const t=e.target.closest('[data-tool]'); if(t){ this.setTool(t.dataset.tool); return; }
+      const s=e.target.closest('[data-side]'); if(s){ this.showSide(s.dataset.side); } });
+    this.$('.ij-file').onchange=e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) this.openFile(f); };
+    this.$('.ij-camfile').onchange=e=>{ const f=e.target.files&&e.target.files[0]; e.target.value=''; if(f) this.openFile(f); };
+    // 끌어 놓기 · 붙여넣기
+    this.root.addEventListener('dragover', e=>{ if([...(e.dataTransfer&&e.dataTransfer.types||[])].includes('Files')){ e.preventDefault(); this.stage.classList.add('drag'); } });
+    this.root.addEventListener('dragleave', e=>{ if(e.target===this.stage) this.stage.classList.remove('drag'); });
+    this.root.addEventListener('drop', e=>{ this.stage.classList.remove('drag'); const f=[...(e.dataTransfer&&e.dataTransfer.files||[])].find(x=>/^image\//.test(x.type)); if(f){ e.preventDefault(); this.openFile(f); } });
+    this.pasteH=e=>{ if(!this.active()) return; const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>i.kind==='file' && /^image\//.test(i.type)); if(it){ e.preventDefault(); const f=it.getAsFile(); if(f) this.openFile(f); } };
+    document.addEventListener('paste', this.pasteH);
+    const d0=this.destroy.bind(this); this.destroy=()=>{ document.removeEventListener('paste', this.pasteH); d0(); };
+    // 그리기
+    this.ptrs=new Map();
+    this.stage.addEventListener('pointerdown', e=>this.down(e));
+    this.stage.addEventListener('pointermove', e=>this.move(e));
+    this.stage.addEventListener('pointerup', e=>this.up(e));
+    this.stage.addEventListener('pointercancel', e=>this.up(e, true));
+    this.stage.addEventListener('pointerleave', ()=>{ this.$('.ij-pos').textContent='—'; this.$('.ij-val').textContent=''; this.hover=null; this.draw(); });
+    this.stage.addEventListener('dblclick', e=>{ e.preventDefault(); this.finishDraft(); });
+    this.stage.addEventListener('wheel', e=>{ if(!this.src) return; e.preventDefault(); const f=Math.exp(-e.deltaY*(e.deltaMode===1?0.05:0.0018)); this.zoomAt(this.z*f, e.clientX, e.clientY); }, { passive:false });
+    this.stage.addEventListener('contextmenu', e=>{ if(this.draft){ e.preventDefault(); this.finishDraft(); } });
+    if(window.ResizeObserver){ this._ro=new ResizeObserver(()=>{ if(!this.hidden()){ this.sizeStage(); this.draw(); } }); this._ro.observe(this.stage); }
+    this.paintSide(); this.sizeStage();
+  }
+  showSide(s){ this.side=s; this.root.querySelectorAll('[data-side]').forEach(b=>b.classList.toggle('on', b.dataset.side===s)); this.root.querySelectorAll('.ij-pane').forEach(p=>p.hidden=p.dataset.pane!==s); this.paintSide(); }
+  setTool(t){ if(this.draft) this.finishDraft(); this.tool=t; this.root.querySelectorAll('.ij-tool').forEach(b=>b.classList.toggle('on', b.dataset.tool===t));
+    this.stage.dataset.tool=t; const T=TOOLS.find(x=>x[0]===t); this.hint(T?T[1]:''); if(t!=='pts') this.ptGroup=null; this.draw(); }
+  hint(m, keep){ const h=this.$('.ij-hint'); if(!m || !this.src){ h.hidden=true; return; } h.hidden=false; h.textContent=m; clearTimeout(this._hT); if(!keep) this._hT=setTimeout(()=>h.hidden=true, 3800); }
+  act(a, el){
+    switch(a){
+      case 'open': return this.$('.ij-file').click();
+      case 'cam': return this.$('.ij-camfile').click();
+      case 'undo': return this.undo(); case 'redo': return this.redo();
+      case 'fit': return this.fit();
+      case 'png': return this.savePng();
+    }
+  }
+  /* ───────── 사진 ───────── */
+  async openFile(f, quiet){
+    if(!f || !/^image\//.test(f.type||'') && !/\.(png|jpe?g|webp|gif|bmp|tiff?)$/i.test(f.name||'')) return say('사진 파일만 열 수 있어요.');
+    if(/\.tiff?$/i.test(f.name||'') ) say('TIFF는 브라우저가 열지 못할 수 있어요 — 안 열리면 PNG로 바꿔 주세요.', 3500);
+    let bmp;
+    try{ bmp = await (window.createImageBitmap ? createImageBitmap(f) : new Promise((res,rej)=>{ const im=new Image(); im.onload=()=>res(im); im.onerror=rej; im.src=URL.createObjectURL(f); })); }
+    catch(e){ return say('이 사진을 열지 못했어요(형식을 확인해 주세요).'); }
+    let W=bmp.width, H=bmp.height, k=1; if(Math.max(W,H)>IJ_MAX){ k=IJ_MAX/Math.max(W,H); W=Math.round(W*k); H=Math.round(H*k); }
+    const c=document.createElement('canvas'); c.width=W; c.height=H; c.getContext('2d').drawImage(bmp, 0, 0, W, H);
+    this.setSrc(c, quiet ? null : { name:f.name||'붙여 넣은 사진', size:f.size||0, k });
+    if(k<1 && !quiet) say(`사진이 커서 긴 변 ${IJ_MAX}px로 줄여 열었어요(원본의 ${(k*100).toFixed(0)}%). 축척은 줄인 사진 기준으로 맞춰 주세요.`, 5200);
+    if(!quiet){ this.rois=[]; this.undoS=[]; this.redoS=[]; this.n=0; this.cal={ px:0, len:0, unit:this.cal.unit||'mm' }; this.sel=null;
+      if(f.size<=IJ_KEEP_BYTES && this.tab) IDB.put({ id:this.tab.id, blob:f, name:f.name||'사진', at:Date.now() });
+      if(this.host && this.tab){ this.host.setExtra(this.tab, { file:{ name:f.name||'사진', size:f.size||0 } }); if(/^이미지 \d+$/.test(this.tab.name) && f.name) this.host.rename(this.tab.id, String(f.name).replace(/\.[^.]+$/,'').slice(0,30)); }
+      this.persist(); this.paintSide(); }
+  }
+  setSrc(c, info){
+    this.src=c; this.W=c.width; this.H=c.height; this.info=info||this.info||null;
+    const d=c.getContext('2d').getImageData(0,0,this.W,this.H).data; const L=new Uint8Array(this.W*this.H);
+    for(let i=0,j=0;j<L.length;i+=4,j++) L[j]=Math.round(luma(d[i],d[i+1],d[i+2]));
+    this.L=L; this.rgb=d; this.mask=null;
+    this.$('.ij-empty').hidden=true; this.root.classList.add('has-img');
+    this.makeView(); this.fit(); this.setTool(this.tool);
+  }
+  /* 보기 조정 + 이진화 겹치기 → 보이는 그림 */
+  makeView(){
+    if(!this.src) return; const W=this.W, H=this.H, A=this.adj;
+    const v=this.view || (this.view=document.createElement('canvas')); v.width=W; v.height=H; const g=v.getContext('2d');
+    const plain = !A.gray && !A.inv && !A.b && !A.c && A.g===1 && !this.th.on;
+    if(plain){ g.drawImage(this.src,0,0); return this.draw(); }
+    const out=g.createImageData(W,H); const o=out.data, s=this.rgb;
+    const lut=new Uint8ClampedArray(256); const cf=(259*(A.c+255))/(255*(259-A.c));
+    for(let i=0;i<256;i++){ let x=cf*(i-128)+128+A.b; x=clamp(x,0,255); x=255*Math.pow(x/255, 1/A.g); if(A.inv) x=255-x; lut[i]=x; }
+    const T=this.th, M=T.on ? this.thMask() : null;
+    for(let i=0,j=0;j<this.L.length;i+=4,j++){
+      if(A.gray){ const y=lut[this.L[j]]; o[i]=o[i+1]=o[i+2]=y; } else { o[i]=lut[s[i]]; o[i+1]=lut[s[i+1]]; o[i+2]=lut[s[i+2]]; }
+      if(M && M[j]){ o[i]=o[i]*0.45+255*0.55; o[i+1]=o[i+1]*0.45+40*0.55; o[i+2]=o[i+2]*0.45+40*0.55; }
+      o[i+3]=255; }
+    g.putImageData(out,0,0); this.draw();
+  }
+  thMask(){ const T=this.th, L=this.L; const M=new Uint8Array(L.length); for(let j=0;j<L.length;j++){ const y=L[j]; M[j]= (y>=T.lo && y<=T.hi) ? 1 : 0; } this.mask=M; return M; }
+  /* ───────── 화면 ───────── */
+  sizeStage(){ const r=this.stage.getBoundingClientRect(); const d=Math.min(window.devicePixelRatio||1, 2); this.dpr=d; this.cv.width=Math.max(1,Math.round(r.width*d)); this.cv.height=Math.max(1,Math.round(r.height*d)); this.sw=r.width; this.sh=r.height; }
+  fit(){ if(!this.src) return; this.sizeStage(); const z=Math.min(this.sw/this.W, this.sh/this.H)*0.96; this.z=z; this.tx=(this.sw-this.W*z)/2; this.ty=(this.sh-this.H*z)/2; this.draw(); }
+  zoomAt(z, cx, cy){ z=clamp(z, 0.02, 40); const r=this.stage.getBoundingClientRect(); const x=cx-r.left, y=cy-r.top; const ix=(x-this.tx)/this.z, iy=(y-this.ty)/this.z; this.z=z; this.tx=x-ix*z; this.ty=y-iy*z; this.draw(); }
+  toImg(e){ const r=this.stage.getBoundingClientRect(); return [ (e.clientX-r.left-this.tx)/this.z, (e.clientY-r.top-this.ty)/this.z ]; }
+  draw(){
+    if(this.hidden()) return; const g=this.ctx, d=this.dpr||1; g.setTransform(1,0,0,1,0,0); g.clearRect(0,0,this.cv.width,this.cv.height);
+    this.$('.ij-zoom').textContent=Math.round(this.z*100)+'%';
+    if(!this.src) return;
+    g.setTransform(d*this.z,0,0,d*this.z,d*this.tx,d*this.ty);
+    g.imageSmoothingEnabled = this.z<2; g.drawImage(this.view||this.src, 0, 0);
+    const lw=1.6/this.z;
+    // 측정 도형
+    this.rois.forEach(R=>this.drawRoi(g, R, lw, R===this.sel));
+    if(this.draft) this.drawRoi(g, this.draft, lw, true, true);
+    if(this.hover && this.tool==='sel' && this.hover!==this.sel) this.drawRoi(g, this.hover, lw*1.6, true);
+    // 축척 막대(오른쪽 아래)
+    g.setTransform(d,0,0,d,0,0);
+    if(this.cal.px>0){ const ppu=this.cal.px/this.cal.len; let L=this.niceLen(120/(ppu*this.z)); const pxs=L*ppu*this.z; const x=this.sw-pxs-18, y=this.sh-22;
+      g.fillStyle='rgba(0,0,0,.55)'; g.fillRect(x-8,y-22,pxs+16,30); g.fillStyle='#fff'; g.fillRect(x,y,pxs,4); g.font='600 11px system-ui,sans-serif'; g.textAlign='center'; g.fillText(`${fmt(L)} ${this.cal.unit}`, x+pxs/2, y-6); }
+  }
+  niceLen(v){ const p=Math.pow(10, Math.floor(Math.log10(v))); const m=v/p; return (m<1.5?1:m<3.5?2:m<7.5?5:10)*p; }
+  drawRoi(g, R, lw, on, draft){
+    const c=R.t==='scale' ? '#F5C518' : COLS[(R.id||0)%COLS.length];
+    g.lineWidth=lw*(on?1.7:1); g.strokeStyle=c; g.fillStyle=c; g.setLineDash(R.t==='scale'?[6*lw,4*lw]:[]);
+    const P=R.p||[];
+    const dot=(x,y,r)=>{ g.beginPath(); g.arc(x,y,(r||3)*lw,0,Math.PI*2); g.fill(); };
+    if(R.t==='line' || R.t==='scale'){ if(P.length<2) return; g.beginPath(); g.moveTo(P[0][0],P[0][1]); g.lineTo(P[1][0],P[1][1]); g.stroke(); dot(P[0][0],P[0][1]); dot(P[1][0],P[1][1]);
+      if(R.t==='line' && this.prof.w>1){ g.globalAlpha=.25; g.lineWidth=this.prof.w; g.stroke(); g.globalAlpha=1; } }
+    else if(R.t==='poly' || R.t==='angle'){ if(!P.length) return; g.beginPath(); P.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); if(draft && this.hover && (R.t!=='angle' || P.length<3)) g.lineTo(this.hover[0],this.hover[1]); g.stroke(); P.forEach(q=>dot(q[0],q[1],2.4));
+      if(R.t==='angle' && P.length===3){ const a1=Math.atan2(P[0][1]-P[1][1],P[0][0]-P[1][0]), a2=Math.atan2(P[2][1]-P[1][1],P[2][0]-P[1][0]); let s=a1, e=a2; let dA=e-s; while(dA<=-Math.PI) dA+=2*Math.PI; while(dA>Math.PI) dA-=2*Math.PI; g.beginPath(); g.arc(P[1][0],P[1][1], 22*lw, s, s+dA, dA<0); g.stroke(); } }
+    else if(R.t==='rect'){ const [x,y,w,h]=R.r; g.strokeRect(x,y,w,h); }
+    else if(R.t==='ell'){ const [x,y,w,h]=R.r; g.beginPath(); g.ellipse(x+w/2,y+h/2,Math.abs(w/2),Math.abs(h/2),0,0,Math.PI*2); g.stroke(); }
+    else if(R.t==='pgon' || R.t==='free'){ if(!P.length) return; g.beginPath(); P.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1])); if(draft && this.hover && R.t==='pgon') g.lineTo(this.hover[0],this.hover[1]); if(!draft) g.closePath(); g.stroke(); if(R.t==='pgon') P.forEach(q=>dot(q[0],q[1],2.2)); }
+    else if(R.t==='pts'){ g.font=`600 ${11*lw}px system-ui,sans-serif`; P.forEach((q,i)=>{ g.beginPath(); g.arc(q[0],q[1],4.5*lw,0,Math.PI*2); g.fill(); g.strokeStyle='#fff'; g.lineWidth=lw; g.stroke(); g.fillText(String(i+1), q[0]+6*lw, q[1]-6*lw); g.strokeStyle=c; }); }
+    else if(R.t==='parts'){ g.font=`600 ${10*lw}px system-ui,sans-serif`; (R.list||[]).forEach((q,i)=>{ g.strokeRect(q.bx,q.by,q.bw,q.bh); if(R.list.length<=400){ g.fillText(String(i+1), q.bx, q.by-2*lw); } }); }
+    // 번호표
+    if(!draft && R.id && R.t!=='parts' && R.t!=='scale'){ const a=this.anchor(R); if(a){ g.font=`700 ${11*lw}px system-ui,sans-serif`; const s=String(R.id); const w=g.measureText(s).width+6*lw; g.fillStyle=c; g.fillRect(a[0]+4*lw, a[1]-15*lw, w, 13*lw); g.fillStyle='#fff'; g.fillText(s, a[0]+7*lw, a[1]-5*lw); } }
+    g.setLineDash([]);
+  }
+  anchor(R){ if(R.r) return [R.r[0]+R.r[2], R.r[1]]; const P=R.p||[]; if(!P.length) return null; return P.reduce((a,q)=>q[1]<a[1]?q:a, P[0]); }
+  /* ───────── 포인터 ───────── */
+  down(e){
+    if(!this.src){ if(e.pointerType!=='touch') this.$('.ij-file').click(); return; }
+    this.stage.focus({ preventScroll:true });
+    this.ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if(this.ptrs.size===2){ const [a,b]=[...this.ptrs.values()]; this.pinch={ d0:Math.hypot(a.x-b.x,a.y-b.y), z0:this.z, cx:(a.x+b.x)/2, cy:(a.y+b.y)/2 }; this.drag=null; if(this.draft && this.draft.t!=='pgon' && this.draft.t!=='poly' && this.draft.t!=='angle') this.draft=null; return; }
+    try{ this.stage.setPointerCapture(e.pointerId); }catch(x){}
+    const p=this.toImg(e); const tool=(this._space || e.button===1 || this.tool==='hand') ? 'hand' : this.tool;
+    if(tool==='hand'){ this.drag={ k:'pan', x:e.clientX, y:e.clientY, tx:this.tx, ty:this.ty }; this.stage.classList.add('ij-grab'); return; }
+    if(e.button===2) return;
+    if(tool==='sel'){ const R=this.pick(p); this.select(R); return; }
+    if(tool==='pts'){ this.addPoint(p); return; }
+    if(tool==='poly' || tool==='pgon' || tool==='angle'){
+      if(!this.draft) this.draft={ t:tool, p:[p] };
+      else { const D=this.draft; const f=D.p[0];
+        if(tool==='pgon' && D.p.length>=3 && Math.hypot(p[0]-f[0], p[1]-f[1])*this.z<10){ this.finishDraft(); return; }
+        D.p.push(p); if(tool==='angle' && D.p.length===3){ this.finishDraft(); return; } }
+      this.draw(); return; }
+    // 끌어서 그리는 것: scale · line · rect · ell · free
+    this.drag={ k:'draw', p0:p };
+    this.draft = (tool==='rect'||tool==='ell') ? { t:tool, r:[p[0],p[1],0,0] } : tool==='free' ? { t:'free', p:[p] } : { t:tool, p:[p, p] };
+  }
+  move(e){
+    if(this.ptrs.has(e.pointerId)) this.ptrs.set(e.pointerId, { x:e.clientX, y:e.clientY });
+    if(this.pinch && this.ptrs.size===2){ const [a,b]=[...this.ptrs.values()]; const d=Math.hypot(a.x-b.x,a.y-b.y); this.zoomAt(this.pinch.z0*d/this.pinch.d0, (a.x+b.x)/2, (a.y+b.y)/2); return; }
+    if(!this.src) return;
+    const p=this.toImg(e); this.status(p);
+    const D=this.drag;
+    if(D && D.k==='pan'){ this.tx=D.tx+(e.clientX-D.x); this.ty=D.ty+(e.clientY-D.y); this.draw(); return; }
+    if(D && D.k==='draw' && this.draft){ const R=this.draft;
+      if(R.r){ let w=p[0]-D.p0[0], h=p[1]-D.p0[1]; if(e.shiftKey){ const m=Math.max(Math.abs(w),Math.abs(h)); w=Math.sign(w||1)*m; h=Math.sign(h||1)*m; } R.r=[ Math.min(D.p0[0],D.p0[0]+w), Math.min(D.p0[1],D.p0[1]+h), Math.abs(w), Math.abs(h) ]; }
+      else if(R.t==='free'){ const L=R.p[R.p.length-1]; if(Math.hypot(p[0]-L[0],p[1]-L[1])*this.z>2) R.p.push(p); }
+      else { let q=p; if(e.shiftKey){ const dx=p[0]-D.p0[0], dy=p[1]-D.p0[1]; const a=Math.round(Math.atan2(dy,dx)/(Math.PI/12))*(Math.PI/12); const L=Math.hypot(dx,dy); q=[D.p0[0]+Math.cos(a)*L, D.p0[1]+Math.sin(a)*L]; } R.p[1]=q; this.liveLine(R); }
+      this.draw(); return; }
+    if(this.draft){ this.hover=p; this.draw(); return; }
+    if(this.tool==='sel'){ const h=this.pick(p); if(h!==this.hover){ this.hover=h; this.draw(); } }
+  }
+  up(e, cancel){
+    this.ptrs.delete(e.pointerId); if(this.ptrs.size<2) this.pinch=null;
+    const D=this.drag; this.drag=null; this.stage.classList.remove('ij-grab');
+    if(!D || D.k!=='draw' || !this.draft) return;
+    if(cancel){ this.draft=null; this.draw(); return; }
+    const R=this.draft;
+    const small = R.r ? (R.r[2]*this.z<4 || R.r[3]*this.z<4) : R.t==='free' ? R.p.length<4 : Math.hypot(R.p[1][0]-R.p[0][0], R.p[1][1]-R.p[0][1])*this.z<4;
+    if(small){ this.draft=null; this.draw(); return; }
+    if(R.t==='scale'){ this.draft=null; this.askScale(R.p); return; }
+    this.finishDraft();
+  }
+  liveLine(R){ const [a,b]=R.p; const L=Math.hypot(b[0]-a[0], b[1]-a[1]); const ang=Math.atan2(-(b[1]-a[1]), b[0]-a[0])*180/Math.PI; this.hint(`${fmt(this.toU(L))} ${this.u()} · ${fmt(ang,1)}°`, true); }
+  finishDraft(){ const R=this.draft; if(!R) return; this.draft=null; this.hover=null; this.$('.ij-hint').hidden=true;
+    if((R.t==='poly' && R.p.length<2) || (R.t==='pgon' && R.p.length<3) || (R.t==='angle' && R.p.length<3)){ this.draw(); return; }
+    if(R.t==='free'){ R.p=this.simplify(R.p); }
+    this.addRoi(R); }
+  simplify(p){ const o=[p[0]]; for(let i=1;i<p.length;i++){ const L=o[o.length-1]; if(Math.hypot(p[i][0]-L[0],p[i][1]-L[1])>=1.2) o.push(p[i]); } return o; }
+  addPoint(p){
+    this.snap();
+    if(!this.ptGroup || !this.rois.includes(this.ptGroup)){ this.ptGroup={ t:'pts', p:[], id:++this.n }; this.rois.push(this.ptGroup); }
+    this.ptGroup.p.push(p); this.sel=this.ptGroup; this.changed();
+  }
+  addRoi(R){ this.snap(); R.id=++this.n; this.rois.push(R); this.sel=R; this.changed(); if(R.t==='line' && this.side==='ana') this.paintSide(); }
+  pick(p){ const tol=6/this.z; let best=null, bd=1e9;
+    for(const R of this.rois){ let d=1e9; const P=R.p||[];
+      if(R.r){ const [x,y,w,h]=R.r; if(R.t==='ell'){ const nx=(p[0]-x-w/2)/(w/2), ny=(p[1]-y-h/2)/(h/2); d=Math.abs(Math.hypot(nx,ny)-1)*Math.min(w,h)/2; if(Math.hypot(nx,ny)<1) d=Math.min(d, tol*0.9); } else { const ins=p[0]>=x&&p[0]<=x+w&&p[1]>=y&&p[1]<=y+h; d=ins? Math.min(tol*0.9, Math.min(p[0]-x,x+w-p[0],p[1]-y,y+h-p[1])) : 1e9; } }
+      else if(R.t==='pts'){ P.forEach(q=>{ d=Math.min(d, Math.hypot(q[0]-p[0],q[1]-p[1])); }); }
+      else if(R.t==='parts'){ d=1e9; }
+      else { for(let i=1;i<P.length;i++) d=Math.min(d, segDist(p[0],p[1],P[i-1],P[i])); if((R.t==='pgon'||R.t==='free') && P.length>2){ d=Math.min(d, segDist(p[0],p[1],P[P.length-1],P[0])); if(inPoly(p[0],p[1],P)) d=Math.min(d, tol*0.9); } }
+      if(d<tol && d<bd){ bd=d; best=R; } }
+    return best; }
+  select(R){ this.sel=R; this.draw(); this.paintSide(); if(R){ const tr=this.root.querySelector(`.ij-res tr[data-id="${R.id}"]`); if(tr) tr.scrollIntoView({ block:'nearest' }); } }
+  status(p){ const x=Math.floor(p[0]), y=Math.floor(p[1]); const inside=x>=0&&y>=0&&x<this.W&&y<this.H;
+    this.$('.ij-pos').textContent = inside ? `x ${x} · y ${y} px${this.cal.px?` (${fmt(this.toU(x))}, ${fmt(this.toU(y))} ${this.cal.unit})`:''}` : '—';
+    if(inside){ const i=(y*this.W+x)*4, r=this.rgb; this.$('.ij-val').textContent=`RGB ${r[i]} · ${r[i+1]} · ${r[i+2]}  밝기 ${this.L[y*this.W+x]}`; } else this.$('.ij-val').textContent=''; }
+  /* ───────── 축척 ───────── */
+  u(){ return this.cal.px>0 ? this.cal.unit : 'px'; }
+  toU(px){ return this.cal.px>0 ? px*this.cal.len/this.cal.px : px; }
+  toU2(px2){ return this.cal.px>0 ? px2*(this.cal.len/this.cal.px)**2 : px2; }
+  askScale(P){
+    const L=Math.hypot(P[1][0]-P[0][0], P[1][1]-P[0][1]);
+    this.dialog(`<div class="gt-dlg" style="width:min(380px,100%)"><div class="gt-dlg-h"><b>축척 맞추기</b><span>그은 선 ${fmt(L,1)} px</span></div>
+      <label class="ij-f">이 선의 실제 길이 <span class="ij-row"><input type="number" class="ij-in" data-k="len" min="0" step="any" value="${this.cal.px?fmt(L*this.cal.len/this.cal.px):'10'}" style="width:110px">
+      <select class="ij-in" data-k="unit">${UNITS.filter(u=>u!=='px').map(u=>`<option${u===this.cal.unit?' selected':''}>${u}</option>`).join('')}</select></span></label>
+      <p class="ij-note">자 · 모눈종이 · 크기를 아는 물체를 따라 길게 그을수록 정확해요. 사진을 정면에서 찍어야 해요(비스듬하면 방향마다 축척이 달라져요).</p>
+      <div class="ij-row" style="justify-content:flex-end"><button type="button" class="gt-btn" data-x>취소</button><button type="button" class="gt-btn pri" data-ok>맞추기</button></div></div>`,
+      (ov, close)=>{ const inp=ov.querySelector('[data-k="len"]'); setTimeout(()=>{ inp.focus(); inp.select(); }, 30);
+        const ok=()=>{ const v=parseFloat(inp.value); if(!(v>0)) return inp.focus(); this.snap(); this.cal={ px:L, len:v, unit:ov.querySelector('[data-k="unit"]').value, line:P };
+          this.rois=this.rois.filter(r=>r.t!=='scale'); this.rois.unshift({ t:'scale', p:P, id:0 }); close(); this.changed(); say(`축척: ${fmt(v)} ${this.cal.unit} = ${fmt(L,1)} px  (1 ${this.cal.unit} = ${fmt(L/v)} px)`, 3800); };
+        ov.querySelector('[data-ok]').onclick=ok; inp.onkeydown=e=>{ if(e.key==='Enter') ok(); }; ov.querySelector('[data-x]').onclick=close; });
+  }
+  dialog(html, bind){ const ov=this.$('.gt-dlg-ov'); ov.hidden=false; ov.innerHTML=html; const close=()=>{ ov.hidden=true; ov.innerHTML=''; this.stage.focus({ preventScroll:true }); }; bind(ov, close); ov.onclick=e=>{ if(e.target===ov) close(); }; }
+  /* ───────── 재기 ───────── */
+  stats(R){
+    // 넓이 도형 → 마스크로 원본 밝기 통계
+    let poly=null, bx, by, bw, bh;
+    if(R.t==='rect'){ [bx,by,bw,bh]=R.r; poly=[[bx,by],[bx+bw,by],[bx+bw,by+bh],[bx,by+bh]]; }
+    else if(R.t==='ell'){ [bx,by,bw,bh]=R.r; poly=ellPts(bx,by,bw,bh,96); }
+    else { poly=R.p; const xs=poly.map(q=>q[0]), ys=poly.map(q=>q[1]); bx=Math.min(...xs); by=Math.min(...ys); bw=Math.max(...xs)-bx; bh=Math.max(...ys)-by; }
+    const x0=Math.max(0,Math.floor(bx)), y0=Math.max(0,Math.floor(by)), x1=Math.min(this.W,Math.ceil(bx+bw)), y1=Math.min(this.H,Math.ceil(by+bh));
+    const w=x1-x0, h=y1-y0; if(w<=0||h<=0) return { n:0 };
+    const c=document.createElement('canvas'); c.width=w; c.height=h; const g=c.getContext('2d'); g.translate(-x0,-y0); g.beginPath();
+    if(R.t==='ell') g.ellipse(bx+bw/2, by+bh/2, bw/2, bh/2, 0, 0, Math.PI*2); else poly.forEach((q,i)=>i?g.lineTo(q[0],q[1]):g.moveTo(q[0],q[1]));
+    g.closePath(); g.fill(); const m=g.getImageData(0,0,w,h).data;
+    let n=0, s=0, s2=0, mn=255, mx=0, cx=0, cy=0; const hist=new Uint32Array(256);
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){ if(m[(y*w+x)*4+3]<128) continue; const v=this.L[(y+y0)*this.W+(x+x0)]; n++; s+=v; s2+=v*v; if(v<mn) mn=v; if(v>mx) mx=v; cx+=x+x0+.5; cy+=y+y0+.5; hist[v]++; }
+    return { n, mean:n?s/n:0, sd:n>1?Math.sqrt(Math.max(0,(s2-s*s/n)/(n-1))):0, min:n?mn:0, max:n?mx:0, cx:n?cx/n:0, cy:n?cy/n:0, hist };
+  }
+  measure(R){
+    const u=this.u(), o={ id:R.id, t:R.t };
+    if(R.t==='line'){ const [a,b]=R.p; o.len=this.toU(Math.hypot(b[0]-a[0], b[1]-a[1])); o.ang=Math.atan2(-(b[1]-a[1]), b[0]-a[0])*180/Math.PI; o.dx=this.toU(b[0]-a[0]); o.dy=this.toU(-(b[1]-a[1])); }
+    else if(R.t==='poly'){ o.len=this.toU(polyLen(R.p,false)); o.n=R.p.length; }
+    else if(R.t==='angle'){ const [a,v,b]=R.p; let A=Math.abs(Math.atan2(a[1]-v[1],a[0]-v[0])-Math.atan2(b[1]-v[1],b[0]-v[0]))*180/Math.PI; if(A>180) A=360-A; o.ang=A; }
+    else if(R.t==='pts'){ o.n=R.p.length; }
+    else if(R.t==='parts'){ o.n=R.list.length; const A=R.list.map(q=>q.a); o.area=A.length?this.toU2(A.reduce((x,y)=>x+y,0)/A.length):0; }
+    else if(R.t==='rect'||R.t==='ell'||R.t==='pgon'||R.t==='free'){
+      const P = R.t==='rect' ? null : R.t==='ell' ? null : R.p;
+      const areaPx = R.t==='rect' ? R.r[2]*R.r[3] : R.t==='ell' ? Math.PI*R.r[2]*R.r[3]/4 : polyArea(P);
+      const perPx = R.t==='rect' ? 2*(R.r[2]+R.r[3]) : R.t==='ell' ? ellPerim(R.r[2]/2, R.r[3]/2) : polyLen(P,true);
+      o.area=this.toU2(areaPx); o.per=this.toU(perPx); o.circ=perPx>0 ? 4*Math.PI*areaPx/(perPx*perPx) : 0;
+      if(R.r){ o.w=this.toU(R.r[2]); o.h=this.toU(R.r[3]); }
+      const S=R._s || (R._s=this.stats(R)); o.mean=S.mean; o.sd=S.sd; o.min=S.min; o.max=S.max; o.cx=this.toU(S.cx); o.cy=this.toU(S.cy); }
+    o.u=u; return o;
+  }
+  /* ───────── 옆 칸 ───────── */
+  paintSide(){
+    const pane=this.$(`.ij-pane[data-pane="${this.side}"]`); if(!pane) return;
+    if(this.side==='res') this.paintRes(pane); else if(this.side==='ana') this.paintAna(pane); else this.paintAdj(pane);
+    const cs=this.$('.ij-cal-s'); cs.innerHTML = this.cal.px>0 ? `축척 <b>1 ${esc(this.cal.unit)} = ${fmt(this.cal.px/this.cal.len)} px</b>` : (this.src?'<span class="ij-warn">축척 없음 — 값이 px로 나와요 (K: 축척 도구)</span>':'');
+  }
+  paintRes(pane){
+    const NAME={ line:'직선', poly:'꺾은선', angle:'각도', rect:'사각형', ell:'타원', pgon:'다각형', free:'자유 곡선', pts:'점', parts:'입자' };
+    const rows=this.rois.filter(R=>R.t!=='scale').map(R=>this.measure(R)); const u=this.u();
+    pane.innerHTML=`<div class="ij-cal">${this.cal.px>0?`<span>축척 <b>${fmt(this.cal.len)} ${esc(this.cal.unit)}</b> = ${fmt(this.cal.px,1)} px</span><button type="button" class="gt-btn" data-calx>지우기</button>`
+        :`<span>${this.src?'아직 축척이 없어요 — 값이 픽셀(px)로 나와요.':'사진을 열면 여기에 측정값이 쌓여요.'}</span>${this.src?`<button type="button" class="gt-btn pri" data-calgo>${IJI('scale')}축척 맞추기</button>`:''}`}</div>
+      ${rows.length?`<div class="ij-tblw"><table class="ij-res"><thead><tr><th>#</th><th>종류</th><th>길이<small>${esc(u)}</small></th><th>각도<small>°</small></th><th>넓이<small>${esc(u)}²</small></th><th>둘레<small>${esc(u)}</small></th><th>밝기<small>평균±σ</small></th><th>개수</th><th></th></tr></thead><tbody>
+        ${rows.map(o=>`<tr data-id="${o.id}" class="${this.sel&&this.sel.id===o.id?'on':''}"><td><i style="background:${COLS[o.id%COLS.length]}"></i>${o.id}</td><td>${NAME[o.t]}</td><td>${fmt(o.len)}</td><td>${fmt(o.ang,2)}</td><td>${fmt(o.area)}</td><td>${fmt(o.per)}</td><td>${o.mean!=null?`${fmt(o.mean,1)}±${fmt(o.sd,1)}`:''}</td><td>${o.n!=null&&o.t!=='poly'?o.n:''}</td><td><button type="button" class="gt-ib ij-del" data-del="${o.id}" title="지우기" aria-label="지우기">${IJI('trash')}</button></td></tr>`).join('')}
+      </tbody></table></div>
+      <div class="ij-row ij-acts"><button type="button" class="gt-btn" data-csv>${IJI('down')}CSV</button><button type="button" class="gt-btn" data-copy>${IJI('copy')}표 복사</button><button type="button" class="gt-btn" data-tog>${IJI('graph')}그래프로</button><span class="gt-sp"></span><button type="button" class="gt-btn" data-clear>모두 지우기</button></div>
+      ${this.sel?this.detail(this.measure(this.sel)):''}`
+      : (this.src?`<p class="ij-note">위 도구로 사진 위를 재 보세요. <b>Shift</b>를 누르고 그으면 15° 단위 · 정사각형/원.<br>직선을 그은 뒤 [분석] 탭에서 밝기 프로파일(간섭 · 회절 무늬)을 볼 수 있어요.</p>`:'')}`;
+    pane.querySelectorAll('tr[data-id]').forEach(tr=>tr.onclick=e=>{ if(e.target.closest('[data-del]')) return; this.select(this.rois.find(r=>r.id===+tr.dataset.id)); });
+    pane.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ this.snap(); this.rois=this.rois.filter(r=>r.id!==+b.dataset.del); if(this.sel&&this.sel.id===+b.dataset.del) this.sel=null; this.changed(); });
+    const q=s=>pane.querySelector(s);
+    if(q('[data-calgo]')) q('[data-calgo]').onclick=()=>{ this.setTool('scale'); this.hint('자 · 눈금처럼 길이를 아는 곳을 따라 선을 그어 주세요.', true); };
+    if(q('[data-calx]')) q('[data-calx]').onclick=()=>{ this.snap(); this.cal={ px:0, len:0, unit:this.cal.unit }; this.rois=this.rois.filter(r=>r.t!=='scale'); this.changed(); };
+    if(q('[data-csv]')) q('[data-csv]').onclick=()=>this.csv();
+    if(q('[data-copy]')) q('[data-copy]').onclick=()=>{ const t=this.table().map(r=>r.join('\t')).join('\n'); navigator.clipboard.writeText(t).then(()=>say('표를 복사했어요 — 엑셀 · 구글 시트에 붙여 넣으세요.'), ()=>say('복사하지 못했어요.')); };
+    if(q('[data-tog]')) q('[data-tog]').onclick=()=>this.resToGraph();
+    if(q('[data-clear]')) q('[data-clear]').onclick=()=>{ if(!this.rois.some(r=>r.t!=='scale')) return; this.snap(); this.rois=this.rois.filter(r=>r.t==='scale'); this.sel=null; this.changed(); say('측정을 모두 지웠어요 — Ctrl+Z로 되돌릴 수 있어요.'); };
+    const ex=q('[data-parts-csv]'); if(ex) ex.onclick=()=>this.partsCsv(this.sel);
+    const eg=q('[data-parts-graph]'); if(eg) eg.onclick=()=>this.partsGraph(this.sel);
+    const ec=q('[data-pts-csv]'); if(ec) ec.onclick=()=>this.ptsCsv(this.sel);
+  }
+  detail(o){
+    const u=o.u, L=[];
+    if(o.t==='line') L.push(['길이', `${fmt(o.len)} ${u}`], ['각도(+x에서 반시계)', `${fmt(o.ang,2)}°`], ['Δx · Δy', `${fmt(o.dx)} · ${fmt(o.dy)} ${u}`]);
+    if(o.t==='poly') L.push(['길이(꺾은선)', `${fmt(o.len)} ${u}`], ['점', o.n]);
+    if(o.t==='angle') L.push(['각도', `${fmt(o.ang,2)}°`]);
+    if(o.area!=null && o.t!=='parts') L.push(['넓이', `${fmt(o.area)} ${u}²`], ['둘레', `${fmt(o.per)} ${u}`], ['원형도 4πA/P²', fmt(o.circ,3)], ['중심', `(${fmt(o.cx)}, ${fmt(o.cy)}) ${u}`], ['밝기 평균 · σ · 최소 · 최대', `${fmt(o.mean,1)} · ${fmt(o.sd,1)} · ${o.min} · ${o.max}`]);
+    if(o.w!=null) L.push(['가로 × 세로', `${fmt(o.w)} × ${fmt(o.h)} ${u}`]);
+    if(o.t==='pts') L.push(['점 개수', o.n]);
+    if(o.t==='parts') L.push(['입자 수', o.n], ['평균 넓이', `${fmt(o.area)} ${u}²`]);
+    return `<div class="ij-detail"><b>#${o.id} 자세히</b>${L.map(([k,v])=>`<div><span>${esc(k)}</span><span>${esc(String(v))}</span></div>`).join('')}
+      ${o.t==='parts'?`<div class="ij-row"><button type="button" class="gt-btn" data-parts-csv>${IJI('down')}입자 목록 CSV</button><button type="button" class="gt-btn" data-parts-graph>${IJI('graph')}넓이 분포 → 그래프</button></div>`:''}
+      ${o.t==='pts'?`<div class="ij-row"><button type="button" class="gt-btn" data-pts-csv>${IJI('down')}점 좌표 CSV</button></div>`:''}</div>`;
+  }
+  paintAna(pane){
+    const lines=this.rois.filter(r=>r.t==='line'); const L = this.sel && this.sel.t==='line' ? this.sel : lines[lines.length-1];
+    pane.innerHTML=`<h4>선 밝기 프로파일</h4>${L?`<p class="ij-note">#${L.id} 직선을 따라 원본 밝기(0~255) — 간섭 · 회절 무늬의 간격, 빔의 폭을 잴 때.</p>
+        <canvas class="ij-plot" data-plot="prof"></canvas>
+        <div class="ij-row"><label class="ij-f">선 굵기 평균 <select class="ij-in" data-pw>${[1,3,5,9,15].map(w=>`<option${w===this.prof.w?' selected':''}>${w}</option>`).join('')}</select> px</label><span class="gt-sp"></span><button type="button" class="gt-btn" data-ptog>${IJI('graph')}그래프로</button></div>
+        <div class="ij-peaks"></div>`:`<p class="ij-note">직선 도구(L)로 사진 위에 선을 그으면 그 선을 따라 밝기가 그려져요.</p>`}
+      <h4>히스토그램</h4><p class="ij-note">${this.sel && this.sel._s ? `#${this.sel.id} 영역` : '사진 전체'}의 밝기 분포.</p><canvas class="ij-plot" data-plot="hist"></canvas><div class="ij-hstat"></div>
+      <h4>이진화 · 입자 분석</h4>
+      <label class="ij-chk"><input type="checkbox" data-thon ${this.th.on?'checked':''}> 밝기 범위로 골라 빨갛게 보기</label>
+      <div class="ij-th" ${this.th.on?'':'hidden'}>
+        <div class="ij-row"><label class="ij-f">아래 <input type="range" min="0" max="255" value="${this.th.lo}" data-thlo></label><b class="ij-thv">${this.th.lo}</b></div>
+        <div class="ij-row"><label class="ij-f">위 <input type="range" min="0" max="255" value="${this.th.hi}" data-thhi></label><b class="ij-thv">${this.th.hi}</b></div>
+        <div class="ij-row"><button type="button" class="gt-btn" data-otsu="dark">자동 · 어두운 물체</button><button type="button" class="gt-btn" data-otsu="light">자동 · 밝은 물체</button></div>
+        <div class="ij-row"><label class="ij-f">최소 넓이 <input type="number" class="ij-in" data-minA value="${this._minA||20}" min="0" style="width:72px"> px</label><label class="ij-chk"><input type="checkbox" data-edge ${this._edge!==false?'checked':''}> 가장자리에 닿은 것 빼기</label></div>
+        <button type="button" class="gt-btn pri" data-parts>입자 세기</button>
+        <p class="ij-note">빨간 곳이 하나로 이어진 덩어리마다 1개로 세요. 결과는 [측정] 표에 '입자' 줄로 — 개수 · 평균 넓이 · 목록 CSV · 넓이 분포 그래프.</p>
+      </div>`;
+    if(L) this.plotProfile(pane, L); this.plotHist(pane);
+    const q=s=>pane.querySelector(s);
+    if(q('[data-pw]')) q('[data-pw]').onchange=e=>{ this.prof.w=+e.target.value; this.persist(); this.draw(); this.paintAna(pane); };
+    if(q('[data-ptog]')) q('[data-ptog]').onclick=()=>this.profGraph(L);
+    q('[data-thon]').onchange=e=>{ this.th.on=e.target.checked; if(this.th.on && this.th.lo===0 && this.th.hi===128) this.autoTh('dark'); this.makeView(); this.persist(); this.paintAna(pane); };
+    const lo=q('[data-thlo]'), hi=q('[data-thhi]');
+    if(lo){ const upd=()=>{ this.th.lo=Math.min(+lo.value, +hi.value); this.th.hi=Math.max(+lo.value, +hi.value); pane.querySelectorAll('.ij-thv')[0].textContent=this.th.lo; pane.querySelectorAll('.ij-thv')[1].textContent=this.th.hi; cancelAnimationFrame(this._thR); this._thR=requestAnimationFrame(()=>this.makeView()); this.persist(); }; lo.oninput=upd; hi.oninput=upd; }
+    pane.querySelectorAll('[data-otsu]').forEach(b=>b.onclick=()=>{ this.autoTh(b.dataset.otsu); this.makeView(); this.persist(); this.paintAna(pane); });
+    if(q('[data-parts]')) q('[data-parts]').onclick=()=>{ this._minA=Math.max(0, +q('[data-minA]').value||0); this._edge=q('[data-edge]').checked; this.particles(); };
+  }
+  autoTh(kind){ const h=new Uint32Array(256); for(let j=0;j<this.L.length;j++) h[this.L[j]]++; const t=otsu(h, this.L.length); if(kind==='dark'){ this.th.lo=0; this.th.hi=t; } else { this.th.lo=t+1; this.th.hi=255; } }
+  profile(R){
+    const [a,b]=R.p; const L=Math.hypot(b[0]-a[0], b[1]-a[1]); const n=Math.max(2, Math.round(L)); const ux=(b[0]-a[0])/L, uy=(b[1]-a[1])/L; const w=this.prof.w; const out=[];
+    const at=(x,y)=>{ x=clamp(x,0,this.W-1.001); y=clamp(y,0,this.H-1.001); const x0=Math.floor(x), y0=Math.floor(y), fx=x-x0, fy=y-y0, W=this.W, Lm=this.L;
+      return Lm[y0*W+x0]*(1-fx)*(1-fy)+Lm[y0*W+x0+1]*fx*(1-fy)+Lm[(y0+1)*W+x0]*(1-fx)*fy+Lm[(y0+1)*W+x0+1]*fx*fy; };
+    for(let i=0;i<=n;i++){ const t=i/n*L; let s=0; for(let k=0;k<w;k++){ const o=k-(w-1)/2; s+=at(a[0]+ux*t-uy*o, a[1]+uy*t+ux*o); } out.push([this.toU(t), s/w]); }
+    return out;
+  }
+  plotProfile(pane, R){ const c=pane.querySelector('[data-plot="prof"]'); if(!c) return; const d=this.profile(R); this.plot(c, d.map(q=>q[0]), d.map(q=>q[1]), { xl:`거리 (${this.u()})`, yl:'밝기', line:true });
+    // 봉우리 · 골 간격(간섭 무늬)
+    const ys=d.map(q=>q[1]); const sm=ys.map((v,i)=>{ let s=0,k=0; for(let j=-2;j<=2;j++){ if(ys[i+j]!=null){ s+=ys[i+j]; k++; } } return s/k; });
+    const rng=Math.max(...sm)-Math.min(...sm); const pk=[]; for(let i=2;i<sm.length-2;i++){ if(sm[i]>=sm[i-1]&&sm[i]>sm[i+1]&&sm[i]>=sm[i-2]&&sm[i]>sm[i+2]){ let lo=sm[i]; for(let j=Math.max(0,i-15);j<Math.min(sm.length,i+15);j++) lo=Math.min(lo,sm[j]); if(sm[i]-lo>rng*0.15) pk.push(d[i][0]); } }
+    const box=pane.querySelector('.ij-peaks'); if(!box) return;
+    if(pk.length>=2){ const g=[]; for(let i=1;i<pk.length;i++) g.push(pk[i]-pk[i-1]); const m=g.reduce((a,b)=>a+b,0)/g.length; const sd=g.length>1?Math.sqrt(g.reduce((a,b)=>a+(b-m)**2,0)/(g.length-1)):0;
+      box.innerHTML=`봉우리 <b>${pk.length}</b>개 · 평균 간격 <b>${fmt(m)} ± ${fmt(sd)} ${esc(this.u())}</b><small>(봉우리 위치: ${pk.slice(0,12).map(v=>fmt(v)).join(', ')}${pk.length>12?' …':''})</small>`; }
+    else box.innerHTML='<small>뚜렷한 봉우리가 2개 이상 보이면 간격을 계산해 드려요.</small>'; }
+  plotHist(pane){ const c=pane.querySelector('[data-plot="hist"]'); if(!c || !this.L) return; let h;
+    if(this.sel && this.sel._s && this.sel._s.hist) h=this.sel._s.hist; else { h=new Uint32Array(256); for(let j=0;j<this.L.length;j++) h[this.L[j]]++; }
+    const xs=[...Array(256).keys()]; this.plot(c, xs, [...h], { xl:'밝기', yl:'픽셀 수', bars:true, th:this.th.on?this.th:null });
+    let n=0,s=0,mode=0; for(let i=0;i<256;i++){ n+=h[i]; s+=i*h[i]; if(h[i]>h[mode]) mode=i; } const st=pane.querySelector('.ij-hstat'); if(st) st.innerHTML=`<small>픽셀 ${n.toLocaleString()} · 평균 ${fmt(n?s/n:0,1)} · 가장 많은 값 ${mode}</small>`; }
+  plot(c, xs, ys, o){
+    const r=c.getBoundingClientRect(); const d=Math.min(window.devicePixelRatio||1,2); const W=Math.max(200, r.width||280), H=150; c.width=W*d; c.height=H*d; c.style.height=H+'px';
+    const g=c.getContext('2d'); g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,W,H);
+    const cs=getComputedStyle(this.root); const tx=cs.getPropertyValue('--text-dim')||'#777', ln=cs.getPropertyValue('--border')||'#ddd', ac=cs.getPropertyValue('--accent')||'#c00';
+    const L=34, R=8, T=8, B=26; const x0=Math.min(...xs), x1=Math.max(...xs), y1=Math.max(1, ...ys), y0=o.bars?0:Math.min(...ys);
+    const X=v=>L+(v-x0)/((x1-x0)||1)*(W-L-R), Y=v=>H-B-(v-y0)/((y1-y0)||1)*(H-T-B);
+    g.strokeStyle=ln; g.lineWidth=1; g.beginPath(); g.moveTo(L,T); g.lineTo(L,H-B); g.lineTo(W-R,H-B); g.stroke();
+    g.fillStyle=tx; g.font='10px system-ui,sans-serif'; g.textAlign='center'; g.fillText(fmt(x0), L, H-B+12); g.fillText(fmt(x1), W-R-8, H-B+12); g.fillText(o.xl, (L+W-R)/2, H-4);
+    g.textAlign='right'; g.fillText(fmt(y1), L-4, T+8); g.fillText(fmt(y0), L-4, H-B);
+    if(o.th){ g.fillStyle='rgba(232,72,63,.14)'; g.fillRect(X(o.th.lo), T, X(o.th.hi)-X(o.th.lo), H-T-B); }
+    g.strokeStyle=ac.trim()||'#c00'; g.fillStyle=ac.trim()||'#c00';
+    if(o.bars){ const bw=(W-L-R)/xs.length; ys.forEach((v,i)=>{ const h=(H-B)-Y(v); if(h>0) g.fillRect(X(xs[i]), Y(v), Math.max(1,bw), h); }); }
+    else { g.lineWidth=1.5; g.beginPath(); xs.forEach((x,i)=>{ const px=X(x), py=Y(ys[i]); i?g.lineTo(px,py):g.moveTo(px,py); }); g.stroke(); }
+  }
+  /* 입자 분석 — 8방향 이웃으로 이어진 덩어리 */
+  particles(){
+    if(!this.th.on) return say('먼저 밝기 범위를 골라 주세요.');
+    const W=this.W, H=this.H, M=this.thMask(); const lab=new Int32Array(W*H); const list=[]; const st=new Int32Array(W*H); const minA=this._minA||0, edge=this._edge!==false;
+    let id=0;
+    for(let s0=0;s0<M.length;s0++){ if(!M[s0] || lab[s0]) continue; id++; let sp=0; st[sp++]=s0; lab[s0]=id; let a=0, sx=0, sy=0, x0=W, y0=H, x1=0, y1=0, per=0, touch=false;
+      while(sp){ const k=st[--sp]; const x=k%W, y=(k/W)|0; a++; sx+=x; sy+=y; if(x<x0)x0=x; if(x>x1)x1=x; if(y<y0)y0=y; if(y>y1)y1=y; if(x===0||y===0||x===W-1||y===H-1) touch=true;
+        let edgeN=0;
+        for(let dy=-1;dy<=1;dy++) for(let dx=-1;dx<=1;dx++){ if(!dx&&!dy) continue; const nx=x+dx, ny=y+dy; if(nx<0||ny<0||nx>=W||ny>=H){ if(!dx||!dy) edgeN++; continue; } const nk=ny*W+nx; if(!M[nk]){ if(!dx||!dy) edgeN++; continue; } if(!lab[nk]){ lab[nk]=id; st[sp++]=nk; } }
+        per+=edgeN; }
+      if(a<minA || (edge && touch)) continue;
+      list.push({ a, cx:sx/a+.5, cy:sy/a+.5, bx:x0, by:y0, bw:x1-x0+1, bh:y1-y0+1, per, circ:per?Math.min(1,4*Math.PI*a/(per*per)):0 }); }
+    if(!list.length) return say('조건에 맞는 입자가 없어요 — 밝기 범위나 최소 넓이를 바꿔 보세요.', 3500);
+    this.snap(); this.rois=this.rois.filter(r=>r.t!=='parts'); const R={ t:'parts', list, id:++this.n }; this.rois.push(R); this.sel=R; this.changed(); this.showSide('res');
+    say(`입자 ${list.length}개를 찾았어요.`, 3000);
+  }
+  /* ───────── 내보내기 ───────── */
+  table(){ const u=this.u(); const head=['#','종류',`길이 (${u})`,'각도 (°)',`넓이 (${u}²)`,`둘레 (${u})`,'원형도',`중심 x (${u})`,`중심 y (${u})`,'밝기 평균','밝기 σ','최소','최대','개수'];
+    const NAME={ line:'직선', poly:'꺾은선', angle:'각도', rect:'사각형', ell:'타원', pgon:'다각형', free:'자유 곡선', pts:'점', parts:'입자' };
+    return [head].concat(this.rois.filter(r=>r.t!=='scale').map(R=>{ const o=this.measure(R); return [o.id, NAME[o.t], fmt(o.len), fmt(o.ang,3), fmt(o.area), fmt(o.per), fmt(o.circ,3), fmt(o.cx), fmt(o.cy), fmt(o.mean,2), fmt(o.sd,2), o.min??'', o.max??'', o.n??''].map(v=>v==null?'':String(v)); })); }
+  dl(name, rows){ const q=v=>/[",\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v; const b=new Blob(['﻿'+rows.map(r=>r.map(x=>q(String(x))).join(',')).join('\r\n')], { type:'text/csv;charset=utf-8' }); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); }
+  base(){ return (this.info && this.info.name ? this.info.name.replace(/\.[^.]+$/,'') : (this.tab?this.tab.name:'이미지')); }
+  csv(){ this.dl(`${this.base()} 측정.csv`, this.table()); }
+  partsCsv(R){ const u=this.u(); this.dl(`${this.base()} 입자.csv`, [['#',`넓이 (${u}²)`,`중심 x (${u})`,`중심 y (${u})`,`둘레 (${u})`,'원형도']].concat(R.list.map((q,i)=>[i+1, fmt(this.toU2(q.a)), fmt(this.toU(q.cx)), fmt(this.toU(q.cy)), fmt(this.toU(q.per)), fmt(q.circ,3)]))); }
+  ptsCsv(R){ const u=this.u(); this.dl(`${this.base()} 점.csv`, [['#',`x (${u})`,`y (${u})`]].concat(R.p.map((q,i)=>[i+1, fmt(this.toU(q[0])), fmt(this.toU(-q[1]+this.H))]))); }
+  toGraph(mat, roles, nm, src){ if(typeof openGraphTool!=='function') return say('그래프 그리기 도구를 찾지 못했어요.'); const gw=openGraphTool({ newTab:true, name:nm }); const T=gw && gw.tool; if(!T) return;
+    if(T.noteFile && this.info) T.noteFile(this.info.name+' (이미지 분석)'); T.importDialog(mat, { source:src, roles, hdr:1 }); say(`그래프 그리기의 '${nm}' 탭으로 보냈어요 — X · Y로 쓸 열을 고르고 [넣기]를 누르세요.`, 4500); }
+  profGraph(R){ const d=this.profile(R); this.toGraph([[`거리 (${this.u()})`,'밝기']].concat(d.map(q=>[String(+q[0].toPrecision(6)), String(+q[1].toFixed(2))])), ['x','y'], `${this.base()} 프로파일`, `이미지 분석 — #${R.id} 직선 밝기`); }
+  partsGraph(R){ const u=this.u(); this.toGraph([['#',`넓이 (${u}²)`,'원형도']].concat(R.list.map((q,i)=>[String(i+1), String(+this.toU2(q.a).toPrecision(6)), String(+q.circ.toFixed(3))])), ['x','y','skip'], `${this.base()} 입자`, `이미지 분석 — 입자 ${R.list.length}개`); }
+  resToGraph(){ const t=this.table(); const keep=[0,2,3,4,5,9]; this.toGraph(t.map(r=>keep.map(i=>r[i])), ['x','y','skip','skip','skip','skip'], `${this.base()} 측정`, '이미지 분석 — 측정 표'); }
+  async savePng(){ if(!this.src) return say('먼저 사진을 여세요.');
+    const c=document.createElement('canvas'); c.width=this.W; c.height=this.H; const g=c.getContext('2d'); g.drawImage(this.view||this.src,0,0);
+    const lw=Math.max(1.5, Math.max(this.W,this.H)/700); this.rois.forEach(R=>this.drawRoi(g, R, lw, false));
+    if(this.cal.px>0){ const ppu=this.cal.px/this.cal.len; const L=this.niceLen(this.W*0.18/ppu); const pxs=L*ppu; const x=this.W-pxs-this.W*0.03, y=this.H-this.H*0.04; const fs=Math.max(12, this.W/60);
+      g.fillStyle='rgba(0,0,0,.6)'; g.fillRect(x-fs*0.6, y-fs*1.8, pxs+fs*1.2, fs*2.6); g.fillStyle='#fff'; g.fillRect(x, y, pxs, fs*0.3); g.font=`600 ${fs}px system-ui,sans-serif`; g.textAlign='center'; g.fillText(`${fmt(L)} ${this.cal.unit}`, x+pxs/2, y-fs*0.45); }
+    c.toBlob(b=>{ const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=`${this.base()} 측정.png`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href), 4000); }, 'image/png'); }
+  /* ───────── 사진 손보기 ───────── */
+  paintAdj(pane){
+    const A=this.adj;
+    pane.innerHTML=`<h4>보기 조정 <small>(재는 밝기 값은 언제나 원본)</small></h4>
+      ${[['b','밝기',-100,100,1],['c','대비',-100,100,1],['g','감마',0.2,3,0.05]].map(([k,n,mn,mx,st])=>`<div class="ij-row"><label class="ij-f" style="flex:1">${n} <input type="range" min="${mn}" max="${mx}" step="${st}" value="${A[k]}" data-adj="${k}"></label><b class="ij-thv">${A[k]}</b></div>`).join('')}
+      <label class="ij-chk"><input type="checkbox" data-adjc="gray" ${A.gray?'checked':''}> 회색조</label><label class="ij-chk"><input type="checkbox" data-adjc="inv" ${A.inv?'checked':''}> 반전</label>
+      <div class="ij-row"><button type="button" class="gt-btn" data-reset>보기 되돌리기</button></div>
+      <h4>사진 손보기 <small>(측정은 지워져요)</small></h4>
+      <div class="ij-row ij-wrap"><button type="button" class="gt-btn" data-op="rot">${IJI('rot')}90° 돌리기</button><button type="button" class="gt-btn" data-op="flip">${IJI('flip')}좌우 뒤집기</button>
+      <button type="button" class="gt-btn" data-op="level" title="고른 직선이 수평이 되도록 사진을 돌려요 (비스듬히 찍힌 자 · 수면)">${IJI('level')}고른 선을 수평으로</button>
+      <button type="button" class="gt-btn" data-op="crop" title="고른 사각형으로 잘라요">${IJI('crop')}사각형으로 자르기</button></div>
+      ${this.info?`<p class="ij-note">${esc(this.info.name)} · ${this.W}×${this.H}px${this.info.k&&this.info.k<1?` (원본의 ${(this.info.k*100).toFixed(0)}%)`:''}</p>`:''}`;
+    pane.querySelectorAll('[data-adj]').forEach(r=>r.oninput=()=>{ A[r.dataset.adj]=+r.value; r.closest('.ij-row').querySelector('.ij-thv').textContent=r.value; cancelAnimationFrame(this._aR); this._aR=requestAnimationFrame(()=>this.makeView()); this.persist(); });
+    pane.querySelectorAll('[data-adjc]').forEach(c=>c.onchange=()=>{ A[c.dataset.adjc]=c.checked; this.makeView(); this.persist(); });
+    pane.querySelector('[data-reset]').onclick=()=>{ this.adj={ b:0, c:0, g:1, gray:false, inv:false }; this.makeView(); this.persist(); this.paintAdj(pane); };
+    pane.querySelectorAll('[data-op]').forEach(b=>b.onclick=()=>this.op(b.dataset.op));
+  }
+  op(k){
+    if(!this.src) return say('먼저 사진을 여세요.');
+    const s=this.src; let c=document.createElement('canvas'), g;
+    if(k==='rot'){ c.width=s.height; c.height=s.width; g=c.getContext('2d'); g.translate(c.width,0); g.rotate(Math.PI/2); g.drawImage(s,0,0); }
+    else if(k==='flip'){ c.width=s.width; c.height=s.height; g=c.getContext('2d'); g.translate(c.width,0); g.scale(-1,1); g.drawImage(s,0,0); }
+    else if(k==='level'){ const R=this.sel && this.sel.t==='line' ? this.sel : null; if(!R) return say('먼저 [고르기]로 수평이 되어야 할 직선을 골라 주세요.', 3500);
+      const a=Math.atan2(R.p[1][1]-R.p[0][1], R.p[1][0]-R.p[0][0]); const r=-a; const cw=Math.abs(s.width*Math.cos(r))+Math.abs(s.height*Math.sin(r)), ch=Math.abs(s.width*Math.sin(r))+Math.abs(s.height*Math.cos(r));
+      c.width=Math.round(cw); c.height=Math.round(ch); g=c.getContext('2d'); g.fillStyle='#000'; g.fillRect(0,0,c.width,c.height); g.translate(c.width/2,c.height/2); g.rotate(r); g.drawImage(s,-s.width/2,-s.height/2); }
+    else if(k==='crop'){ const R=this.sel && this.sel.t==='rect' ? this.sel : null; if(!R) return say('먼저 사각형으로 자를 곳을 그리고 골라 주세요.', 3500);
+      const [x,y,w,h]=R.r.map(Math.round); c.width=Math.max(1,w); c.height=Math.max(1,h); g=c.getContext('2d'); g.drawImage(s, x, y, w, h, 0, 0, w, h); }
+    const keepCal = (k==='rot'||k==='flip'||k==='level') && this.cal.px>0;   // 회전 · 뒤집기는 축척이 그대로
+    const cal=this.cal; this.rois=[]; this.sel=null; this.undoS=[]; this.redoS=[]; this.setSrc(c, this.info);
+    this.cal = (keepCal || k==='crop') ? { px:cal.px, len:cal.len, unit:cal.unit } : { px:0, len:0, unit:cal.unit };
+    this.changed(); this.saveImage(c); say(this.cal.px>0 ? '사진을 바꿨어요. 축척은 그대로 써요(측정은 지웠어요).' : '사진을 바꿨어요(측정은 지웠어요).', 3000);
+  }
+  saveImage(c){ if(!this.tab) return; c.toBlob(b=>{ if(b && b.size<=IJ_KEEP_BYTES) IDB.put({ id:this.tab.id, blob:b, name:(this.info&&this.info.name)||'사진', at:Date.now() }); }, 'image/png'); }
+  /* ───────── 되돌리기 · 저장 ───────── */
+  state(){ return JSON.stringify({ rois:this.rois.map(r=>{ const o=Object.assign({}, r); delete o._s; return o; }), cal:this.cal, n:this.n }); }
+  snap(){ this.undoS.push(this.state()); if(this.undoS.length>80) this.undoS.shift(); this.redoS=[]; }
+  load(js){ const o=JSON.parse(js); this.rois=o.rois||[]; this.cal=o.cal||this.cal; this.n=o.n||0; this.sel=null; this.ptGroup=null; }
+  undo(){ const s=this.undoS.pop(); if(!s) return; this.redoS.push(this.state()); this.load(s); this.changed(true); }
+  redo(){ const s=this.redoS.pop(); if(!s) return; this.undoS.push(this.state()); this.load(s); this.changed(true); }
+  changed(){ this.draw(); this.paintSide(); this.persist(); if(this.host && this.tab) this.host.setExtra(this.tab, { n:this.rois.filter(r=>r.t!=='scale').length }); }
+  persist(now){ if(!this.tab) return; clearTimeout(this._pT); const go=()=>ATW_LS.set(LSK(this.tab.id), { s:this.state(), adj:this.adj, th:this.th, prof:this.prof, tool:this.tool, info:this.info||null, minA:this._minA, edge:this._edge });
+    if(now) go(); else this._pT=setTimeout(go, 400); }
+  async restore(){
+    if(!this.tab) return; const sv=ATW_LS.get(LSK(this.tab.id), null);
+    if(sv){ if(sv.adj) this.adj=Object.assign(this.adj, sv.adj); if(sv.th) this.th=Object.assign(this.th, sv.th); if(sv.prof) this.prof=sv.prof; if(sv.minA!=null) this._minA=sv.minA; if(sv.edge!=null) this._edge=sv.edge; }
+    const rec=await IDB.get(this.tab.id);
+    if(rec && rec.blob){ await this.openFile(new File([rec.blob], rec.name||'사진', { type:rec.blob.type||'image/png' }), true); if(sv && sv.info) this.info=sv.info; if(sv && sv.s) this.load(sv.s); if(sv && sv.tool) this.setTool(sv.tool); this.makeView(); this.paintSide(); }
+    else if(sv && sv.info){ this.$('.ij-empty span').innerHTML=`이 탭의 사진 <b>${esc(sv.info.name)}</b>는 이 기기에 남아 있지 않아요(25MB 넘음) — 다시 열어 주세요.<br>측정은 사진을 다시 열면 지워져요.`; }
+  }
+  /* ───────── 키보드 ───────── */
+  onKey(e){
+    if(!this.active()) return; const t=e.target; if(t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName))) return;
+    if(!this.$('.gt-dlg-ov').hidden) return;
+    const k=e.key, mod=e.ctrlKey||e.metaKey;
+    if(mod && (k==='z'||k==='Z')){ e.preventDefault(); e.shiftKey?this.redo():this.undo(); return; }
+    if(mod && (k==='y'||k==='Y')){ e.preventDefault(); this.redo(); return; }
+    if(mod || e.altKey) return;
+    if(k===' '){ if(!this._space){ this._space=true; this.stage.classList.add('ij-grab'); } e.preventDefault(); return; }
+    if(k==='Escape'){ if(this.draft){ this.draft=null; this.draw(); e.preventDefault(); } else if(this.sel){ this.select(null); e.preventDefault(); } return; }
+    if(k==='Enter' && this.draft){ e.preventDefault(); this.finishDraft(); return; }
+    if((k==='Delete'||k==='Backspace') && this.sel){ e.preventDefault(); this.snap(); const id=this.sel.id; this.rois=this.rois.filter(r=>r!==this.sel); if(this.sel.t==='scale') this.cal={ px:0, len:0, unit:this.cal.unit }; this.sel=null; this.changed(); return; }
+    if(k==='0'){ this.fit(); e.preventDefault(); return; }
+    if(k==='+'||k==='='){ const r=this.stage.getBoundingClientRect(); this.zoomAt(this.z*1.25, r.left+r.width/2, r.top+r.height/2); e.preventDefault(); return; }
+    if(k==='-'){ const r=this.stage.getBoundingClientRect(); this.zoomAt(this.z/1.25, r.left+r.width/2, r.top+r.height/2); e.preventDefault(); return; }
+    const T=TOOLS.find(x=>x[2]===k.toUpperCase()); if(T){ this.setTool(T[0]); e.preventDefault(); }
+  }
+}
+const IJ_TABS={
+  kind:'imagej', defName:n=>`이미지 ${n}`,
+  make:(pane, tab, host)=>new ImageLab(pane, host.win, tab, host),
+  canClose:async ()=>true,
+  histInfo:t=>({ n:(t.inst && t.inst.rois ? t.inst.rois.filter(r=>r.t!=='scale').length : (t.extra.n||0)) }),
+  histLine:h=>{ const f=h.extra && h.extra.file; return (f ? `사진 <code>${ATW_esc(f.name)}</code>` : '사진을 열지 않았어요') + ` · 측정 ${h.n||0}개 — 이 기기에 남아 있으면 다시 열 때 그대로`; },
+  purge:h=>{ try{ localStorage.removeItem(LSK(h.id)); }catch(e){} IDB.del(h.id); },
+};
+function openImageLab(){ return ATW.open('imagej', { title:'이미지 분석', icon:ATW_ICON.img || ATW_ICON.graph, w:1240, h:800, minW:640, minH:460,
+  mount:(b,w)=>{ new ToolTabs(b, w, IJ_TABS); },
+  onClose:w=>{ try{ w.tabs && w.tabs.tabs.forEach(t=>{ try{ t.inst && t.inst.destroy(); }catch(e){} }); }catch(e){} } }); }
+window.openImageLab=openImageLab;
+window.ImageLab=ImageLab;
+})();
+</script>
+<style id="anda-media-css">
+/* ★세션 DG: 영상 넣기 창(avd-) · 문서 속 영상 표지 · 작성 안내(wk-hint) */
+.avd-ov{ position:fixed; inset:0; z-index:1320; background:rgba(20,14,16,.48); display:flex; align-items:center; justify-content:center; padding:16px; animation:fxpop var(--dur-2,.2s) var(--ease-out,ease) both; }
+.avd{ width:min(460px, 100%); max-height:calc(100vh - 32px); overflow:auto; background:var(--card); color:var(--text); border:1px solid var(--border-strong); border-radius:16px; box-shadow:var(--sh-3); padding:18px 18px 14px; }
+.avd h3{ margin:0 0 10px; font-size:17px; }
+.avd h3 small{ font-weight:500; color:var(--text-dim); font-size:13px; }
+.avd-file{ display:flex; flex-direction:column; gap:2px; padding:10px 12px; border-radius:10px; background:var(--box-bg); border:1px solid var(--border); }
+.avd-file b{ font-size:13.5px; overflow-wrap:anywhere; }
+.avd-file span{ font-size:12px; color:var(--text-dim); font-family:var(--mono); }
+.avd-why{ font-size:13px; line-height:1.6; color:var(--text-dim); margin:10px 0; }
+.avd-note{ font-size:12px; line-height:1.55; color:var(--text-dim); margin:8px 0 0; }
+.avd-opts{ display:flex; flex-direction:column; gap:8px; margin-top:6px; }
+.avd-btn{ display:flex; flex-direction:column; align-items:flex-start; gap:2px; width:100%; text-align:left; padding:11px 14px; border-radius:11px; border:1px solid var(--border-strong); background:var(--card); color:var(--text); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+.avd-btn small{ font-weight:400; font-size:12px; color:var(--text-dim); }
+.avd-btn:hover:not(:disabled){ border-color:var(--accent); }
+.avd-btn.pri{ background:var(--accent); border-color:var(--accent); color:#fff; }
+.avd-btn.pri small{ color:rgba(255,255,255,.85); }
+.avd-btn.ghost{ width:auto; display:inline-flex; padding:7px 14px; font-weight:500; }
+.avd-btn:disabled{ opacity:.5; cursor:default; }
+.avd-prog{ margin-top:12px; }
+.avd-bar{ height:8px; border-radius:6px; background:var(--box-bg); border:1px solid var(--border); overflow:hidden; }
+.avd-bar i{ display:block; height:100%; width:0; background:var(--accent); transition:width .25s linear; }
+.avd-pt{ display:block; margin-top:6px; font-size:12.5px; font-family:var(--mono); color:var(--text-dim); }
+.avd-foot{ display:flex; justify-content:flex-end; margin-top:12px; }
+.avd-ov.player{ background:rgba(10,8,9,.82); }
+.avd-ov.player .avd{ width:min(960px, 100%); padding:10px; background:#141112; border-color:#2a2426; color:#eee; }
+.avd-ph{ display:flex; align-items:center; gap:8px; margin:0 2px 8px; }
+.avd-ph b{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:14px; }
+.avd-ov.player .avd-btn.ghost{ background:transparent; color:#eee; border-color:#3a3335; }
+.avd-video{ display:block; width:100%; max-height:calc(100vh - 110px); background:#000; border-radius:10px; }
+/* ★DG-2: 커뮤니티 · 질문 영상(30일) · YouTube 떠 있는 재생기 */
+.avd-v{ position:relative; }
+.avd-left{ position:absolute; right:8px; top:8px; padding:2px 8px; border-radius:99px; background:rgba(0,0,0,.55); color:#fff; font-size:11px; pointer-events:none; }
+.avd-expired{ margin:8px 0; padding:12px 14px; border:1px dashed var(--border-strong); border-radius:10px; color:var(--text-dim); font-size:13px; background:var(--box-bg); }
+.avd-yt{ position:relative; width:100%; aspect-ratio:16/9; background:#000; border-radius:10px; overflow:hidden; }
+.avd-yt iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+.avd-ov.player a.avd-btn.ghost{ text-decoration:none; }
+/* 문서 속 영상: 표지만 먼저 */
+.wk-video video[poster]{ background:#000; object-fit:contain; }
+.wk-video .wk-vsize{ display:block; font-size:11.5px; color:var(--text-dim); margin-top:4px; }
+.qh-vids .wk-video{ margin:10px 0 0; }
+/* 틀의 작성 안내 — 비어 있는 칸이라는 표시. 채우고 나면 편집에서 그 줄을 지운다 */
+.wk-hint{ margin:6px 0 12px; padding:8px 12px 8px 30px; border:1px dashed var(--border-strong); border-radius:10px; color:var(--text-dim); font-size:13px; line-height:1.6; position:relative; background:transparent; }
+.wk-hint::before{ content:'✎'; position:absolute; left:11px; top:8px; color:var(--accent); font-size:13px; }
+body.dark .wk-hint{ border-color:rgba(255,255,255,.18); }
+/* ★DG: 새 문서 틀 고르기(ntp-) */
+.modal-box.ntp-box{ max-width:780px; width:calc(100vw - 24px); }
+.ntp{ margin:8px 0 6px; }
+.ntp-bar{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-bottom:8px; }
+.ntp-tabs{ display:flex; gap:4px; flex-wrap:wrap; flex:1 1 auto; }
+.ntp-tab{ height:30px; padding:0 12px; border-radius:99px; border:1px solid var(--border); background:var(--card); color:var(--text-dim); font:inherit; font-size:12.5px; font-weight:600; cursor:pointer; }
+.ntp-tab:hover{ border-color:var(--border-strong); color:var(--text); }
+.ntp-tab.on{ background:var(--text); color:var(--card); border-color:var(--text); }
+.ntp-q{ flex:0 1 200px; min-width:140px; height:32px; border-radius:9px; border:1px solid var(--border-strong); background:var(--card); color:var(--text); padding:0 10px; font:inherit; font-size:13px; }
+.ntp-q:focus{ outline:none; border-color:var(--accent); }
+.ntp-main{ display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:10px; }
+.ntp-list{ display:grid; grid-template-columns:1fr 1fr; gap:6px; align-content:start; max-height:330px; overflow:auto; padding:2px; }
+.ntp-card{ display:flex; gap:9px; align-items:flex-start; text-align:left; padding:9px 10px; border:1px solid var(--border); border-radius:11px; background:var(--card); color:var(--text); cursor:pointer; font:inherit; min-width:0; }
+.ntp-card[hidden]{ display:none; }
+.ntp-card:hover{ border-color:var(--border-strong); background:var(--box-bg); }
+.ntp-card.on{ border-color:var(--accent); box-shadow:inset 0 0 0 1px var(--accent); background:var(--red-50); }
+body.dark .ntp-card.on{ background:color-mix(in srgb, var(--accent) 14%, var(--card)); }
+.ntp-ic{ font-size:19px; line-height:1.2; flex:none; }
+.ntp-tx{ min-width:0; display:flex; flex-direction:column; gap:2px; }
+.ntp-tx b{ font-size:13px; }
+.ntp-tx small{ font-size:11.5px; color:var(--text-dim); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+.ntp-prev{ border:1px solid var(--border); border-radius:12px; background:var(--box-bg); padding:12px; max-height:330px; overflow:auto; min-width:0; }
+.ntp-ph{ display:flex; gap:10px; align-items:center; }
+.ntp-pic{ font-size:24px; }
+.ntp-ph b{ display:block; font-size:14.5px; }
+.ntp-ph small{ font-size:11.5px; color:var(--text-dim); }
+.ntp-pd{ font-size:12.5px; line-height:1.55; color:var(--text-dim); margin:8px 0 10px; }
+.ntp-ol{ border-left:2px solid var(--border-strong); padding-left:10px; display:flex; flex-direction:column; gap:3px; }
+.ntp-o{ font-size:12.5px; line-height:1.4; }
+.ntp-o.h2{ font-weight:700; color:var(--text); margin-top:3px; }
+.ntp-o.h3{ padding-left:12px; color:var(--text-dim); }
+.ntp-o.b{ padding-left:12px; font-size:11.5px; color:var(--accent); }
+.ntp-empty{ font-size:12.5px; color:var(--text-dim); padding:10px; border:1px dashed var(--border-strong); border-radius:9px; }
+.ntp-ib{ display:flex; flex-wrap:wrap; gap:4px; align-items:center; margin-top:10px; font-size:11.5px; }
+.ntp-ib span{ color:var(--text-dim); margin-right:2px; }
+.ntp-ib i{ font-style:normal; padding:1px 7px; border-radius:99px; border:1px solid var(--border-strong); background:var(--card); }
+.ntp-hint{ margin-top:8px; font-size:11.5px; color:var(--text-dim); }
+@media (max-width:640px){
+  .ntp-main{ grid-template-columns:1fr; }
+  .ntp-list{ grid-template-columns:1fr; max-height:240px; }
+  .ntp-prev{ max-height:180px; }
+  .ntp-q{ flex:1 1 100%; }
+}
+</style>
+<script id="anda-media-js">
+/* ================================================================
+   ★세션 DG-2: 영상 (AndaVideo) — 사용자 결정으로 정책을 나눴다
+   · 커뮤니티(채팅 · 세미나 · 질문 답변)와 질문 게시판: 영상 파일을 올릴 수 있다. 단 ① 언제나 줄여서(짧은 변 480px ·
+     0.9Mbps + 96kbps, 1분 ≈ 7.5MB) ② 30일 뒤 만료 — 비공개 버킷 chat-videos/<uid>/<올린 시각 ms>_…
+     화면은 경로의 시각으로 30일이 지나면 재생기 대신 '만료' 표시, 파일은 관리자가 앱을 열 때 하루 한 번 지운다
+     (채팅 사진 30일 정리와 같은 방식 — 세미나 영상도 예외 없음).
+   · 문서 · KYPT 등 오래 남는 곳: 영상 파일 금지, YouTube 링크만 — 앱 안에서 YouTube(nocookie)를 불러와 재생.
+   ================================================================ */
+(function(){
+'use strict';
+const W = window;
+const V_BUCKET = 'chat-videos';
+const V_KEEP_DAYS = 30;        // 만료 기간
+const V_SHORT = 480;            // 줄인 영상의 짧은 변(px)
+const V_VBPS = 900000;          // 영상 비트레이트
+const V_ABPS = 96000;           // 소리 비트레이트
+const V_SMALL = 4*1048576;      // 이보다 작고 이미 480p 이하면 그대로(다시 줄여도 이득이 없다)
+const esc = s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const fmtB = n=>{ n=Number(n)||0; return n>=1048576 ? (n/1048576).toFixed(n>=10485760?0:1)+'MB' : Math.max(1,Math.round(n/1024))+'KB'; };
+const fmtT = s=>{ s=Math.max(0, Math.round(s||0)); return Math.floor(s/60)+':'+String(s%60).padStart(2,'0'); };
+function limitBytes(){ try{ return (Number(LIMITS.lim_video_kb)||15360)*1024; }catch(e){ return 15*1048576; } }
+function isVideo(f){ return !!f && (/^video\//.test(f.type||'') || /\.(mp4|webm|mov|m4v|ogv|mkv)$/i.test(f.name||'')); }
+function recMime(){
+  const c=['video/mp4;codecs=avc1.42E01E,mp4a.40.2','video/mp4;codecs=avc1,mp4a.40.2','video/mp4','video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm'];
+  for(const m of c){ try{ if(W.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m; }catch(e){} }
+  return null;
+}
+function canShrink(){ try{ return !!(W.MediaRecorder && HTMLCanvasElement.prototype.captureStream && recMime()); }catch(e){ return false; } }
+function uid(){ try{ if(typeof state!=='undefined' && state.user && state.user.id) return state.user.id; }catch(e){} return null; }
+function client(){ try{ return (typeof sb!=='undefined' && sb) ? sb : null; }catch(e){ return null; } }
+
+/* 영상 정보 — { dur, w, h, v(video 요소), url } */
+function meta(file){
+  return new Promise((res, rej)=>{
+    const url=URL.createObjectURL(file); const v=document.createElement('video');
+    v.preload='metadata'; v.muted=true; v.playsInline=true; v.setAttribute('playsinline',''); v.crossOrigin='anonymous';
+    const to=setTimeout(()=>{ fail('영상 정보를 읽지 못했어요.'); }, 20000);
+    const fail=m=>{ clearTimeout(to); URL.revokeObjectURL(url); rej(new Error(m)); };
+    v.onloadedmetadata=()=>{ clearTimeout(to); res({ dur:isFinite(v.duration)?v.duration:0, w:v.videoWidth||0, h:v.videoHeight||0, v, url }); };
+    v.onerror=()=>fail('이 브라우저에서 열 수 없는 영상 형식이에요(아이폰 HEVC 영상 등). 휴대폰에서 "호환성 우선"으로 찍거나 YouTube 링크를 써 주세요.');
+    v.src=url;
+  });
+}
+function seekTo(v, t){ return new Promise(res=>{ const done=()=>{ v.removeEventListener('seeked', done); res(); }; v.addEventListener('seeked', done); try{ v.currentTime=t; }catch(e){ res(); } setTimeout(res, 4000); }); }
+/* 표지 사진 — 1초 무렵 한 장, 긴 변 640px JPEG */
+async function posterFrom(m){
+  try{
+    const v=m.v; if(!m.w || !m.h) return null;
+    await seekTo(v, Math.min(1, (m.dur||2)*0.1));
+    const k=Math.min(1, 640/Math.max(m.w, m.h)); const c=document.createElement('canvas'); c.width=Math.round(m.w*k); c.height=Math.round(m.h*k);
+    c.getContext('2d').drawImage(v, 0, 0, c.width, c.height);
+    return await new Promise(r=>c.toBlob(b=>r(b), 'image/jpeg', 0.72));
+  }catch(e){ return null; }
+}
+/* 줄이기 — 반드시 사용자가 누른 단추 안에서 부른다(소리 있는 재생 · AudioContext는 손짓이 있어야 시작된다) */
+function shrink(m, opt){
+  opt=opt||{};
+  const v=m.v; const maxT=opt.maxT && opt.maxT<m.dur ? opt.maxT : m.dur;
+  const short=Math.min(m.w, m.h)||V_SHORT; const k=Math.min(1, V_SHORT/short);
+  const w2=Math.max(2, Math.round(m.w*k/2)*2), h2=Math.max(2, Math.round(m.h*k/2)*2);
+  const c=document.createElement('canvas'); c.width=w2; c.height=h2; const ctx=c.getContext('2d');
+  const stream=c.captureStream(30);
+  let ac=null;
+  try{ const AC=W.AudioContext||W.webkitAudioContext; ac=new AC(); const src=ac.createMediaElementSource(v); const dest=ac.createMediaStreamDestination(); src.connect(dest);
+    dest.stream.getAudioTracks().forEach(t=>stream.addTrack(t)); v.muted=false; if(ac.state==='suspended') ac.resume(); }
+  catch(e){ ac=null; v.muted=true; }
+  const mime=recMime();
+  const rec=new MediaRecorder(stream, { mimeType:mime, videoBitsPerSecond:V_VBPS, audioBitsPerSecond:V_ABPS });
+  const chunks=[]; rec.ondataavailable=e=>{ if(e.data && e.data.size) chunks.push(e.data); };
+  let stopped=false, raf=0;
+  const draw=()=>{ if(stopped) return; try{ ctx.drawImage(v, 0, 0, w2, h2); }catch(e){}
+    if(opt.onProg) opt.onProg(Math.min(1, v.currentTime/(maxT||1)), v.currentTime, maxT);
+    if(v.currentTime>=maxT-0.02 || v.ended){ finish(); return; }
+    raf = v.requestVideoFrameCallback ? v.requestVideoFrameCallback(draw) : requestAnimationFrame(draw); };
+  let finish;
+  const p=new Promise((res, rej)=>{
+    finish=()=>{ if(stopped) return; stopped=true; try{ v.pause(); }catch(e){} try{ rec.stop(); }catch(e){ rej(e); } };
+    rec.onstop=()=>{ stream.getTracks().forEach(t=>t.stop()); try{ ac && ac.close(); }catch(e){}
+      if(opt.cancelled && opt.cancelled()) { rej(new Error('cancel')); return; }
+      res(new Blob(chunks, { type:mime.split(';')[0] })); };
+    rec.onerror=e=>{ stopped=true; rej(e.error||new Error('녹화 오류')); };
+  });
+  v.currentTime=0; v.playbackRate=1;
+  rec.start(1000);
+  const pl=v.play(); // ★손짓 안에서 바로
+  if(pl && pl.catch) pl.catch(()=>{ v.muted=true; v.play().catch(()=>finish()); });
+  v.addEventListener('ended', ()=>finish());
+  draw();
+  p.cancel=()=>{ opt.cancelled=()=>true; finish(); };
+  p.w=w2; p.h=h2;
+  return p;
+}
+/* ── 묻는 창 ── */
+function dialog(html){
+  const ov=document.createElement('div'); ov.className='avd-ov'; ov.innerHTML=`<div class="avd" role="dialog" aria-modal="true">${html}</div>`;
+  document.body.appendChild(ov); return ov;
+}
+/* 파일 하나 → 올릴 준비가 된 { blob, name, poster, dur, w, h, shrunk } 또는 null(취소)
+   opt: { maxBytes(기본 lim_video_kb), purpose:'채팅'|'질문' } — 언제나 줄인다(줄일 수 없는 브라우저에서만 상한 안의 원본) */
+async function prepare(file, opt){
+  opt=opt||{}; const L=opt.maxBytes||limitBytes();
+  let m;
+  try{ m=await meta(file); }
+  catch(e){
+    if(file.size<=L) return { blob:file, name:file.name, poster:null, dur:0, w:0, h:0, shrunk:false };   // 이 브라우저가 못 여는 형식 — 상한 안이면 원본 그대로
+    alertBox('영상을 열 수 없어요', esc(e.message)+`<br>이 파일은 ${fmtB(file.size)}라 그대로 올릴 수도 없어요(상한 ${fmtB(L)}).`); return null;
+  }
+  const short=Math.min(m.w, m.h);
+  const done=async(blob, shrunk)=>{ const pst=await posterFrom(m); URL.revokeObjectURL(m.url); return { blob, name:file.name, poster:pst, dur:m.dur, w:m.w, h:m.h, shrunk }; };
+  if(file.size<=Math.min(L, V_SMALL) && short<=V_SHORT) return done(file, false);       // 이미 작다 — 묻지 않는다
+  const can=canShrink();
+  const est=Math.round(m.dur*(V_VBPS+V_ABPS)/8*1.05);
+  const fitT=Math.floor(L*8/((V_VBPS+V_ABPS)*1.05));                                    // 상한 안에 들어가는 길이(초)
+  const tooLong = est>L;
+  const origOk = file.size<=L && !can;   // ★DG-2: 원본은 줄일 수 없는 브라우저에서만
+  if(!can && !origOk){ URL.revokeObjectURL(m.url); alertBox('영상이 너무 커요', `${fmtB(file.size)} · ${fmtT(m.dur)} — 상한은 ${fmtB(L)}예요.<br>이 브라우저는 영상을 줄일 수 없어요. 긴 영상은 <b>YouTube(일부 공개)</b> 링크를 붙여 주세요 — 그 자리에서 재생돼요.`); return null; }
+  return new Promise(resolve=>{
+    const ov=dialog(`<h3>영상 올리기 ${opt.purpose?`<small>· ${esc(opt.purpose)}</small>`:''}</h3>
+      <div class="avd-file"><b>${esc(file.name)}</b><span>${fmtB(file.size)} · ${fmtT(m.dur)} · ${m.w}×${m.h}</span></div>
+      <p class="avd-why">영상은 휴대폰으로 보기 알맞은 <b>480p로 줄여서</b> 올리고, <b>30일 뒤 자동으로 사라져요</b>. 오래 남길 영상은 YouTube(일부 공개)에 올려 문서에 링크로 넣어 주세요.</p>
+      ${can?`<div class="avd-opts">
+        ${!tooLong?`<button class="avd-btn pri" data-a="shrink">줄여서 올리기<small>약 ${fmtB(est)} · 영상 길이만큼(${fmtT(m.dur)}) 걸려요</small></button>`
+                  :`<button class="avd-btn pri" data-a="trim">앞부분 ${fmtT(fitT)}만 줄여서 올리기<small>전체를 줄여도 약 ${fmtB(est)}라 상한 ${fmtB(L)}을 넘어요</small></button>`}
+        ${origOk?`<button class="avd-btn" data-a="orig">원본 그대로<small>${fmtB(file.size)} — 줄이지 않고 바로</small></button>`:''}
+      </div>`:`<div class="avd-opts"><button class="avd-btn pri" data-a="orig">그대로 올리기<small>${fmtB(file.size)} (이 브라우저는 줄이기를 못 해요)</small></button></div>`}
+      ${tooLong?`<p class="avd-note">전체를 남기려면 YouTube에 <b>일부 공개</b>로 올리고 링크를 붙여 주세요 — 앱 안에서 바로 재생돼요.</p>`:''}
+      <div class="avd-prog" hidden><div class="avd-bar"><i></i></div><span class="avd-pt">준비 중…</span><p class="avd-note">줄이는 동안 이 화면을 켜 두세요(다른 탭으로 가면 멈출 수 있어요).</p></div>
+      <div class="avd-foot"><button class="avd-btn ghost" data-a="cancel">취소</button></div>`);
+    let job=null;
+    const end=r=>{ ov.remove(); resolve(r); };
+    ov.addEventListener('click', e=>{ if(e.target===ov && !job){ URL.revokeObjectURL(m.url); end(null); } });
+    ov.querySelector('[data-a="cancel"]').onclick=()=>{ if(job){ job.cancel(); return; } URL.revokeObjectURL(m.url); end(null); };
+    const og=ov.querySelector('[data-a="orig"]'); if(og) og.onclick=async()=>{ ov.querySelectorAll('.avd-opts button').forEach(b=>b.disabled=true); end(await done(file, false)); };
+    const go=(maxT)=>{
+      ov.querySelectorAll('.avd-opts button').forEach(b=>b.disabled=true); const pg=ov.querySelector('.avd-prog'); pg.hidden=false;
+      const bar=ov.querySelector('.avd-bar i'), pt=ov.querySelector('.avd-pt');
+      job=shrink(m, { maxT, onProg:(f,t,T)=>{ bar.style.width=(f*100).toFixed(1)+'%'; pt.textContent=`줄이는 중… ${fmtT(t)} / ${fmtT(T)}`; } });
+      job.then(async blob=>{ pt.textContent='표지 만드는 중…';
+        if(blob.size>L){ alertBox('여전히 커요', `줄였는데도 ${fmtB(blob.size)}라 상한 ${fmtB(L)}을 넘어요. 더 짧게 잘라 다시 올려 주세요.`); URL.revokeObjectURL(m.url); end(null); return; }
+        const ext=/webm/.test(blob.type)?'webm':'mp4'; const nm=String(file.name||'영상').replace(/\.[^.]+$/,'')+'.'+ext;
+        end(Object.assign(await done(blob, true), { name:nm })); })
+      .catch(err=>{ URL.revokeObjectURL(m.url); if(String(err&&err.message)==='cancel'){ end(null); return; } alertBox('줄이지 못했어요', esc((err&&err.message)||err)+(origOk?'<br>[원본 그대로]로 다시 해 보세요.':'')); end(null); });
+    };
+    const sh=ov.querySelector('[data-a="shrink"]'); if(sh) sh.onclick=()=>go(0);
+    const tr=ov.querySelector('[data-a="trim"]'); if(tr) tr.onclick=()=>go(fitT);
+  });
+}
+function alertBox(t, html){
+  const ov=dialog(`<h3>${esc(t)}</h3><p class="avd-why">${html}</p><div class="avd-foot"><button class="avd-btn pri" data-a="ok">확인</button></div>`);
+  ov.querySelector('[data-a="ok"]').onclick=()=>ov.remove(); ov.addEventListener('click', e=>{ if(e.target===ov) ov.remove(); });
+}
+/* chat-videos에 올리기 → { url, poster } (public 꼴 주소 — 화면에선 서명 주소 계층이 바꿔 준다) */
+async function upload(r, onMsg){
+  const s=client(), me=uid(); if(!s || !me) throw new Error('로그인이 필요해요');
+  const base=`${me}/${Date.now()}_${Math.random().toString(36).slice(2,7)}`;   // ★올린 시각(ms) — 만료 계산에 쓴다
+  const ext=/webm/.test(r.blob.type||'')||/\.webm$/i.test(r.name||'')?'webm':(/quicktime/.test(r.blob.type||'')||/\.mov$/i.test(r.name||'')?'mov':'mp4');
+  if(onMsg) onMsg(`영상 올리는 중… ${fmtB(r.blob.size)}`);
+  const up=await s.storage.from(V_BUCKET).upload(`${base}.${ext}`, r.blob, { contentType:r.blob.type||('video/'+ext), cacheControl:'31536000', upsert:false });
+  if(up.error){ const m=String(up.error.message||up.error); if(/bucket not found|not.?found/i.test(m)) throw new Error('영상 저장소가 아직 없어요 — 관리자가 138 SQL을 실행해야 해요. 지금은 YouTube 링크를 붙여 주세요.'); throw up.error; }
+  let poster='';
+  if(r.poster){ try{ const p2=await s.storage.from(V_BUCKET).upload(`${base}.jpg`, r.poster, { contentType:'image/jpeg', cacheControl:'31536000', upsert:false }); if(!p2.error) poster=s.storage.from(V_BUCKET).getPublicUrl(`${base}.jpg`).data.publicUrl; }catch(e){} }
+  return { url:s.storage.from(V_BUCKET).getPublicUrl(`${base}.${ext}`).data.publicUrl, poster, size:r.blob.size, path:`${base}.${ext}`, posterPath:poster?`${base}.jpg`:'' };
+}
+/* 만료 — 경로의 올린 시각으로 판단 */
+function uploadedAt(u){ const m=String(u||'').match(/\/chat-videos\/[^/]+\/(\d{13})_/); return m ? Number(m[1]) : null; }
+function daysLeft(u){ const t=uploadedAt(u); if(t==null) return null; return V_KEEP_DAYS - (Date.now()-t)/86400000; }
+/* 커뮤니티 · 질문 영상 한 개 (스펙: '주소 | 표지: 주소' 또는 주소). 만료면 받지 않는다 */
+function embedHTML(spec, opt){
+  opt=opt||{};
+  let u=String(spec||'').trim(), poster='';
+  { const mm=u.match(/^(.*?)\s*\|\s*표지\s*[:：]\s*(\S+)\s*$/); if(mm){ u=mm[1].trim(); poster=mm[2]; } }
+  if(opt.poster) poster=opt.poster;
+  if(!/^https?:\/\//i.test(u)) return '';
+  const left=daysLeft(u);
+  if(left!=null && left<=0) return `<div class="avd-expired">⏳ 30일이 지나 만료된 영상이에요${opt.name?` · ${esc(opt.name)}`:''}</div>`;
+  return `<div class="wk-video avd-v"><video src="${esc(u)}" controls preload="${poster?'none':'metadata'}" playsinline${poster?` poster="${esc(poster)}"`:''}></video>${left!=null?`<span class="avd-left">${Math.max(1,Math.ceil(left))}일 뒤 사라져요</span>`:''}</div>`;
+}
+/* YouTube — 앱 안 떠 있는 재생기 (youtube-nocookie: 누르기 전엔 아무것도 불러오지 않는다) */
+function ytId(u){
+  try{ const x=new URL(u); const h=x.hostname.replace(/^www\.|^m\./,'');
+    if(h==='youtu.be') return { id:x.pathname.slice(1,12), t:x.searchParams.get('t') };
+    if(/^(youtube\.com|youtube-nocookie\.com|music\.youtube\.com)$/.test(h)){
+      if(x.pathname==='/watch') return { id:x.searchParams.get('v'), t:x.searchParams.get('t') };
+      const m=x.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{11})/); if(m) return { id:m[1], t:x.searchParams.get('t') }; }
+  }catch(e){}
+  return null;
+}
+function playYouTube(id, t, title){
+  if(!/^[\w-]{11}$/.test(String(id||''))) return false;
+  const s=parseInt(String(t||'').replace(/s$/,''),10)||0;
+  const ov=dialog(`<div class="avd-ph"><b>${esc(title||'YouTube 영상')}</b><a class="avd-btn ghost" href="https://www.youtube.com/watch?v=${esc(id)}${s?'&t='+s:''}" target="_blank" rel="noopener">YouTube에서</a><button class="avd-btn ghost" data-a="x">닫기</button></div>
+    <div class="avd-yt"><iframe src="https://www.youtube-nocookie.com/embed/${esc(id)}?autoplay=1&rel=0${s?'&start='+s:''}" title="YouTube 영상" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div>`);
+  ov.classList.add('player');
+  const close=()=>{ ov.remove(); document.removeEventListener('keydown', k, true); };
+  const k=e=>{ if(e.key==='Escape'){ e.stopPropagation(); close(); } };
+  ov.querySelector('[data-a="x"]').onclick=close; ov.addEventListener('click', e=>{ if(e.target===ov) close(); }); document.addEventListener('keydown', k, true);
+  return true;
+}
+/* 30일 지난 영상 지우기 — 관리자 기기에서 하루 한 번(채팅 사진 정리와 같은 때) */
+async function cleanExpired(force){
+  const s=client(); if(!s) return null;
+  const KEY='anda_vid_gc_at'; const now=Date.now();
+  if(!force){ try{ if(now-Number(localStorage.getItem(KEY)||0) < 86400000) return null; }catch(e){} }
+  const files=[]; const walk=async(prefix)=>{ for(let off=0;;off+=100){ const { data, error }=await s.storage.from(V_BUCKET).list(prefix, { limit:100, offset:off, sortBy:{ column:'name', order:'asc' } });
+      if(error) throw error; if(!data || !data.length) break;
+      for(const it of data){ const p=prefix?prefix+'/'+it.name:it.name; if(it.id===null || !it.metadata) await walk(p); else files.push({ path:p, size:Number((it.metadata&&it.metadata.size)||0), at:it.created_at }); }
+      if(data.length<100) break; } };
+  try{
+    await walk('');
+    const cut=now-V_KEEP_DAYS*86400000;
+    const old=files.filter(f=>{ const m=f.path.match(/\/(\d{13})_/); const t=m?Number(m[1]):(f.at?new Date(f.at).getTime():NaN); return !isNaN(t) && t<cut; });
+    for(let i=0;i<old.length;i+=100){ const { error }=await s.storage.from(V_BUCKET).remove(old.slice(i,i+100).map(f=>f.path)); if(error) throw error; }
+    try{ localStorage.setItem(KEY, String(now)); }catch(e){}
+    return { deleted:old.length, bytes:old.reduce((a,f)=>a+f.size,0), scanned:files.length };
+  }catch(e){ return { error:(e&&e.message)||String(e) }; }
+}
+/* 본문에 넣을 한 줄 */
+function line(u){ return `[[영상: ${u.url}${u.poster?` | 표지: ${u.poster}`:''}]]`; }
+/* 고르기 창 */
+function pick(multiple){ return new Promise(res=>{ const i=document.createElement('input'); i.type='file'; i.accept='video/*'; if(multiple) i.multiple=true; i.onchange=()=>res([...(i.files||[])]); i.click(); }); }
+/* 떠 있는 재생기 — 자료함 영상 등 */
+function play(url, title){
+  const ov=dialog(`<div class="avd-ph"><b>${esc(title||'영상')}</b><button class="avd-btn ghost" data-a="x">닫기</button></div><video class="avd-video" controls playsinline autoplay src="${esc(url)}"></video>`);
+  ov.classList.add('player');
+  const close=()=>{ const v=ov.querySelector('video'); try{ v.pause(); v.removeAttribute('src'); v.load(); }catch(e){} ov.remove(); document.removeEventListener('keydown', k, true); };
+  const k=e=>{ if(e.key==='Escape'){ e.stopPropagation(); close(); } };
+  ov.querySelector('[data-a="x"]').onclick=close; ov.addEventListener('click', e=>{ if(e.target===ov) close(); }); document.addEventListener('keydown', k, true);
+}
+/* 문서 · KYPT · 레퍼런스의 YouTube 링크 → 새 탭 대신 앱 안 재생기 (Ctrl/⌘/Shift/가운데 단추는 원래대로) */
+document.addEventListener('click', e=>{
+  if(e.defaultPrevented || e.button!==0 || e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+  const a=e.target.closest && e.target.closest('a[href]'); if(!a || a.closest('.rdr, .avd-ov') || a.hasAttribute('download') || a.dataset.noplayer!=null) return;
+  const y=ytId(a.href); if(!y || !/^[\w-]{11}$/.test(y.id||'')) return;
+  e.preventDefault(); playYouTube(y.id, y.t, (a.textContent||'').trim().slice(0,80));
+}, true);
+W.AndaVideo = { isVideo, canShrink, prepare, upload, line, pick, play, limitBytes, fmtB, embedHTML, daysLeft, ytId, playYouTube, cleanExpired, BUCKET:V_BUCKET, KEEP_DAYS:V_KEEP_DAYS };
+})();
+</script>
 <script id="anda-reader-js">
 /* ================================================================
    ★세션 DF: 논문 열람기 — 앱 안에서 PDF를 읽는 전면 화면
