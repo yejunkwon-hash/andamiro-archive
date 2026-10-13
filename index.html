@@ -14871,7 +14871,7 @@ const ST_TABLES={
 const ST_SCHEMAS={ public:'내 데이터(public)', auth:'로그인 · 계정(auth)', storage:'저장소 파일 목록(storage)', realtime:'실시간(realtime)', cron:'예약 작업(cron)', net:'외부 호출(net)', pg_catalog:'DB 자체(시스템)', supabase_functions:'Edge 함수 기록', vault:'비밀값(vault)', extensions:'확장', graphql:'GraphQL' };
 const ST_DEVICE=[
   ['anda_graph_v1','그래프 그리기 — 표 · 설정'], ['anda_tr_v1','영상 분석 — 저장한 점'], ['anda_tr_pref','영상 분석 — 설정'], ['anda_tabs_','도구 — 열린 탭'], ['anda_hist_','도구 — 닫은 탭 기록'],
-  ['anda_err_v1','오차 분석(메뉴에서 뺌)'], ['anda_ij_','이미지 분석 — 측정 · 축척 · 좌표축 · 도형 모양(anda_ij_style) (사진은 IndexedDB anda_imagej)'], ['anda_kt_','KYPT 발표 타이머'], ['anda_tw_','도구 창 위치 · 크기'], ['anda_draft','문서 임시 저장본'], ['anda_kypt_draft','KYPT 임시 저장본'],
+  ['anda_err_v1','오차 분석(메뉴에서 뺌)'], ['anda_ij_','이미지 분석 — 측정 · 축척 · 좌표축 · 도형 모양(anda_ij_style) (사진은 IndexedDB anda_imagej)'], ['anda_kt_','KYPT 발표 타이머'], ['anda_bt_v1','여러 영상 자동 추적 — 영상별 축척 · 설정'], ['anda_tw_','도구 창 위치 · 크기'], ['anda_draft','문서 임시 저장본'], ['anda_kypt_draft','KYPT 임시 저장본'],
   ['anda_tree_bulk_draft','분류 한꺼번에 만들기 초안'], ['anda_photos','사진 창고'], ['anda_rdr_','논문 열람기 — 설정 (읽던 위치 · 최근 파일은 IndexedDB anda_reader)'], ['anda_vid_gc_at','영상 30일 정리 — 마지막 실행'], ['sb-','로그인 정보'],
 ];
 function stPct(u,l){ return l>0 ? Math.min(100, u/l*100) : 0; }
@@ -15587,6 +15587,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-10-13', text:"[도구] 새 도구 '여러 영상 자동 추적' — 공이 레일을 굴러 내려가는 영상을 여러 개 한꺼번에 골라, 영상마다 화면에서 길이를 아는 구간을 끌고 실제 길이만 넣으면 공을 자동으로 찾아 시간 · 레일 방향 변위 · 속도 표를 만들어요. 끝까지 굴러간 구간(없으면 가운데서 멈춘 채 끝난 구간)을 알아서 고르고, 확인 그림에서 다른 궤적으로 바꿀 수도 있어요. 결과는 그래프 그리기로 보내거나(모든 영상을 한 그래프에도) CSV로 받아요. 영상은 올리지 않아요." },
   { date:'2026-10-08', text:"[도구] 그래프 그리기에 '수식 열'이 생겼어요. [ƒx 수식 열]이나 열 메뉴 ⋯ → [ƒx 수식으로 채우기]에서 0.5*y1^2 · y1/100 · ln(y1)처럼 다른 열로 값을 계산해요(열 이름표는 머리의 x1 · y1). deriv(y1, x1)로 미분(위치 → 속도), cumint(y1, x1)로 누적 적분, mean · sd · delta 같은 열 함수도 있고, 쓴 열에 ± 오차가 있으면 오차도 자동으로 전파해요. 원본을 고치면 저절로 다시 계산돼요." },
   { date:'2026-10-08', text:"[도구] 그래프 그리기를 손봤어요. 그래프 위 막대가 [형식] · [추세선] · [설정] · [저장]으로 줄었어요. [형식]에서 선 + 점 · 점만(이웃한 점을 선으로 잇지 않기) · 선만 · 매끄러운 곡선 · 계단 · 줄기 · 막대 · 면적을 모든 계열 또는 계열마다 고르고, [추세선]에서 직선 · 원점 지나는 직선 · 2~6차 다항식 · 지수 · 지수 감쇠 + 상수 · 포화 · 거듭제곱 · 로그 · 반비례 · 역제곱 · 사인 · 감쇠 진동 · 가우스 · 로렌츠 · 이동 평균, 그리고 직접 쓴 식(예: a*exp(-b*x)*cos(w*x+p)+c)으로 맞춰요. 맞출 x 범위를 정할 수 있고, 값마다 ± 표준오차와 R² · χ²/ν가 나와요." },
   { date:'2026-10-08', text:"[도구] 그래프 그리기 · 이미지 분석 · KYPT 발표 타이머는 창 제목줄의 ⧉ 단추로 새 브라우저 창으로 꺼낼 수 있어요. 그 창은 따로 크기를 바꾸고, 원래 탭을 닫아도 남아요. 영상 · 이미지 분석에서 [그래프로] 보내면 새 창의 그래프로 들어가요." },
@@ -25600,6 +25601,7 @@ window.addEventListener('resize', ()=>{ clearTimeout(ATW._rt); ATW._rt=setTimeou
 const ANDA_TOOLS=[
   { id:'graph', name:'그래프 그리기', sub:'표 · CSV · 붙여넣기 → MATLAB식 실험 그래프, 추세선 · 오차 막대 · 내보내기', icon:ATW_ICON.graph, open:()=>openGraphTool(), solo:true },
   { id:'tracker', name:'영상 분석 (Tracker)', sub:'실험 영상에서 물체 위치를 찍어 시간 · 위치 · 속도 표로 — 원본 화질, 업로드 없음', icon:ATW_ICON.track, open:()=>openTracker() },
+  { id:'batchtrack', name:'여러 영상 자동 추적', sub:'공이 굴러가는 영상 여러 개 → 영상마다 축척만 정하면 변위 · 속도 표를 한꺼번에 — 업로드 없음', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="14" height="11" rx="2"/><path d="M5.5 3.5h13a3 3 0 0 1 3 3v9"/><path d="M5 14.5l4-4 3 2.5 3-3.5"/></svg>', open:()=>{ if(typeof openBatchTrack==='function') openBatchTrack(); } },   // ★DL
   { id:'imagej', name:'이미지 분석 (ImageJ식)', sub:'축척 · 좌표축 → 길이 · 각도 · 원 · 넓이 · 밝기, 궤적으로 g, 무늬로 파장, 입자 세기 — 업로드 없음', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/></svg>', open:()=>openImageLab(), solo:true },   // ★DH (오차 분석은 메뉴에서 뺐다 — 사용자 결정, 코드 openErrCalc는 남겨 둠)
   { id:'reader', name:'논문 열람기', sub:'PDF를 앱 안에서 — 형광펜 · 메모 · 캡처를 개인 / 공용으로, 자동 목차', icon:'<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 5.5c2.8-1.2 5.6-1.2 8.5.5 2.9-1.7 5.7-1.7 8.5-.5v13c-2.8-1.2-5.6-1.2-8.5.5-2.9-1.7-5.7-1.7-8.5-.5z"/><path d="M12 6v13"/></svg>', open:()=>openPaperReader(), hide:()=>!featOn('reader') },
   { id:'kytimer', name:'KYPT 발표 타이머', sub:'Physics Fight 단계별 시간 · 소리 · 발표장 큰 화면', icon:ATW_ICON.timer, open:()=>openKyptTimer(), solo:true },
@@ -30259,6 +30261,757 @@ function openImageLab(){ return ATW.open('imagej', { title:'이미지 분석', i
   onClose:w=>{ try{ w.tabs && w.tabs.tabs.forEach(t=>{ try{ t.inst && t.inst.destroy(); }catch(e){} }); }catch(e){} } }); }
 window.openImageLab=openImageLab;
 window.ImageLab=ImageLab;
+})();
+</script>
+<style id="anda-batch-css">
+/* ★세션 DL: 여러 영상 자동 추적 (접두사 bt-) */
+.bt{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; position:relative; }
+.bt-steps{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; color:var(--text-dim); margin-left:6px; }
+.bt-steps b{ font-weight:600; padding:3px 8px; border-radius:999px; }
+.bt-steps b.on{ background:var(--accent); color:#fff; }
+.bt-steps b.done{ color:var(--text); }
+.bt-steps i{ font-style:normal; opacity:.5; }
+.bt-mid{ flex:1; min-height:0; display:flex; }
+.bt-mid.bt-dragon{ outline:3px dashed var(--accent); outline-offset:-6px; }
+.bt-list{ width:230px; flex:none; overflow:auto; border-right:1px solid var(--border); background:var(--box-bg); padding:6px; display:flex; flex-direction:column; gap:2px; }
+.bt-lh{ font-size:12.5px; font-weight:700; padding:4px 6px 6px; display:flex; justify-content:space-between; align-items:baseline; }
+.bt-lh small{ font-weight:500; color:var(--text-dim); }
+.bt-it{ display:flex; align-items:center; gap:7px; width:100%; text-align:left; border:1px solid transparent; background:transparent; color:var(--text); border-radius:8px; padding:5px 6px; font:inherit; font-size:12.5px; cursor:pointer; }
+.bt-it:hover{ background:var(--card); }
+.bt-it.on{ background:var(--card); border-color:var(--accent); }
+.bt-n{ flex:none; width:20px; height:20px; border-radius:50%; background:var(--card); border:1px solid var(--border-strong); display:inline-flex; align-items:center; justify-content:center; font-size:11px; color:var(--text-dim); }
+.bt-nm{ flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600; }
+.bt-nm small{ display:block; font-weight:400; color:var(--text-dim); font-size:11px; }
+.bt-nm u{ text-decoration:none; color:var(--accent); }
+.bt-st{ flex:none; font-style:normal; font-size:10.5px; padding:1px 6px; border-radius:999px; background:var(--card); border:1px solid var(--border); color:var(--text-dim); }
+.bt-st.run{ border-color:var(--accent); color:var(--accent); }
+.bt-st.ok{ background:var(--ok-bg, #E3F2EA); border-color:transparent; color:#1F7A4D; }
+.bt-st.warn{ background:#FFF4D6; border-color:transparent; color:#8A5A00; }
+.bt-st.fail{ background:var(--red-100, #FBEAE9); border-color:transparent; color:var(--accent); }
+.bt-x{ flex:none; width:18px; height:18px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; color:var(--text-dim); opacity:0; }
+.bt-it:hover .bt-x{ opacity:1; } .bt-x:hover{ background:var(--border); color:var(--text); }
+.bt-main{ flex:1; min-width:0; min-height:0; display:flex; flex-direction:column; overflow:auto; }
+.bt-in{ height:28px; padding:0 7px; border:1px solid var(--border-strong); border-radius:7px; background:var(--card); color:var(--text); font:inherit; font-size:12.5px; }
+input.bt-in[type=number]{ width:84px; }
+.bt-note{ color:var(--text-dim); font-size:12px; line-height:1.5; }
+/* ① 고르기 */
+.bt-pick{ margin:auto; max-width:620px; padding:28px 22px; display:flex; flex-direction:column; align-items:center; gap:10px; text-align:center; }
+.bt-pi svg{ width:46px; height:46px; color:var(--accent); }
+.bt-pick > b{ font-size:16px; } .bt-pick > span{ color:var(--text-dim); font-size:13px; }
+.bt-how{ text-align:left; margin:10px 0 2px; padding-left:20px; font-size:13px; line-height:1.6; display:flex; flex-direction:column; gap:5px; }
+/* ② 축척 */
+.bt-sc{ flex:1; min-height:0; display:flex; flex-direction:column; }
+.bt-sch{ padding:7px 10px; border-bottom:1px solid var(--border); display:flex; flex-direction:column; gap:2px; }
+.bt-sch b{ font-size:13px; } .bt-sch small{ color:var(--text-dim); font-size:12px; }
+.bt-stage{ flex:1; min-height:200px; position:relative; overflow:hidden; background:#111; outline:none; touch-action:none; cursor:crosshair; }
+.bt-wrap{ position:absolute; left:0; top:0; transform-origin:0 0; }
+.bt-wrap video{ display:block; width:100%; height:100%; }
+.bt-svg{ position:absolute; left:0; top:0; pointer-events:none; overflow:visible; }
+.bt-loupe{ position:absolute; z-index:3; border:2px solid #fff; border-radius:50%; box-shadow:0 2px 10px rgba(0,0,0,.5); pointer-events:none; }
+.bt-sload{ position:absolute; inset:0; z-index:4; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; background:rgba(12,10,10,.86); color:#fff; text-align:center; padding:20px; }
+.bt-sload[hidden]{ display:none; } .bt-sload small{ max-width:520px; opacity:.8; line-height:1.5; }
+.bt-scbar, .bt-scbtn{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:7px 10px; font-size:12.5px; }
+.bt-scbar{ border-top:1px solid var(--border); }
+.bt-scbtn{ padding-top:0; }
+.bt-fr{ display:inline-flex; align-items:center; gap:6px; flex:1; min-width:200px; }
+.bt-fr input{ flex:1; accent-color:var(--accent); } .bt-frt{ font-variant-numeric:tabular-nums; color:var(--text-dim); min-width:58px; }
+.bt-len{ display:inline-flex; align-items:center; gap:6px; font-weight:600; }
+.bt-pxi{ color:var(--text-dim); } .bt-pxi b{ color:var(--text); } .bt-pxi u{ text-decoration:none; color:var(--accent); }
+.bt-gogo.bt-dim{ opacity:.55; }
+/* ③ 추적 */
+.bt-run{ flex:1; min-height:0; display:flex; flex-direction:column; gap:8px; padding:10px 12px; }
+.bt-rh{ display:flex; align-items:center; gap:8px; } .bt-rh b{ font-size:13.5px; }
+.bt-rbar{ height:8px; border-radius:99px; background:var(--box-bg); border:1px solid var(--border); overflow:hidden; }
+.bt-rbar i{ display:block; height:100%; width:1%; background:var(--accent); transition:width .2s; }
+.bt-rs{ font-size:12.5px; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.bt-pvw{ flex:1; min-height:120px; position:relative; background:#111; border-radius:10px; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+.bt-pvc{ max-width:100%; max-height:100%; display:block; }
+.bt-pvi{ position:absolute; right:8px; bottom:8px; width:150px; border:1px solid rgba(255,255,255,.4); border-radius:6px; overflow:hidden; opacity:.9; }
+.bt-pvi video{ display:block; width:100%; }
+/* ④ 결과 */
+.bt-res{ display:flex; flex-direction:column; gap:8px; padding:10px 12px; }
+.bt-rtb{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .bt-rtb small{ color:var(--text-dim); font-size:12px; }
+.bt-sumw{ max-height:38%; min-height:80px; overflow:auto; border:1px solid var(--border); border-radius:10px; }
+.bt-sum{ width:100%; border-collapse:collapse; font-size:12.5px; font-variant-numeric:tabular-nums; }
+.bt-sum th{ position:sticky; top:0; background:var(--box-bg); text-align:left; font-weight:600; color:var(--text-dim); padding:6px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.bt-sum td{ padding:5px 8px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.bt-sum tr[data-i]{ cursor:pointer; } .bt-sum tr[data-i]:hover td{ background:var(--box-bg); }
+.bt-sum tr.on td{ background:var(--red-50, #FDF5F4); }
+.bt-tn{ font-weight:600; max-width:220px; overflow:hidden; text-overflow:ellipsis; }
+.bt-bad{ color:var(--accent); white-space:normal !important; }
+.bt-rule{ font-size:11px; padding:1px 7px; border-radius:999px; background:var(--ok-bg, #E3F2EA); color:#1F7A4D; }
+.bt-rule.w{ background:#FFF4D6; color:#8A5A00; }
+.bt-det{ display:flex; flex-direction:column; gap:8px; }
+.bt-dh{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .bt-dh > b{ font-size:14px; }
+.bt-why{ font-size:12px; padding:2px 8px; border-radius:999px; background:var(--ok-bg, #E3F2EA); color:#1F7A4D; }
+.bt-why.w{ background:#FFF4D6; color:#8A5A00; }
+.bt-dinfo{ font-size:12px; color:var(--text-dim); line-height:1.5; }
+.bt-dg{ display:flex; gap:12px; align-items:flex-start; flex-wrap:wrap; }
+.bt-chk{ flex:3 1 420px; min-width:0; display:flex; flex-direction:column; gap:4px; }
+.bt-cc{ width:100%; height:auto; border-radius:8px; background:#111; cursor:pointer; display:block; }
+.bt-chk small{ font-size:11.5px; color:var(--text-dim); }
+.bt-plots{ flex:2 1 260px; min-width:240px; display:flex; flex-direction:column; gap:6px; }
+.bt-tbl summary{ cursor:pointer; font-size:12.5px; font-weight:600; }
+.bt-tw{ max-height:260px; overflow:auto; margin-top:6px; border:1px solid var(--border); border-radius:8px; }
+.bt-tw table{ border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; width:100%; }
+.bt-tw th{ position:sticky; top:0; background:var(--box-bg); padding:4px 8px; text-align:right; font-weight:600; }
+.bt-tw td{ padding:3px 8px; text-align:right; border-top:1px solid var(--border); }
+.bt-pop{ position:absolute; z-index:15; background:var(--card); border:1px solid var(--border-strong); border-radius:10px; box-shadow:var(--sh-3, 0 6px 24px rgba(0,0,0,.18)); padding:4px; display:flex; flex-direction:column; min-width:170px; }
+.bt-pop button{ text-align:left; border:0; background:transparent; color:var(--text); font:inherit; font-size:13px; padding:7px 10px; border-radius:7px; cursor:pointer; } .bt-pop button:hover{ background:var(--box-bg); }
+.bt-dlg{ width:min(560px,100%); }
+.bt-row{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:13px; font-weight:600; }
+.bt-row small{ flex-basis:100%; font-weight:400; color:var(--text-dim); font-size:12px; line-height:1.45; }
+@media (max-width:720px){
+  .bt-mid{ flex-direction:column; } .bt-list{ width:auto; max-height:120px; border-right:0; border-bottom:1px solid var(--border); flex-direction:row; overflow-x:auto; }
+  .bt-it{ width:auto; flex:none; max-width:180px; } .bt-lh{ flex:none; flex-direction:column; justify-content:center; white-space:nowrap; padding:4px 8px; } .bt-steps i, .bt-steps b:not(.on){ display:none; }
+  .bt-stage{ min-height:260px; }
+}
+</style>
+<script id="anda-batch-js">
+/* ================================================================
+   ★세션 DL: 여러 영상 자동 추적 — 레일을 굴러 내려가는 공(쇠구슬)을 영상 여러 개에서 한꺼번에
+   흐름: ① 영상 여러 개 고르기 → ② 영상마다 축척(화면에서 길이를 아는 구간을 끌고 길이 입력)
+         → ③ 모두 자동 추적(배경 빼기로 공 찾기 → 궤적 잇기 → 규칙으로 한 구간 고르기) → ④ 결과(표 · 확인 그림 · 그래프 · CSV)
+   궤적 고르기: 1) 오른쪽 아래 끝까지 굴러간 구간(여러 번이면 가장 길게 간 것) 2) 없으면 가운데서 멈춘 채(기준 5초) 끝난 구간
+                3) 둘 다 아니면 가장 많이 움직인 구간 + '확인 필요'. 결과 화면에서 회색 궤적을 눌러 직접 바꿀 수 있다.
+   공이 오래 멈춰 배경(중앙값)에 섞이면, 공 자리를 빼고 배경을 다시 만들어 한 번 더 추적한다.
+   영상은 업로드 · 저장하지 않는다(영상 분석과 같음). 이 기기에 남는 것: 영상별 축척(파일 이름 · 크기 · 수정 시각으로 찾음) · 설정
+   = localStorage anda_bt_v1:<uid>. 결과 표는 창을 닫으면 사라진다(CSV · 그래프로 내보내기).
+   의존: ATW · ATW_LS · ATW_say · ATW_esc · ATW_ICON · gtI · openGraphTool · Tracker.prototype.measureFps · TR_UID · trSize · trTime
+   ================================================================ */
+(function(){
+'use strict';
+const esc=s=>ATW_esc(s);
+const say=(m,ms)=>ATW_say(m,ms);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+if(typeof ATW_ICON!=='undefined' && !ATW_ICON.batch) ATW_ICON.batch='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="14" height="11" rx="2"/><path d="M5.5 3.5h13a3 3 0 0 1 3 3v9"/><path d="M5 14.5l4-4 3 2.5 3-3.5"/></svg>';
+const VID_RE=/\.(mp4|mov|m4v|webm|mkv|avi|3gp|mts|m2ts)$/i;
+const BT_UID=()=>{ try{ return typeof TR_UID==='function' ? TR_UID() : 'anon'; }catch(e){ return 'anon'; } };
+const BT_KEY=()=>'anda_bt_v1:'+BT_UID();
+const BT_DEF={ stop:5, thr:30, pw:960, win:7 };
+const UNITS=['m','cm','mm'];
+function btStore(){ return Object.assign({ pref:{}, sc:{} }, ATW_LS.get(BT_KEY(), {})); }
+function btPref(){ return Object.assign({}, BT_DEF, btStore().pref||{}); }
+function btSave(fn){ const s=btStore(); fn(s); const keys=Object.keys(s.sc||{}); if(keys.length>300){ keys.sort((a,b)=>(s.sc[a].at||0)-(s.sc[b].at||0)); keys.slice(0, keys.length-300).forEach(k=>delete s.sc[k]); } ATW_LS.set(BT_KEY(), s); }
+const sigOf=f=>[f.name, f.size, f.lastModified].join('|');
+const fmtN=(v,p)=>{ if(v==null || !isFinite(v)) return ''; return String(+v.toPrecision(p||6)); };
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+
+/* ───────────────── 영상 다루기 ───────────────── */
+function btLoad(v, file){
+  return new Promise((res, rej)=>{
+    let done=false; const fin=(ok, why)=>{ if(done) return; done=true; clearTimeout(to); v.onloadedmetadata=v.onerror=v.onloadeddata=null; ok?res():rej(why); };
+    const to=setTimeout(()=>fin(false, 'time'), 30000);
+    v.onerror=()=>fin(false, v.error ? v.error.code : 0);
+    v.onloadedmetadata=()=>{ if(!v.videoWidth) return fin(false, 'novideo'); if(v.readyState>=2) fin(true); else v.onloadeddata=()=>fin(true); };
+    v.src=URL.createObjectURL(file); v.load();
+  });
+}
+function btUnload(v){ try{ v.pause(); const u=v.src; v.removeAttribute('src'); v.load(); if(u && u.startsWith('blob:')) URL.revokeObjectURL(u); }catch(e){} }
+/* 프레임 n으로 (배경 표본 · 빠진 프레임 메우기용). 멈춘 영상에선 rVFC가 안 오는 브라우저가 있어 seeked + 다음 화면까지만 기다린다 */
+function btSeek(v, n, fps){
+  return new Promise(res=>{ let fin=false; const end=()=>{ if(fin) return; fin=true; requestAnimationFrame(()=>res(n/fps)); };
+    v.addEventListener('seeked', end, { once:true }); setTimeout(end, 4000); v.currentTime=(n+0.5)/fps; });
+}
+/* 재생하면서 프레임마다 onFrame(k, 시각) — 한 번 풀면 끝이라 seek보다 훨씬 빠르다.
+   처리가 프레임 간격보다 오래 걸리면 재생 속도를 늦춘다. 그래도 빠진 프레임은 got[k]=0으로 돌려준다(뒤에서 seek로 메움) */
+function btPlayPass(v, fps, N, onFrame, ctl, backlog){
+  const got=new Uint8Array(N); let cnt=0;
+  return new Promise(async res=>{
+    await btSeek(v, 0, fps);
+    let done=false, rate=1, ema=null, lastCb=performance.now(), lastK=-1, calm=0; v.playbackRate=rate;
+    const fin=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} v.playbackRate=1; clearInterval(watch); document.removeEventListener('visibilitychange', vis); v.onended=null; res(got); };
+    const cb=(now, m)=>{ if(done) return; lastCb=performance.now(); if(ctl.stop) return fin();
+      const k=Math.round(m.mediaTime*fps);
+      if(k>=0 && k<N && !got[k]){ const t0=performance.now(); onFrame(k, m.mediaTime); got[k]=1; cnt++; const dt=performance.now()-t0; ema= ema==null ? dt : ema*0.85+dt*0.15;
+        // 프레임을 건너뛰었으면 늦추고, 한동안 안 건너뛰면 처리 시간에 맞춰 조금씩 올린다
+        if(lastK>=0 && k>lastK+1){ rate=Math.max(0.0625, rate*0.75); v.playbackRate=rate; calm=0; }
+        else if(++calm>45){ calm=0; const want=clamp(0.6*(1000/fps)/Math.max(ema,1), 0.0625, 1); if(want>rate*1.1){ rate=Math.min(want, rate*1.25); v.playbackRate=rate; } }
+        lastK=k; }
+      if(k>=N-1) return fin();
+      v.requestVideoFrameCallback(cb);
+      // 워커가 밀리면 잠깐 멈췄다가 따라잡으면 다시
+      if(backlog && backlog()>12 && !v.paused){ v.pause(); const tick=()=>{ if(done) return; if(ctl.stop) return fin(); if(backlog()>3) return setTimeout(tick, 30); lastCb=performance.now(); if(!document.hidden) v.play().catch(()=>{}); }; setTimeout(tick, 30); } };
+    const vis=()=>{ if(done) return; if(document.hidden) v.pause(); else { lastCb=performance.now(); v.play().catch(()=>{}); } };
+    document.addEventListener('visibilitychange', vis);
+    const watch=setInterval(()=>{ if(ctl.stop) return fin(); if(!document.hidden && performance.now()-lastCb>6000) fin(); }, 400);   // 멈춰 버리면 남은 것은 seek로
+    v.onended=()=>setTimeout(fin, 300);
+    v.muted=true; v.requestVideoFrameCallback(cb);
+    const p=v.play(); if(p && p.catch) p.catch(()=>fin());
+  });
+}
+const BT_ERR={ 4:'이 브라우저가 이 영상 형식(코덱)을 열 수 없어요', 3:'영상을 푸는 중에 문제가 생겼어요', 2:'파일을 읽는 중에 끊겼어요', time:'영상을 여는 데 너무 오래 걸려요', novideo:'영상 트랙이 없거나 브라우저가 풀지 못해요' };
+const BT_CODEC_HINT='아이폰 영상(HEVC/H.265)이 흔한 원인이에요 — 크롬 · 엣지 최신판이나 맥 사파리로 열거나, 아이폰 [설정 → 카메라 → 포맷 → 높은 호환성]으로 찍거나, H.264 MP4로 바꿔 주세요.';
+
+/* ───────────────── 영상 처리 (순수 계산) ───────────────── */
+function qsel(a, n, k){ let l=0, r=n-1; while(r>l){ const p=a[(l+r)>>1]; let i=l, j=r; while(i<=j){ while(a[i]<p) i++; while(a[j]>p) j--; if(i<=j){ const t=a[i]; a[i]=a[j]; a[j]=t; i++; j--; } } if(k<=j) r=j; else if(k>=i) l=i; else break; } return a[k]; }
+/* 표본 프레임(RGB) 여러 장의 화소별 중앙값. masks[j]가 있으면 그 표본에서 공이 있던 자리(1)는 빼고 낸다 */
+function btMedian(S, W, H, masks, base){
+  const K=S.length, N=W*H, out=base ? new Uint8Array(base) : new Uint8Array(N*3), buf=new Uint8Array(K);
+  let x0=0, y0=0, x1=W-1, y1=H-1;
+  if(masks){ x0=W; y0=H; x1=-1; y1=-1; masks.forEach(m=>{ if(m){ x0=Math.min(x0,m.x0); y0=Math.min(y0,m.y0); x1=Math.max(x1,m.x1); y1=Math.max(y1,m.y1); } }); if(x1<0) return out; }
+  for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
+    const i=y*W+x;
+    for(let c=0;c<3;c++){ let n=0; const o=i*3+c;
+      for(let j=0;j<K;j++){ const m=masks && masks[j]; if(m && x>=m.x0 && x<=m.x1 && y>=m.y0 && y<=m.y1 && m.a[(y-m.y0)*(m.x1-m.x0+1)+(x-m.x0)]) continue; buf[n++]=S[j][o]; }
+      if(!n) continue; out[o]=qsel(buf, n, n>>1); }
+  }
+  return out;
+}
+function btMaskCircle(W, H, cx, cy, r){ const x0=Math.max(0,Math.floor(cx-r)), y0=Math.max(0,Math.floor(cy-r)), x1=Math.min(W-1,Math.ceil(cx+r)), y1=Math.min(H-1,Math.ceil(cy+r)); if(x1<x0||y1<y0) return null;
+  const w=x1-x0+1, a=new Uint8Array(w*(y1-y0+1)); for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r) a[(y-y0)*w+(x-x0)]=1; return { x0, y0, x1, y1, a }; }
+function btMergeMask(A, B){ if(!A) return B; if(!B) return A; const x0=Math.min(A.x0,B.x0), y0=Math.min(A.y0,B.y0), x1=Math.max(A.x1,B.x1), y1=Math.max(A.y1,B.y1), w=x1-x0+1, a=new Uint8Array(w*(y1-y0+1));
+  [A,B].forEach(M=>{ const mw=M.x1-M.x0+1; for(let y=M.y0;y<=M.y1;y++) for(let x=M.x0;x<=M.x1;x++) if(M.a[(y-M.y0)*mw+(x-M.x0)]) a[(y-y0)*w+(x-x0)]=1; }); return { x0, y0, x1, y1, a }; }
+/* 정사각형 창 r로 침식/팽창 — 상자 [x0..x1]×[y0..y1] 안에서만(밖은 0으로 본다; 상자는 전경 + 여백이라 결과가 같다).
+   상자 끝이 화면 끝이면 침식에서 바깥을 무시(OpenCV 기본과 같음) */
+function btMorph(m, t, W, B, r, dil){
+  const [x0,x1,y0,y1]=B;
+  for(let y=y0;y<=y1;y++){ const o=y*W; let c=0; for(let x=x0;x<=Math.min(x1,x0+r);x++) c+=m[o+x];
+    for(let x=x0;x<=x1;x++){ const n=Math.min(x1,x+r)-Math.max(x0,x-r)+1; t[o+x]= dil ? (c>0?1:0) : (c===n?1:0); if(x-r>=x0) c-=m[o+x-r]; if(x+r+1<=x1) c+=m[o+x+r+1]; } }
+  for(let x=x0;x<=x1;x++){ let c=0; for(let y=y0;y<=Math.min(y1,y0+r);y++) c+=t[y*W+x];
+    for(let y=y0;y<=y1;y++){ const n=Math.min(y1,y+r)-Math.max(y0,y-r)+1; m[y*W+x]= dil ? (c>0?1:0) : (c===n?1:0); if(y-r>=y0) c-=t[(y-r)*W+x]; if(y+r+1<=y1) c+=t[(y+r+1)*W+x]; } }
+}
+function btWork(W, H){ const N=W*H; return { W, H, m:new Uint8Array(N), t:new Uint8Array(N), lab:new Int32Array(N), st:new Int32Array(N), pix:new Int32Array(N) }; }
+/* 한 프레임에서 공 후보 찾기 → [{x, y, r, fill, strict}] (처리 해상도 좌표) */
+function btDetect(px, bg, Wk, P){
+  const { W, H, m, t, lab, st, pix }=Wk, N=W*H, thr=P.thr;
+  let fx0=W, fx1=-1, fy0=H, fy1=-1;
+  for(let y=0,i=0,j=0,k=0;y<H;y++){ let any=false; for(let x=0;x<W;x++,i++,j+=4,k+=3){ let d=px[j]-bg[k]; if(d<0) d=-d; let e=px[j+1]-bg[k+1]; if(e<0) e=-e; if(e>d) d=e; e=px[j+2]-bg[k+2]; if(e<0) e=-e; if(e>d) d=e;
+      if(d>thr){ m[i]=1; any=true; if(x<fx0) fx0=x; if(x>fx1) fx1=x; } else m[i]=0; } if(any){ if(y<fy0) fy0=y; fy1=y; } }
+  if(fx1<0) return [];
+  const M=6, B=[Math.max(0,fx0-M), Math.min(W-1,fx1+M), Math.max(0,fy0-M), Math.min(H-1,fy1+M)], [bx0_,bx1_,by0_,by1_]=B;
+  btMorph(m,t,W,B,1,false); btMorph(m,t,W,B,1,true);     // 열기 3×3 (잡티 지우기)
+  btMorph(m,t,W,B,3,true); btMorph(m,t,W,B,3,false);     // 닫기 7×7 (구멍 메우기)
+  for(let y=by0_;y<=by1_;y++) lab.fill(0, y*W+bx0_, y*W+bx1_+1);
+  const rmin=P.rminF*W, rmax=P.rmaxF*W, amin=Math.PI*rmin*rmin*0.25, side=2*2.5*rmax+3;
+  const out=[]; let L=0;
+  for(let yy0=by0_;yy0<=by1_;yy0++) for(let s0=yy0*W+bx0_, se=yy0*W+bx1_; s0<=se; s0++){
+    if(!m[s0] || lab[s0]) continue;
+    L++; let sp=0, np=0; st[sp++]=s0; lab[s0]=L; let bx0=W, by0=H, bx1=-1, by1=-1;
+    while(sp){ const p=st[--sp]; pix[np++]=p; const y=(p/W)|0, x=p-y*W; if(x<bx0) bx0=x; if(x>bx1) bx1=x; if(y<by0) by0=y; if(y>by1) by1=y;
+      for(let dy=-1;dy<=1;dy++){ const yy=y+dy; if(yy<by0_||yy>by1_) continue; for(let dx=-1;dx<=1;dx++){ const xx=x+dx; if(xx<bx0_||xx>bx1_) continue; const q=yy*W+xx; if(m[q] && !lab[q]){ lab[q]=L; st[sp++]=q; } } } }
+    if(np<amin) continue;
+    const bw=bx1-bx0+1, bh=by1-by0+1;
+    if(bw>side || bh>side) continue;                                         // 손 · 몸처럼 큰 덩어리
+    if(bx0<=1 || by0<=1 || bx1>=W-2 || by1>=H-2) continue;                   // 가장자리에 잘린 덩어리(중심이 치우침)
+    // 구멍 메운 넓이 · 무게중심 (투명한 공은 가운데가 비기도 한다)
+    const gw=bw+2, gh=bh+2, g=new Uint8Array(gw*gh);
+    for(let i=0;i<np;i++){ const p=pix[i], y=(p/W)|0, x=p-y*W; g[(y-by0+1)*gw+(x-bx0+1)]=1; }
+    const q=[0]; g[0]=2; while(q.length){ const p=q.pop(), y=(p/gw)|0, x=p-y*gw;
+      if(x>0 && !g[p-1]){ g[p-1]=2; q.push(p-1); } if(x<gw-1 && !g[p+1]){ g[p+1]=2; q.push(p+1); } if(y>0 && !g[p-gw]){ g[p-gw]=2; q.push(p-gw); } if(y<gh-1 && !g[p+gw]){ g[p+gw]=2; q.push(p+gw); } }
+    let A=0, sx=0, sy=0; for(let y=0;y<gh;y++) for(let x=0;x<gw;x++) if(g[y*gw+x]!==2){ A++; sx+=x; sy+=y; }
+    const cx=sx/A+bx0-1+0, cy=sy/A+by0-1+0;
+    let r2=0; for(let i=0;i<np;i++){ const p=pix[i], y=(p/W)|0, x=p-y*W, d=(x-cx)*(x-cx)+(y-cy)*(y-cy); if(d>r2) r2=d; }
+    const r=Math.sqrt(r2)+0.5, fill=A/(Math.PI*r*r);
+    if(r<rmin || r>2.5*rmax || fill<0.25) continue;
+    out.push({ x:cx, y:cy, r, fill, strict: r<=rmax && fill>=P.fillMin });
+  }
+  return out;
+}
+/* 공 찾기를 웹 워커 여럿에 나눠 맡긴다(재생은 멈추지 않고, 코어 여러 개를 쓴다). 워커를 못 만들면 이 자리에서 바로 계산 */
+function btPool(W, H, P){
+  const nW=clamp((navigator.hardwareConcurrency||4)-1, 1, 4); let ws=[];
+  try{ const src=btMorph.toString()+'\n'+btDetect.toString()+`
+let BG=null, WK=null, PP=null;
+onmessage=e=>{ const d=e.data; if(d.bg){ BG=new Uint8Array(d.bg); PP=d.P; if(!WK || WK.W!==d.W || WK.H!==d.H){ const N=d.W*d.H; WK={ W:d.W, H:d.H, m:new Uint8Array(N), t:new Uint8Array(N), lab:new Int32Array(N), st:new Int32Array(N), pix:new Int32Array(N) }; } return; }
+  const px=new Uint8ClampedArray(d.px); const r=btDetect(px, BG, WK, PP); postMessage({ k:d.k, dets:r, px:d.px }, [d.px]); };`;
+    const url=URL.createObjectURL(new Blob([src], { type:'text/javascript' }));
+    for(let i=0;i<nW;i++) ws.push(new Worker(url)); setTimeout(()=>URL.revokeObjectURL(url), 5000);
+  }catch(e){ ws=[]; }
+  const pend=new Map(), load=ws.map(()=>0), spare=[]; let Wk=null, bgL=null, waiters=[];
+  const settle=()=>{ if(!pend.size){ const w=waiters; waiters=[]; w.forEach(f=>f()); } };
+  ws.forEach((w,i)=>{ w.onmessage=e=>{ const d=e.data, cb=pend.get(d.k); pend.delete(d.k); load[i]--; if(spare.length<8) spare.push(new Uint8ClampedArray(d.px)); if(cb) cb(d.dets); settle(); };
+    w.onerror=()=>{ ws=[]; }; });
+  return {
+    workers:()=>ws.length,
+    setBg(bg){ bgL=bg; if(ws.length) ws.forEach(w=>{ const c=new Uint8Array(bg); w.postMessage({ bg:c.buffer, W, H, P }, [c.buffer]); }); else if(!Wk) Wk=btWork(W, H); },
+    get inflight(){ return pend.size; },
+    send(k, px, cb){ if(!ws.length){ if(!Wk) Wk=btWork(W, H); cb(btDetect(px, bgL, Wk, P)); return; }
+      let i=0; for(let j=1;j<ws.length;j++) if(load[j]<load[i]) i=j; load[i]++; pend.set(k, cb); ws[i].postMessage({ k, px:px.buffer }, [px.buffer]); },
+    take(){ return spare.pop()||null; },
+    drain(){ return pend.size ? new Promise(r=>waiters.push(r)) : Promise.resolve(); },
+    close(){ ws.forEach(w=>{ try{ w.terminate(); }catch(e){} }); ws=[]; pend.clear(); }
+  };
+}
+/* 프레임별 후보 → 궤적(가까운 것끼리, 등속 예측). dets[k] = 후보 목록, times[k] = 시각 */
+function btLink(dets, times, fps, P){
+  const lost=Math.max(2, Math.round(P.lostSec*fps)); let active=[]; const done=[];
+  const vel=tr=>{ const n=tr.f.length; if(n<2) return [0,0]; const j=Math.max(0,n-4), df=tr.f[n-1]-tr.f[j]; return [(tr.x[n-1]-tr.x[j])/df, (tr.y[n-1]-tr.y[j])/df]; };
+  const rmed=tr=>{ const a=tr.r.slice(-5).sort((p,q)=>p-q); return a[a.length>>1]; };
+  for(let k=0;k<dets.length;k++){
+    const D=dets[k]||[], t=times[k], pairs=[];
+    active.forEach((tr,ti)=>{ const [vx,vy]=vel(tr), n=tr.f.length, dk=k-tr.f[n-1], px=tr.x[n-1]+vx*dk, py=tr.y[n-1]+vy*dk, r=rmed(tr), gate=2.5*r+1.5*Math.hypot(vx,vy)*dk;
+      D.forEach((d,di)=>{ const dist=Math.hypot(d.x-px, d.y-py), q=d.r/r; if(dist<gate && (d.strict ? (q>0.6 && q<1.6) : (q>0.6 && q<3))) pairs.push([dist+(d.strict?0:r), ti, di]); }); });
+    pairs.sort((a,b)=>a[0]-b[0]); const ut=new Set(), ud=new Set();
+    pairs.forEach(([_,ti,di])=>{ if(ut.has(ti)||ud.has(di)) return; ut.add(ti); ud.add(di); const tr=active[ti], d=D[di];
+      tr.f.push(k); tr.t.push(t); tr.x.push(d.x); tr.y.push(d.y); tr.r.push(d.strict ? d.r : rmed(tr)); tr.src.push(d.strict?'d':'b'); tr.miss=0; });
+    active.forEach((tr,ti)=>{ if(!ut.has(ti)) tr.miss++; });
+    D.forEach((d,di)=>{ if(!ud.has(di) && d.strict) active.push({ f:[k], t:[t], x:[d.x], y:[d.y], r:[d.r], src:['d'], miss:0 }); });
+    const keep=[]; active.forEach(tr=>(tr.miss>lost ? done : keep).push(tr)); active=keep;
+  }
+  done.push(...active);
+  return done.filter(tr=>tr.t[tr.t.length-1]-tr.t[0] >= P.minTrackSec).map((tr,i)=>Object.assign(tr, { id:i+1 }));
+}
+function med(a){ const b=a.slice().sort((p,q)=>p-q); return b[b.length>>1]; }
+function btTail(tr, P){ const r=med(tr.r), n=tr.x.length, xe=tr.x[n-1], ye=tr.y[n-1], tol=Math.max(1, P.stopSpeed*r*4); let j=n-1; while(j>0 && Math.hypot(tr.x[j-1]-xe, tr.y[j-1]-ye)<tol) j--; return { sec:tr.t[n-1]-tr.t[j], j }; }
+function btDescribe(tr, info, P){
+  const { W, H }=info, n=tr.x.length, r=med(tr.r);
+  const span=Math.hypot(Math.max(...tr.x)-Math.min(...tr.x), Math.max(...tr.y)-Math.min(...tr.y));
+  const dx=tr.x[n-1]-tr.x[0], dy=tr.y[n-1]-tr.y[0], downright=dx>0 && dy>-r;
+  const j=Math.max(0,n-4), df=tr.f[n-1]-tr.f[j]||1, speedEnd=Math.hypot(tr.x[n-1]-tr.x[j], tr.y[n-1]-tr.y[j])/df;
+  const nearRight=tr.x[n-1]>W-4*r || tr.y[n-1]>H-4*r, endsAtEnd=info.endT-tr.t[n-1]<0.5;
+  const tail=btTail(tr, P), mid=tr.x[n-1]>4*r && tr.x[n-1]<W-4*r;
+  const full=downright && span>0.25*W && (nearRight || (speedEnd>0.3*r && !endsAtEnd));
+  const stoppedEnd=downright && span>3*r && endsAtEnd && mid && !full;
+  return { span, r, full, stopped: stoppedEnd && tail.sec>=1, stoppedLong: stoppedEnd && tail.sec>=P.stop, still:tail.sec, stillJ:tail.j, endsAtEnd, mid, moving: span>3*r };
+}
+function btChoose(info, P){
+  const C=info.tracks.map(tr=>({ tr, d:btDescribe(tr, info, P) }));
+  const full=C.filter(c=>c.d.full);
+  if(full.length){ const b=full.reduce((a,c)=>{ const ka=Math.round(a.d.span/(2*a.d.r)), kc=Math.round(c.d.span/(2*c.d.r)); return (kc>ka || (kc===ka && c.tr.t[0]>a.tr.t[0])) ? c : a; }); return { c:b, rule:1, why:'규칙 1 — 오른쪽 아래 끝까지 굴러간 구간'+(full.length>1?` (그런 구간 ${full.length}개 중 가장 길게 간 것)`:''), n:full.length }; }
+  const st=C.filter(c=>c.d.stopped);
+  if(st.length){ const b=st.reduce((a,c)=>((c.d.stoppedLong && !a.d.stoppedLong) || (c.d.stoppedLong===a.d.stoppedLong && c.d.span>a.d.span)) ? c : a);
+    return b.d.stoppedLong ? { c:b, rule:2, why:`규칙 2 — 가운데에서 ${b.d.still.toFixed(1)}초 멈춘 채 끝난 구간`, n:st.length }
+      : { c:b, rule:2, warn:true, why:`규칙 2 (확인 권장) — 멈춘 채 끝났지만 멈춘 시간이 ${b.d.still.toFixed(1)}초로 기준 ${P.stop}초보다 짧아요`, n:st.length }; }
+  const mv=C.filter(c=>c.d.moving);
+  if(mv.length){ const b=mv.reduce((a,c)=>c.d.span>a.d.span?c:a); return { c:b, rule:3, warn:true, why:'확인 필요 — 규칙에 맞는 구간이 없어 가장 많이 움직인 구간을 골랐어요', n:0 }; }
+  return null;
+}
+/* 창 안에서 2차식 맞춤 → 그 점의 값과 기울기(속도). 시간 간격이 고르지 않아도 된다 */
+function btLocal(T, S, win){
+  const n=T.length, h=win>>1, sm=new Array(n).fill(NaN), v=new Array(n).fill(NaN);
+  for(let i=0;i<n;i++){ const a=Math.max(0,i-h), b=Math.min(n,i+h+1), m=b-a; if(m<3) continue; const deg=m>=5?2:1;
+    let s0=0,s1=0,s2=0,s3=0,s4=0,y0=0,y1=0,y2=0; for(let k=a;k<b;k++){ const t=T[k]-T[i], y=S[k], t2=t*t; s0++; s1+=t; s2+=t2; s3+=t2*t; s4+=t2*t2; y0+=y; y1+=y*t; y2+=y*t2; }
+    if(deg===2){ const M=[[s4,s3,s2],[s3,s2,s1],[s2,s1,s0]], R=[y2,y1,y0]; const c=solve3(M,R); if(c){ sm[i]=c[2]; v[i]=c[1]; } }
+    else { const det=s0*s2-s1*s1; if(Math.abs(det)>1e-18){ v[i]=(s0*y1-s1*y0)/det; sm[i]=(y0-v[i]*s1)/s0; } } }
+  return { sm, v };
+}
+function solve3(M,R){ const A=M.map((r,i)=>r.concat([R[i]])); for(let c=0;c<3;c++){ let p=c; for(let r=c+1;r<3;r++) if(Math.abs(A[r][c])>Math.abs(A[p][c])) p=r; if(Math.abs(A[p][c])<1e-30) return null; [A[c],A[p]]=[A[p],A[c]]; for(let r=0;r<3;r++) if(r!==c){ const f=A[r][c]/A[c][c]; for(let k=c;k<4;k++) A[r][k]-=f*A[c][k]; } } return [A[0][3]/A[0][0], A[1][3]/A[1][1], A[2][3]/A[2][2]]; }
+/* 고른 궤적 → 표. sc = { ppu: 원본 픽셀 / 단위, unit } (없으면 px) */
+function btTable(tr, d, info, P, sc){
+  const S=info.scale; let x=tr.x.map(v=>v/S), y=tr.y.map(v=>v/S), t=tr.t.slice(), src=tr.src.slice(); const r=d.r/S;
+  const tol=Math.max(1, 0.05*r); let i0=0;
+  for(let i=0;i<x.length;i++) if(Math.hypot(x[i]-x[0], y[i]-y[0])>tol){ i0=Math.max(0,i-1); break; }
+  let i1=x.length; if(d.stopped){ const ts=t[d.stillJ]+P.keepAfterStop; i1=t.findIndex(v=>v>ts+1e-9); if(i1<0) i1=x.length; }
+  x=x.slice(i0,i1); y=y.slice(i0,i1); t=t.slice(i0,i1); src=src.slice(i0,i1);
+  const n=x.length, P0=x.map((v,i)=>[v-x[0], y[i]-y[0]]);
+  // 레일 방향 = 움직인 점들의 주성분
+  const mv=P0.filter(p=>Math.hypot(p[0],p[1])>tol); let u=[1,0];
+  if(mv.length>=2){ const mx=mv.reduce((a,p)=>a+p[0],0)/mv.length, my=mv.reduce((a,p)=>a+p[1],0)/mv.length; let sxx=0,sxy=0,syy=0; mv.forEach(p=>{ const a=p[0]-mx, b=p[1]-my; sxx+=a*a; sxy+=a*b; syy+=b*b; });
+    const th=0.5*Math.atan2(2*sxy, sxx-syy); u=[Math.cos(th), Math.sin(th)]; if(u[0]<0) u=[-u[0],-u[1]]; }
+  const k=sc && sc.ppu ? sc.ppu : 1, unit=sc && sc.ppu ? sc.unit : 'px';
+  const T=t.map(v=>v-t[0]), X=P0.map(p=>p[0]/k), Y=P0.map(p=>-p[1]/k), Sd=P0.map(p=>(p[0]*u[0]+p[1]*u[1])/k);
+  const w=P.win%2 ? P.win : P.win+1, fs=btLocal(T,Sd,w), fx=btLocal(T,X,w), fy=btLocal(T,Y,w);
+  const rows=T.map((_,i)=>({ t:T[i], vt:t[i], xp:x[i], yp:y[i], X:X[i], Y:Y[i], s:Sd[i], v:fs.v[i], vx:fx.v[i], vy:fy.v[i], src:src[i] }));
+  return { rows, unit, angle:Math.atan2(u[1],u[0])*180/Math.PI, r, i0, u };
+}
+const BT_P0={ rminF:0.006, rmaxF:0.035, fillMin:0.4, lostSec:0.35, minTrackSec:0.3, stopSpeed:0.06, keepAfterStop:0.5 };
+
+/* ───────────────── 창 ───────────────── */
+class BatchTrack{
+  constructor(body, win){
+    this.body=body; this.win=win; this.items=[]; this.step='pick'; this.cur=0; this.running=false; this.z=1; this.tx=0; this.ty=0;
+    this.build();
+    win.onResize=()=>{ if(this.step==='scale') this.fitView(); if(this.step==='result' && this.sel!=null) this.paintDetail(); };
+    this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH);
+  }
+  destroy(){ this.stop=true; if(this._pool){ this._pool.close(); this._pool=null; } document.removeEventListener('keydown', this.keyH); btUnload(this.sv); btUnload(this.pv); this.releaseWake(); }
+  $(s){ return this.body.querySelector(s); }
+  build(){
+    this.body.innerHTML=`<div class="bt">
+      <div class="gt-tb bt-tb">
+        <button type="button" class="gt-btn pri" data-a="pick">${gtI('folder')}영상 고르기</button>
+        <span class="bt-steps"><b data-s="pick">① 영상</b><i>›</i><b data-s="scale">② 축척</b><i>›</i><b data-s="run">③ 자동 추적</b><i>›</i><b data-s="result">④ 결과</b></span>
+        <span class="gt-sp"></span>
+        <button type="button" class="gt-btn ghost" data-a="pref" title="멈춤 기준 · 찾기 문턱 · 처리 해상도 · 속도 계산 창">설정</button>
+        <input type="file" class="bt-fi" accept="video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi" multiple hidden>
+      </div>
+      <div class="bt-mid">
+        <aside class="bt-list"></aside>
+        <main class="bt-main"></main>
+      </div>
+      <div class="gt-dlg-ov" hidden></div>
+    </div>`;
+    this.body.querySelectorAll('.bt-tb [data-a]').forEach(b=>b.onclick=()=>this.action(b.dataset.a));
+    this.$('.bt-fi').onchange=e=>{ const fs=[...(e.target.files||[])]; e.target.value=''; if(fs.length) this.addFiles(fs); };
+    const main=this.$('.bt-mid');
+    main.addEventListener('dragover', e=>{ if(this.running) return; e.preventDefault(); main.classList.add('bt-dragon'); });
+    main.addEventListener('dragleave', e=>{ if(e.target===main || !main.contains(e.relatedTarget)) main.classList.remove('bt-dragon'); });
+    main.addEventListener('drop', e=>{ e.preventDefault(); main.classList.remove('bt-dragon'); if(this.running) return; const fs=[...(e.dataTransfer.files||[])]; if(fs.length) this.addFiles(fs); });
+    // 영상 둘 — 축척용 · 처리용 (rVFC가 돌도록 화면 안에 둔다)
+    this.sv=document.createElement('video'); this.sv.className='bt-v'; this.sv.muted=true; this.sv.playsInline=true; this.sv.preload='auto';
+    this.pv=document.createElement('video'); this.pv.className='bt-pv'; this.pv.muted=true; this.pv.playsInline=true; this.pv.preload='auto';
+    this.paint();
+  }
+  action(a){
+    if(a==='pick'){ if(this.running) return say('추적하는 중이에요 — 끝나거나 멈춘 뒤에 고르세요.'); return this.$('.bt-fi').click(); }
+    if(a==='pref') return this.prefDialog();
+  }
+  addFiles(fs){
+    const vids=fs.filter(f=>/^video\//.test(f.type) || VID_RE.test(f.name)); if(!vids.length) return say('영상 파일이 아니에요.');
+    const have=new Set(this.items.map(it=>it.sig)); let add=0;
+    vids.sort((a,b)=>a.name.localeCompare(b.name, 'ko', { numeric:true })).forEach(f=>{ const sig=sigOf(f); if(have.has(sig)) return; have.add(sig);
+      const saved=(btStore().sc||{})[sig]; let sc=null;
+      if(saved && saved.px) sc={ px:true, prefill:true };
+      else if(saved && saved.a && saved.b && saved.len>0) sc={ a:saved.a, b:saved.b, len:saved.len, unit:saved.unit, frame:saved.frame, ppu:Math.hypot(saved.a[0]-saved.b[0], saved.a[1]-saved.b[1])/saved.len, prefill:true };
+      this.items.push({ file:f, sig, name:f.name.replace(/\.[^.]+$/,''), sc, status:'wait', res:null }); add++; });
+    if(!add) return say('이미 고른 영상이에요.');
+    if(vids.length<fs.length) say(`영상이 아닌 파일 ${fs.length-vids.length}개는 뺐어요.`);
+    if(this.step==='pick' || this.step==='result'){ const first=this.items.findIndex(it=>!it.res); this.go('scale', first<0?0:first); }
+    else this.paint();
+  }
+  go(step, i){ this.step=step; if(i!=null) this.cur=i; this.paint(); }
+  /* ───────── 그리기 ───────── */
+  paint(){
+    this.body.querySelectorAll('.bt-steps [data-s]').forEach(b=>{ const order=['pick','scale','run','result']; b.classList.toggle('on', b.dataset.s===this.step); b.classList.toggle('done', order.indexOf(b.dataset.s)<order.indexOf(this.step)); });
+    this.paintList();
+    const M=this.$('.bt-main');
+    if(this.step==='pick' || !this.items.length) return this.paintPick(M);
+    if(this.step==='scale') return this.paintScale(M);
+    if(this.step==='run') return this.paintRun(M);
+    if(this.step==='result') return this.paintResult(M);
+  }
+  paintList(){
+    const L=this.$('.bt-list'); if(!this.items.length){ L.innerHTML='<div class="bt-lh">영상 0개</div>'; return; }
+    const nsc=this.items.filter(it=>it.sc && (it.sc.px || it.sc.ppu)).length;
+    L.innerHTML=`<div class="bt-lh">영상 ${this.items.length}개 <small>축척 ${nsc}/${this.items.length}</small></div>`+this.items.map((it,i)=>{
+      const sc=it.sc && it.sc.ppu ? `${fmtN(it.sc.len,4)} ${it.sc.unit}` : it.sc && it.sc.px ? 'px' : '';
+      const st={ wait:'', run:'<em class="bt-st run">추적 중</em>', ok:'<em class="bt-st ok">완료</em>', warn:'<em class="bt-st warn">확인</em>', fail:'<em class="bt-st fail">실패</em>', skip:'<em class="bt-st">건너뜀</em>' }[it.status]||'';
+      return `<button type="button" class="bt-it${i===this.cur && this.step!=='pick'?' on':''}" data-i="${i}"><span class="bt-n">${i+1}</span><span class="bt-nm" title="${esc(it.file.name)}">${esc(it.name)}<small>${sc ? '축척 '+esc(sc) : '<u>축척 아직</u>'}</small></span>${st}${this.running?'':`<span class="bt-x" data-x="${i}" title="목록에서 빼기">×</span>`}</button>`; }).join('');
+    L.querySelectorAll('.bt-it').forEach(b=>b.onclick=e=>{ const i=+b.dataset.i;
+      if(e.target.closest('[data-x]')){ if(this.running) return; this.items.splice(i,1); if(this.cur>=this.items.length) this.cur=Math.max(0,this.items.length-1); if(!this.items.length) this.step='pick'; return this.paint(); }
+      if(this.running) { this.cur=i; return this.paintList(); }
+      if(this.step==='result' && this.items[i].res){ this.cur=i; this.sel=i; return this.paint(); }
+      this.go('scale', i); });
+  }
+  paintPick(M){
+    const P=btPref();
+    M.innerHTML=`<div class="bt-pick">
+      <div class="bt-pi">${ATW_ICON.batch}</div><b>공이 레일을 굴러 내려가는 영상을 여러 개 한꺼번에</b>
+      <span>영상을 고르거나 이 창에 끌어 놓으세요 — 업로드하지 않고 이 기기에서 읽어요.</span>
+      <button type="button" class="gt-btn pri" data-a="pick">${gtI('folder')}영상 여러 개 고르기</button>
+      <ol class="bt-how">
+        <li><b>축척</b> — 영상마다 길이를 아는 구간(자 · 레일 눈금)을 화면에서 끌고 실제 길이를 넣어요. 카메라 거리가 영상마다 달라도 돼요.</li>
+        <li><b>자동 추적</b> — 배경과 다른 둥근 물체(공)를 프레임마다 찾아 이어요. 처음에 안 보이거나, 나왔다 사라졌다 다시 나와도 돼요.</li>
+        <li><b>궤적 고르기</b> — ⓐ 오른쪽 아래 끝까지 굴러간 구간 → ⓑ 없으면 가운데서 <b>${P.stop}초</b> 넘게 멈춘 채 끝난 구간(멈출 때까지) → ⓒ 둘 다 아니면 가장 많이 움직인 구간에 '확인 필요' 표시.</li>
+        <li><b>결과</b> — 영상마다 t · 위치 · 레일 방향 변위 s · 속도 v 표, 확인 그림, 그래프 그리기로 보내기, CSV.</li>
+      </ol>
+      <small class="bt-note">카메라는 움직이지 않게(삼각대) 찍은 영상이어야 해요. 공이 다른 물체에 오래 가려지면 그 구간은 끊겨요.</small>
+    </div>`;
+    M.querySelector('[data-a="pick"]').onclick=()=>this.$('.bt-fi').click();
+  }
+  prefDialog(){
+    const P=btPref();
+    this.dialog(`<div class="gt-dlg-h"><b>설정</b><small>이 기기에 기억해요</small></div>
+      <label class="bt-row">멈춤 기준 <input type="number" class="bt-in" data-k="stop" min="0.5" step="0.5" value="${P.stop}"> 초 <small>공이 가운데서 이만큼 멈춘 채 영상이 끝나면 그 운동을 골라요</small></label>
+      <label class="bt-row">찾기 문턱 <input type="number" class="bt-in" data-k="thr" min="5" max="120" step="1" value="${P.thr}"> <small>배경과 색이 이만큼(0~255) 다르면 물체로 봐요. 공을 놓치면 낮추고(20), 잡티가 잡히면 높이세요(40)</small></label>
+      <label class="bt-row">처리 해상도 <select class="bt-in" data-k="pw">${[640,960,1280,1920].map(v=>`<option value="${v}"${+P.pw===v?' selected':''}>가로 ${v}px</option>`).join('')}</select> <small>클수록 조금 더 정밀하지만 느려요(결과 좌표는 언제나 원본 픽셀)</small></label>
+      <label class="bt-row">속도 계산 창 <input type="number" class="bt-in" data-k="win" min="3" max="31" step="2" value="${P.win}"> 프레임 <small>이 개수의 점에 2차식을 맞춰 기울기로 속도를 내요. 크면 매끈, 작으면 민감</small></label>
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-def>기본값</button><span class="gt-sp"></span><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn pri" data-ok>저장</button></div>`, (dl, close)=>{
+      dl.querySelector('[data-c]').onclick=close;
+      dl.querySelector('[data-def]').onclick=()=>{ Object.entries(BT_DEF).forEach(([k,v])=>{ const e=dl.querySelector(`[data-k="${k}"]`); if(e) e.value=v; }); };
+      dl.querySelector('[data-ok]').onclick=()=>{ const p={}; dl.querySelectorAll('[data-k]').forEach(e=>{ const v=+e.value; if(isFinite(v) && v>0) p[e.dataset.k]=v; }); if(p.win && !(p.win%2)) p.win++; btSave(s=>{ s.pref=Object.assign({}, s.pref, p); }); close(); say('설정을 저장했어요 — 다음 추적부터 써요.'); if(this.step==='pick') this.paint(); };
+    });
+  }
+  dialog(html, bind){ const ov=this.$('.gt-dlg-ov'); ov.hidden=false; ov.innerHTML=`<div class="gt-dlg bt-dlg">${html}</div>`; const close=()=>{ ov.hidden=true; ov.innerHTML=''; }; ov.onclick=e=>{ if(e.target===ov) close(); }; bind(ov.firstElementChild, close); }
+
+  /* ───────── ② 축척 ───────── */
+  paintScale(M){
+    const it=this.items[this.cur]; if(!it) return;
+    const n=this.items.length, prev=this.items.slice(0,this.cur).reverse().find(x=>x.sc && x.sc.ppu);
+    const sc=it.sc||{};
+    M.innerHTML=`<div class="bt-sc">
+      <div class="bt-sch"><b>${this.cur+1} / ${n} · ${esc(it.file.name)}</b><small>길이를 아는 구간(자 · 눈금 · 레일)의 한쪽 끝에서 다른 끝까지 <b>끌어</b> 주세요. 끝점은 다시 끌어 고칠 수 있어요 · 휠 = 확대 · 가운데 버튼(또는 Space+끌기) = 옮기기</small></div>
+      <div class="bt-stage" tabindex="0"><div class="bt-wrap"></div><canvas class="bt-loupe" width="140" height="140" hidden></canvas><div class="bt-sload"><div class="tr-spin"></div><span>영상을 여는 중…</span></div></div>
+      <div class="bt-scbar">
+        <label class="bt-fr">프레임 <input type="range" class="bt-frs" min="0" max="100" value="50" step="0.1"> <span class="bt-frt"></span></label>
+        <span class="bt-len">실제 길이 <input type="number" class="bt-in bt-lin" min="0" step="any" value="${sc.len!=null?sc.len:''}" placeholder="예: 30"> <select class="bt-in bt-uin">${UNITS.map(u=>`<option${(sc.unit||'cm')===u?' selected':''}>${u}</option>`).join('')}</select></span>
+        <span class="bt-pxi"></span>
+      </div>
+      <div class="bt-scbtn">
+        <button type="button" class="gt-btn ghost" data-b="prev"${this.cur?'':' disabled'}>← 이전 영상</button>
+        <button type="button" class="gt-btn ghost" data-b="same"${prev?'':' disabled'} title="앞 영상의 선과 길이를 그대로 — 카메라를 옮기지 않았을 때">앞 영상 축척 그대로</button>
+        <button type="button" class="gt-btn ghost" data-b="px" title="축척 없이 픽셀 단위로">축척 없이(px)</button>
+        <span class="gt-sp"></span>
+        ${this.cur<n-1?'<button type="button" class="gt-btn pri" data-b="next">이 축척으로 → 다음 영상</button>':''}
+        <button type="button" class="gt-btn${this.cur<n-1?'':' pri'} bt-gogo" data-b="run" title="모든 영상에 축척을 정해야 시작할 수 있어요 — 이 영상의 축척도 함께 저장해요">${this.cur<n-1?'':'이 축척으로 → '}▶ 모두 자동 추적</button>
+      </div>
+    </div>`;
+    const W=this.$('.bt-wrap'); W.appendChild(this.sv); this.svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); this.svg.setAttribute('class','bt-svg'); W.appendChild(this.svg);
+    this.line=sc.a && sc.b ? { a:sc.a.slice(), b:sc.b.slice() } : null;
+    M.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>this.scaleBtn(b.dataset.b));
+    const lin=this.$('.bt-lin'), uin=this.$('.bt-uin'); lin.oninput=uin.onchange=()=>this.paintPx(); lin.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); this.scaleBtn('next'); } };
+    this.bindStage();
+    this.openScaleVideo(it);
+  }
+  async openScaleVideo(it){
+    const my=(this._sq=(this._sq||0)+1), v=this.sv, ld=this.$('.bt-sload');
+    if(this._svSig!==it.sig){ btUnload(v); this._svSig=null;
+      try{ await btLoad(v, it.file); }catch(why){ if(my!==this._sq) return; ld.innerHTML=`<b>${esc(BT_ERR[why]||'영상을 열지 못했어요')}</b><small>${esc(BT_CODEC_HINT)}</small><button type="button" class="gt-btn" data-skip>이 영상 건너뛰기</button>`; ld.querySelector('[data-skip]').onclick=()=>{ it.status='skip'; it.sc={ px:true, skip:true }; this.scaleBtn('next', true); }; return; }
+      if(my!==this._sq) return; this._svSig=it.sig; it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration; }
+    ld.hidden=true;
+    const W=this.$('.bt-wrap'); W.style.width=it.W+'px'; W.style.height=it.H+'px'; this.svg.setAttribute('viewBox', `0 0 ${it.W} ${it.H}`); this.svg.setAttribute('width', it.W); this.svg.setAttribute('height', it.H);
+    const frs=this.$('.bt-frs'); const f0=it.sc && it.sc.frame!=null ? it.sc.frame : 0.5; frs.value=f0*100;
+    const seek=()=>{ const t=clamp(+frs.value/100,0,1)*Math.max(0,it.dur-0.05); v.currentTime=t; this.$('.bt-frt').textContent=trTime(t); };
+    frs.oninput=seek; seek();
+    this.fitView(); this.paintLine(); this.paintPx();
+    if(it.sc && it.sc.prefill && !it._told){ it._told=true; say(it.sc.px ? '이 영상은 전에 \'축척 없이(px)\'로 정했어요.' : '이 영상에 전에 정한 축척을 불러왔어요 — 맞는지 확인하고 넘어가세요.', 3500); }
+  }
+  fitView(){ const it=this.items[this.cur], st=this.$('.bt-stage'); if(!it || !it.W || !st) return; const w=st.clientWidth, h=st.clientHeight; this.z=Math.min(w/it.W, h/it.H)*0.98; this.tx=(w-it.W*this.z)/2; this.ty=(h-it.H*this.z)/2; this.applyView(); }
+  applyView(){ const W=this.$('.bt-wrap'); if(W) W.style.transform=`translate(${this.tx}px,${this.ty}px) scale(${this.z})`; const k=1/this.z; this._k=k; this.paintLine(); }
+  toImg(e){ const r=this.$('.bt-wrap').getBoundingClientRect(), it=this.items[this.cur]; return [ (e.clientX-r.left)/r.width*it.W, (e.clientY-r.top)/r.height*it.H ]; }
+  bindStage(){
+    const st=this.$('.bt-stage'); let drag=null;
+    st.addEventListener('wheel', e=>{ e.preventDefault(); const r=st.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top, f=Math.exp(-e.deltaY*0.0015), z=clamp(this.z*f, 0.05, 16); this.tx=mx-(mx-this.tx)*z/this.z; this.ty=my-(my-this.ty)*z/this.z; this.z=z; this.applyView(); }, { passive:false });
+    st.addEventListener('pointerdown', e=>{ const it=this.items[this.cur]; if(!it || !it.W) return;
+      if(e.button===1 || e.button===2 || this._space){ e.preventDefault(); drag={ pan:true, x:e.clientX, y:e.clientY, tx:this.tx, ty:this.ty }; st.setPointerCapture(e.pointerId); return; }
+      if(e.button!==0) return; e.preventDefault(); st.focus();
+      const p=this.toImg(e), hr=10*this._k; let h=null;
+      if(this.line){ if(Math.hypot(p[0]-this.line.a[0], p[1]-this.line.a[1])<hr) h='a'; else if(Math.hypot(p[0]-this.line.b[0], p[1]-this.line.b[1])<hr) h='b'; }
+      if(!h){ this.line={ a:p.slice(), b:p.slice() }; h='b'; }
+      drag={ h }; st.setPointerCapture(e.pointerId); this.loupe(p); this.paintLine(); this.paintPx(); });
+    st.addEventListener('pointermove', e=>{ if(!drag) return; if(drag.pan){ this.tx=drag.tx+e.clientX-drag.x; this.ty=drag.ty+e.clientY-drag.y; return this.applyView(); }
+      let p=this.toImg(e); const it=this.items[this.cur]; p=[clamp(p[0],0,it.W), clamp(p[1],0,it.H)];
+      if(e.shiftKey){ const o=this.line[drag.h==='a'?'b':'a'], dx=p[0]-o[0], dy=p[1]-o[1], L=Math.hypot(dx,dy), th=Math.round(Math.atan2(dy,dx)/(Math.PI/12))*(Math.PI/12); p=[o[0]+L*Math.cos(th), o[1]+L*Math.sin(th)]; }
+      this.line[drag.h]=p; this.loupe(p); this.paintLine(); this.paintPx(); });
+    const up=()=>{ if(!drag) return; drag=null; this.$('.bt-loupe').hidden=true; if(this.line && Math.hypot(this.line.a[0]-this.line.b[0], this.line.a[1]-this.line.b[1])<3){ this.line=null; this.paintLine(); this.paintPx(); } else { const l=this.$('.bt-lin'); if(l && !l.value) l.focus(); } };
+    st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up); st.addEventListener('contextmenu', e=>e.preventDefault());
+  }
+  loupe(p){ const c=this.$('.bt-loupe'); if(!c) return; const v=this.sv, it=this.items[this.cur]; c.hidden=false; const g=c.getContext('2d'), S=140, R=20; g.imageSmoothingEnabled=false; g.fillStyle='#000'; g.fillRect(0,0,S,S);
+    try{ g.drawImage(v, p[0]-R, p[1]-R, 2*R, 2*R, 0, 0, S, S); }catch(e){}
+    g.strokeStyle='#ff2d2d'; g.lineWidth=1; g.beginPath(); g.moveTo(S/2,0); g.lineTo(S/2,S); g.moveTo(0,S/2); g.lineTo(S,S/2); g.stroke();
+    const st=this.$('.bt-stage').getBoundingClientRect(), r=this.$('.bt-wrap').getBoundingClientRect(), sx=r.left-st.left+p[0]/it.W*r.width, sy=r.top-st.top+p[1]/it.H*r.height;
+    c.style.left=(sx+24+S>st.width ? sx-24-S : sx+24)+'px'; c.style.top=clamp(sy-S/2, 4, st.height-S-4)+'px'; }
+  paintLine(){ if(!this.svg) return; const L=this.line, k=this._k||1; if(!L){ this.svg.innerHTML=''; return; }
+    const [a,b]=[L.a,L.b], nx=-(b[1]-a[1]), ny=b[0]-a[0], nl=Math.hypot(nx,ny)||1, tk=7*k, ux=nx/nl*tk, uy=ny/nl*tk;
+    this.svg.innerHTML=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#000" stroke-opacity=".55" stroke-width="${4*k}"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#2f7bff" stroke-width="${2*k}"/>`+
+      [a,b].map(p=>`<line x1="${p[0]-ux}" y1="${p[1]-uy}" x2="${p[0]+ux}" y2="${p[1]+uy}" stroke="#2f7bff" stroke-width="${2*k}"/><circle cx="${p[0]}" cy="${p[1]}" r="${6*k}" fill="#fff" fill-opacity=".25" stroke="#2f7bff" stroke-width="${1.5*k}"/>`).join(''); }
+  pxLen(){ return this.line ? Math.hypot(this.line.a[0]-this.line.b[0], this.line.a[1]-this.line.b[1]) : 0; }
+  paintPx(){ const e=this.$('.bt-pxi'); if(!e) return; const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value;
+    e.innerHTML = !this.line ? '<u>아직 끌지 않았어요</u>' : `선 <b>${px.toFixed(1)}</b> px` + (len>0 ? ` → 1 ${u} = <b>${(px/len).toPrecision(5)}</b> px` : ' · 길이를 넣어 주세요');
+    const g=this.$('.bt-gogo'); if(g){ const ok=this.allScaled(true); g.classList.toggle('bt-dim', !ok); } }
+  curScale(){ const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value; if(!this.line || px<3 || !(len>0)) return null; return { a:this.line.a.map(v=>+v.toFixed(2)), b:this.line.b.map(v=>+v.toFixed(2)), len, unit:u, ppu:px/len, frame:+this.$('.bt-frs').value/100 }; }
+  allScaled(withCur){ return this.items.length>0 && this.items.every((it,i)=>(withCur && i===this.cur && this.step==='scale') ? (this.curScale() || (it.sc && it.sc.px)) : (it.sc && (it.sc.px || it.sc.ppu))); }
+  remember(it){ if(!it.sc || it.sc.skip) return; btSave(s=>{ s.sc[it.sig]=it.sc.px ? { px:true, at:Date.now() } : { a:it.sc.a, b:it.sc.b, len:it.sc.len, unit:it.sc.unit, frame:it.sc.frame, at:Date.now() }; }); }
+  scaleBtn(b, force){
+    const it=this.items[this.cur];
+    if(b==='prev'){ this.keepCur(); return this.go('scale', this.cur-1); }
+    if(b==='same'){ const p=this.items.slice(0,this.cur).reverse().find(x=>x.sc && x.sc.ppu); if(!p) return; this.line={ a:p.sc.a.slice(), b:p.sc.b.slice() }; this.$('.bt-lin').value=p.sc.len; this.$('.bt-uin').value=p.sc.unit; this.paintLine(); this.paintPx(); return say('앞 영상의 축척을 가져왔어요 — 선이 이 영상의 같은 곳에 놓였는지 확인하세요.', 3500); }
+    if(b==='px'){ it.sc={ px:true }; this.remember(it); return this.nextScale(); }
+    if(b==='next' || b==='run'){
+      if(!force){ const s=this.curScale();
+        if(!s){ if(it.sc && it.sc.px && !this.line) { /* 픽셀로 둔 영상 */ } else return say(!this.line ? '길이를 아는 구간을 화면에서 끌어 주세요.' : '실제 길이를 넣어 주세요.'); }
+        else { it.sc=s; this.remember(it); } }
+      if(b==='run'){ const miss=this.items.findIndex(x=>!(x.sc && (x.sc.ppu || x.sc.px))); if(miss>=0){ say(`${miss+1}번 영상의 축척을 먼저 정해 주세요 (${this.items.filter(x=>!(x.sc && (x.sc.ppu || x.sc.px))).length}개 남음).`, 3500); return this.go('scale', miss); } return this.startRun(); }
+      return this.nextScale();
+    }
+  }
+  keepCur(){ const it=this.items[this.cur], s=this.curScale(); if(it && s){ it.sc=s; this.remember(it); } }
+  /* 영상마다 차례로 묻는다 — 끝 영상이면 축척이 빠진 첫 영상으로, 다 있으면 그대로 */
+  nextScale(){ const n=this.items.length; if(this.cur<n-1) return this.go('scale', this.cur+1);
+    const any=this.items.findIndex(x=>!(x.sc && (x.sc.ppu || x.sc.px))); if(any>=0){ say(`${any+1}번 영상의 축척이 아직이에요.`); return this.go('scale', any); }
+    this.paint(); say('모든 영상의 축척을 정했어요 — [▶ 모두 자동 추적]을 누르세요.', 3500); }
+  onKey(e){ if(!this.win || !ATW.wins.batchtrack || ATW.wins.batchtrack!==this.win) return; if(e.key===' ' && this.step==='scale' && e.target && e.target.closest && e.target.closest('.bt-stage')){ e.preventDefault(); if(e.type==='keydown') this._space=true; }
+    if(e.key==='Escape' && this.running){ this.stop=true; } }
+
+  /* ───────── ③ 자동 추적 ───────── */
+  async startRun(){
+    if(this.running) return; if(!this.allScaled()) return say('모든 영상의 축척을 먼저 정해 주세요.');
+    btUnload(this.sv); this._svSig=null;
+    this.running=true; this.stop=false; this.step='run'; this.items.forEach(it=>{ if(it.status!=='skip'){ it.status='wait'; it.res=null; } }); this.paint(); this.wake();
+    const P=Object.assign({}, BT_P0, btPref()); const t0=performance.now();
+    for(let i=0;i<this.items.length && !this.stop;i++){
+      const it=this.items[i]; if(it.status==='skip') continue; this.cur=i; it.status='run'; this.paintList(); this.paintRunHead(i);
+      try{ it.res=await this.trackOne(it, P); it.status=it.res.fail ? 'fail' : it.res.warn ? 'warn' : 'ok'; }
+      catch(err){ if(this._pool){ this._pool.close(); this._pool=null; } if(this.stop) { it.status='wait'; break; } it.res={ fail:true, why:'오류: '+(err && err.message || err) }; it.status='fail'; }
+      if(this._pool){ this._pool.close(); this._pool=null; }
+      this.paintList();
+    }
+    btUnload(this.pv); this.running=false; this.releaseWake();
+    const done=this.items.filter(it=>it.res).length;
+    say(this.stop ? `멈췄어요 — ${done}개 영상까지 끝났어요.` : `끝! ${done}개 영상 · ${((performance.now()-t0)/1000).toFixed(0)}초`, 4500);
+    this.sel=this.items.findIndex(it=>it.res); if(this.sel<0){ this.sel=null; this.step='scale'; } else this.step='result'; this.paint();
+  }
+  paintRun(M){
+    M.innerHTML=`<div class="bt-run">
+      <div class="bt-rh"><b class="bt-rt"></b><span class="gt-sp"></span><button type="button" class="gt-btn" data-stop>멈추기 (Esc)</button></div>
+      <div class="bt-rbar"><i></i></div><div class="bt-rs"></div>
+      <div class="bt-pvw"><div class="bt-pvi"></div><canvas class="bt-pvc"></canvas></div>
+      <small class="bt-note">이 창을 화면에 띄워 두세요 — 브라우저 탭을 다른 곳으로 옮기면 영상 읽기가 멈춰서 기다려요. 영상 하나에 보통 영상 길이의 1~3배 걸려요.</small>
+    </div>`;
+    M.querySelector('.bt-pvi').appendChild(this.pv);
+    M.querySelector('[data-stop]').onclick=()=>{ this.stop=true; say('지금 영상까지만 하고 멈춰요…'); };
+    this.paintRunHead(this.cur);
+  }
+  paintRunHead(i, phase, k, n){ const t=this.$('.bt-rt'); if(!t) return; const it=this.items[i], N=this.items.length; t.textContent=`${i+1} / ${N} · ${it ? it.file.name : ''}`;
+    if(phase!=null){ this.$('.bt-rs').textContent=phase+(n?` — ${k} / ${n}`:''); const q=n?k/n:0, c=phase[0], part= c==='①' ? 0.1*q : c==='②' ? 0.1+0.6*q : 0.7+0.3*q;
+      this.$('.bt-rbar i').style.width=clamp((i+part)/N*100,1,100)+'%'; } }
+  async waitVisible(){ while(document.hidden && !this.stop) await sleep(300); }
+  async trackOne(it, P){
+    const v=this.pv; btUnload(v);
+    try{ await btLoad(v, it.file); }catch(why){ return { fail:true, why:(BT_ERR[why]||'영상을 열지 못했어요')+' — '+BT_CODEC_HINT }; }
+    it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration;
+    this.paintRunHead(this.cur, '① 프레임 속도 재는 중…');
+    let fr={ fps:30, guessed:true }; try{ fr=await Tracker.prototype.measureFps.call({ video:v }); }catch(e){}
+    const fps=fr.fps, N=Math.max(1, Math.floor(v.duration*fps+1e-6));
+    const T0=performance.now();
+    const pw=Math.min(P.pw, it.W), scale=pw/it.W, W=Math.round(it.W*scale), H=Math.round(it.H*scale);
+    const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d', { willReadFrequently:true });
+    const pc=this.$('.bt-pvc'); if(pc){ pc.width=W; pc.height=H; }
+    const grab=()=>{ g.drawImage(v, 0, 0, W, H); return g.getImageData(0,0,W,H).data; };
+    // 배경 표본
+    const K=Math.min(31, N), idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1,K-1))))], S=[];
+    for(let j=0;j<idx.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); await btSeek(v, idx[j], fps); const d=grab(), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); if(pc) pc.getContext('2d').drawImage(cv,0,0); this.paintRunHead(this.cur, '① 배경 만드는 중', j+1, idx.length); }
+    let bg=btMedian(S, W, H, null);
+    const pool=btPool(W, H, P); this._pool=pool;
+    const pass=async (bgX, label)=>{ const dets=new Array(N), times=new Array(N); let cnt=0, shown=0; pool.setBg(bgX);
+      const one=(k, t)=>{ g.drawImage(v, 0, 0, W, H); const id=g.getImageData(0,0,W,H); times[k]=t;
+        const now=performance.now(), show=pc && now-shown>150; if(show){ shown=now; pc.getContext('2d').putImageData(id,0,0); }
+        pool.send(k, id.data, d=>{ dets[k]=d; cnt++;
+          if(show){ const pg=pc.getContext('2d'); pg.lineWidth=2; d.forEach(q=>{ pg.strokeStyle=q.strict?'#ff2d2d':'#ffb000'; pg.beginPath(); pg.arc(q.x,q.y,q.r,0,7); pg.stroke(); }); }
+          if(cnt%10===0 || cnt===N) this.paintRunHead(this.cur, label, cnt, N); }); };
+      await this.waitVisible();
+      const got=await btPlayPass(v, fps, N, one, this, ()=>pool.inflight);
+      await pool.drain(); if(this.stop) throw new Error('stop');
+      const miss=[]; for(let k=0;k<N;k++) if(!got[k]) miss.push(k);
+      for(let j=0;j<miss.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); const k=miss[j]; one(k, await btSeek(v, k, fps)); if(j%5===0) this.paintRunHead(this.cur, label+' (빠진 프레임 메우기)', j+1, miss.length); }
+      await pool.drain();
+      for(let k=0;k<N;k++) if(!dets[k]) dets[k]=[];
+      return { dets, times, missed:miss.length }; };
+    const tm={ t0:performance.now() }; tm.bg=tm.t0-T0;
+    let D=await pass(bg, '② 공 찾는 중'); tm.p1=performance.now()-tm.t0; tm.miss1=D.missed;
+    const info={ W, H, scale, fps, fpsGuess:fr.guessed, N, endT:D.times[N-1], tracks:[] };
+    info.tracks=btLink(D.dets, D.times, fps, P);
+    let ch=btChoose(info, P), refined=false;
+    // 공이 오래 멈춰 배경에 섞였으면 → 공 자리를 빼고 배경을 다시 만들어 한 번 더
+    if(ch && ch.rule!==1){ const tr=ch.c.tr, rm=med(tr.r), n=tr.t.length;
+      const absorbed=!ch.c.d.endsAtEnd && ch.c.d.mid, inflated=Math.max(...tr.r)>1.3*rm;
+      if(absorbed || inflated){
+        const masks=idx.map(fk=>{ let best=-1, bd=1e9; for(let q=0;q<n;q++){ const dd=Math.abs(tr.f[q]-fk); if(dd<bd){ bd=dd; best=q; } }
+          if(bd<=3) return btMaskCircle(W, H, tr.x[best], tr.y[best], 1.7*rm+2);
+          if(absorbed && fk>tr.f[n-1]) return btMaskCircle(W, H, tr.x[n-1], tr.y[n-1], 1.7*rm+2); return null; });
+        const bg2=btMedian(S, W, H, masks, bg);
+        const D2=await pass(bg2, '③ 멈춘 공 다시 찾는 중'); const info2=Object.assign({}, info, { endT:D2.times[N-1], tracks:btLink(D2.dets, D2.times, fps, P) });
+        const rank=c=>c.rule*2+(c.warn?1:0), ch2=btChoose(info2, P);
+        if(ch2 && rank(ch2)<=rank(ch)){ D=D2; Object.assign(info, info2); ch=ch2; bg=bg2; refined=true; } }
+    }
+    // 확인 그림 바탕 = 배경(깨끗한 화면)
+    const bc=document.createElement('canvas'); bc.width=W; bc.height=H; const bgc=bc.getContext('2d'), im=bgc.createImageData(W,H); for(let i=0,o=0;o<bg.length;i+=4,o+=3){ im.data[i]=bg[o]; im.data[i+1]=bg[o+1]; im.data[i+2]=bg[o+2]; im.data[i+3]=255; } bgc.putImageData(im,0,0);
+    tm.all=performance.now()-T0;
+    const res={ info, P, fps, fpsGuess:fr.guessed, refined, missed:D.missed, tm, bgURL:bc.toDataURL('image/jpeg', 0.85), sc:it.sc };
+    if(!ch){ return Object.assign(res, { fail:true, why:'움직이는 공을 찾지 못했어요 — [설정]에서 찾기 문턱을 낮춰 보세요.' }); }
+    return this.applyChoice(res, ch);
+  }
+  applyChoice(res, ch){
+    const sc=res.sc && res.sc.ppu ? { ppu:res.sc.ppu, unit:res.sc.unit } : null;
+    const tab=btTable(ch.c.tr, ch.c.d, res.info, res.P, sc);
+    return Object.assign(res, { fail:false, ch, tab, why:ch.why, warn:!!ch.warn, rule:ch.rule, trackId:ch.c.tr.id });
+  }
+  /* ───────── ④ 결과 ───────── */
+  paintResult(M){
+    const R=this.items.filter(it=>it.res);
+    if(!R.length){ M.innerHTML='<div class="bt-pick"><b>아직 결과가 없어요</b></div>'; return; }
+    if(this.sel==null || !this.items[this.sel] || !this.items[this.sel].res) this.sel=this.items.indexOf(R[0]);
+    if(this.cur!==this.sel){ this.cur=this.sel; this.paintList(); }
+    const row=(it,i)=>{ const r=it.res; if(r.fail) return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td colspan="6" class="bt-bad">${esc(r.why)}</td></tr>`;
+      const T=r.tab, L=T.rows[T.rows.length-1], vmax=Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity));
+      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':r.rule===3?'확인':'규칙 '+r.rule}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
+    M.innerHTML=`<div class="bt-res">
+      <div class="bt-rtb"><b>결과 ${R.filter(it=>!it.res.fail).length} / ${this.items.length}</b><small>줄을 누르면 아래에 확인 그림 · 그래프 · 표</small><span class="gt-sp"></span>
+        <button type="button" class="gt-btn" data-r="all" title="모든 영상을 한 그래프에 — 영상마다 t · s(또는 v) 한 쌍">${ATW_ICON.graph}모두 한 그래프로</button>
+        <button type="button" class="gt-btn" data-r="sum">요약 CSV</button><button type="button" class="gt-btn" data-r="long" title="모든 영상의 표를 한 파일에(첫 열 = 영상 이름)">전체 데이터 CSV</button>
+        <button type="button" class="gt-btn ghost" data-r="again" title="축척 · 설정을 바꿔 다시">다시 추적</button></div>
+      <div class="bt-sumw"><table class="bt-sum"><thead><tr><th>#</th><th>영상</th><th>고른 방법</th><th>구간 (영상 시각)</th><th>점</th><th>총 변위 s</th><th>최대 속도</th><th>멈춤</th></tr></thead><tbody>${this.items.map((it,i)=>it.res?row(it,i):'').join('')}</tbody></table></div>
+      <div class="bt-det"></div>
+    </div>`;
+    M.querySelectorAll('.bt-sum tr[data-i]').forEach(tr=>tr.onclick=()=>{ this.sel=+tr.dataset.i; this.cur=this.sel; M.querySelectorAll('.bt-sum tr').forEach(x=>x.classList.toggle('on', x===tr)); this.paintList(); this.paintDetail(); });
+    M.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>this.resBtn(b.dataset.r, b));
+    this.paintDetail();
+  }
+  paintDetail(){
+    const box=this.$('.bt-det'); if(!box) return; const it=this.items[this.sel]; if(!it || !it.res){ box.innerHTML=''; return; }
+    const r=it.res;
+    if(r.fail){ box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b></div><p class="bt-bad">${esc(r.why)}</p>`; return; }
+    const T=r.tab, info=r.info, c=r.ch.c;
+    box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b><span class="bt-why${r.warn?' w':''}">${esc(r.manual?'직접 고른 궤적':r.why)}</span><span class="gt-sp"></span>
+        <button type="button" class="gt-btn pri" data-d="graph">${ATW_ICON.graph}그래프로 보내기</button><button type="button" class="gt-btn" data-d="csv">CSV</button><button type="button" class="gt-btn ghost" data-d="png" title="확인 그림을 PNG로">그림 저장</button></div>
+      <div class="bt-dinfo">${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}</div>
+      <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = 고른 궤적(초록 원 = 시작, 보라 원 = 끝) · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b></small></div>
+        <div class="bt-plots"><canvas class="bt-p1"></canvas><canvas class="bt-p2"></canvas></div></div>
+      <details class="bt-tbl"><summary>표 보기 (${T.rows.length}줄)</summary><div class="bt-tw"><table><thead><tr><th>t (s)</th><th>영상 시각</th><th>x (${T.unit})</th><th>y (${T.unit})</th><th>s (${T.unit})</th><th>v (${T.unit}/s)</th></tr></thead><tbody>${T.rows.map(q=>`<tr><td>${fmtN(q.t,5)}</td><td>${fmtN(q.vt,5)}</td><td>${fmtN(q.X,5)}</td><td>${fmtN(q.Y,5)}</td><td>${fmtN(q.s,5)}</td><td>${fmtN(q.v,4)}</td></tr>`).join('')}</tbody></table></div></details>`;
+    box.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>this.detBtn(b.dataset.d));
+    const cc=box.querySelector('.bt-cc'); this.drawCheck(cc, it).then(()=>{});
+    cc.onclick=e=>{ const rc=cc.getBoundingClientRect(), x=(e.clientX-rc.left)/rc.width*info.W, y=(e.clientY-rc.top)/rc.height*info.H; let best=null, bd=1e9;
+      info.tracks.forEach(tr=>{ for(let q=0;q<tr.x.length;q++){ const d=Math.hypot(tr.x[q]-x, tr.y[q]-y); if(d<bd){ bd=d; best=tr; } } });
+      if(!best || bd>Math.max(12, 0.03*info.W) || best.id===r.trackId) return;
+      const d=btDescribe(best, info, r.P); it.res=this.applyChoice(r, { c:{ tr:best, d }, rule:3, why:'직접 고른 궤적' }); it.res.manual=true; it.res.warn=false; it.status='ok'; say(`궤적 #${best.id}로 바꿨어요.`); this.paint(); };
+    const pw=Math.max(240, (box.querySelector('.bt-plots').clientWidth||300));
+    this.plot(box.querySelector('.bt-p1'), T.rows.map(q=>q.t), T.rows.map(q=>q.s), 't (s)', `s (${T.unit})`, pw);
+    this.plot(box.querySelector('.bt-p2'), T.rows.map(q=>q.t), T.rows.map(q=>q.v), 't (s)', `v (${T.unit}/s)`, pw, '#C00000');
+  }
+  drawCheck(cc, it){ const r=it.res, info=r.info, T=r.tab; return new Promise(res=>{ const img=new Image(); img.onload=()=>{ cc.width=info.W; cc.height=info.H; const g=cc.getContext('2d'); g.drawImage(img,0,0);
+      g.lineCap='round'; g.lineJoin='round';
+      info.tracks.forEach(tr=>{ if(tr.id===r.trackId) return; g.strokeStyle='rgba(255,255,255,.85)'; g.lineWidth=4; g.beginPath(); tr.x.forEach((x,q)=>q?g.lineTo(x,tr.y[q]):g.moveTo(x,tr.y[q])); g.stroke(); g.strokeStyle='rgba(90,90,90,.9)'; g.lineWidth=2; g.stroke(); });
+      const S=info.scale, xs=T.rows.map(q=>q.xp*S), ys=T.rows.map(q=>q.yp*S);
+      g.strokeStyle='#ff1a1a'; g.lineWidth=3; g.beginPath(); xs.forEach((x,q)=>q?g.lineTo(x,ys[q]):g.moveTo(x,ys[q])); g.stroke();
+      g.fillStyle='#ffd400'; xs.forEach((x,q)=>{ if(q%5===0){ g.beginPath(); g.arc(x,ys[q],2.5,0,7); g.fill(); } });
+      const rr=T.r*S; g.lineWidth=2.5; g.strokeStyle='#16c60c'; g.beginPath(); g.arc(xs[0],ys[0],rr,0,7); g.stroke(); g.strokeStyle='#d01bd0'; g.beginPath(); g.arc(xs[xs.length-1],ys[ys.length-1],rr,0,7); g.stroke();
+      if(r.sc && r.sc.a){ g.strokeStyle='#2f7bff'; g.lineWidth=2; g.beginPath(); g.moveTo(r.sc.a[0]*S, r.sc.a[1]*S); g.lineTo(r.sc.b[0]*S, r.sc.b[1]*S); g.stroke(); }
+      res(); }; img.src=r.bgURL; }); }
+  plot(cv, X, Y, xl, yl, w, color){ const dpr=window.devicePixelRatio||1, h=170; cv.style.width=w+'px'; cv.style.height=h+'px'; cv.width=w*dpr; cv.height=h*dpr; const g=cv.getContext('2d'); g.scale(dpr,dpr);
+    const css=getComputedStyle(this.body), fg=css.getPropertyValue('--text').trim()||'#222', dim=css.getPropertyValue('--text-dim').trim()||'#777';
+    g.clearRect(0,0,w,h); const L=48, Rr=8, Tt=8, B=30, pw=w-L-Rr, ph=h-Tt-B; const xs=X.filter(isFinite), ys=Y.filter(isFinite); if(!xs.length||!ys.length) return;
+    let x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys); if(x1===x0) x1=x0+1; if(y1===y0){ y1+=1; y0-=1; } const py=(y1-y0)*0.06; y0-=py; y1+=py;
+    const tx=v=>L+(v-x0)/(x1-x0)*pw, ty=v=>Tt+ph-(v-y0)/(y1-y0)*ph;
+    const ticks=(a,b,n)=>{ const s=Math.pow(10,Math.floor(Math.log10((b-a)/n))), m=[1,2,5,10].find(k=>(b-a)/(s*k)<=n)*s, out=[]; for(let v=Math.ceil(a/m)*m; v<=b+1e-12; v+=m) out.push(+v.toPrecision(10)); return out; };
+    g.strokeStyle='rgba(128,128,128,.25)'; g.lineWidth=1; g.font='10.5px sans-serif'; g.fillStyle=dim;
+    ticks(x0,x1,6).forEach(v=>{ const x=tx(v); g.beginPath(); g.moveTo(x,Tt); g.lineTo(x,Tt+ph); g.stroke(); g.textAlign='center'; g.fillText(String(v), x, h-B+13); });
+    ticks(y0,y1,4).forEach(v=>{ const y=ty(v); g.beginPath(); g.moveTo(L,y); g.lineTo(L+pw,y); g.stroke(); g.textAlign='right'; g.fillText(String(v), L-4, y+3.5); });
+    g.strokeStyle=fg; g.strokeRect(L,Tt,pw,ph); g.fillStyle=fg; g.textAlign='center'; g.fillText(xl, L+pw/2, h-4); g.save(); g.translate(11, Tt+ph/2); g.rotate(-Math.PI/2); g.fillText(yl, 0, 0); g.restore();
+    g.strokeStyle=color||'#0072BD'; g.fillStyle=color||'#0072BD'; g.lineWidth=1.2; g.beginPath(); let on=false; X.forEach((x,i)=>{ const y=Y[i]; if(!isFinite(x)||!isFinite(y)){ on=false; return; } on?g.lineTo(tx(x),ty(y)):g.moveTo(tx(x),ty(y)); on=true; }); g.stroke();
+    X.forEach((x,i)=>{ const y=Y[i]; if(isFinite(x)&&isFinite(y)){ g.beginPath(); g.arc(tx(x),ty(y),1.8,0,7); g.fill(); } }); }
+  tableMat(it){ const T=it.res.tab, u=T.unit; return [[ 't (s)', '영상 시각 (s)', 'x_px', 'y_px (아래 +)', `x (${u})`, `y (${u}, 위 +)`, `s (${u}) 레일 방향`, `v (${u}/s) 레일 방향`, `vx (${u}/s)`, `vy (${u}/s)`, '찾은 방법' ]]
+    .concat(T.rows.map(q=>[fmtN(q.t,7), fmtN(q.vt,7), q.xp.toFixed(2), q.yp.toFixed(2), fmtN(q.X,7), fmtN(q.Y,7), fmtN(q.s,7), fmtN(q.v,6), fmtN(q.vx,6), fmtN(q.vy,6), q.src])); }
+  csvOut(name, mat){ const s='﻿'+mat.map(r=>r.map(v=>{ v=String(v??''); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(',')).join('\r\n');
+    const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([s], { type:'text/csv;charset=utf-8' })); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); }
+  sendGraph(mat, roles, nm, src, note){ if(typeof openGraphTool!=='function') return say('그래프 그리기 도구를 찾지 못했어요.'); const gw=openGraphTool({ newTab:true, name:nm }); const T=gw && gw.tool; if(!T) return;
+    if(note && T.noteFile) T.noteFile(note); T.importDialog(mat, { source:src, roles, hdr:1 }); say(`그래프 그리기의 '${nm}' 탭으로 보냈어요 — X · Y로 쓸 열을 고르고 [넣기]를 누르세요.`, 4500); }
+  detBtn(a){ const it=this.items[this.sel]; if(!it || !it.res || it.res.fail) return;
+    if(a==='csv') return this.csvOut(it.name+'_추적.csv', this.tableMat(it));
+    if(a==='graph'){ const M=this.tableMat(it); return this.sendGraph(M, ['x','skip','skip','skip','skip','skip','y','y','skip','skip','skip'], it.name+' 추적', `여러 영상 자동 추적 — ${it.file.name} · ${it.res.tab.rows.length}점`, it.file.name+' (여러 영상 자동 추적)'); }
+    if(a==='png'){ const c=this.$('.bt-cc'); if(!c) return; c.toBlob(b=>{ const x=document.createElement('a'); x.href=URL.createObjectURL(b); x.download=it.name+'_확인.png'; document.body.appendChild(x); x.click(); setTimeout(()=>{ URL.revokeObjectURL(x.href); x.remove(); }, 1500); }); } }
+  resBtn(a, btn){ const R=this.items.filter(it=>it.res && !it.res.fail);
+    if(a==='again'){ this.items.forEach(it=>{ if(it.status!=='skip'){ it.res=null; it.status='wait'; } }); return this.go('scale', 0); }
+    if(a==='sum'){ return this.csvOut('여러영상_추적_요약.csv', [['영상','고른 방법','축척 (px/단위)','단위','시작 (영상 시각 s)','끝 (영상 시각 s)','걸린 시간 (s)','점 수','총 변위 s','최대 속도 v','멈춘 시간 (s)','fps','공 반지름 (px)','레일 기울기 (°, 화면)']].concat(this.items.filter(it=>it.res).map(it=>{ const r=it.res; if(r.fail) return [it.file.name, r.why];
+      const T=r.tab, L=T.rows[T.rows.length-1]; return [it.file.name, r.manual?'직접 고름':r.why, r.sc && r.sc.ppu ? fmtN(r.sc.ppu,6) : '', T.unit, fmtN(T.rows[0].vt,6), fmtN(L.vt,6), fmtN(L.t,6), T.rows.length, fmtN(L.s,6), fmtN(Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity)),6), r.ch.c.d.stopped?r.ch.c.d.still.toFixed(2):'', r.fps, T.r.toFixed(1), T.angle.toFixed(2)]; }))); }
+    if(a==='long'){ const out=[]; R.forEach((it,k)=>{ const M=this.tableMat(it); if(!k) out.push(['영상'].concat(M[0].map(h=>h.replace(/\((m|cm|mm|px)/, '(단위')))); M.slice(1).forEach(r=>out.push([it.name].concat(r))); });
+      if(new Set(R.map(it=>it.res.tab.unit)).size>1) say('영상마다 단위가 달라요 — 요약 CSV의 단위 열을 함께 보세요.', 4000);
+      return this.csvOut('여러영상_추적_전체.csv', out); }
+    if(a==='all'){ if(!R.length) return; this.popMenu(btn, [['변위 s – 시간', ()=>this.allGraph('s')], ['속도 v – 시간', ()=>this.allGraph('v')]]); } }
+  allGraph(k){ const R=this.items.filter(it=>it.res && !it.res.fail); const n=Math.max(...R.map(it=>it.res.tab.rows.length)); const head=[], roles=[];
+    R.forEach(it=>{ const u=it.res.tab.unit; head.push(`t ${it.name}`, `${k} ${it.name} (${k==='s'?u:u+'/s'})`); roles.push('x','y'); });
+    const mat=[head]; for(let i=0;i<n;i++){ const row=[]; R.forEach(it=>{ const q=it.res.tab.rows[i]; row.push(q?fmtN(q.t,7):'', q?fmtN(q[k],7):''); }); mat.push(row); }
+    this.sendGraph(mat, roles, `여러 영상 ${k}-t`, `여러 영상 자동 추적 — ${R.length}개 영상의 ${k}`, `${R.length}개 영상 (여러 영상 자동 추적)`); }
+  popMenu(anchor, items){ const old=this.body.querySelector('.bt-pop'); if(old) old.remove(); const m=document.createElement('div'); m.className='bt-pop'; m.innerHTML=items.map((x,i)=>`<button type="button" data-i="${i}">${esc(x[0])}</button>`).join(''); this.body.querySelector('.bt').appendChild(m);
+    const r=anchor.getBoundingClientRect(), br=this.body.querySelector('.bt').getBoundingClientRect(); m.style.left=(r.left-br.left)+'px'; m.style.top=(r.bottom-br.top+4)+'px';
+    m.querySelectorAll('[data-i]').forEach(b=>b.onclick=()=>{ m.remove(); items[+b.dataset.i][1](); }); setTimeout(()=>document.addEventListener('pointerdown', function off(e){ if(!m.contains(e.target)){ m.remove(); document.removeEventListener('pointerdown', off, true); } }, true), 0); }
+  async wake(){ try{ if(navigator.wakeLock) this._wl=await navigator.wakeLock.request('screen'); }catch(e){} }
+  releaseWake(){ try{ this._wl && this._wl.release(); }catch(e){} this._wl=null; }
+  hasUnsaved(){ return this.running || this.items.some(it=>it.res && !it.res.fail); }
+}
+
+function openBatchTrack(){
+  return ATW.open('batchtrack', { title:'여러 영상 자동 추적', icon:ATW_ICON.batch, w:1240, h:800, minW:640, minH:460, closeTitle:'닫기 — 결과 표는 창을 닫으면 사라져요',
+    mount:(b,w)=>{ w.inst=new BatchTrack(b,w); },
+    beforeClose:w=>{ const t=w.inst; if(!t || !t.hasUnsaved()) return true;
+      return new Promise(res=>t.dialog(`<div class="gt-dlg-h"><b>창을 닫을까요?</b></div><p class="bt-note">${t.running?'자동 추적이 아직 돌고 있어요. ':''}결과 표는 이 기기에 저장하지 않아서 창을 닫으면 사라져요 — 필요하면 먼저 CSV로 받거나 그래프로 보내세요. (영상마다 정한 축척은 기억해 둬요.)</p>
+        <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn pri" data-ok>닫기</button></div>`, (dl, close)=>{ dl.querySelector('[data-c]').onclick=()=>{ close(); res(false); }; dl.querySelector('[data-ok]').onclick=()=>{ close(); res(true); }; })); },
+    onClose:w=>{ try{ w.inst && w.inst.destroy(); }catch(e){} } });
+}
+window.openBatchTrack=openBatchTrack;
+window.addEventListener('keyup', e=>{ if(e.key===' '){ const w=ATW.wins && ATW.wins.batchtrack; if(w && w.inst) w.inst._space=false; } });
+/* 시험용으로 계산 함수를 밖에 둔다 */
+window.__BT={ btDetect, btLink, btChoose, btTable, btMedian, btDescribe, BT_P0, btPref };
 })();
 </script>
 <style id="anda-media-css">
