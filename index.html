@@ -30366,6 +30366,37 @@ input.bt-in[type=number]{ width:84px; }
   .bt-it{ width:auto; flex:none; max-width:180px; } .bt-lh{ flex:none; flex-direction:column; justify-content:center; white-space:nowrap; padding:4px 8px; } .bt-steps i, .bt-steps b:not(.on){ display:none; }
   .bt-stage{ min-height:260px; }
 }
+/* ★DL-2: 추적 대상 · 범위 막대 · 동시 처리 */
+.bt-tgt{ max-width:340px; overflow:hidden; } .bt-tgt span{ color:var(--text-dim); font-weight:500; } .bt-tgt b{ overflow:hidden; text-overflow:ellipsis; }
+.bt-pick{ max-width:880px; width:100%; align-items:stretch; text-align:left; gap:12px; }
+.bt-ph{ display:flex; flex-direction:column; gap:2px; margin-top:4px; } .bt-ph b{ font-size:14.5px; } .bt-ph span{ font-size:12.5px; color:var(--text-dim); }
+.bt-big{ align-self:flex-start; height:36px; padding:0 16px; font-size:13.5px; }
+.bt-tgts{ display:grid; grid-template-columns:repeat(auto-fill, minmax(250px, 1fr)); gap:8px; }
+.bt-tc{ display:flex; gap:10px; align-items:flex-start; text-align:left; padding:10px 11px; border:1px solid var(--border-strong); border-radius:12px; background:var(--card); color:var(--text); font:inherit; cursor:pointer; }
+.bt-tc:hover{ border-color:var(--accent); }
+.bt-tc.on{ border-color:var(--accent); box-shadow:0 0 0 2px var(--accent) inset; background:var(--red-50, #FDF5F4); }
+.bt-tci{ flex:none; width:42px; height:42px; border-radius:10px; background:var(--box-bg); color:var(--accent); display:flex; align-items:center; justify-content:center; }
+.bt-tct{ display:flex; flex-direction:column; gap:2px; min-width:0; } .bt-tct b{ font-size:13.5px; } .bt-tct small{ font-size:11.5px; color:var(--text-dim); line-height:1.45; }
+.bt-tct em{ font-style:normal; font-size:10.5px; font-weight:700; color:var(--accent); letter-spacing:.02em; }
+.bt-dlg .bt-tgts{ max-height:60vh; overflow:auto; }
+.bt-tl{ padding:8px 10px 2px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:6px; }
+.bt-tlr{ position:relative; height:30px; cursor:pointer; touch-action:none; user-select:none; }
+.bt-tlbg{ position:absolute; left:0; right:0; top:11px; height:8px; border-radius:99px; background:var(--box-bg); border:1px solid var(--border); }
+.bt-tls{ position:absolute; top:11px; height:8px; border-radius:99px; background:var(--accent); opacity:.85; }
+.bt-th{ position:absolute; top:3px; width:12px; height:24px; margin-left:-6px; border-radius:4px; background:var(--card); border:2px solid var(--accent); box-shadow:0 1px 4px rgba(0,0,0,.25); cursor:ew-resize; }
+.bt-tph{ position:absolute; top:0; width:2px; height:30px; margin-left:-1px; background:var(--text); pointer-events:none; }
+.bt-tph::before{ content:''; position:absolute; top:-1px; left:-5px; border:6px solid transparent; border-top-color:var(--text); }
+.bt-tlb{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12.5px; }
+.bt-tlb .bt-frt{ font-variant-numeric:tabular-nums; min-width:62px; font-weight:600; }
+.bt-rgt{ color:var(--text-dim); margin-left:4px; } .bt-rgt b{ color:var(--text); }
+.bt-eta{ font-size:12.5px; color:var(--text-dim); }
+.bt-slots{ flex:1; min-height:0; display:grid; gap:8px; grid-template-columns:1fr; }
+.bt-slots.n2{ grid-template-columns:1fr 1fr; } .bt-slots.n3{ grid-template-columns:1fr 1fr 1fr; }
+.bt-slot{ min-width:0; min-height:0; display:flex; flex-direction:column; gap:4px; }
+.bt-sh{ display:flex; gap:8px; align-items:baseline; font-size:12.5px; min-width:0; } .bt-sh b{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; } .bt-sh span{ color:var(--text-dim); white-space:nowrap; font-variant-numeric:tabular-nums; }
+.bt-sbar{ height:4px; border-radius:99px; background:var(--box-bg); overflow:hidden; } .bt-sbar i{ display:block; height:100%; width:0; background:var(--accent); }
+.bt-slots.n2 .bt-pvi, .bt-slots.n3 .bt-pvi{ width:96px; }
+@media (max-width:720px){ .bt-slots.n2, .bt-slots.n3{ grid-template-columns:1fr; } .bt-tgts{ grid-template-columns:1fr; } }
 </style>
 <script id="anda-batch-js">
 /* ================================================================
@@ -30388,13 +30419,36 @@ if(typeof ATW_ICON!=='undefined' && !ATW_ICON.batch) ATW_ICON.batch='<svg viewBo
 const VID_RE=/\.(mp4|mov|m4v|webm|mkv|avi|3gp|mts|m2ts)$/i;
 const BT_UID=()=>{ try{ return typeof TR_UID==='function' ? TR_UID() : 'anon'; }catch(e){ return 'anon'; } };
 const BT_KEY=()=>'anda_bt_v1:'+BT_UID();
-const BT_DEF={ stop:5, thr:30, pw:960, win:7 };
+const BT_DEF={ stop:5, thr:30, pw:640, win:7, conc:2, target:'railball' };
+/* ★추적 대상 — 모든 영상에 공통으로 미리 고른다. 위일수록 구체적(규칙이 많음), 아래일수록 추상적(둥글기만 보면 됨).
+   shape: round = 둥근 덩어리(원에 가까운 정도로 거름) / box = 각진 덩어리(상자를 얼마나 채우는지로 거름)
+   rmin · rmax = 크기(반지름, 화면 폭 대비) / rule: rail = 레일 규칙(끝까지 → 가운데 멈춤) · longest = 가장 많이 움직인 구간 · duration = 가장 오래 이어진 구간 */
+const BT_TARGETS=[
+  { id:'railball', lv:'구체적', name:'레일 위 쇠구슬 · 유리구슬', sub:'왼쪽 위 → 오른쪽 아래로 굴러 내려가는 작은 공. 끝까지 내려간 구간, 없으면 가운데서 멈춘 채 끝난 구간', shape:'round', rmin:0.006, rmax:0.035, rule:'rail' },
+  { id:'rollball', lv:'구체적', name:'경사면 · 바닥을 굴러가는 공', sub:'방향은 상관없이 한 줄을 따라 가장 길게 굴러간 구간 (탁구공 · 골프공 · 볼링공 등)', shape:'round', rmin:0.006, rmax:0.07, rule:'longest' },
+  { id:'projectile', lv:'중간', name:'던지거나 떨어지는 공', sub:'포물선 · 자유 낙하 · 튀는 공 — 가장 길게 날아간 구간', shape:'round', rmin:0.005, rmax:0.07, rule:'longest' },
+  { id:'pendulum', lv:'중간', name:'진자 추 · 흔들리는 물체', sub:'왔다 갔다 하는 둥근 추 — 가장 오래 이어진 구간', shape:'round', rmin:0.006, rmax:0.09, rule:'duration' },
+  { id:'cart', lv:'중간', name:'역학 수레 · 블록 (각진 물체)', sub:'수레 · 나무 블록 · 상자처럼 네모난 물체 — 가장 길게 움직인 구간', shape:'box', rmin:0.012, rmax:0.16, rule:'longest' },
+  { id:'circle', lv:'추상', name:'원 — 둥근 것이면 무엇이든', sub:'크기 · 방향 · 움직임 상관없이 둥근 물체가 가장 많이 움직인 구간', shape:'round', rmin:0.004, rmax:0.12, rule:'longest' },
+];
+function btTgtIcon(id){ const a='<svg viewBox="0 0 32 32" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">';
+  const m={ railball:'<path d="M3 10l26 12"/><circle cx="12" cy="10" r="3.2" fill="currentColor" fill-opacity=".25"/><path d="M3 27h26" opacity=".4"/>',
+    rollball:'<path d="M3 24h26"/><circle cx="20" cy="19.5" r="4.5" fill="currentColor" fill-opacity=".25"/><path d="M5 19.5h7M7 15.5h5" opacity=".5"/>',
+    projectile:'<path d="M4 26C8 6 20 4 28 22" stroke-dasharray="2 3"/><circle cx="20" cy="8" r="3" fill="currentColor" fill-opacity=".25"/>',
+    pendulum:'<path d="M16 3v0M16 3l-6 17"/><path d="M8 4h16"/><circle cx="10" cy="22" r="4" fill="currentColor" fill-opacity=".25"/><path d="M20 22a10 10 0 0 0 4-3" stroke-dasharray="2 2.5"/>',
+    cart:'<rect x="6" y="12" width="18" height="8" rx="1.5" fill="currentColor" fill-opacity=".2"/><circle cx="10" cy="23" r="2.2"/><circle cx="20" cy="23" r="2.2"/><path d="M3 26h26" opacity=".4"/>',
+    circle:'<circle cx="16" cy="16" r="9" stroke-dasharray="3 2.5"/><circle cx="16" cy="16" r="1.5" fill="currentColor"/>' };
+  return a+(m[id]||m.circle)+'</svg>'; }
+const btTarget=id=>BT_TARGETS.find(t=>t.id===id)||BT_TARGETS[0];
+/* 설정 + 추적 대상 → 계산에 쓰는 값 */
+function btParams(){ const P=Object.assign({}, BT_P0, btPref()), T=btTarget(P.target); return Object.assign(P, { rminF:T.rmin, rmaxF:T.rmax, shape:T.shape, rule:T.rule, tname:T.name }); }
 const UNITS=['m','cm','mm'];
 function btStore(){ return Object.assign({ pref:{}, sc:{} }, ATW_LS.get(BT_KEY(), {})); }
 function btPref(){ return Object.assign({}, BT_DEF, btStore().pref||{}); }
 function btSave(fn){ const s=btStore(); fn(s); const keys=Object.keys(s.sc||{}); if(keys.length>300){ keys.sort((a,b)=>(s.sc[a].at||0)-(s.sc[b].at||0)); keys.slice(0, keys.length-300).forEach(k=>delete s.sc[k]); } ATW_LS.set(BT_KEY(), s); }
 const sigOf=f=>[f.name, f.size, f.lastModified].join('|');
 const fmtN=(v,p)=>{ if(v==null || !isFinite(v)) return ''; return String(+v.toPrecision(p||6)); };
+const btDur=s=>s<60 ? Math.round(s)+'초' : Math.floor(s/60)+'분 '+String(Math.round(s%60)).padStart(2,'0')+'초';
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 
 /* ───────────────── 영상 다루기 ───────────────── */
@@ -30413,28 +30467,30 @@ function btSeek(v, n, fps){
   return new Promise(res=>{ let fin=false; const end=()=>{ if(fin) return; fin=true; requestAnimationFrame(()=>res(n/fps)); };
     v.addEventListener('seeked', end, { once:true }); setTimeout(end, 4000); v.currentTime=(n+0.5)/fps; });
 }
-/* 재생하면서 프레임마다 onFrame(k, 시각) — 한 번 풀면 끝이라 seek보다 훨씬 빠르다.
-   처리가 프레임 간격보다 오래 걸리면 재생 속도를 늦춘다. 그래도 빠진 프레임은 got[k]=0으로 돌려준다(뒤에서 seek로 메움) */
-function btPlayPass(v, fps, N, onFrame, ctl, backlog){
-  const got=new Uint8Array(N); let cnt=0;
+/* 재생하면서 프레임마다 onFrame(k, 시각) — 한 번 풀면 끝이라 seek보다 훨씬 빠르다. 범위 [ka..kb]만.
+   rVFC는 화면에 그려진 프레임마다 오므로 화면 주사율(≈60Hz)까지는 빨리 감아도 된다(30fps 영상 = 2배속).
+   프레임을 건너뛰면 늦추고, 한동안 안 건너뛰면 다시 올린다. 건너뛴 프레임은 got[k]=0 — 고른 궤적 안만 뒤에서 seek로 메운다 */
+function btPlayPass(v, fps, ka, kb, onFrame, ctl, backlog){
+  const got=new Uint8Array(kb+1);
   return new Promise(async res=>{
-    await btSeek(v, 0, fps);
-    let done=false, rate=1, ema=null, lastCb=performance.now(), lastK=-1, calm=0; v.playbackRate=rate;
+    await btSeek(v, ka, fps); onFrame(ka, ka/fps); got[ka]=1;
+    if(ka>=kb) return res(got);
+    const maxR=clamp(58/fps, 0.125, 3);
+    let done=false, rate=Math.min(maxR, 2), lastCb=performance.now(), lastK=ka, calm=0; v.playbackRate=rate;
     const fin=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} v.playbackRate=1; clearInterval(watch); document.removeEventListener('visibilitychange', vis); v.onended=null; res(got); };
     const cb=(now, m)=>{ if(done) return; lastCb=performance.now(); if(ctl.stop) return fin();
       const k=Math.round(m.mediaTime*fps);
-      if(k>=0 && k<N && !got[k]){ const t0=performance.now(); onFrame(k, m.mediaTime); got[k]=1; cnt++; const dt=performance.now()-t0; ema= ema==null ? dt : ema*0.85+dt*0.15;
-        // 프레임을 건너뛰었으면 늦추고, 한동안 안 건너뛰면 처리 시간에 맞춰 조금씩 올린다
-        if(lastK>=0 && k>lastK+1){ rate=Math.max(0.0625, rate*0.75); v.playbackRate=rate; calm=0; }
-        else if(++calm>45){ calm=0; const want=clamp(0.6*(1000/fps)/Math.max(ema,1), 0.0625, 1); if(want>rate*1.1){ rate=Math.min(want, rate*1.25); v.playbackRate=rate; } }
-        lastK=k; }
-      if(k>=N-1) return fin();
+      if(k>=ka && k<=kb && !got[k]){ onFrame(k, m.mediaTime); got[k]=1;
+        if(k>lastK+1){ rate=Math.max(0.125, rate*0.8); v.playbackRate=rate; calm=0; }
+        else if(++calm>40 && rate<maxR){ calm=0; rate=Math.min(maxR, rate*1.15); v.playbackRate=rate; }
+        lastK=Math.max(lastK,k); }
+      if(k>=kb) return fin();
       v.requestVideoFrameCallback(cb);
       // 워커가 밀리면 잠깐 멈췄다가 따라잡으면 다시
-      if(backlog && backlog()>12 && !v.paused){ v.pause(); const tick=()=>{ if(done) return; if(ctl.stop) return fin(); if(backlog()>3) return setTimeout(tick, 30); lastCb=performance.now(); if(!document.hidden) v.play().catch(()=>{}); }; setTimeout(tick, 30); } };
+      if(backlog && backlog()>16 && !v.paused){ v.pause(); const tick=()=>{ if(done) return; if(ctl.stop) return fin(); if(backlog()>4) return setTimeout(tick, 20); lastCb=performance.now(); if(!document.hidden) v.play().catch(()=>{}); }; setTimeout(tick, 20); } };
     const vis=()=>{ if(done) return; if(document.hidden) v.pause(); else { lastCb=performance.now(); v.play().catch(()=>{}); } };
     document.addEventListener('visibilitychange', vis);
-    const watch=setInterval(()=>{ if(ctl.stop) return fin(); if(!document.hidden && performance.now()-lastCb>6000) fin(); }, 400);   // 멈춰 버리면 남은 것은 seek로
+    const watch=setInterval(()=>{ if(ctl.stop) return fin(); if(!document.hidden && !v.paused && performance.now()-lastCb>5000) fin(); }, 400);
     v.onended=()=>setTimeout(fin, 300);
     v.muted=true; v.requestVideoFrameCallback(cb);
     const p=v.play(); if(p && p.catch) p.catch(()=>fin());
@@ -30460,6 +30516,7 @@ function btMedian(S, W, H, masks, base){
 }
 function btMaskCircle(W, H, cx, cy, r){ const x0=Math.max(0,Math.floor(cx-r)), y0=Math.max(0,Math.floor(cy-r)), x1=Math.min(W-1,Math.ceil(cx+r)), y1=Math.min(H-1,Math.ceil(cy+r)); if(x1<x0||y1<y0) return null;
   const w=x1-x0+1, a=new Uint8Array(w*(y1-y0+1)); for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r) a[(y-y0)*w+(x-x0)]=1; return { x0, y0, x1, y1, a }; }
+function btMaskRect(W, H, x0, y0, x1, y1){ x0=Math.max(0,Math.floor(x0)); y0=Math.max(0,Math.floor(y0)); x1=Math.min(W-1,Math.ceil(x1)); y1=Math.min(H-1,Math.ceil(y1)); if(x1<x0||y1<y0) return null; return { x0, y0, x1, y1, a:new Uint8Array((x1-x0+1)*(y1-y0+1)).fill(1) }; }
 function btMergeMask(A, B){ if(!A) return B; if(!B) return A; const x0=Math.min(A.x0,B.x0), y0=Math.min(A.y0,B.y0), x1=Math.max(A.x1,B.x1), y1=Math.max(A.y1,B.y1), w=x1-x0+1, a=new Uint8Array(w*(y1-y0+1));
   [A,B].forEach(M=>{ const mw=M.x1-M.x0+1; for(let y=M.y0;y<=M.y1;y++) for(let x=M.x0;x<=M.x1;x++) if(M.a[(y-M.y0)*mw+(x-M.x0)]) a[(y-y0)*w+(x-x0)]=1; }); return { x0, y0, x1, y1, a }; }
 /* 정사각형 창 r로 침식/팽창 — 상자 [x0..x1]×[y0..y1] 안에서만(밖은 0으로 본다; 상자는 전경 + 여백이라 결과가 같다).
@@ -30504,13 +30561,14 @@ function btDetect(px, bg, Wk, P){
     let r2=0; for(let i=0;i<np;i++){ const p=pix[i], y=(p/W)|0, x=p-y*W, d=(x-cx)*(x-cx)+(y-cy)*(y-cy); if(d>r2) r2=d; }
     const r=Math.sqrt(r2)+0.5, fill=A/(Math.PI*r*r);
     if(r<rmin || r>2.5*rmax || fill<0.25) continue;
-    out.push({ x:cx, y:cy, r, fill, strict: r<=rmax && fill>=P.fillMin });
+    const rect=A/(bw*bh);
+    out.push({ x:cx, y:cy, r, fill, strict: r<=rmax && (P.shape==='box' ? rect>=0.55 : fill>=P.fillMin) });
   }
   return out;
 }
 /* 공 찾기를 웹 워커 여럿에 나눠 맡긴다(재생은 멈추지 않고, 코어 여러 개를 쓴다). 워커를 못 만들면 이 자리에서 바로 계산 */
-function btPool(W, H, P){
-  const nW=clamp((navigator.hardwareConcurrency||4)-1, 1, 4); let ws=[];
+function btPool(W, H, P, nW){
+  nW=nW||clamp((navigator.hardwareConcurrency||4)-1, 1, 4); let ws=[];
   try{ const src=btMorph.toString()+'\n'+btDetect.toString()+`
 let BG=null, WK=null, PP=null;
 onmessage=e=>{ const d=e.data; if(d.bg){ BG=new Uint8Array(d.bg); PP=d.P; if(!WK || WK.W!==d.W || WK.H!==d.H){ const N=d.W*d.H; WK={ W:d.W, H:d.H, m:new Uint8Array(N), t:new Uint8Array(N), lab:new Int32Array(N), st:new Int32Array(N), pix:new Int32Array(N) }; } return; }
@@ -30539,7 +30597,8 @@ function btLink(dets, times, fps, P){
   const vel=tr=>{ const n=tr.f.length; if(n<2) return [0,0]; const j=Math.max(0,n-4), df=tr.f[n-1]-tr.f[j]; return [(tr.x[n-1]-tr.x[j])/df, (tr.y[n-1]-tr.y[j])/df]; };
   const rmed=tr=>{ const a=tr.r.slice(-5).sort((p,q)=>p-q); return a[a.length>>1]; };
   for(let k=0;k<dets.length;k++){
-    const D=dets[k]||[], t=times[k], pairs=[];
+    if(dets[k]===undefined) continue;                      // 처리하지 않은(건너뛴) 프레임 — 놓친 것으로 세지 않는다
+    const D=dets[k], t=times[k], pairs=[];
     active.forEach((tr,ti)=>{ const [vx,vy]=vel(tr), n=tr.f.length, dk=k-tr.f[n-1], px=tr.x[n-1]+vx*dk, py=tr.y[n-1]+vy*dk, r=rmed(tr), gate=2.5*r+1.5*Math.hypot(vx,vy)*dk;
       D.forEach((d,di)=>{ const dist=Math.hypot(d.x-px, d.y-py), q=d.r/r; if(dist<gate && (d.strict ? (q>0.6 && q<1.6) : (q>0.6 && q<3))) pairs.push([dist+(d.strict?0:r), ti, di]); }); });
     pairs.sort((a,b)=>a[0]-b[0]); const ut=new Set(), ud=new Set();
@@ -30563,18 +30622,25 @@ function btDescribe(tr, info, P){
   const tail=btTail(tr, P), mid=tr.x[n-1]>4*r && tr.x[n-1]<W-4*r;
   const full=downright && span>0.25*W && (nearRight || (speedEnd>0.3*r && !endsAtEnd));
   const stoppedEnd=downright && span>3*r && endsAtEnd && mid && !full;
-  return { span, r, full, stopped: stoppedEnd && tail.sec>=1, stoppedLong: stoppedEnd && tail.sec>=P.stop, still:tail.sec, stillJ:tail.j, endsAtEnd, mid, moving: span>3*r };
+  const edge=tr.x[n-1]<4*r || tr.x[n-1]>W-4*r || tr.y[n-1]<4*r || tr.y[n-1]>H-4*r;
+  return { span, r, full, stopped: stoppedEnd && tail.sec>=1, stoppedLong: stoppedEnd && tail.sec>=P.stop, still:tail.sec, stillJ:tail.j, endsAtEnd, mid, moving: span>3*r, speedEnd, edge, dur:tr.t[n-1]-tr.t[0] };
 }
 function btChoose(info, P){
   const C=info.tracks.map(tr=>({ tr, d:btDescribe(tr, info, P) }));
+  if(P.rule && P.rule!=='rail'){
+    const mv=C.filter(c=>c.d.moving); if(!mv.length) return null;
+    const key=P.rule==='duration' ? c=>c.d.dur : c=>c.d.span, b=mv.reduce((a,c)=>key(c)>key(a)?c:a);
+    if(b.d.still>=1 && b.d.endsAtEnd) b.d.stopped=true;    // 멈춘 채 끝났으면 멈춘 뒤 조금까지만
+    return { c:b, rule:1, tag:P.rule==='duration'?'가장 오래':'가장 길게', why:(P.rule==='duration'?'가장 오래 이어진 구간':'가장 많이 움직인 구간')+(mv.length>1?` (움직인 후보 ${mv.length}개 중)`:''), n:mv.length };
+  }
   const full=C.filter(c=>c.d.full);
-  if(full.length){ const b=full.reduce((a,c)=>{ const ka=Math.round(a.d.span/(2*a.d.r)), kc=Math.round(c.d.span/(2*c.d.r)); return (kc>ka || (kc===ka && c.tr.t[0]>a.tr.t[0])) ? c : a; }); return { c:b, rule:1, why:'규칙 1 — 오른쪽 아래 끝까지 굴러간 구간'+(full.length>1?` (그런 구간 ${full.length}개 중 가장 길게 간 것)`:''), n:full.length }; }
+  if(full.length){ const b=full.reduce((a,c)=>{ const ka=Math.round(a.d.span/(2*a.d.r)), kc=Math.round(c.d.span/(2*c.d.r)); return (kc>ka || (kc===ka && c.tr.t[0]>a.tr.t[0])) ? c : a; }); return { c:b, rule:1, tag:'규칙 1', why:'규칙 1 — 오른쪽 아래 끝까지 굴러간 구간'+(full.length>1?` (그런 구간 ${full.length}개 중 가장 길게 간 것)`:''), n:full.length }; }
   const st=C.filter(c=>c.d.stopped);
   if(st.length){ const b=st.reduce((a,c)=>((c.d.stoppedLong && !a.d.stoppedLong) || (c.d.stoppedLong===a.d.stoppedLong && c.d.span>a.d.span)) ? c : a);
-    return b.d.stoppedLong ? { c:b, rule:2, why:`규칙 2 — 가운데에서 ${b.d.still.toFixed(1)}초 멈춘 채 끝난 구간`, n:st.length }
-      : { c:b, rule:2, warn:true, why:`규칙 2 (확인 권장) — 멈춘 채 끝났지만 멈춘 시간이 ${b.d.still.toFixed(1)}초로 기준 ${P.stop}초보다 짧아요`, n:st.length }; }
+    return b.d.stoppedLong ? { c:b, rule:2, tag:'규칙 2', why:`규칙 2 — 가운데에서 ${b.d.still.toFixed(1)}초 멈춘 채 끝난 구간`, n:st.length }
+      : { c:b, rule:2, tag:'규칙 2', warn:true, why:`규칙 2 (확인 권장) — 멈춘 채 끝났지만 멈춘 시간이 ${b.d.still.toFixed(1)}초로 기준 ${P.stop}초보다 짧아요`, n:st.length }; }
   const mv=C.filter(c=>c.d.moving);
-  if(mv.length){ const b=mv.reduce((a,c)=>c.d.span>a.d.span?c:a); return { c:b, rule:3, warn:true, why:'확인 필요 — 규칙에 맞는 구간이 없어 가장 많이 움직인 구간을 골랐어요', n:0 }; }
+  if(mv.length){ const b=mv.reduce((a,c)=>c.d.span>a.d.span?c:a); return { c:b, rule:3, tag:'확인', warn:true, why:'확인 필요 — 규칙에 맞는 구간이 없어 가장 많이 움직인 구간을 골랐어요', n:0 }; }
   return null;
 }
 /* 창 안에서 2차식 맞춤 → 그 점의 값과 기울기(속도). 시간 간격이 고르지 않아도 된다 */
@@ -30615,7 +30681,7 @@ class BatchTrack{
     win.onResize=()=>{ if(this.step==='scale') this.fitView(); if(this.step==='result' && this.sel!=null) this.paintDetail(); };
     this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH);
   }
-  destroy(){ this.stop=true; if(this._pool){ this._pool.close(); this._pool=null; } document.removeEventListener('keydown', this.keyH); btUnload(this.sv); btUnload(this.pv); this.releaseWake(); }
+  destroy(){ this.stop=true; (this.slots||[]).forEach(x=>{ if(x.pool) x.pool.close(); btUnload(x.v); }); document.removeEventListener('keydown', this.keyH); btUnload(this.sv); this.releaseWake(); }
   $(s){ return this.body.querySelector(s); }
   build(){
     this.body.innerHTML=`<div class="bt">
@@ -30623,6 +30689,7 @@ class BatchTrack{
         <button type="button" class="gt-btn pri" data-a="pick">${gtI('folder')}영상 고르기</button>
         <span class="bt-steps"><b data-s="pick">① 영상</b><i>›</i><b data-s="scale">② 축척</b><i>›</i><b data-s="run">③ 자동 추적</b><i>›</i><b data-s="result">④ 결과</b></span>
         <span class="gt-sp"></span>
+        <button type="button" class="gt-btn bt-tgt" data-a="target" title="추적 대상 — 모든 영상에 공통"></button>
         <button type="button" class="gt-btn ghost" data-a="pref" title="멈춤 기준 · 찾기 문턱 · 처리 해상도 · 속도 계산 창">설정</button>
         <input type="file" class="bt-fi" accept="video/*,.mp4,.mov,.m4v,.webm,.mkv,.avi" multiple hidden>
       </div>
@@ -30640,13 +30707,21 @@ class BatchTrack{
     main.addEventListener('drop', e=>{ e.preventDefault(); main.classList.remove('bt-dragon'); if(this.running) return; const fs=[...(e.dataTransfer.files||[])]; if(fs.length) this.addFiles(fs); });
     // 영상 둘 — 축척용 · 처리용 (rVFC가 돌도록 화면 안에 둔다)
     this.sv=document.createElement('video'); this.sv.className='bt-v'; this.sv.muted=true; this.sv.playsInline=true; this.sv.preload='auto';
-    this.pv=document.createElement('video'); this.pv.className='bt-pv'; this.pv.muted=true; this.pv.playsInline=true; this.pv.preload='auto';
-    this.paint();
+    this.paint(); this.paintTgt();
   }
   action(a){
     if(a==='pick'){ if(this.running) return say('추적하는 중이에요 — 끝나거나 멈춘 뒤에 고르세요.'); return this.$('.bt-fi').click(); }
     if(a==='pref') return this.prefDialog();
+    if(a==='target'){ if(this.running) return say('추적하는 중에는 바꿀 수 없어요.'); return this.targetDialog(); }
   }
+  paintTgt(){ const b=this.$('.bt-tgt'); if(b){ const T=btTarget(btPref().target); b.innerHTML=`<span>추적 대상</span><b>${esc(T.name)}</b> ▾`; } }
+  tgtCards(cur){ return `<div class="bt-tgts">${BT_TARGETS.map(T=>`<button type="button" class="bt-tc${T.id===cur?' on':''}" data-t="${T.id}"><span class="bt-tci">${btTgtIcon(T.id)}</span><span class="bt-tct"><em>${esc(T.lv)}</em><b>${esc(T.name)}</b><small>${esc(T.sub)}</small></span></button>`).join('')}</div>`; }
+  targetDialog(){ const cur=btPref().target;
+    this.dialog(`<div class="gt-dlg-h"><b>추적 대상</b><span>모든 영상에 똑같이 써요 · 위일수록 구체적, 아래일수록 넓게 찾아요</span></div>${this.tgtCards(cur)}
+      <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-c>닫기</button></div>`, (dl, close)=>{
+      dl.querySelector('[data-c]').onclick=close;
+      dl.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{ this.setTarget(b.dataset.t); close(); }); }); }
+  setTarget(id){ btSave(s=>{ s.pref=Object.assign({}, s.pref, { target:id }); }); this.paintTgt(); if(this.step==='pick') this.paint(); say(`추적 대상: ${btTarget(id).name}`); }
   addFiles(fs){
     const vids=fs.filter(f=>/^video\//.test(f.type) || VID_RE.test(f.name)); if(!vids.length) return say('영상 파일이 아니에요.');
     const have=new Set(this.items.map(it=>it.sig)); let add=0;
@@ -30654,7 +30729,8 @@ class BatchTrack{
       const saved=(btStore().sc||{})[sig]; let sc=null;
       if(saved && saved.px) sc={ px:true, prefill:true };
       else if(saved && saved.a && saved.b && saved.len>0) sc={ a:saved.a, b:saved.b, len:saved.len, unit:saved.unit, frame:saved.frame, ppu:Math.hypot(saved.a[0]-saved.b[0], saved.a[1]-saved.b[1])/saved.len, prefill:true };
-      this.items.push({ file:f, sig, name:f.name.replace(/\.[^.]+$/,''), sc, status:'wait', res:null }); add++; });
+      const rng=saved && saved.rng && saved.rng.b>saved.rng.a ? { a:saved.rng.a, b:saved.rng.b } : null;
+      this.items.push({ file:f, sig, name:f.name.replace(/\.[^.]+$/,''), sc, rng, status:'wait', res:null }); add++; });
     if(!add) return say('이미 고른 영상이에요.');
     if(vids.length<fs.length) say(`영상이 아닌 파일 ${fs.length-vids.length}개는 뺐어요.`);
     if(this.step==='pick' || this.step==='result'){ const first=this.items.findIndex(it=>!it.res); this.go('scale', first<0?0:first); }
@@ -30676,8 +30752,9 @@ class BatchTrack{
     const nsc=this.items.filter(it=>it.sc && (it.sc.px || it.sc.ppu)).length;
     L.innerHTML=`<div class="bt-lh">영상 ${this.items.length}개 <small>축척 ${nsc}/${this.items.length}</small></div>`+this.items.map((it,i)=>{
       const sc=it.sc && it.sc.ppu ? `${fmtN(it.sc.len,4)} ${it.sc.unit}` : it.sc && it.sc.px ? 'px' : '';
+      const rg=it.rng ? ` · ${it.rng.a.toFixed(1)}–${it.rng.b.toFixed(1)} s` : '';
       const st={ wait:'', run:'<em class="bt-st run">추적 중</em>', ok:'<em class="bt-st ok">완료</em>', warn:'<em class="bt-st warn">확인</em>', fail:'<em class="bt-st fail">실패</em>', skip:'<em class="bt-st">건너뜀</em>' }[it.status]||'';
-      return `<button type="button" class="bt-it${i===this.cur && this.step!=='pick'?' on':''}" data-i="${i}"><span class="bt-n">${i+1}</span><span class="bt-nm" title="${esc(it.file.name)}">${esc(it.name)}<small>${sc ? '축척 '+esc(sc) : '<u>축척 아직</u>'}</small></span>${st}${this.running?'':`<span class="bt-x" data-x="${i}" title="목록에서 빼기">×</span>`}</button>`; }).join('');
+      return `<button type="button" class="bt-it${i===this.cur && this.step!=='pick'?' on':''}" data-i="${i}"><span class="bt-n">${i+1}</span><span class="bt-nm" title="${esc(it.file.name)}">${esc(it.name)}<small>${sc ? '축척 '+esc(sc) : '<u>축척 아직</u>'}${rg}</small></span>${st}${this.running?'':`<span class="bt-x" data-x="${i}" title="목록에서 빼기">×</span>`}</button>`; }).join('');
     L.querySelectorAll('.bt-it').forEach(b=>b.onclick=e=>{ const i=+b.dataset.i;
       if(e.target.closest('[data-x]')){ if(this.running) return; this.items.splice(i,1); if(this.cur>=this.items.length) this.cur=Math.max(0,this.items.length-1); if(!this.items.length) this.step='pick'; return this.paint(); }
       if(this.running) { this.cur=i; return this.paintList(); }
@@ -30685,27 +30762,32 @@ class BatchTrack{
       this.go('scale', i); });
   }
   paintPick(M){
-    const P=btPref();
+    const P=btPref(), T=btTarget(P.target);
+    const rule = T.rule==='rail' ? `ⓐ 오른쪽 아래 끝까지 굴러간 구간 → ⓑ 없으면 가운데서 <b>${P.stop}초</b> 넘게 멈춘 채 끝난 구간(멈출 때까지) → ⓒ 둘 다 아니면 가장 많이 움직인 구간에 '확인 필요'`
+      : T.rule==='duration' ? '가장 오래 이어서 보인 구간' : '가장 많이 움직인 구간 (멈춘 채 끝나면 멈출 때까지)';
     M.innerHTML=`<div class="bt-pick">
-      <div class="bt-pi">${ATW_ICON.batch}</div><b>공이 레일을 굴러 내려가는 영상을 여러 개 한꺼번에</b>
-      <span>영상을 고르거나 이 창에 끌어 놓으세요 — 업로드하지 않고 이 기기에서 읽어요.</span>
-      <button type="button" class="gt-btn pri" data-a="pick">${gtI('folder')}영상 여러 개 고르기</button>
+      <div class="bt-ph"><b>① 무엇을 추적할까요?</b><span>모든 영상에 똑같이 써요 — 나중에 위 [추적 대상]에서 바꿀 수 있어요</span></div>
+      ${this.tgtCards(T.id)}
+      <div class="bt-ph"><b>② 영상 고르기</b><span>여러 개를 한꺼번에 고르거나 이 창에 끌어 놓으세요 — 업로드하지 않고 이 기기에서 읽어요</span></div>
+      <button type="button" class="gt-btn pri bt-big" data-a="pick">${gtI('folder')}영상 여러 개 고르기</button>
       <ol class="bt-how">
-        <li><b>축척</b> — 영상마다 길이를 아는 구간(자 · 레일 눈금)을 화면에서 끌고 실제 길이를 넣어요. 카메라 거리가 영상마다 달라도 돼요.</li>
-        <li><b>자동 추적</b> — 배경과 다른 둥근 물체(공)를 프레임마다 찾아 이어요. 처음에 안 보이거나, 나왔다 사라졌다 다시 나와도 돼요.</li>
-        <li><b>궤적 고르기</b> — ⓐ 오른쪽 아래 끝까지 굴러간 구간 → ⓑ 없으면 가운데서 <b>${P.stop}초</b> 넘게 멈춘 채 끝난 구간(멈출 때까지) → ⓒ 둘 다 아니면 가장 많이 움직인 구간에 '확인 필요' 표시.</li>
-        <li><b>결과</b> — 영상마다 t · 위치 · 레일 방향 변위 s · 속도 v 표, 확인 그림, 그래프 그리기로 보내기, CSV.</li>
+        <li><b>영상마다 축척 · 범위</b> — 길이를 아는 구간(자 · 눈금)을 끌고 실제 길이를 넣고, 시간 막대의 손잡이로 추적할 구간만 남겨요(짧을수록 빨라요).</li>
+        <li><b>자동 추적</b> — 배경과 다른 ${T.shape==='box'?'각진':'둥근'} 물체를 프레임마다 찾아 이어요. 처음엔 안 보이거나, 나왔다 사라졌다 다시 나와도 돼요.</li>
+        <li><b>궤적 고르기</b> — ${rule}.</li>
+        <li><b>결과</b> — 영상마다 t · 위치 · 변위 s · 속도 v 표, 확인 그림, 그래프 그리기로 보내기, CSV.</li>
       </ol>
-      <small class="bt-note">카메라는 움직이지 않게(삼각대) 찍은 영상이어야 해요. 공이 다른 물체에 오래 가려지면 그 구간은 끊겨요.</small>
+      <small class="bt-note">카메라는 움직이지 않게(삼각대) 찍은 영상이어야 해요.</small>
     </div>`;
     M.querySelector('[data-a="pick"]').onclick=()=>this.$('.bt-fi').click();
+    M.querySelectorAll('.bt-tgts [data-t]').forEach(b=>b.onclick=()=>this.setTarget(b.dataset.t));
   }
   prefDialog(){
     const P=btPref();
     this.dialog(`<div class="gt-dlg-h"><b>설정</b><small>이 기기에 기억해요</small></div>
       <label class="bt-row">멈춤 기준 <input type="number" class="bt-in" data-k="stop" min="0.5" step="0.5" value="${P.stop}"> 초 <small>공이 가운데서 이만큼 멈춘 채 영상이 끝나면 그 운동을 골라요</small></label>
       <label class="bt-row">찾기 문턱 <input type="number" class="bt-in" data-k="thr" min="5" max="120" step="1" value="${P.thr}"> <small>배경과 색이 이만큼(0~255) 다르면 물체로 봐요. 공을 놓치면 낮추고(20), 잡티가 잡히면 높이세요(40)</small></label>
-      <label class="bt-row">처리 해상도 <select class="bt-in" data-k="pw">${[640,960,1280,1920].map(v=>`<option value="${v}"${+P.pw===v?' selected':''}>가로 ${v}px</option>`).join('')}</select> <small>클수록 조금 더 정밀하지만 느려요(결과 좌표는 언제나 원본 픽셀)</small></label>
+      <label class="bt-row">처리 해상도 <select class="bt-in" data-k="pw">${[480,640,960,1280].map(v=>`<option value="${v}"${+P.pw===v?' selected':''}>가로 ${v}px${v===640?' (기본)':''}</option>`).join('')}</select> <small>클수록 조금 더 정밀하지만 느려요. 640이면 공 중심을 원본 픽셀 1px 안쪽으로 찾아요(결과 좌표는 언제나 원본 픽셀)</small></label>
+      <label class="bt-row">동시에 처리 <select class="bt-in" data-k="conc">${[1,2,3].map(v=>`<option value="${v}"${+P.conc===v?' selected':''}>영상 ${v}개</option>`).join('')}</select> <small>코어가 많은 컴퓨터면 2~3개가 빨라요. 느려지거나 프레임을 많이 건너뛰면 1개로</small></label>
       <label class="bt-row">속도 계산 창 <input type="number" class="bt-in" data-k="win" min="3" max="31" step="2" value="${P.win}"> 프레임 <small>이 개수의 점에 2차식을 맞춰 기울기로 속도를 내요. 크면 매끈, 작으면 민감</small></label>
       <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-def>기본값</button><span class="gt-sp"></span><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn pri" data-ok>저장</button></div>`, (dl, close)=>{
       dl.querySelector('[data-c]').onclick=close;
@@ -30721,16 +30803,22 @@ class BatchTrack{
     const n=this.items.length, prev=this.items.slice(0,this.cur).reverse().find(x=>x.sc && x.sc.ppu);
     const sc=it.sc||{};
     M.innerHTML=`<div class="bt-sc">
-      <div class="bt-sch"><b>${this.cur+1} / ${n} · ${esc(it.file.name)}</b><small>길이를 아는 구간(자 · 눈금 · 레일)의 한쪽 끝에서 다른 끝까지 <b>끌어</b> 주세요. 끝점은 다시 끌어 고칠 수 있어요 · 휠 = 확대 · 가운데 버튼(또는 Space+끌기) = 옮기기</small></div>
+      <div class="bt-sch"><b>${this.cur+1} / ${n} · ${esc(it.file.name)}</b><small><b>축척</b> — 길이를 아는 구간(자 · 눈금)의 한쪽 끝에서 다른 끝까지 끌기(끝점은 다시 끌어 고침 · 휠 = 확대 · 가운데 버튼/Space+끌기 = 옮기기) · <b>범위</b> — 아래 시간 막대의 양 끝 손잡이</small></div>
       <div class="bt-stage" tabindex="0"><div class="bt-wrap"></div><canvas class="bt-loupe" width="140" height="140" hidden></canvas><div class="bt-sload"><div class="tr-spin"></div><span>영상을 여는 중…</span></div></div>
+      <div class="bt-tl">
+        <div class="bt-tlr" title="막대를 누르거나 끌면 그 장면 · 양 끝 손잡이를 끌면 추적할 범위"><div class="bt-tlbg"></div><div class="bt-tls"></div><b class="bt-th" data-h="a"></b><b class="bt-th" data-h="b"></b><i class="bt-tph"></i></div>
+        <div class="bt-tlb"><span class="bt-frt"></span>
+          <button type="button" class="gt-btn ghost" data-rg="a" title="지금 장면부터 추적 ( [ )">⟦ 여기부터</button><button type="button" class="gt-btn ghost" data-rg="b" title="지금 장면까지 추적 ( ] )">여기까지 ⟧</button><button type="button" class="gt-btn ghost" data-rg="all" title="영상 전체">전체</button>
+          <span class="bt-rgt"></span><span class="gt-sp"></span><small class="bt-note">← → 1프레임 · Shift 10프레임 · [ ] 범위</small></div>
+      </div>
       <div class="bt-scbar">
-        <label class="bt-fr">프레임 <input type="range" class="bt-frs" min="0" max="100" value="50" step="0.1"> <span class="bt-frt"></span></label>
         <span class="bt-len">실제 길이 <input type="number" class="bt-in bt-lin" min="0" step="any" value="${sc.len!=null?sc.len:''}" placeholder="예: 30"> <select class="bt-in bt-uin">${UNITS.map(u=>`<option${(sc.unit||'cm')===u?' selected':''}>${u}</option>`).join('')}</select></span>
         <span class="bt-pxi"></span>
       </div>
       <div class="bt-scbtn">
         <button type="button" class="gt-btn ghost" data-b="prev"${this.cur?'':' disabled'}>← 이전 영상</button>
         <button type="button" class="gt-btn ghost" data-b="same"${prev?'':' disabled'} title="앞 영상의 선과 길이를 그대로 — 카메라를 옮기지 않았을 때">앞 영상 축척 그대로</button>
+        <button type="button" class="gt-btn ghost" data-b="samerg"${this.cur && this.items[this.cur-1].rng?'':' disabled'} title="앞 영상과 같은 시각 범위">앞 영상 범위 그대로</button>
         <button type="button" class="gt-btn ghost" data-b="px" title="축척 없이 픽셀 단위로">축척 없이(px)</button>
         <span class="gt-sp"></span>
         ${this.cur<n-1?'<button type="button" class="gt-btn pri" data-b="next">이 축척으로 → 다음 영상</button>':''}
@@ -30741,7 +30829,8 @@ class BatchTrack{
     this.line=sc.a && sc.b ? { a:sc.a.slice(), b:sc.b.slice() } : null;
     M.querySelectorAll('[data-b]').forEach(b=>b.onclick=()=>this.scaleBtn(b.dataset.b));
     const lin=this.$('.bt-lin'), uin=this.$('.bt-uin'); lin.oninput=uin.onchange=()=>this.paintPx(); lin.onkeydown=e=>{ if(e.key==='Enter'){ e.preventDefault(); this.scaleBtn('next'); } };
-    this.bindStage();
+    this.bindStage(); this.bindTimeline();
+    M.querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>this.setRange(b.dataset.rg));
     this.openScaleVideo(it);
   }
   async openScaleVideo(it){
@@ -30751,9 +30840,8 @@ class BatchTrack{
       if(my!==this._sq) return; this._svSig=it.sig; it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration; }
     ld.hidden=true;
     const W=this.$('.bt-wrap'); W.style.width=it.W+'px'; W.style.height=it.H+'px'; this.svg.setAttribute('viewBox', `0 0 ${it.W} ${it.H}`); this.svg.setAttribute('width', it.W); this.svg.setAttribute('height', it.H);
-    const frs=this.$('.bt-frs'); const f0=it.sc && it.sc.frame!=null ? it.sc.frame : 0.5; frs.value=f0*100;
-    const seek=()=>{ const t=clamp(+frs.value/100,0,1)*Math.max(0,it.dur-0.05); v.currentTime=t; this.$('.bt-frt').textContent=trTime(t); };
-    frs.oninput=seek; seek();
+    this.rng=it.rng ? { a:it.rng.a, b:Math.min(it.rng.b, it.dur) } : { a:0, b:it.dur };
+    const f0=it.sc && it.sc.frame!=null ? it.sc.frame*it.dur : (this.rng.a+this.rng.b)/2; this.seekPh(clamp(f0, 0, it.dur));
     this.fitView(); this.paintLine(); this.paintPx();
     if(it.sc && it.sc.prefill && !it._told){ it._told=true; say(it.sc.px ? '이 영상은 전에 \'축척 없이(px)\'로 정했어요.' : '이 영상에 전에 정한 축척을 불러왔어요 — 맞는지 확인하고 넘어가세요.', 3500); }
   }
@@ -30786,120 +30874,167 @@ class BatchTrack{
     const [a,b]=[L.a,L.b], nx=-(b[1]-a[1]), ny=b[0]-a[0], nl=Math.hypot(nx,ny)||1, tk=7*k, ux=nx/nl*tk, uy=ny/nl*tk;
     this.svg.innerHTML=`<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#000" stroke-opacity=".55" stroke-width="${4*k}"/><line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" stroke="#2f7bff" stroke-width="${2*k}"/>`+
       [a,b].map(p=>`<line x1="${p[0]-ux}" y1="${p[1]-uy}" x2="${p[0]+ux}" y2="${p[1]+uy}" stroke="#2f7bff" stroke-width="${2*k}"/><circle cx="${p[0]}" cy="${p[1]}" r="${6*k}" fill="#fff" fill-opacity=".25" stroke="#2f7bff" stroke-width="${1.5*k}"/>`).join(''); }
+  /* ───────── 시간 막대: 장면(▼) · 범위(손잡이 둘) ───────── */
+  seekPh(t){ const it=this.items[this.cur]; if(!it || !it.dur) return; t=clamp(t, 0, Math.max(0, it.dur-0.02)); this.ph=t; try{ this.sv.currentTime=t; }catch(e){} this.paintTl(); }
+  paintTl(){ const it=this.items[this.cur], R=this.$('.bt-tlr'); if(!R || !it || !it.dur) return; const D=it.dur, pc=t=>clamp(t/D*100,0,100)+'%';
+    R.querySelector('.bt-tls').style.left=pc(this.rng.a); R.querySelector('.bt-tls').style.width=clamp((this.rng.b-this.rng.a)/D*100,0,100)+'%';
+    R.querySelector('[data-h="a"]').style.left=pc(this.rng.a); R.querySelector('[data-h="b"]').style.left=pc(this.rng.b); R.querySelector('.bt-tph').style.left=pc(this.ph);
+    this.$('.bt-frt').textContent=trTime(this.ph);
+    const whole=this.rng.a<=0.01 && this.rng.b>=D-0.01; this.$('.bt-rgt').innerHTML= whole ? `범위 <b>영상 전체</b> (${D.toFixed(1)} s)` : `범위 <b>${this.rng.a.toFixed(2)} – ${this.rng.b.toFixed(2)} s</b> (${(this.rng.b-this.rng.a).toFixed(2)} s · 전체의 ${Math.round((this.rng.b-this.rng.a)/D*100)}%)`; }
+  bindTimeline(){ const R=this.$('.bt-tlr'); let drag=null;
+    const tOf=e=>{ const r=R.getBoundingClientRect(), it=this.items[this.cur]; return clamp((e.clientX-r.left)/r.width,0,1)*(it.dur||0); };
+    R.addEventListener('pointerdown', e=>{ const it=this.items[this.cur]; if(!it || !it.dur) return; e.preventDefault(); const r=R.getBoundingClientRect(), x=e.clientX-r.left, px=t=>t/it.dur*r.width;
+      const h=e.target.closest('[data-h]'); let k=h ? h.dataset.h : null;
+      if(!k){ if(Math.abs(x-px(this.rng.a))<9) k='a'; else if(Math.abs(x-px(this.rng.b))<9) k='b'; }
+      drag=k||'ph'; R.setPointerCapture(e.pointerId); move(e); });
+    const move=e=>{ if(!drag) return; const t=tOf(e), it=this.items[this.cur], gap=Math.min(0.2, it.dur/20);
+      if(drag==='a') this.rng.a=clamp(t, 0, this.rng.b-gap); else if(drag==='b') this.rng.b=clamp(t, this.rng.a+gap, it.dur);
+      this.seekPh(drag==='a' ? this.rng.a : drag==='b' ? Math.max(0,this.rng.b-0.02) : t); };
+    R.addEventListener('pointermove', move); const up=()=>{ if(drag){ drag=null; this.saveRange(); } }; R.addEventListener('pointerup', up); R.addEventListener('pointercancel', up); }
+  setRange(k){ const it=this.items[this.cur]; if(!it || !it.dur) return; const gap=Math.min(0.2, it.dur/20);
+    if(k==='a') this.rng.a=clamp(this.ph, 0, this.rng.b-gap); else if(k==='b') this.rng.b=clamp(this.ph+0.02, this.rng.a+gap, it.dur); else this.rng={ a:0, b:it.dur };
+    this.paintTl(); this.saveRange(); }
+  saveRange(){ const it=this.items[this.cur]; if(!it || !it.dur || !this.rng) return; const whole=this.rng.a<=0.01 && this.rng.b>=it.dur-0.01; it.rng= whole ? null : { a:+this.rng.a.toFixed(3), b:+this.rng.b.toFixed(3) }; this.paintList(); }
   pxLen(){ return this.line ? Math.hypot(this.line.a[0]-this.line.b[0], this.line.a[1]-this.line.b[1]) : 0; }
   paintPx(){ const e=this.$('.bt-pxi'); if(!e) return; const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value;
     e.innerHTML = !this.line ? '<u>아직 끌지 않았어요</u>' : `선 <b>${px.toFixed(1)}</b> px` + (len>0 ? ` → 1 ${u} = <b>${(px/len).toPrecision(5)}</b> px` : ' · 길이를 넣어 주세요');
     const g=this.$('.bt-gogo'); if(g){ const ok=this.allScaled(true); g.classList.toggle('bt-dim', !ok); } }
-  curScale(){ const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value; if(!this.line || px<3 || !(len>0)) return null; return { a:this.line.a.map(v=>+v.toFixed(2)), b:this.line.b.map(v=>+v.toFixed(2)), len, unit:u, ppu:px/len, frame:+this.$('.bt-frs').value/100 }; }
+  curScale(){ const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value; if(!this.line || px<3 || !(len>0)) return null; return { a:this.line.a.map(v=>+v.toFixed(2)), b:this.line.b.map(v=>+v.toFixed(2)), len, unit:u, ppu:px/len, frame:(()=>{ const it=this.items[this.cur]; return it && it.dur && this.ph!=null ? +(this.ph/it.dur).toFixed(4) : 0.5; })() }; }
   allScaled(withCur){ return this.items.length>0 && this.items.every((it,i)=>(withCur && i===this.cur && this.step==='scale') ? (this.curScale() || (it.sc && it.sc.px)) : (it.sc && (it.sc.px || it.sc.ppu))); }
-  remember(it){ if(!it.sc || it.sc.skip) return; btSave(s=>{ s.sc[it.sig]=it.sc.px ? { px:true, at:Date.now() } : { a:it.sc.a, b:it.sc.b, len:it.sc.len, unit:it.sc.unit, frame:it.sc.frame, at:Date.now() }; }); }
+  remember(it){ if(!it.sc || it.sc.skip) return; btSave(s=>{ s.sc[it.sig]=Object.assign(it.sc.px ? { px:true } : { a:it.sc.a, b:it.sc.b, len:it.sc.len, unit:it.sc.unit, frame:it.sc.frame }, { rng:it.rng||null, at:Date.now() }); }); }
   scaleBtn(b, force){
     const it=this.items[this.cur];
     if(b==='prev'){ this.keepCur(); return this.go('scale', this.cur-1); }
     if(b==='same'){ const p=this.items.slice(0,this.cur).reverse().find(x=>x.sc && x.sc.ppu); if(!p) return; this.line={ a:p.sc.a.slice(), b:p.sc.b.slice() }; this.$('.bt-lin').value=p.sc.len; this.$('.bt-uin').value=p.sc.unit; this.paintLine(); this.paintPx(); return say('앞 영상의 축척을 가져왔어요 — 선이 이 영상의 같은 곳에 놓였는지 확인하세요.', 3500); }
-    if(b==='px'){ it.sc={ px:true }; this.remember(it); return this.nextScale(); }
+    if(b==='samerg'){ const p=this.items[this.cur-1]; if(!p || !p.rng || !it.dur) return; this.rng={ a:Math.min(p.rng.a, it.dur-0.2), b:Math.min(p.rng.b, it.dur) }; this.saveRange(); this.seekPh(this.rng.a); return say('앞 영상과 같은 시각 범위로 맞췄어요.'); }
+    if(b==='px'){ this.saveRange(); it.sc={ px:true }; this.remember(it); return this.nextScale(); }
     if(b==='next' || b==='run'){
-      if(!force){ const s=this.curScale();
+      if(!force){ this.saveRange(); const s=this.curScale();
         if(!s){ if(it.sc && it.sc.px && !this.line) { /* 픽셀로 둔 영상 */ } else return say(!this.line ? '길이를 아는 구간을 화면에서 끌어 주세요.' : '실제 길이를 넣어 주세요.'); }
         else { it.sc=s; this.remember(it); } }
       if(b==='run'){ const miss=this.items.findIndex(x=>!(x.sc && (x.sc.ppu || x.sc.px))); if(miss>=0){ say(`${miss+1}번 영상의 축척을 먼저 정해 주세요 (${this.items.filter(x=>!(x.sc && (x.sc.ppu || x.sc.px))).length}개 남음).`, 3500); return this.go('scale', miss); } return this.startRun(); }
       return this.nextScale();
     }
   }
-  keepCur(){ const it=this.items[this.cur], s=this.curScale(); if(it && s){ it.sc=s; this.remember(it); } }
+  keepCur(){ this.saveRange(); const it=this.items[this.cur], s=this.curScale(); if(it && s){ it.sc=s; } if(it && it.sc) this.remember(it); }
   /* 영상마다 차례로 묻는다 — 끝 영상이면 축척이 빠진 첫 영상으로, 다 있으면 그대로 */
   nextScale(){ const n=this.items.length; if(this.cur<n-1) return this.go('scale', this.cur+1);
     const any=this.items.findIndex(x=>!(x.sc && (x.sc.ppu || x.sc.px))); if(any>=0){ say(`${any+1}번 영상의 축척이 아직이에요.`); return this.go('scale', any); }
     this.paint(); say('모든 영상의 축척을 정했어요 — [▶ 모두 자동 추적]을 누르세요.', 3500); }
   onKey(e){ if(!this.win || !ATW.wins.batchtrack || ATW.wins.batchtrack!==this.win) return; if(e.key===' ' && this.step==='scale' && e.target && e.target.closest && e.target.closest('.bt-stage')){ e.preventDefault(); if(e.type==='keydown') this._space=true; }
-    if(e.key==='Escape' && this.running){ this.stop=true; } }
+    if(e.key==='Escape' && this.running){ this.stop=true; }
+    if(this.step==='scale' && !this.running && !(e.target && e.target.closest && e.target.closest('input,select,textarea'))){ const it=this.items[this.cur]; if(!it || !it.dur) return;
+      const fpsG=1/30, st=e.shiftKey?10*fpsG:fpsG;
+      if(e.key==='ArrowRight'){ e.preventDefault(); this.seekPh(this.ph+st); } else if(e.key==='ArrowLeft'){ e.preventDefault(); this.seekPh(this.ph-st); }
+      else if(e.key==='['){ e.preventDefault(); this.setRange('a'); } else if(e.key===']'){ e.preventDefault(); this.setRange('b'); } } }
 
-  /* ───────── ③ 자동 추적 ───────── */
+  /* ───────── ③ 자동 추적 — 영상 여러 개를 동시에(칸마다 video 하나), 칸마다 워커 풀 ───────── */
   async startRun(){
     if(this.running) return; if(!this.allScaled()) return say('모든 영상의 축척을 먼저 정해 주세요.');
     btUnload(this.sv); this._svSig=null;
-    this.running=true; this.stop=false; this.step='run'; this.items.forEach(it=>{ if(it.status!=='skip'){ it.status='wait'; it.res=null; } }); this.paint(); this.wake();
-    const P=Object.assign({}, BT_P0, btPref()); const t0=performance.now();
-    for(let i=0;i<this.items.length && !this.stop;i++){
-      const it=this.items[i]; if(it.status==='skip') continue; this.cur=i; it.status='run'; this.paintList(); this.paintRunHead(i);
-      try{ it.res=await this.trackOne(it, P); it.status=it.res.fail ? 'fail' : it.res.warn ? 'warn' : 'ok'; }
-      catch(err){ if(this._pool){ this._pool.close(); this._pool=null; } if(this.stop) { it.status='wait'; break; } it.res={ fail:true, why:'오류: '+(err && err.message || err) }; it.status='fail'; }
-      if(this._pool){ this._pool.close(); this._pool=null; }
-      this.paintList();
-    }
-    btUnload(this.pv); this.running=false; this.releaseWake();
-    const done=this.items.filter(it=>it.res).length;
-    say(this.stop ? `멈췄어요 — ${done}개 영상까지 끝났어요.` : `끝! ${done}개 영상 · ${((performance.now()-t0)/1000).toFixed(0)}초`, 4500);
+    const P=btParams(), queue=this.items.map((it,i)=>i).filter(i=>this.items[i].status!=='skip');
+    if(!queue.length) return say('추적할 영상이 없어요.');
+    const conc=clamp(Math.round(P.conc)||1, 1, 3), nS=Math.min(conc, queue.length), cores=navigator.hardwareConcurrency||4;
+    this.slots=Array.from({ length:nS }, (_,s)=>{ const v=document.createElement('video'); v.className='bt-pv'; v.muted=true; v.playsInline=true; v.preload='auto'; return { s, v, i:null, frac:0, pool:null, nW:Math.max(1, Math.floor((cores-1)/nS)) }; });
+    this.running=true; this.stop=false; this.step='run'; this.items.forEach(it=>{ if(it.status!=='skip'){ it.status='wait'; it.res=null; } });
+    this.runT0=performance.now(); this.doneN=0; this.totalN=queue.length; this.paint(); this.wake();
+    let next=0;
+    await Promise.all(this.slots.map(async slot=>{
+      while(!this.stop && next<queue.length){ const i=queue[next++], it=this.items[i]; slot.i=i; slot.frac=0; it.status='run'; this.paintList(); this.slotHead(slot, '여는 중…');
+        try{ it.res=await this.trackOne(it, P, slot); it.status=it.res.fail ? 'fail' : it.res.warn ? 'warn' : 'ok'; }
+        catch(err){ if(this.stop){ it.status='wait'; it.res=null; } else { it.res={ fail:true, why:'오류: '+(err && err.message || err) }; it.status='fail'; } }
+        if(slot.pool){ slot.pool.close(); slot.pool=null; }
+        if(it.res) this.doneN++; slot.frac=0; slot.i=null; this.paintList(); this.paintOverall(); }
+      btUnload(slot.v); this.slotHead(slot, '끝');
+    }));
+    this.slots.forEach(sl=>{ if(sl.pool) sl.pool.close(); }); this.slots=null; this.running=false; this.releaseWake();
+    const done=this.items.filter(it=>it.res).length, sec=(performance.now()-this.runT0)/1000;
+    say(this.stop ? `멈췄어요 — ${done}개 영상까지 끝났어요.` : `끝! ${done}개 영상 · ${sec<90?sec.toFixed(0)+'초':(sec/60).toFixed(1)+'분'}`, 4500);
     this.sel=this.items.findIndex(it=>it.res); if(this.sel<0){ this.sel=null; this.step='scale'; } else this.step='result'; this.paint();
   }
   paintRun(M){
+    const sl=this.slots||[];
     M.innerHTML=`<div class="bt-run">
-      <div class="bt-rh"><b class="bt-rt"></b><span class="gt-sp"></span><button type="button" class="gt-btn" data-stop>멈추기 (Esc)</button></div>
-      <div class="bt-rbar"><i></i></div><div class="bt-rs"></div>
-      <div class="bt-pvw"><div class="bt-pvi"></div><canvas class="bt-pvc"></canvas></div>
-      <small class="bt-note">이 창을 화면에 띄워 두세요 — 브라우저 탭을 다른 곳으로 옮기면 영상 읽기가 멈춰서 기다려요. 영상 하나에 보통 영상 길이의 1~3배 걸려요.</small>
+      <div class="bt-rh"><b class="bt-rt"></b><span class="bt-eta"></span><span class="gt-sp"></span><button type="button" class="gt-btn" data-stop>멈추기 (Esc)</button></div>
+      <div class="bt-rbar"><i></i></div>
+      <div class="bt-slots n${sl.length}">${sl.map(x=>`<div class="bt-slot" data-s="${x.s}"><div class="bt-sh"><b></b><span></span></div><div class="bt-sbar"><i></i></div><div class="bt-pvw"><div class="bt-pvi"></div><canvas class="bt-pvc"></canvas></div></div>`).join('')}</div>
+      <small class="bt-note">이 창을 화면에 띄워 두세요 — 브라우저 탭을 다른 곳으로 옮기면 영상 읽기가 멈춰서 기다려요. 범위를 좁힐수록, 처리 해상도를 낮출수록 빨라요([설정]).</small>
     </div>`;
-    M.querySelector('.bt-pvi').appendChild(this.pv);
+    sl.forEach(x=>{ const el=M.querySelector(`.bt-slot[data-s="${x.s}"]`); x.el=el; el.querySelector('.bt-pvi').appendChild(x.v); x.pc=el.querySelector('.bt-pvc'); });
     M.querySelector('[data-stop]').onclick=()=>{ this.stop=true; say('지금 영상까지만 하고 멈춰요…'); };
-    this.paintRunHead(this.cur);
+    this.paintOverall();
   }
-  paintRunHead(i, phase, k, n){ const t=this.$('.bt-rt'); if(!t) return; const it=this.items[i], N=this.items.length; t.textContent=`${i+1} / ${N} · ${it ? it.file.name : ''}`;
-    if(phase!=null){ this.$('.bt-rs').textContent=phase+(n?` — ${k} / ${n}`:''); const q=n?k/n:0, c=phase[0], part= c==='①' ? 0.1*q : c==='②' ? 0.1+0.6*q : 0.7+0.3*q;
-      this.$('.bt-rbar i').style.width=clamp((i+part)/N*100,1,100)+'%'; } }
+  slotHead(slot, phase, part){ if(part!=null) slot.frac=clamp(part,0,1); const el=slot.el; if(!el) return; const it=slot.i!=null ? this.items[slot.i] : null;
+    el.querySelector('.bt-sh b').textContent=it ? `${slot.i+1}. ${it.file.name}` : '—'; el.querySelector('.bt-sh span').textContent=phase||'';
+    el.querySelector('.bt-sbar i').style.width=(slot.frac*100).toFixed(1)+'%'; this.paintOverall(); }
+  paintOverall(){ const t=this.$('.bt-rt'); if(!t || !this.totalN) return; const run=(this.slots||[]).reduce((a,x)=>a+(x.i!=null?x.frac:0),0), f=(this.doneN+run)/this.totalN;
+    t.textContent=`${this.doneN} / ${this.totalN}개 끝`; this.$('.bt-rbar i').style.width=clamp(f*100,1,100)+'%';
+    const el=(performance.now()-this.runT0)/1000, e=this.$('.bt-eta'); if(e) e.textContent= f>0.03 ? `· 지난 ${btDur(el)} · 남은 시간 약 ${btDur(el*(1-f)/f)}` : `· 지난 ${btDur(el)}`; }
   async waitVisible(){ while(document.hidden && !this.stop) await sleep(300); }
-  async trackOne(it, P){
-    const v=this.pv; btUnload(v);
+  async trackOne(it, P, slot){
+    const v=slot.v; btUnload(v);
     try{ await btLoad(v, it.file); }catch(why){ return { fail:true, why:(BT_ERR[why]||'영상을 열지 못했어요')+' — '+BT_CODEC_HINT }; }
     it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration;
-    this.paintRunHead(this.cur, '① 프레임 속도 재는 중…');
+    this.slotHead(slot, '프레임 속도 재는 중…', 0.01);
     let fr={ fps:30, guessed:true }; try{ fr=await Tracker.prototype.measureFps.call({ video:v }); }catch(e){}
+    if(this.stop) throw new Error('stop');
     const fps=fr.fps, N=Math.max(1, Math.floor(v.duration*fps+1e-6));
+    const ka=it.rng ? clamp(Math.floor(it.rng.a*fps), 0, N-1) : 0, kb=it.rng ? clamp(Math.ceil(it.rng.b*fps), ka, N-1) : N-1, NR=kb-ka+1;
     const T0=performance.now();
     const pw=Math.min(P.pw, it.W), scale=pw/it.W, W=Math.round(it.W*scale), H=Math.round(it.H*scale);
     const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d', { willReadFrequently:true });
-    const pc=this.$('.bt-pvc'); if(pc){ pc.width=W; pc.height=H; }
+    const pc=slot.pc; if(pc){ pc.width=W; pc.height=H; }
     const grab=()=>{ g.drawImage(v, 0, 0, W, H); return g.getImageData(0,0,W,H).data; };
-    // 배경 표본
-    const K=Math.min(31, N), idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1,K-1))))], S=[];
-    for(let j=0;j<idx.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); await btSeek(v, idx[j], fps); const d=grab(), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); if(pc) pc.getContext('2d').drawImage(cv,0,0); this.paintRunHead(this.cur, '① 배경 만드는 중', j+1, idx.length); }
+    // 배경 표본 — 영상 전체에서 고르게(범위 밖도 — 공이 범위 안에서 오래 멈춰도 깨끗한 바닥이 나오게)
+    const K=Math.min(21, N), idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1,K-1))))], S=[];
+    for(let j=0;j<idx.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); await btSeek(v, idx[j], fps); const d=grab(), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); if(pc) pc.getContext('2d').drawImage(cv,0,0); this.slotHead(slot, `배경 만드는 중 ${j+1}/${idx.length}`, 0.02+0.12*(j+1)/idx.length); }
     let bg=btMedian(S, W, H, null);
-    const pool=btPool(W, H, P); this._pool=pool;
-    const pass=async (bgX, label)=>{ const dets=new Array(N), times=new Array(N); let cnt=0, shown=0; pool.setBg(bgX);
-      const one=(k, t)=>{ g.drawImage(v, 0, 0, W, H); const id=g.getImageData(0,0,W,H); times[k]=t;
-        const now=performance.now(), show=pc && now-shown>150; if(show){ shown=now; pc.getContext('2d').putImageData(id,0,0); }
-        pool.send(k, id.data, d=>{ dets[k]=d; cnt++;
-          if(show){ const pg=pc.getContext('2d'); pg.lineWidth=2; d.forEach(q=>{ pg.strokeStyle=q.strict?'#ff2d2d':'#ffb000'; pg.beginPath(); pg.arc(q.x,q.y,q.r,0,7); pg.stroke(); }); }
-          if(cnt%10===0 || cnt===N) this.paintRunHead(this.cur, label, cnt, N); }); };
-      await this.waitVisible();
-      const got=await btPlayPass(v, fps, N, one, this, ()=>pool.inflight);
-      await pool.drain(); if(this.stop) throw new Error('stop');
-      const miss=[]; for(let k=0;k<N;k++) if(!got[k]) miss.push(k);
-      for(let j=0;j<miss.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); const k=miss[j]; one(k, await btSeek(v, k, fps)); if(j%5===0) this.paintRunHead(this.cur, label+' (빠진 프레임 메우기)', j+1, miss.length); }
-      await pool.drain();
-      for(let k=0;k<N;k++) if(!dets[k]) dets[k]=[];
-      return { dets, times, missed:miss.length }; };
-    const tm={ t0:performance.now() }; tm.bg=tm.t0-T0;
-    let D=await pass(bg, '② 공 찾는 중'); tm.p1=performance.now()-tm.t0; tm.miss1=D.missed;
-    const info={ W, H, scale, fps, fpsGuess:fr.guessed, N, endT:D.times[N-1], tracks:[] };
-    info.tracks=btLink(D.dets, D.times, fps, P);
-    let ch=btChoose(info, P), refined=false;
-    // 공이 오래 멈춰 배경에 섞였으면 → 공 자리를 빼고 배경을 다시 만들어 한 번 더
-    if(ch && ch.rule!==1){ const tr=ch.c.tr, rm=med(tr.r), n=tr.t.length;
-      const absorbed=!ch.c.d.endsAtEnd && ch.c.d.mid, inflated=Math.max(...tr.r)>1.3*rm;
+    const pool=btPool(W, H, P, slot.nW); slot.pool=pool;
+    const dets=new Array(N), times=new Array(N);
+    let shown=0, cnt=0, total=NR, base=0.14, span=0.76, label='';
+    const one=(k, t)=>{ g.drawImage(v, 0, 0, W, H); const id=g.getImageData(0,0,W,H); times[k]=t;
+      const now=performance.now(), show=pc && now-shown>160; if(show){ shown=now; pc.getContext('2d').putImageData(id,0,0); }
+      pool.send(k, id.data, d=>{ dets[k]=d; cnt++;
+        if(show){ const pg=pc.getContext('2d'); pg.lineWidth=2; d.forEach(q=>{ pg.strokeStyle=q.strict?'#ff2d2d':'#ffb000'; pg.beginPath(); pg.arc(q.x,q.y,q.r,0,7); pg.stroke(); }); }
+        if(cnt%8===0) this.slotHead(slot, `${label} ${Math.min(cnt,total)}/${total}`, base+span*Math.min(1,cnt/total)); }); };
+    const play=async (a, b, lab, bs, sp)=>{ cnt=0; total=b-a+1; base=bs; span=sp; label=lab; await this.waitVisible();
+      const got=await btPlayPass(v, fps, a, b, one, this, ()=>pool.inflight); await pool.drain(); if(this.stop) throw new Error('stop');
+      let miss=0; for(let k=a;k<=b;k++) if(!got[k]) miss++; return miss; };
+    const tm={}; let t1=performance.now();
+    pool.setBg(bg); const miss1=await play(ka, kb, '공 찾는 중', 0.14, 0.76); tm.p1=performance.now()-t1; tm.miss1=miss1;
+    const info={ W, H, scale, fps, fpsGuess:fr.guessed, N, ka, kb, endT:times[kb]!=null ? times[kb] : kb/fps, tracks:[] };
+    const relink=()=>{ info.tracks=btLink(dets, times, fps, P); return btChoose(info, P); };
+    let ch=relink(), refined=false, filled=0;
+    // 공이 오래 멈춰 배경에 섞였으면 → 공 자리를 빼고 배경을 다시 만들어, 궤적이 끊긴 곳부터만 한 번 더
+    if(ch && (P.rule!=='rail' || ch.rule!==1)){ const tr=ch.c.tr, rm=med(tr.r), n=tr.t.length, d=ch.c.d;
+      const absorbed=!d.endsAtEnd && !d.edge && d.speedEnd<0.3*rm, inflated=P.rule==='rail' && Math.max(...tr.r)>1.3*rm;
       if(absorbed || inflated){
+        // 끝 무렵 지나간 곳(+ 공이 더 굴러가 멈췄을 수 있는 둘레 4r)은, 공이 그곳에 들어온 뒤의 표본을 빼고 중앙값을 낸다
+        let j0=n-1; while(j0>0 && Math.hypot(tr.x[j0-1]-tr.x[n-1], tr.y[j0-1]-tr.y[n-1])<8*rm) j0--;
+        const xs=tr.x.slice(j0), ys=tr.y.slice(j0), pad=4*rm+2;
+        const box=absorbed ? btMaskRect(W, H, Math.min(...xs)-pad, Math.min(...ys)-pad, Math.max(...xs)+pad, Math.max(...ys)+pad) : null, fEnter=tr.f[j0];
         const masks=idx.map(fk=>{ let best=-1, bd=1e9; for(let q=0;q<n;q++){ const dd=Math.abs(tr.f[q]-fk); if(dd<bd){ bd=dd; best=q; } }
-          if(bd<=3) return btMaskCircle(W, H, tr.x[best], tr.y[best], 1.7*rm+2);
-          if(absorbed && fk>tr.f[n-1]) return btMaskCircle(W, H, tr.x[n-1], tr.y[n-1], 1.7*rm+2); return null; });
-        const bg2=btMedian(S, W, H, masks, bg);
-        const D2=await pass(bg2, '③ 멈춘 공 다시 찾는 중'); const info2=Object.assign({}, info, { endT:D2.times[N-1], tracks:btLink(D2.dets, D2.times, fps, P) });
-        const rank=c=>c.rule*2+(c.warn?1:0), ch2=btChoose(info2, P);
-        if(ch2 && rank(ch2)<=rank(ch)){ D=D2; Object.assign(info, info2); ch=ch2; bg=bg2; refined=true; } }
+          let m=bd<=3 ? btMaskCircle(W, H, tr.x[best], tr.y[best], 1.7*rm+2) : null;
+          if(box && fk>=fEnter-3) m=btMergeMask(m, box); return m; });
+        const bg2=btMedian(S, W, H, masks, bg), k2=inflated ? Math.max(ka, tr.f[0]) : Math.max(ka, Math.min(fEnter, tr.f[n-1]-Math.round(0.5*fps)));
+        const keepD=dets.slice(), keepT=times.slice(), keepCh=ch;
+        for(let k=k2;k<=kb;k++){ dets[k]=undefined; }
+        pool.setBg(bg2); t1=performance.now(); await play(k2, kb, '멈춘 공 다시 찾는 중', 0.9, 0.06); tm.p2=performance.now()-t1;
+        info.endT=times[kb]!=null ? times[kb] : kb/fps;
+        const rank=c=>c.rule*2+(c.warn?1:0), ch2=relink();
+        if(ch2 && (rank(ch2)<rank(keepCh) || (rank(ch2)===rank(keepCh) && ch2.c.d.dur>=keepCh.c.d.dur))){ ch=ch2; bg=bg2; refined=true; }
+        else { for(let k=0;k<N;k++){ dets[k]=keepD[k]; times[k]=keepT[k]; } pool.setBg(bg); ch=relink(); } }
     }
+    // 고른 궤적 안에서 건너뛴 프레임만 seek로 메움(전체를 메우면 느리다)
+    if(ch){ const tr=ch.c.tr, a=tr.f[0], b=tr.f[tr.f.length-1], miss=[]; for(let k=a;k<=b;k++) if(dets[k]===undefined) miss.push(k);
+      if(miss.length && miss.length<=600){ for(let j=0;j<miss.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); one(miss[j], await btSeek(v, miss[j], fps)); if(j%4===0) this.slotHead(slot, `빠진 프레임 메우는 중 ${j+1}/${miss.length}`, 0.96+0.04*j/miss.length); }
+        await pool.drain(); filled=miss.length; const c2=relink(); if(c2) ch=c2; } }
     // 확인 그림 바탕 = 배경(깨끗한 화면)
     const bc=document.createElement('canvas'); bc.width=W; bc.height=H; const bgc=bc.getContext('2d'), im=bgc.createImageData(W,H); for(let i=0,o=0;o<bg.length;i+=4,o+=3){ im.data[i]=bg[o]; im.data[i+1]=bg[o+1]; im.data[i+2]=bg[o+2]; im.data[i+3]=255; } bgc.putImageData(im,0,0);
-    tm.all=performance.now()-T0;
-    const res={ info, P, fps, fpsGuess:fr.guessed, refined, missed:D.missed, tm, bgURL:bc.toDataURL('image/jpeg', 0.85), sc:it.sc };
-    if(!ch){ return Object.assign(res, { fail:true, why:'움직이는 공을 찾지 못했어요 — [설정]에서 찾기 문턱을 낮춰 보세요.' }); }
+    tm.all=performance.now()-T0; tm.filled=filled;
+    this.slotHead(slot, '끝', 1);
+    const res={ info, P, fps, fpsGuess:fr.guessed, refined, missed:miss1, filled, tm, bgURL:bc.toDataURL('image/jpeg', 0.85), sc:it.sc, rng:it.rng?{ a:it.rng.a, b:it.rng.b }:null, tname:P.tname };
+    if(!ch){ return Object.assign(res, { fail:true, why:'움직이는 물체를 찾지 못했어요 — [추적 대상]이 맞는지, 범위에 물체가 움직이는 장면이 있는지 보거나, [설정]에서 찾기 문턱을 낮춰 보세요.' }); }
     return this.applyChoice(res, ch);
   }
   applyChoice(res, ch){
@@ -30915,7 +31050,7 @@ class BatchTrack{
     if(this.cur!==this.sel){ this.cur=this.sel; this.paintList(); }
     const row=(it,i)=>{ const r=it.res; if(r.fail) return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td colspan="6" class="bt-bad">${esc(r.why)}</td></tr>`;
       const T=r.tab, L=T.rows[T.rows.length-1], vmax=Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity));
-      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':r.rule===3?'확인':'규칙 '+r.rule}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
+      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':esc(r.ch.tag||('규칙 '+r.rule))}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
     M.innerHTML=`<div class="bt-res">
       <div class="bt-rtb"><b>결과 ${R.filter(it=>!it.res.fail).length} / ${this.items.length}</b><small>줄을 누르면 아래에 확인 그림 · 그래프 · 표</small><span class="gt-sp"></span>
         <button type="button" class="gt-btn" data-r="all" title="모든 영상을 한 그래프에 — 영상마다 t · s(또는 v) 한 쌍">${ATW_ICON.graph}모두 한 그래프로</button>
@@ -30935,7 +31070,7 @@ class BatchTrack{
     const T=r.tab, info=r.info, c=r.ch.c;
     box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b><span class="bt-why${r.warn?' w':''}">${esc(r.manual?'직접 고른 궤적':r.why)}</span><span class="gt-sp"></span>
         <button type="button" class="gt-btn pri" data-d="graph">${ATW_ICON.graph}그래프로 보내기</button><button type="button" class="gt-btn" data-d="csv">CSV</button><button type="button" class="gt-btn ghost" data-d="png" title="확인 그림을 PNG로">그림 저장</button></div>
-      <div class="bt-dinfo">${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}</div>
+      <div class="bt-dinfo">${esc(r.tname||'')} · ${r.rng?`범위 ${r.rng.a.toFixed(2)}–${r.rng.b.toFixed(2)} s · `:''}${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}${r.missed?` · 빨리 감는 중 건너뛴 ${r.missed}프레임 중 궤적 안 ${r.filled||0}개를 다시 읽어 메움`:''}</div>
       <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = 고른 궤적(초록 원 = 시작, 보라 원 = 끝) · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b></small></div>
         <div class="bt-plots"><canvas class="bt-p1"></canvas><canvas class="bt-p2"></canvas></div></div>
       <details class="bt-tbl"><summary>표 보기 (${T.rows.length}줄)</summary><div class="bt-tw"><table><thead><tr><th>t (s)</th><th>영상 시각</th><th>x (${T.unit})</th><th>y (${T.unit})</th><th>s (${T.unit})</th><th>v (${T.unit}/s)</th></tr></thead><tbody>${T.rows.map(q=>`<tr><td>${fmtN(q.t,5)}</td><td>${fmtN(q.vt,5)}</td><td>${fmtN(q.X,5)}</td><td>${fmtN(q.Y,5)}</td><td>${fmtN(q.s,5)}</td><td>${fmtN(q.v,4)}</td></tr>`).join('')}</tbody></table></div></details>`;
@@ -30982,8 +31117,8 @@ class BatchTrack{
     if(a==='png'){ const c=this.$('.bt-cc'); if(!c) return; c.toBlob(b=>{ const x=document.createElement('a'); x.href=URL.createObjectURL(b); x.download=it.name+'_확인.png'; document.body.appendChild(x); x.click(); setTimeout(()=>{ URL.revokeObjectURL(x.href); x.remove(); }, 1500); }); } }
   resBtn(a, btn){ const R=this.items.filter(it=>it.res && !it.res.fail);
     if(a==='again'){ this.items.forEach(it=>{ if(it.status!=='skip'){ it.res=null; it.status='wait'; } }); return this.go('scale', 0); }
-    if(a==='sum'){ return this.csvOut('여러영상_추적_요약.csv', [['영상','고른 방법','축척 (px/단위)','단위','시작 (영상 시각 s)','끝 (영상 시각 s)','걸린 시간 (s)','점 수','총 변위 s','최대 속도 v','멈춘 시간 (s)','fps','공 반지름 (px)','레일 기울기 (°, 화면)']].concat(this.items.filter(it=>it.res).map(it=>{ const r=it.res; if(r.fail) return [it.file.name, r.why];
-      const T=r.tab, L=T.rows[T.rows.length-1]; return [it.file.name, r.manual?'직접 고름':r.why, r.sc && r.sc.ppu ? fmtN(r.sc.ppu,6) : '', T.unit, fmtN(T.rows[0].vt,6), fmtN(L.vt,6), fmtN(L.t,6), T.rows.length, fmtN(L.s,6), fmtN(Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity)),6), r.ch.c.d.stopped?r.ch.c.d.still.toFixed(2):'', r.fps, T.r.toFixed(1), T.angle.toFixed(2)]; }))); }
+    if(a==='sum'){ return this.csvOut('여러영상_추적_요약.csv', [['영상','추적 대상','범위 (s)','고른 방법','축척 (px/단위)','단위','시작 (영상 시각 s)','끝 (영상 시각 s)','걸린 시간 (s)','점 수','총 변위 s','최대 속도 v','멈춘 시간 (s)','fps','공 반지름 (px)','레일 기울기 (°, 화면)']].concat(this.items.filter(it=>it.res).map(it=>{ const r=it.res; if(r.fail) return [it.file.name, r.tname||'', '', r.why];
+      const T=r.tab, L=T.rows[T.rows.length-1]; return [it.file.name, r.tname||'', r.rng?`${r.rng.a}–${r.rng.b}`:'전체', r.manual?'직접 고름':r.why, r.sc && r.sc.ppu ? fmtN(r.sc.ppu,6) : '', T.unit, fmtN(T.rows[0].vt,6), fmtN(L.vt,6), fmtN(L.t,6), T.rows.length, fmtN(L.s,6), fmtN(Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity)),6), r.ch.c.d.stopped?r.ch.c.d.still.toFixed(2):'', r.fps, T.r.toFixed(1), T.angle.toFixed(2)]; }))); }
     if(a==='long'){ const out=[]; R.forEach((it,k)=>{ const M=this.tableMat(it); if(!k) out.push(['영상'].concat(M[0].map(h=>h.replace(/\((m|cm|mm|px)/, '(단위')))); M.slice(1).forEach(r=>out.push([it.name].concat(r))); });
       if(new Set(R.map(it=>it.res.tab.unit)).size>1) say('영상마다 단위가 달라요 — 요약 CSV의 단위 열을 함께 보세요.', 4000);
       return this.csvOut('여러영상_추적_전체.csv', out); }
