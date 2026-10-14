@@ -30397,6 +30397,8 @@ input.bt-in[type=number]{ width:84px; }
 .bt-sbar{ height:4px; border-radius:99px; background:var(--box-bg); overflow:hidden; } .bt-sbar i{ display:block; height:100%; width:0; background:var(--accent); }
 .bt-slots.n2 .bt-pvi, .bt-slots.n3 .bt-pvi{ width:96px; }
 @media (max-width:720px){ .bt-slots.n2, .bt-slots.n3{ grid-template-columns:1fr; } .bt-tgts{ grid-template-columns:1fr; } }
+input.bt-in.bt-wide{ width:min(340px, 100%); }
+.bt-row input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
 </style>
 <script id="anda-batch-js">
 /* ================================================================
@@ -30419,7 +30421,7 @@ if(typeof ATW_ICON!=='undefined' && !ATW_ICON.batch) ATW_ICON.batch='<svg viewBo
 const VID_RE=/\.(mp4|mov|m4v|webm|mkv|avi|3gp|mts|m2ts)$/i;
 const BT_UID=()=>{ try{ return typeof TR_UID==='function' ? TR_UID() : 'anon'; }catch(e){ return 'anon'; } };
 const BT_KEY=()=>'anda_bt_v1:'+BT_UID();
-const BT_DEF={ stop:5, thr:30, pw:640, win:7, conc:2, target:'railball' };
+const BT_DEF={ stop:5, thr:30, pw:640, win:7, conc:2, target:'railball', fix:1, names:'', nmap:'' };
 /* ★추적 대상 — 모든 영상에 공통으로 미리 고른다. 위일수록 구체적(규칙이 많음), 아래일수록 추상적(둥글기만 보면 됨).
    shape: round = 둥근 덩어리(원에 가까운 정도로 거름) / box = 각진 덩어리(상자를 얼마나 채우는지로 거름)
    rmin · rmax = 크기(반지름, 화면 폭 대비) / rule: rail = 레일 규칙(끝까지 → 가운데 멈춤) · longest = 가장 많이 움직인 구간 · duration = 가장 오래 이어진 구간 */
@@ -30659,7 +30661,8 @@ function btTable(tr, d, info, P, sc){
   const tol=Math.max(1, 0.05*r); let i0=0;
   for(let i=0;i<x.length;i++) if(Math.hypot(x[i]-x[0], y[i]-y[0])>tol){ i0=Math.max(0,i-1); break; }
   let i1=x.length; if(d.stopped){ const ts=t[d.stillJ]+P.keepAfterStop; i1=t.findIndex(v=>v>ts+1e-9); if(i1<0) i1=x.length; }
-  x=x.slice(i0,i1); y=y.slice(i0,i1); t=t.slice(i0,i1); src=src.slice(i0,i1);
+  x=x.slice(i0,i1); y=y.slice(i0,i1); t=t.slice(i0,i1); src=src.slice(i0,i1); let rr=tr.r.slice(i0,i1).map(v=>v/S);
+  const fixed= P.fix ? btFix(t, x, y, rr, src, r) : 0;
   const n=x.length, P0=x.map((v,i)=>[v-x[0], y[i]-y[0]]);
   // 레일 방향 = 움직인 점들의 주성분
   const mv=P0.filter(p=>Math.hypot(p[0],p[1])>tol); let u=[1,0];
@@ -30669,7 +30672,43 @@ function btTable(tr, d, info, P, sc){
   const T=t.map(v=>v-t[0]), X=P0.map(p=>p[0]/k), Y=P0.map(p=>-p[1]/k), Sd=P0.map(p=>(p[0]*u[0]+p[1]*u[1])/k);
   const w=P.win%2 ? P.win : P.win+1, fs=btLocal(T,Sd,w), fx=btLocal(T,X,w), fy=btLocal(T,Y,w);
   const rows=T.map((_,i)=>({ t:T[i], vt:t[i], xp:x[i], yp:y[i], X:X[i], Y:Y[i], s:Sd[i], v:fs.v[i], vx:fx.v[i], vy:fy.v[i], src:src[i] }));
-  return { rows, unit, angle:Math.atan2(u[1],u[0])*180/Math.PI, r, i0, u };
+  // 직선 맞춤 속도 — s–t의 가운데 20~80% 시간 구간 기울기 ± 표준오차(정상 상태 속도 어림)
+  const Tn=T[n-1]||0, sel=T.map((v,i)=>i).filter(i=>T[i]>=0.2*Tn && T[i]<=0.8*Tn); let vfit=null;
+  if(sel.length>=4){ const m=sel.length, mt=sel.reduce((a,i)=>a+T[i],0)/m, ms=sel.reduce((a,i)=>a+Sd[i],0)/m; let sxx=0, sxy=0, syy=0; sel.forEach(i=>{ const a=T[i]-mt, b=Sd[i]-ms; sxx+=a*a; sxy+=a*b; syy+=b*b; });
+    const b1=sxy/sxx, res=syy-b1*sxy, se=Math.sqrt(Math.max(0,res)/(m-2)/sxx); vfit={ v:b1, se, r2: syy>0 ? 1-res/syy : 1, t0:T[sel[0]], t1:T[sel[m-1]] }; }
+  return { rows, unit, angle:Math.atan2(u[1],u[0])*180/Math.PI, r, i0, u, fixed, vfit };
+}
+/* ★자동 교정 — 고른 궤적을 한 번 더 훑어 ① 크기가 평소의 0.8배 미만 · 1.25배 초과이거나 일그러진 덩어리(b)인 점,
+   ② 앞뒤 이웃(±4)으로 맞춘 2차 곡선에서 유독 벗어난 점(떨림의 3배 이상, 최소 0.08r)을 → 이웃 곡선 값으로 바꾸고 src='c'.
+   x · y는 원본 픽셀(제자리에서 고침), 돌려주는 값 = 고친 점 수 */
+function btFix(t, x, y, rr, src, rmed){
+  const n=x.length; if(n<7) return 0;
+  const bad=new Uint8Array(n); for(let i=0;i<n;i++) if(src[i]==='b' || rr[i]<0.8*rmed || rr[i]>1.25*rmed) bad[i]=1;
+  const fitAt=(i, skip)=>{ const ids=[]; for(let d=1; d<=10 && ids.length<8; d++){ if(i-d>=0 && !skip[i-d]) ids.push(i-d); if(ids.length<8 && i+d<n && !skip[i+d]) ids.push(i+d); }
+    if(ids.length<4) return null; const m=ids.length, deg=m>=6?2:1, t0=t[i];
+    const one=V=>{ let s0=0,s1=0,s2=0,s3=0,s4=0,y0=0,y1=0,y2=0; ids.forEach(j=>{ const tt=t[j]-t0, v=V[j], t2=tt*tt; s0++; s1+=tt; s2+=t2; s3+=t2*tt; s4+=t2*t2; y0+=v; y1+=v*tt; y2+=v*t2; });
+      if(deg===2){ const c=solve3([[s4,s3,s2],[s3,s2,s1],[s2,s1,s0]],[y2,y1,y0]); return c ? c[2] : null; } const det=s0*s2-s1*s1; if(Math.abs(det)<1e-18) return null; const b=(s0*y1-s1*y0)/det; return (y0-b*s1)/s0; };
+    const fx=one(x), fy=one(y); return fx==null||fy==null ? null : [fx, fy]; };
+  // ② 위치가 튄 점: 자기 자신을 뺀 이웃 곡선과의 거리. 튄 점은 이웃의 곡선도 끌어당기므로
+  //    둘레(±3)에서 가장 많이 벗어난 점만 표시하고, 그 점을 빼고 다시 — 최대 4번
+  for(let round=0; round<4; round++){
+    const e=new Array(n).fill(NaN);
+    for(let i=0;i<n;i++){ if(bad[i]) continue; const sk=bad.slice(); sk[i]=1; const f=fitAt(i, sk); if(f) e[i]=Math.hypot(x[i]-f[0], y[i]-f[1]); }
+    const ev=e.filter(isFinite).sort((a,b)=>a-b); if(ev.length<5) break;
+    const madv=ev[ev.length>>1]*1.4826, thr=Math.max(3.5*madv, 0.08*rmed, 1); let added=0;
+    for(let i=0;i<n;i++){ if(!(e[i]>thr)) continue; let top=true; for(let j=Math.max(0,i-3); j<=Math.min(n-1,i+3); j++) if(j!==i && e[j]>e[i]) top=false; if(top){ bad[i]=1; added++; } }
+    if(!added) break; }
+  let c=0; const fx=[];
+  for(let i=0;i<n;i++) if(bad[i]){ const f=fitAt(i, bad); if(f){ fx.push([i,f]); } }
+  fx.forEach(([i,f])=>{ x[i]=f[0]; y[i]=f[1]; src[i]='c'; c++; });
+  return c;
+}
+/* 파일 이름 → 조건 열. 설정의 '이름 조각'(예: 조건,외부구,내부구,채움(%),반복)과 '값 풀이'(예: s=작, b=큰) */
+function btNameParts(name, P){
+  const labels=String(P.names||'').split(/[,，]/).map(x=>x.trim()).filter(Boolean); if(!labels.length) return null;
+  const parts=String(name).split(/[_\s]+/).filter(Boolean); if(parts.length!==labels.length) return { labels, vals:null };
+  const map={}; String(P.nmap||'').split(/[,，]/).forEach(kv=>{ const m=kv.split('='); if(m.length===2 && m[0].trim()) map[m[0].trim()]=m[1].trim(); });
+  return { labels, vals:parts.map(v=>map[v]!=null ? map[v] : v) };
 }
 const BT_P0={ rminF:0.006, rmaxF:0.035, fillMin:0.4, lostSec:0.35, minTrackSec:0.3, stopSpeed:0.06, keepAfterStop:0.5 };
 
@@ -30788,11 +30827,14 @@ class BatchTrack{
       <label class="bt-row">찾기 문턱 <input type="number" class="bt-in" data-k="thr" min="5" max="120" step="1" value="${P.thr}"> <small>배경과 색이 이만큼(0~255) 다르면 물체로 봐요. 공을 놓치면 낮추고(20), 잡티가 잡히면 높이세요(40)</small></label>
       <label class="bt-row">처리 해상도 <select class="bt-in" data-k="pw">${[480,640,960,1280].map(v=>`<option value="${v}"${+P.pw===v?' selected':''}>가로 ${v}px${v===640?' (기본)':''}</option>`).join('')}</select> <small>클수록 조금 더 정밀하지만 느려요. 640이면 공 중심을 원본 픽셀 1px 안쪽으로 찾아요(결과 좌표는 언제나 원본 픽셀)</small></label>
       <label class="bt-row">동시에 처리 <select class="bt-in" data-k="conc">${[1,2,3].map(v=>`<option value="${v}"${+P.conc===v?' selected':''}>영상 ${v}개</option>`).join('')}</select> <small>코어가 많은 컴퓨터면 2~3개가 빨라요. 느려지거나 프레임을 많이 건너뛰면 1개로</small></label>
+      <label class="bt-row"><input type="checkbox" data-k="fix"${P.fix?' checked':''}> 자동 교정 <small>공 크기가 갑자기 달라지거나(일부만 잡힘) 위치가 혼자 튄 점을 앞뒤 점으로 맞춘 곡선 값으로 바꿔요. 고친 점은 '찾은 방법' = c, 확인 그림의 하늘색 점. 튀는 공처럼 급하게 꺾이는 운동이면 끄세요</small></label>
+      <label class="bt-row">파일 이름 조각 <input type="text" class="bt-in bt-wide" data-k="names" data-s="1" value="${esc(P.names||'')}" placeholder="예: 조건,외부구,내부구,채움(%),반복"> <small>파일 이름을 _ 로 나눈 조각마다 붙일 이름(쉼표로). 예) 8_s_s_75_2 → 조건 8 · 외부구 s · 내부구 s · 채움 75 · 반복 2 — 요약 표 · CSV에 열로 들어가고 [조건별 요약 CSV]가 생겨요. '반복'이 들어간 조각(없으면 마지막)은 묶을 때 빼요</small></label>
+      <label class="bt-row">값 풀이 <input type="text" class="bt-in bt-wide" data-k="nmap" data-s="1" value="${esc(P.nmap||'')}" placeholder="예: s=작, b=큰"> <small>조각 값을 바꿔 적기(선택)</small></label>
       <label class="bt-row">속도 계산 창 <input type="number" class="bt-in" data-k="win" min="3" max="31" step="2" value="${P.win}"> 프레임 <small>이 개수의 점에 2차식을 맞춰 기울기로 속도를 내요. 크면 매끈, 작으면 민감</small></label>
       <div class="gt-dlg-b"><button type="button" class="gt-btn ghost" data-def>기본값</button><span class="gt-sp"></span><button type="button" class="gt-btn ghost" data-c>취소</button><button type="button" class="gt-btn pri" data-ok>저장</button></div>`, (dl, close)=>{
       dl.querySelector('[data-c]').onclick=close;
-      dl.querySelector('[data-def]').onclick=()=>{ Object.entries(BT_DEF).forEach(([k,v])=>{ const e=dl.querySelector(`[data-k="${k}"]`); if(e) e.value=v; }); };
-      dl.querySelector('[data-ok]').onclick=()=>{ const p={}; dl.querySelectorAll('[data-k]').forEach(e=>{ const v=+e.value; if(isFinite(v) && v>0) p[e.dataset.k]=v; }); if(p.win && !(p.win%2)) p.win++; btSave(s=>{ s.pref=Object.assign({}, s.pref, p); }); close(); say('설정을 저장했어요 — 다음 추적부터 써요.'); if(this.step==='pick') this.paint(); };
+      dl.querySelector('[data-def]').onclick=()=>{ Object.entries(BT_DEF).forEach(([k,v])=>{ const e=dl.querySelector(`[data-k="${k}"]`); if(!e || e.dataset.s) return; if(e.type==='checkbox') e.checked=!!v; else e.value=v; }); };
+      dl.querySelector('[data-ok]').onclick=()=>{ const p={}; dl.querySelectorAll('[data-k]').forEach(e=>{ if(e.type==='checkbox'){ p[e.dataset.k]=e.checked?1:0; return; } if(e.dataset.s){ p[e.dataset.k]=e.value.trim(); return; } const v=+e.value; if(isFinite(v) && v>0) p[e.dataset.k]=v; }); if(p.win && !(p.win%2)) p.win++; btSave(s=>{ s.pref=Object.assign({}, s.pref, p); }); close(); say('설정을 저장했어요 — 자동 교정은 다음 추적부터, 파일 이름 조각은 바로 써요.'); if(this.step==='pick' || this.step==='result') this.paint(); };
     });
   }
   dialog(html, bind){ const ov=this.$('.gt-dlg-ov'); ov.hidden=false; ov.innerHTML=`<div class="gt-dlg bt-dlg">${html}</div>`; const close=()=>{ ov.hidden=true; ov.innerHTML=''; }; ov.onclick=e=>{ if(e.target===ov) close(); }; bind(ov.firstElementChild, close); }
@@ -31048,15 +31090,17 @@ class BatchTrack{
     if(!R.length){ M.innerHTML='<div class="bt-pick"><b>아직 결과가 없어요</b></div>'; return; }
     if(this.sel==null || !this.items[this.sel] || !this.items[this.sel].res) this.sel=this.items.indexOf(R[0]);
     if(this.cur!==this.sel){ this.cur=this.sel; this.paintList(); }
-    const row=(it,i)=>{ const r=it.res; if(r.fail) return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td colspan="6" class="bt-bad">${esc(r.why)}</td></tr>`;
+    const PP=btPref(), np0=btNameParts('', PP), labs=np0 ? np0.labels : [];
+    const condTd=it=>{ if(!labs.length) return ''; const q=btNameParts(it.name, PP); return labs.map((_,j)=>`<td>${q && q.vals ? esc(q.vals[j]) : (j? '' : '<small class="bt-bad">이름 조각 수가 달라요</small>')}</td>`).join(''); };
+    const row=(it,i)=>{ const r=it.res; if(r.fail) return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td>${condTd(it)}<td colspan="8" class="bt-bad">${esc(r.why)}</td></tr>`;
       const T=r.tab, L=T.rows[T.rows.length-1], vmax=Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity));
-      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td><td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':esc(r.ch.tag||('규칙 '+r.rule))}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
+      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td>${condTd(it)}<td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':esc(r.ch.tag||('규칙 '+r.rule))}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${T.vfit?`${fmtN(T.vfit.v,4)} ± ${fmtN(T.vfit.se,2)}`:''} ${T.unit}/s</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${T.fixed||''}</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
     M.innerHTML=`<div class="bt-res">
       <div class="bt-rtb"><b>결과 ${R.filter(it=>!it.res.fail).length} / ${this.items.length}</b><small>줄을 누르면 아래에 확인 그림 · 그래프 · 표</small><span class="gt-sp"></span>
         <button type="button" class="gt-btn" data-r="all" title="모든 영상을 한 그래프에 — 영상마다 t · s(또는 v) 한 쌍">${ATW_ICON.graph}모두 한 그래프로</button>
-        <button type="button" class="gt-btn" data-r="sum">요약 CSV</button><button type="button" class="gt-btn" data-r="long" title="모든 영상의 표를 한 파일에(첫 열 = 영상 이름)">전체 데이터 CSV</button>
+        <button type="button" class="gt-btn" data-r="sum">요약 CSV</button>${labs.length?'<button type="button" class="gt-btn" data-r="grp" title="반복을 빼고 같은 조건끼리 묶어 평균 ± 표준편차">조건별 요약 CSV</button>':''}<button type="button" class="gt-btn" data-r="long" title="모든 영상의 표를 한 파일에(첫 열 = 영상 이름)">전체 데이터 CSV</button>
         <button type="button" class="gt-btn ghost" data-r="again" title="축척 · 설정을 바꿔 다시">다시 추적</button></div>
-      <div class="bt-sumw"><table class="bt-sum"><thead><tr><th>#</th><th>영상</th><th>고른 방법</th><th>구간 (영상 시각)</th><th>점</th><th>총 변위 s</th><th>최대 속도</th><th>멈춤</th></tr></thead><tbody>${this.items.map((it,i)=>it.res?row(it,i):'').join('')}</tbody></table></div>
+      <div class="bt-sumw"><table class="bt-sum"><thead><tr><th>#</th><th>영상</th>${labs.map(l=>`<th>${esc(l)}</th>`).join('')}<th>고른 방법</th><th>구간 (영상 시각)</th><th>점</th><th>총 변위 s</th><th title="s–t 그래프 가운데 20~80% 시간 구간의 직선 기울기 ± 표준오차">직선 속도</th><th>최대 속도</th><th title="자동 교정한 점 수">교정</th><th>멈춤</th></tr></thead><tbody>${this.items.map((it,i)=>it.res?row(it,i):'').join('')}</tbody></table></div>
       <div class="bt-det"></div>
     </div>`;
     M.querySelectorAll('.bt-sum tr[data-i]').forEach(tr=>tr.onclick=()=>{ this.sel=+tr.dataset.i; this.cur=this.sel; M.querySelectorAll('.bt-sum tr').forEach(x=>x.classList.toggle('on', x===tr)); this.paintList(); this.paintDetail(); });
@@ -31070,8 +31114,8 @@ class BatchTrack{
     const T=r.tab, info=r.info, c=r.ch.c;
     box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b><span class="bt-why${r.warn?' w':''}">${esc(r.manual?'직접 고른 궤적':r.why)}</span><span class="gt-sp"></span>
         <button type="button" class="gt-btn pri" data-d="graph">${ATW_ICON.graph}그래프로 보내기</button><button type="button" class="gt-btn" data-d="csv">CSV</button><button type="button" class="gt-btn ghost" data-d="png" title="확인 그림을 PNG로">그림 저장</button></div>
-      <div class="bt-dinfo">${esc(r.tname||'')} · ${r.rng?`범위 ${r.rng.a.toFixed(2)}–${r.rng.b.toFixed(2)} s · `:''}${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}${r.missed?` · 빨리 감는 중 건너뛴 ${r.missed}프레임 중 궤적 안 ${r.filled||0}개를 다시 읽어 메움`:''}</div>
-      <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = 고른 궤적(초록 원 = 시작, 보라 원 = 끝) · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b></small></div>
+      <div class="bt-dinfo">${esc(r.tname||'')} · ${r.rng?`범위 ${r.rng.a.toFixed(2)}–${r.rng.b.toFixed(2)} s · `:''}${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}${T.vfit?` · 직선 맞춤 속도(가운데 20~80%) ${fmtN(T.vfit.v,4)} ± ${fmtN(T.vfit.se,2)} ${T.unit}/s (R² ${T.vfit.r2.toFixed(3)})`:''}${T.fixed?` · 자동 교정 ${T.fixed}점`:''}${r.missed?` · 빨리 감는 중 건너뛴 ${r.missed}프레임 중 궤적 안 ${r.filled||0}개를 다시 읽어 메움`:''}</div>
+      <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = 고른 궤적(초록 원 = 시작, 보라 원 = 끝)${T.fixed?` · 하늘색 점 = 자동 교정한 ${T.fixed}점`:''} · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b></small></div>
         <div class="bt-plots"><canvas class="bt-p1"></canvas><canvas class="bt-p2"></canvas></div></div>
       <details class="bt-tbl"><summary>표 보기 (${T.rows.length}줄)</summary><div class="bt-tw"><table><thead><tr><th>t (s)</th><th>영상 시각</th><th>x (${T.unit})</th><th>y (${T.unit})</th><th>s (${T.unit})</th><th>v (${T.unit}/s)</th></tr></thead><tbody>${T.rows.map(q=>`<tr><td>${fmtN(q.t,5)}</td><td>${fmtN(q.vt,5)}</td><td>${fmtN(q.X,5)}</td><td>${fmtN(q.Y,5)}</td><td>${fmtN(q.s,5)}</td><td>${fmtN(q.v,4)}</td></tr>`).join('')}</tbody></table></div></details>`;
     box.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>this.detBtn(b.dataset.d));
@@ -31090,6 +31134,7 @@ class BatchTrack{
       const S=info.scale, xs=T.rows.map(q=>q.xp*S), ys=T.rows.map(q=>q.yp*S);
       g.strokeStyle='#ff1a1a'; g.lineWidth=3; g.beginPath(); xs.forEach((x,q)=>q?g.lineTo(x,ys[q]):g.moveTo(x,ys[q])); g.stroke();
       g.fillStyle='#ffd400'; xs.forEach((x,q)=>{ if(q%5===0){ g.beginPath(); g.arc(x,ys[q],2.5,0,7); g.fill(); } });
+      g.fillStyle='#00d5ff'; g.strokeStyle='#003a66'; g.lineWidth=1; T.rows.forEach((q,i)=>{ if(q.src==='c'){ g.beginPath(); g.arc(xs[i],ys[i],3.5,0,7); g.fill(); g.stroke(); } });
       const rr=T.r*S; g.lineWidth=2.5; g.strokeStyle='#16c60c'; g.beginPath(); g.arc(xs[0],ys[0],rr,0,7); g.stroke(); g.strokeStyle='#d01bd0'; g.beginPath(); g.arc(xs[xs.length-1],ys[ys.length-1],rr,0,7); g.stroke();
       if(r.sc && r.sc.a){ g.strokeStyle='#2f7bff'; g.lineWidth=2; g.beginPath(); g.moveTo(r.sc.a[0]*S, r.sc.a[1]*S); g.lineTo(r.sc.b[0]*S, r.sc.b[1]*S); g.stroke(); }
       res(); }; img.src=r.bgURL; }); }
@@ -31105,7 +31150,7 @@ class BatchTrack{
     g.strokeStyle=fg; g.strokeRect(L,Tt,pw,ph); g.fillStyle=fg; g.textAlign='center'; g.fillText(xl, L+pw/2, h-4); g.save(); g.translate(11, Tt+ph/2); g.rotate(-Math.PI/2); g.fillText(yl, 0, 0); g.restore();
     g.strokeStyle=color||'#0072BD'; g.fillStyle=color||'#0072BD'; g.lineWidth=1.2; g.beginPath(); let on=false; X.forEach((x,i)=>{ const y=Y[i]; if(!isFinite(x)||!isFinite(y)){ on=false; return; } on?g.lineTo(tx(x),ty(y)):g.moveTo(tx(x),ty(y)); on=true; }); g.stroke();
     X.forEach((x,i)=>{ const y=Y[i]; if(isFinite(x)&&isFinite(y)){ g.beginPath(); g.arc(tx(x),ty(y),1.8,0,7); g.fill(); } }); }
-  tableMat(it){ const T=it.res.tab, u=T.unit; return [[ 't (s)', '영상 시각 (s)', 'x_px', 'y_px (아래 +)', `x (${u})`, `y (${u}, 위 +)`, `s (${u}) 레일 방향`, `v (${u}/s) 레일 방향`, `vx (${u}/s)`, `vy (${u}/s)`, '찾은 방법' ]]
+  tableMat(it){ const T=it.res.tab, u=T.unit; return [[ 't (s)', '영상 시각 (s)', 'x_px', 'y_px (아래 +)', `x (${u})`, `y (${u}, 위 +)`, `s (${u}) 레일 방향`, `v (${u}/s) 레일 방향`, `vx (${u}/s)`, `vy (${u}/s)`, '찾은 방법 (d 검출 · b 일그러짐 · c 자동 교정)' ]]
     .concat(T.rows.map(q=>[fmtN(q.t,7), fmtN(q.vt,7), q.xp.toFixed(2), q.yp.toFixed(2), fmtN(q.X,7), fmtN(q.Y,7), fmtN(q.s,7), fmtN(q.v,6), fmtN(q.vx,6), fmtN(q.vy,6), q.src])); }
   csvOut(name, mat){ const s='﻿'+mat.map(r=>r.map(v=>{ v=String(v??''); return /[",\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; }).join(',')).join('\r\n');
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([s], { type:'text/csv;charset=utf-8' })); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); }
@@ -31117,8 +31162,22 @@ class BatchTrack{
     if(a==='png'){ const c=this.$('.bt-cc'); if(!c) return; c.toBlob(b=>{ const x=document.createElement('a'); x.href=URL.createObjectURL(b); x.download=it.name+'_확인.png'; document.body.appendChild(x); x.click(); setTimeout(()=>{ URL.revokeObjectURL(x.href); x.remove(); }, 1500); }); } }
   resBtn(a, btn){ const R=this.items.filter(it=>it.res && !it.res.fail);
     if(a==='again'){ this.items.forEach(it=>{ if(it.status!=='skip'){ it.res=null; it.status='wait'; } }); return this.go('scale', 0); }
-    if(a==='sum'){ return this.csvOut('여러영상_추적_요약.csv', [['영상','추적 대상','범위 (s)','고른 방법','축척 (px/단위)','단위','시작 (영상 시각 s)','끝 (영상 시각 s)','걸린 시간 (s)','점 수','총 변위 s','최대 속도 v','멈춘 시간 (s)','fps','공 반지름 (px)','레일 기울기 (°, 화면)']].concat(this.items.filter(it=>it.res).map(it=>{ const r=it.res; if(r.fail) return [it.file.name, r.tname||'', '', r.why];
-      const T=r.tab, L=T.rows[T.rows.length-1]; return [it.file.name, r.tname||'', r.rng?`${r.rng.a}–${r.rng.b}`:'전체', r.manual?'직접 고름':r.why, r.sc && r.sc.ppu ? fmtN(r.sc.ppu,6) : '', T.unit, fmtN(T.rows[0].vt,6), fmtN(L.vt,6), fmtN(L.t,6), T.rows.length, fmtN(L.s,6), fmtN(Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity)),6), r.ch.c.d.stopped?r.ch.c.d.still.toFixed(2):'', r.fps, T.r.toFixed(1), T.angle.toFixed(2)]; }))); }
+    if(a==='sum' || a==='grp'){ const PP=btPref(), labs=(btNameParts('', PP)||{ labels:[] }).labels;
+      const rowsAll=this.items.filter(it=>it.res).map(it=>{ const r=it.res, q=btNameParts(it.name, PP), cond=labs.map((_,j)=>q && q.vals ? q.vals[j] : '');
+        if(r.fail) return { it, cond, fail:true, line:[it.file.name].concat(cond, [r.tname||'', '', r.why]) };
+        const T=r.tab, L=T.rows[T.rows.length-1], vmax=Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity)), vf=T.vfit;
+        return { it, cond, T, L, vmax, vf, line:[it.file.name].concat(cond, [r.tname||'', r.rng?`${r.rng.a}–${r.rng.b}`:'전체', r.manual?'직접 고름':r.why, r.sc && r.sc.ppu ? fmtN(r.sc.ppu,6) : '', T.unit, fmtN(T.rows[0].vt,6), fmtN(L.vt,6), fmtN(L.t,6), T.rows.length, fmtN(L.s,6), vf?fmtN(vf.v,6):'', vf?fmtN(vf.se,3):'', vf?vf.r2.toFixed(4):'', fmtN(vmax,6), T.fixed||0, r.ch.c.d.stopped?r.ch.c.d.still.toFixed(2):'', r.fps, T.r.toFixed(1), T.angle.toFixed(2)]) }; });
+      if(a==='sum') return this.csvOut('여러영상_추적_요약.csv', [['영상'].concat(labs, ['추적 대상','범위 (s)','고른 방법','축척 (px/단위)','단위','시작 (영상 시각 s)','끝 (영상 시각 s)','걸린 시간 (s)','점 수','총 변위 s','직선 속도 (가운데 20~80%)','± 표준오차','R²','최대 속도 v','자동 교정 점','멈춘 시간 (s)','fps','공 반지름 (px)','레일 기울기 (°, 화면)'])].concat(rowsAll.map(x=>x.line)));
+      // 조건별: '반복'이 들어간 조각(없으면 마지막)을 빼고 묶는다
+      let rep=labs.findIndex(l=>/반복|trial|회/.test(l)); if(rep<0) rep=labs.length-1;
+      const keyIdx=labs.map((_,j)=>j).filter(j=>j!==rep), groups=new Map();
+      rowsAll.filter(x=>!x.fail).forEach(x=>{ const k=keyIdx.map(j=>x.cond[j]).join('|'); if(!groups.has(k)) groups.set(k, []); groups.get(k).push(x); });
+      const ms=v=>{ v=v.filter(isFinite); const n=v.length; if(!n) return ['','']; const m=v.reduce((a,b)=>a+b,0)/n; const sd=n>1?Math.sqrt(v.reduce((a,b)=>a+(b-m)*(b-m),0)/(n-1)):NaN; return [fmtN(m,5), isFinite(sd)?fmtN(sd,3):'']; };
+      const units=new Set(rowsAll.filter(x=>!x.fail).map(x=>x.T.unit)); if(units.size>1) say('영상마다 단위가 달라요 — 같은 단위끼리만 평균이 맞아요.', 4500);
+      const out=[keyIdx.map(j=>labs[j]).concat(['영상 수','영상들','단위','직선 속도 평균','직선 속도 표준편차','총 변위 평균','총 변위 표준편차','걸린 시간 평균 (s)','걸린 시간 표준편차','최대 속도 평균','최대 속도 표준편차','멈춘 영상 수'])];
+      [...groups.values()].sort((A,B)=>A[0].it.name.localeCompare(B[0].it.name, 'ko', { numeric:true })).forEach(G=>{ out.push(keyIdx.map(j=>G[0].cond[j]).concat([G.length, G.map(x=>x.it.name).join(' / '), [...new Set(G.map(x=>x.T.unit))].join('/')],
+        ms(G.map(x=>x.vf?x.vf.v:NaN)), ms(G.map(x=>x.L.s)), ms(G.map(x=>x.L.t)), ms(G.map(x=>x.vmax)), [G.filter(x=>x.it.res.ch.c.d.stopped).length])); });
+      return this.csvOut('여러영상_추적_조건별.csv', out); }
     if(a==='long'){ const out=[]; R.forEach((it,k)=>{ const M=this.tableMat(it); if(!k) out.push(['영상'].concat(M[0].map(h=>h.replace(/\((m|cm|mm|px)/, '(단위')))); M.slice(1).forEach(r=>out.push([it.name].concat(r))); });
       if(new Set(R.map(it=>it.res.tab.unit)).size>1) say('영상마다 단위가 달라요 — 요약 CSV의 단위 열을 함께 보세요.', 4000);
       return this.csvOut('여러영상_추적_전체.csv', out); }
@@ -31146,7 +31205,7 @@ function openBatchTrack(){
 window.openBatchTrack=openBatchTrack;
 window.addEventListener('keyup', e=>{ if(e.key===' '){ const w=ATW.wins && ATW.wins.batchtrack; if(w && w.inst) w.inst._space=false; } });
 /* 시험용으로 계산 함수를 밖에 둔다 */
-window.__BT={ btDetect, btLink, btChoose, btTable, btMedian, btDescribe, BT_P0, btPref };
+window.__BT={ btFix, btNameParts, btDetect, btLink, btChoose, btTable, btMedian, btDescribe, BT_P0, btPref };
 })();
 </script>
 <style id="anda-media-css">
