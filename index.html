@@ -15587,6 +15587,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-11-05', text:"[논문 열람기] 자동 목차를 새로 짰어요. 이제 제목 번호(1 · 2.1 · 3.1.2 / I. · A. / 제1장)를 가장 먼저 보고, 3.1 같은 번호는 소제목으로, 3.1.2는 그 아래로 넣어요. 번호 글자의 크기 · 자리(단의 왼쪽 끝이나 가운데) · 굵기 · 위 여백을 보고 1 → 2 → 3처럼 이어지는 번호만 남겨서 그림 속 숫자 · 번호 목록 · 저자 이름은 빠져요. 초록 · 참고문헌 · 부록(A · A.1)은 낱말로 더하고, 번호가 없는 문서는 글자 크기 · 굵기로 찾아요. 2단 논문에서 오른쪽 단 제목이 앞에 서던 순서도 고쳤어요. PDF에 목차가 들어 있으면 목차 칸 아래 단추로 '본문에서 찾기'와 바꿔 볼 수 있어요." },
   { date:'2026-10-13', text:"[도구] 새 도구 '여러 영상 자동 추적' — 공이 레일을 굴러 내려가는 영상을 여러 개 한꺼번에 골라, 영상마다 화면에서 길이를 아는 구간을 끌고 실제 길이만 넣으면 공을 자동으로 찾아 시간 · 레일 방향 변위 · 속도 표를 만들어요. 끝까지 굴러간 구간(없으면 가운데서 멈춘 채 끝난 구간)을 알아서 고르고, 확인 그림에서 다른 궤적으로 바꿀 수도 있어요. 결과는 그래프 그리기로 보내거나(모든 영상을 한 그래프에도) CSV로 받아요. 영상은 올리지 않아요." },
   { date:'2026-10-08', text:"[도구] 그래프 그리기에 '수식 열'이 생겼어요. [ƒx 수식 열]이나 열 메뉴 ⋯ → [ƒx 수식으로 채우기]에서 0.5*y1^2 · y1/100 · ln(y1)처럼 다른 열로 값을 계산해요(열 이름표는 머리의 x1 · y1). deriv(y1, x1)로 미분(위치 → 속도), cumint(y1, x1)로 누적 적분, mean · sd · delta 같은 열 함수도 있고, 쓴 열에 ± 오차가 있으면 오차도 자동으로 전파해요. 원본을 고치면 저절로 다시 계산돼요." },
   { date:'2026-10-08', text:"[도구] 그래프 그리기를 손봤어요. 그래프 위 막대가 [형식] · [추세선] · [설정] · [저장]으로 줄었어요. [형식]에서 선 + 점 · 점만(이웃한 점을 선으로 잇지 않기) · 선만 · 매끄러운 곡선 · 계단 · 줄기 · 막대 · 면적을 모든 계열 또는 계열마다 고르고, [추세선]에서 직선 · 원점 지나는 직선 · 2~6차 다항식 · 지수 · 지수 감쇠 + 상수 · 포화 · 거듭제곱 · 로그 · 반비례 · 역제곱 · 사인 · 감쇠 진동 · 가우스 · 로렌츠 · 이동 평균, 그리고 직접 쓴 식(예: a*exp(-b*x)*cos(w*x+p)+c)으로 맞춰요. 맞출 x 범위를 정할 수 있고, 값마다 ± 표준오차와 R² · χ²/ν가 나와요." },
@@ -28622,6 +28623,8 @@ body.rdr-open .qc-ov{ z-index:1260; }
 .rdr-toc-pin{ flex:none; width:30px; height:30px; margin-top:2px; border:0; border-radius:8px; background:transparent; color:var(--rd-faint); cursor:pointer; opacity:0; display:inline-flex; align-items:center; justify-content:center; }
 .rdr-toc-row:hover .rdr-toc-pin, .rdr-toc-pin.on, .rdr-toc-pin:focus-visible{ opacity:1; }
 .rdr-toc-pin.on{ color:var(--rd-acc); }
+.rdr-toc-src{ padding:10px 6px 2px; display:flex; justify-content:center; }
+.rdr-toc-src .rdr-btn{ font-size:12px; }
 .rdr-toc-pin svg{ width:15px; height:15px; }
 @media (hover:none){ .rdr-toc-pin{ opacity:.55; } }
 .rdr-thumbs{ display:grid; grid-template-columns:repeat(2, 1fr); gap:10px; padding:8px 6px; }
@@ -32085,7 +32088,7 @@ class PaperReader {
         const rot=Math.abs(Math.atan2(tx[1], tx[0]))>0.05; const st=tc.styles[it.fontName]||{};
         const asc= st.ascent ? st.ascent : (st.descent ? 1+st.descent : 0.82);
         const w= it.width>0 ? it.width : it.str.length*fh*0.5;
-        geo.push({ s:it.str, x:tx[4], y:tx[5]-fh*asc, w: rot?0:w, h:fh, b:tx[5], eol:!!it.hasEOL, rot });
+        geo.push({ s:it.str, x:tx[4], y:tx[5]-fh*asc, w: rot?0:w, h:fh, b:tx[5], eol:!!it.hasEOL, rot, f:it.fontName||'' });
       }
       ps.geo=geo; return geo;
     })();
@@ -32599,7 +32602,7 @@ class PaperReader {
       const ps=this.pages[last.page-1]; this.newMemo(ps, [Math.min(ps.w1-8, r[0]+r[2]+6), r[1]+r[3]/2], s.text); };
     p.querySelector('[data-s="copy"]').onclick=async()=>{ try{ await navigator.clipboard.writeText(s.text); this.say('복사했어요'); }catch(e){ this.say('복사하지 못했어요'); } this.closePop(); };
     p.querySelector('[data-s="ask"]').onclick=()=>{ const pg=[...s.by.keys()][0]; this.closePop(); this.ask(null, `> ${s.text.slice(0,600)}\n\n— ${this.title} · ${pg}쪽\n\n`); };
-    p.querySelector('[data-s="toc"]').onclick=()=>{ const pg=[...s.by.keys()][0]; const r=s.by.get(pg)[0]; const it={ id:'u:'+Date.now().toString(36), title:s.text.slice(0,90), page:pg, y:r[1], lvl:1, mine:true };
+    p.querySelector('[data-s="toc"]').onclick=()=>{ const pg=[...s.by.keys()][0]; const r=s.by.get(pg)[0]; const it={ id:'u:'+Date.now().toString(36), title:s.text.slice(0,90), page:pg, y:r[1], x:r[0], lvl:1, mine:true };
       this.meta.utoc=(this.meta.utoc||[]).concat([it]); this.saveMeta(); this.mergeToc(); this.paintToc(); try{ getSelection().removeAllRanges(); }catch(e){} this.closePop(); this.say('목차에 넣었어요. 📌로 고정할 수 있어요.'); this.showTab('toc'); };
   }
   /* ═════════ 메모 ═════════ */
@@ -32762,12 +32765,20 @@ class PaperReader {
   /* ═════════ 목차 ═════════ */
   async buildToc(seq){
     const pane=this.el.querySelector('[data-pane="toc"]'); pane.innerHTML=`<div class="rdr-note">목차를 찾는 중…</div>`;
-    let items=[];
-    try{ const ol=await this.pdf.getOutline(); if(ol && ol.length) items=await this.flatOutline(ol, 1, []); }catch(e){}
+    if(this._autoFor!==seq){ this._autoFor=seq; this._autoToc=null; this._colX=null; this.tocHow=''; }
+    let ol=[];
+    try{ const o=await this.pdf.getOutline(); if(o && o.length) ol=await this.flatOutline(o, 1, []); }catch(e){}
     if(seq!==this._seq) return;
-    if(items.length>=2){ this.tocSrc='outline'; }
-    else { this.tocSrc='auto'; items=await this.autoToc(seq, (i,n)=>{ if(seq===this._seq && this.cfg.tab==='toc') pane.innerHTML=`<div class="rdr-note">본문을 훑어 목차를 만드는 중… ${i}/${n}쪽</div>`; }); if(seq!==this._seq) return; }
-    this.tocBase=items; this.mergeToc(); this.paintToc();
+    // PDF 자체 목차가 쪽 번호뿐이거나 제목이 비면 없는 셈 — 그때는 본문에서 찾는다(세션 DM)
+    const junk=x=>/^(?:page|p\.?|쪽|페이지)?\s*\d+\s*(?:쪽|페이지)?$/i.test(x.title) || x.title==='(제목 없음)';
+    this.tocOutline = (ol.length>=2 && ol.filter(junk).length<ol.length*0.5) ? ol : null;
+    if(this.tocOutline && (this.meta && this.meta.tocMode)!=='scan'){ this.tocSrc='outline'; this.tocBase=this.tocOutline; }
+    else {
+      this.tocSrc='auto';
+      if(!this._autoToc){ const items=await this.autoToc(seq, (i,n)=>{ if(seq===this._seq && this.cfg.tab==='toc') pane.innerHTML=`<div class="rdr-note">본문을 훑어 목차를 만드는 중… ${i}/${n}쪽</div>`; }); if(seq!==this._seq) return; this._autoToc=items; }
+      this.tocBase=this._autoToc;
+    }
+    this.mergeToc(); this.paintToc();
   }
   async flatOutline(list, lvl, out){
     for(const o of list){ if(out.length>400) break; const t=await this.resolveDest(o.dest);
@@ -32777,63 +32788,216 @@ class PaperReader {
   }
   hashS(s){ let h=0; s=String(s||''); for(let i=0;i<s.length;i++) h=(Math.imul(h,31)+s.charCodeAt(i))|0; return (h>>>0).toString(36); }
   async autoToc(seq, prog){
-    const N=Math.min(this.n, 300); const lines=[]; const sizes=new Map(); let pw=0;
+    /* 자동 목차(세션 DM) — 1순위 번호(1 · 2.1 · 3.1.2 / I. · A. · 1. / Ⅰ. · 가. / 제1장 · Chapter 1),
+       2순위 핵심 낱말(Abstract · Conclusion · Appendix · References · 서론 · 결론 · 부록 …), 3순위 글자 모양(크기 · 굵기 · 위 여백).
+       번호 줄은 '번호 글자 크기(어깨 번호 빼기) · 그 줄의 글자 크기 · 글꼴(본문과 다른가) · 단의 왼쪽 끝/가운데 · 위 여백 · 줄 길이 · 바로 아래 본문'으로
+       점수를 매기고, 1 → 2 → 3 · 2.1 → 2.2 처럼 이어지는 사슬만 남긴다(그림 속 숫자 · 번호 목록 · 표의 줄 번호가 빠진다). */
+    const N=Math.min(this.n, 300); const lines=[]; const sizes=new Map(), fonts=new Map();
+    const kOf=v=>Math.round(v*2)/2;
+    const NUMTOK=/^\s*(?:\d{1,2}(?:\.\d{1,2}){0,3}\.?|[IVX]{1,6}\.|[A-H](?:\.\d{1,2}){0,2}\.?|[Ⅰ-Ⅻ]\.?|[가나다라마바사아자차카타파하]\.|제\s*\d{1,2}\s*[장절편부])\s*$/;
     for(let i=1;i<=N;i++){
       if(seq!==this._seq) return [];
       if(i%4===0 && prog) prog(i, N);
-      const ps=this.pages[i-1]; const geo=await this.ensureText(ps); pw=Math.max(pw, ps.w1);
-      let cur=null;
+      const ps=this.pages[i-1]; const geo=await this.ensureText(ps);
+      let cur=null; const push=()=>{ if(cur){ lines.push(cur); cur=null; } };
       for(const g of geo){
         if(g.rot) continue;
-        const sz=Math.round(g.h*2)/2; if(g.s.trim()) sizes.set(sz, (sizes.get(sz)||0)+g.s.length);
-        if(!g.s.trim()){ if(cur && g.s) cur.text+=' '; if(g.eol && cur){ lines.push(cur); cur=null; } continue; }
-        if(cur && Math.abs(g.b-cur.b)<Math.max(g.h,cur.h)*0.35 && g.x>=cur.x2-2 && g.x-cur.x2<Math.max(g.h,cur.h)*1.6){
-          if(g.x-cur.x2>g.h*0.12 && !/\s$/.test(cur.text)) cur.text+=' '; cur.text+=g.s; cur.x2=g.x+g.w; cur.h=Math.max(cur.h, g.h); cur.hs.push([g.h, g.s.length]); }
-        else { if(cur) lines.push(cur); cur={ page:i, y:g.y, b:g.b, x:g.x, x2:g.x+g.w, h:g.h, text:g.s, hs:[[g.h, g.s.length]], pw:ps.w1 }; }
-        if(g.eol && cur){ lines.push(cur); cur=null; }
+        const t=g.s.trim();
+        if(t){ const sz=kOf(g.h); sizes.set(sz, (sizes.get(sz)||0)+t.length); const fk=(g.f||'')+'|'+sz; fonts.set(fk, (fonts.get(fk)||0)+t.length); }
+        if(!t){ if(cur && g.s) cur.text+=' '; if(g.eol) push(); continue; }
+        const mh=cur?Math.max(g.h, cur.h):g.h;
+        if(cur && Math.abs(g.b-cur.b)<mh*0.35 && g.x>=cur.x2-2 && (g.x-cur.x2<mh*1.6 || (NUMTOK.test(cur.text) && g.x-cur.x2<mh*3.2))){
+          if(g.x-cur.x2>g.h*0.12 && !/\s$/.test(cur.text)) cur.text+=' '; cur.text+=g.s; cur.x2=Math.max(cur.x2, g.x+g.w); cur.h=Math.max(cur.h, g.h); cur.segs.push(g); }
+        else { push(); cur={ page:i, y:g.y, b:g.b, x:g.x, x2:g.x+g.w, h:g.h, text:g.s, segs:[g], pw:ps.w1, ph:ps.h1 }; }
+        if(g.eol) push();
       }
-      if(cur) lines.push(cur);
+      push();
       if(i%8===0) await new Promise(r=>setTimeout(r, 0));
     }
-    // 본문 글자 크기 = 가장 많이 쓰인 크기
-    let body=10, best=0; sizes.forEach((v,k)=>{ if(v>best){ best=v; body=k; } });
+    const modeOf=m=>{ let k=null, b=-1; m.forEach((v,kk)=>{ if(v>b){ b=v; k=kk; } }); return k; };
+    // 본문 = 가장 많이 쓰인 글자 크기 · 그 크기에서 가장 많이 쓰인 글꼴
+    const body=modeOf(sizes)||10; let bodyF='', bfN=-1;
+    fonts.forEach((v,k)=>{ const j=k.lastIndexOf('|'); if(Math.abs(Number(k.slice(j+1))-body)<=0.5 && v>bfN){ bfN=v; bodyF=k.slice(0,j); } });
+    for(const l of lines){
+      const bs=new Map(), bf=new Map();
+      for(const g of l.segs){ const c=g.s.trim().length; if(!c) continue; const z=kOf(g.h); bs.set(z, (bs.get(z)||0)+c); bf.set(g.f||'', (bf.get(g.f||'')||0)+c); }
+      l.sz=modeOf(bs)||kOf(l.h); l.f=modeOf(bf)||''; l.t=l.text.replace(/\s+/g,' ').trim();
+      const g0=l.segs.find(g=>g.s.trim()); l.numSz=g0?g0.h:l.h;
+    }
+    const isBody=l=>Math.abs(l.sz-body)<=0.5;
+    // 단(column): 본문 줄이 시작하는 x를 모아 왼쪽 끝들을 찾는다
+    const xs=new Map(); let nb=0;
+    lines.forEach(l=>{ if(isBody(l) && l.t.length>=25){ nb++; const k=Math.round(l.x/4)*4; xs.set(k, (xs.get(k)||0)+1); } });
+    const E=[]; [...xs.entries()].filter(e=>e[1]>=Math.max(4, nb*0.06)).map(e=>e[0]).sort((a,b)=>a-b).forEach(x=>{ if(!E.length || x-E[E.length-1].x>=body*2.5) E.push({ x }); });
+    if(!E.length) E.push({ x:Math.min(...lines.map(l=>l.x).concat([0])) });
+    E.forEach((c,i)=>{ const xr=lines.filter(l=>isBody(l) && l.t.length>=25 && Math.abs(l.x-c.x)<body*2.5).map(l=>l.x2).sort((a,b)=>a-b);
+      c.r = xr.length ? xr[Math.floor(xr.length*0.9)] : ((E[i+1] ? E[i+1].x-body : Math.max(...lines.map(l=>l.x2)))); if(c.r<=c.x+body*4) c.r=c.x+body*20; });
+    const colOf=l=>{ let k=0; for(let i=0;i<E.length;i++) if(E[i].x<=l.x+body*2.5) k=i; return k; };
+    this._colX = E.length>=2 ? E[1].x-body*2 : null;
+    // 줄 간격(본문 줄끼리 기준선 차이의 가운데값)
+    const byPage=new Map(); lines.forEach(l=>{ if(!byPage.has(l.page)) byPage.set(l.page, []); byPage.get(l.page).push(l); });
+    const leads=[];
+    byPage.forEach(arr=>{ arr.sort((a,b)=>a.b-b.b);
+      arr.forEach((l,i)=>{ l.prev=null; for(let j=i-1;j>=Math.max(0, i-40);j--){ const p=arr[j]; if(p.b<l.b-l.h*0.3 && Math.min(p.x2, l.x2)-Math.max(p.x, l.x)>0){ l.prev=p; break; } }
+        if(l.prev && isBody(l) && isBody(l.prev) && l.t.length>20 && l.b-l.prev.b<body*3) leads.push(l.b-l.prev.b); }); });
+    leads.sort((a,b)=>a-b); const lead=leads.length ? leads[Math.floor(leads.length/2)] : body*1.2;
+    for(const l of lines){
+      const c=E[colOf(l)]; l.col=colOf(l); const cw=Math.max(body*4, c.r-c.x);
+      l.fill=(l.x2-l.x)/cw; l.atLeft=Math.abs(l.x-c.x)<body*2.2; l.centered=l.fill<0.9 && Math.abs((l.x+l.x2)/2-(c.x+c.r)/2)<body*1.5;
+      l.gapR = l.prev ? (l.b-l.prev.b)/(lead*Math.max(1, l.sz/body)) : 1.2;
+    }
+    // 읽는 순서: 쪽 → 단 → 위에서 아래
+    const ord=lines.slice().sort((a,b)=>a.page-b.page || a.col-b.col || a.b-b.b); ord.forEach((l,i)=>l.ord=i);
     // 머리말 · 꼬리말(여러 쪽에 되풀이) 빼기
     const norm=t=>t.replace(/\d+/g,'#').replace(/\s+/g,' ').trim().toLowerCase();
-    const rep=new Map(); lines.forEach(l=>{ const k=norm(l.text); const s=rep.get(k)||new Set(); s.add(l.page); rep.set(k, s); });
-    const repeated=k=>{ const s=rep.get(k); return s && s.size>=Math.max(3, N*0.25); };
-    const KW=/^(?:(?:\d{1,2}|[IVX]{1,5}|[A-H])\.?\s*)?(abstract|introduction|background|theory|theoretical\s+(?:background|model|framework)|model|the\s+model|methods?|methodology|materials\s+and\s+methods|experiments?|experimental(?:\s+(?:setup|set-up|methods?|results|details|procedure))?|setup|(?:numerical\s+|simulation\s+)?results?(?:\s+and\s+discussions?)?|discussions?|analysis|conclusions?(?:\s+and\s+(?:outlook|discussion))?|summary(?:\s+and\s+(?:conclusions?|outlook))?|outlook|acknowledge?ments?|references|bibliography|appendix(?:\s+[a-z0-9]{1,3})?(?:\s*[:.—-].{0,60})?|appendices|supplementary\s+(?:material|information)|초록|요약|국문\s*요약|서론|머리말|들어가며|이론(?:적\s*배경)?|배경|연구\s*방법|실험(?:\s*(?:방법|결과|장치|과정))?|방법|결과(?:\s*및\s*(?:고찰|논의))?|고찰|논의|결론(?:\s*및\s*(?:제언|요약))?|맺음말|참고\s*문헌|부록|감사의\s*글)\s*$/i;
-    const cand=[];
-    for(const l of lines){
-      const t=l.text.replace(/\s+/g,' ').trim(); if(t.length<2 || t.length>120) continue;
-      if(!/[A-Za-z가-힣]/.test(t)) continue;
-      if(repeated(norm(t))) continue;
-      if(/^(fig(ure)?\.?|table|tab\.|그림|표|eq\.|equation)\s*\d/i.test(t)) continue;
-      const letters=(t.match(/[A-Za-z가-힣]/g)||[]).length; if(letters/t.length<0.5) continue;
-      const words=t.split(' ').length; const sz=l.h; const big=sz>=body*1.18; const lineW=l.x2-l.x;
-      let lvl=null;
-      const num=t.match(/^((?:\d{1,2}\.){0,3}\d{1,2})\.?\s+(\S.*)$/), rom=t.match(/^([IVX]{1,6})\.\s+(\S.*)$/), alp=t.match(/^([A-H])\.\s+(\S.*)$/);
-      if(KW.test(t) && t.length<=70){ lvl = num ? Math.min(3, num[1].split('.').length) : (alp ? 2 : 1); }
-      else if(num && words<=14 && !/[.:;,]$/.test(t) && /^[A-Z가-힣(“"']/.test(num[2]) && sz>=body*0.95 && lineW<l.pw*0.62 && !/\d$/.test(num[2].slice(-1)) && Number(num[1].split('.')[0])<=30){ lvl=Math.min(3, num[1].split('.').length); if(!big && sz<body*1.02 && num[1].indexOf('.')<0 && !/^([A-Z][A-Za-z]|[가-힣])/.test(num[2])) lvl=null; }
-      else if(rom && words<=14 && /^[A-Z]/.test(rom[2]) && !/[.,;]$/.test(t)) lvl=1;
-      else if(alp && words<=12 && /^[A-Z]/.test(alp[2]) && !/,/.test(t) && sz>=body*0.95 && !/[.,;]$/.test(t) && lineW<l.pw*0.6) lvl=2;
-      else if(big && words<=16 && t.length>=3 && !/[,;]$/.test(t)) lvl= sz>=body*1.5 ? 1 : 2;
-      if(lvl==null) continue;
-      cand.push({ page:l.page, y:l.y, title:t, lvl, sz });
+    // 숫자만 다른 되풀이는 쪽 위 · 아래 끝(머리말 · 꼬리말 자리)에서만 센다 — 'Problem 1 · Problem 2' 같은 본문 제목은 살린다
+    const rep=new Map(), repX=new Map(); const edge=l=>l.y<l.ph*0.1 || l.b>l.ph*0.9;
+    lines.forEach(l=>{ const add=(m,k)=>{ const s=m.get(k)||new Set(); s.add(l.page); m.set(k, s); }; add(repX, l.t); if(edge(l)) add(rep, norm(l.t)); });
+    const repeated=(t, l)=>{ const lim=Math.max(3, N*0.25); const x=repX.get(t); if(x && x.size>=lim) return true; const s=rep.get(norm(t)); return !!(s && s.size>=lim && (!l || edge(l))); };
+    // 첫 쪽 위쪽의 가장 큰 글자 = 논문 제목(0단계)
+    const KW0=/^(abstract|introduction|초록|요약|서론)\b/i; // 제목 칸에 '1 Introduction'이나 'Abstract'가 잡히지 않게
+    let title=null; const titleL=new Set();
+    { const p1=ord.filter(l=>l.page===1 && l.t.length>3 && /[A-Za-z가-힣]/.test(l.t) && l.y<l.ph*0.55 && !repeated(l.t, l) && !/^(?:\d{1,2}(?:\.\d{1,2})*\.?|[IVX]{1,6}\.|[Ⅰ-Ⅻ]\.?|제\s*\d)\s*\S/.test(l.t) && !KW0.test(l.t));
+      if(p1.length){ const mx=Math.max(...p1.map(l=>l.sz)); if(mx>=body*1.3){ const s=p1.filter(l=>l.sz>=mx*0.94).sort((a,b)=>a.b-b.b); const tl=[s[0]];
+        for(let i=1;i<s.length && tl.length<4;i++){ const q=tl[tl.length-1]; if(s[i].b-q.b<mx*2.2 && Math.min(s[i].x2, q.x2)-Math.max(s[i].x, q.x)>0) tl.push(s[i]); else if(s[i].b-q.b>=mx*2.2) break; }
+        tl.forEach(l=>titleL.add(l)); title={ l:tl[0], title:tl.map(l=>l.t).join(' ').replace(/\s+/g,' ').slice(0,160), lvl:0 }; } } }
+    // 번호 읽기
+    const ROM={ I:1, V:5, X:10 }; const romV=s=>{ let v=0; for(let i=0;i<s.length;i++){ const a=ROM[s[i]], b=ROM[s[i+1]]||0; v+= a<b?-a:a; } return v; };
+    const UROM='ⅠⅡⅢⅣⅤⅥⅦⅧⅨⅩⅪⅫ', KOR='가나다라마바사아자차카타파하';
+    const parseNum=t=>{ let m;
+      if((m=t.match(/^제\s*(\d{1,2})\s*([장절편부])\.?\s*(.*)$/))) return { kind:m[2]==='절'?'ar1':'chap', v:[+m[1]], rest:m[3]||'' };
+      if((m=t.match(/^(?:chapter|part)\s+(\d{1,2}|[IVX]{1,6})\b[.:]?\s*(.*)$/i))) return { kind:'chap', v:[/\d/.test(m[1])?+m[1]:romV(m[1])], rest:m[2]||'' };
+      if((m=t.match(/^(\d{1,2}(?:\.\d{1,2}){0,3})(?:\.\s*|\s+|(?=[가-힣]))(\S.*)$/))){ const v=m[1].split('.').map(Number); return { kind:'ar'+Math.min(v.length, 3), v, rest:m[2] }; }
+      if((m=t.match(/^([A-H])\.(\d{1,2}(?:\.\d{1,2})?)\.?\s+(\S.*)$/))) return { kind:'app', v:[m[1].charCodeAt(0)-64].concat(m[2].split('.').map(Number)), rest:m[3] };
+      if((m=t.match(/^([IVX]{1,6})\.\s*(\S.*)$/))) return { kind:'rom', v:[romV(m[1])], rest:m[2] };
+      if((m=t.match(/^([Ⅰ-Ⅻ])\.?\s*(\S.*)$/))) return { kind:'rom', v:[UROM.indexOf(m[1])+1], rest:m[2] };
+      if((m=t.match(/^([A-H])[.)]\s*(\S.*)$/))) return { kind:'alp', v:[m[1].charCodeAt(0)-64], rest:m[2] };
+      if((m=t.match(/^([가나다라마바사아자차카타파하])[.)]\s*(\S.*)$/))) return { kind:'kor', v:[KOR.indexOf(m[1])+1], rest:m[2] };
+      if((m=t.match(/^([A-H])\s+([A-Z][a-z].*)$/))) return { kind:'alpN', v:[m[1].charCodeAt(0)-64], rest:m[2] };
+      return null; };
+    const LET=/[A-Za-z가-힣぀-ヿ一-鿿]/g;
+    const okRest=r=>{ r=r.trim(); if(r.length<2 || r.length>110) return false;
+      if(!/^[A-Z가-힣぀-ヿ一-鿿"“‘'(]/.test(r)) return false;
+      const L=(r.match(LET)||[]).length; if(L<2 || L/r.length<0.55) return false;
+      if(/^(fig(ure)?s?\.?|tab(le)?s?\.?|eqs?\.?|equations?|그림|표|식)\s*\d/i.test(r)) return false;
+      if((r.match(/(^|\s)[-+]?\d+(\.\d+)?(?=\s|$)/g)||[]).length>=2) return false;
+      if(/[,;]$/.test(r) || (r.match(/,/g)||[]).length>=2) return false;
+      if(/\b(et al|pp\.|vol\.|doi|arxiv|https?:)/i.test(r)) return false;
+      return true; };
+    const caps=r=>{ const a=r.replace(/[^A-Za-z]/g,''); return a.length>=4 && a===a.toUpperCase(); };
+    // 글꼴이 본문과 다른 앞부분(굵은 글씨로 시작해 본문이 이어지는 '줄 속 제목')
+    const headPart=l=>{ const sg=l.segs.filter(g=>g.s.trim()); let j=0; while(j<sg.length && (sg[j].f||'')!==bodyF) j++;
+      if(j>0 && j<sg.length){ let h='', px=null; for(const g of sg.slice(0, j)){ if(px!=null && g.x-px>g.h*0.12 && !/\s$/.test(h)) h+=' '; h+=g.s; px=g.x+g.w; }
+        h=h.replace(/\s+/g,' ').trim(); const rest=l.t.length-h.length;
+        if((h.match(LET)||[]).length>=3 && rest>=15 && h.length<=90) return { title:h.replace(/\s*[.:—–-]+$/,'').trim(), f:sg[0].f||'', runIn:true }; }
+      return { title:l.t, f:l.f, runIn:false }; };
+    // 두 줄로 넘어간 제목 잇기
+    for(let i=0;i<ord.length-1;i++){ const l=ord[i], n=ord[i+1]; if(l.used || n.used) continue;
+      if(n.page!==l.page || n.col!==l.col || n.f!==l.f || Math.abs(n.sz-l.sz)>0.5) continue;
+      if(!(l.f!==bodyF || l.sz>=body*1.1) || n.b-l.b>l.sz*1.5 || n.b<=l.b || /[.:;]$/.test(l.t) || l.t.length>90 || n.t.length>80) continue;
+      if(!(parseNum(l.t) || l.sz>=body*1.1 || l.gapR>=1.3) || parseNum(n.t) || NUMTOK.test(n.t)) continue;
+      if(titleL.has(l) || titleL.has(n)) continue;
+      l.t=(/-$/.test(l.t) ? l.t.slice(0,-1) : l.t+' ')+n.t; l.x2=Math.max(l.x2, n.x2); l.fill=Math.min(l.fill, n.fill); n.used=true; i++; }
+    // 바로 아래가 본문인가(제목 다음엔 본문이 온다 — 그림 속 글자는 아니다)
+    const live=ord.filter(l=>!l.used);
+    live.forEach((l,i)=>{ const n=live[i+1]; l.nextBody=!!(n && n.page===l.page && n.col===l.col && n.b>l.b && n.b-l.b<Math.max(l.sz, n.sz)*2.8 && n.t.length>=20 && n.sz<=Math.max(l.sz, body)+0.5); });
+    const score=(l, t, f, runIn)=>{ const r=l.sz/body; let s=0;
+      if(r>=1.12) s+=2; else if(r>=1.04) s+=1; else if(r<0.97) s-= r<0.86 ? 4 : 1;
+      const styled=f!==bodyF; if(styled) s+=2; if(caps(t)) s+=1;
+      if(l.gapR>=1.35) s+=1; else if(l.gapR<1.1) s-=0.5;
+      if(runIn){ if(!styled) s-=3; } else { if(l.fill<0.8) s+=1; else s-=2; if(l.nextBody) s+=1; else s-=1; }
+      if(l.atLeft || l.centered) s+=0.5; else s-=1;
+      if(!runIn && /\.$/.test(t)) s-=1;
+      const w=t.split(' ').length; if(w>12) s-=1; if(w>18) s-=2;
+      return s; };
+    const KW=/^(abstract|introduction|background|theory|theoretical\s+(?:background|model|framework)|model|the\s+model|methods?|methodology|materials\s+and\s+methods|experiments?|experimental(?:\s+(?:setup|set-up|methods?|results|details|procedure))?|setup|(?:numerical\s+|simulation\s+)?results?(?:\s+and\s+discussions?)?|discussions?|analysis|conclusions?(?:\s+and\s+(?:outlook|discussions?|future\s+work))?|summary(?:\s+and\s+(?:conclusions?|outlook))?|outlook|acknowledge?ments?|references|bibliography|appendix(?:\s+[a-z0-9]{1,3})?(?:\s*[:.—–-]\s*.{0,80})?|appendices|supplementary\s+(?:material|information)|초록|요약|국문\s*요약|영문\s*요약|서론|머리말|들어가며|이론(?:적\s*배경)?|배경|연구\s*방법|실험(?:\s*(?:방법|결과|장치|과정))?|방법|결과(?:\s*및\s*(?:고찰|논의))?|고찰|논의|결론(?:\s*및\s*(?:제언|요약))?|맺음말|참고\s*문헌|부록(?:\s*[A-Z0-9]{1,2})?(?:\s*[:.]\s*.{0,60})?|감사의\s*글|사사)\s*[:.]?\s*$/i;
+    // 번호 체계가 있는 논문에서 번호 없이도 제목인 것(초록 · 감사의 글 · 참고문헌 · 부록 …)
+    const KW_FREE=/^(abstract|acknowledge?ments?|references|bibliography|appendix|appendices|supplementary|conclusions?|summary|초록|요약|국문|영문|참고\s*문헌|부록|감사의|사사|결론)/i;
+    const KW_END=/^(references|bibliography|appendix|appendices|supplementary|참고\s*문헌|부록)/i;
+    const NC=[], KC=[], SC=[];
+    for(const l of live){
+      if(titleL.has(l)) continue;
+      const t=l.t; if(t.length<2 || t.length>170 || !/[A-Za-z가-힣一-鿿]/.test(t) || repeated(t, l)) continue;
+      if(/^(fig(ure)?s?\.?|tab(le)?\.?|tab\.|그림|표|eq\.|equation)\s*\d/i.test(t)) continue;
+      const hp=headPart(l); const T=hp.title; const key=hp.f+'|'+l.sz;
+      const pn=parseNum(T);
+      if(pn && okRest(pn.rest) && l.numSz>=body*0.8 && (!hp.runIn || hp.f!==bodyF)) NC.push(Object.assign({ l, title:T, key, s:score(l, pn.rest, hp.f, hp.runIn) }, pn));
+      const bare=pn ? pn.rest.trim() : T;
+      if(T.length<=90 && KW.test(bare) && (!/\.$/.test(T) || hp.runIn || hp.f!==bodyF)){ const s=score(l, bare, hp.f, hp.runIn); if(s>=1 || (hp.runIn && s>=-0.5)) KC.push({ l, title:T.replace(/\s*[:.]$/,''), key, s, num:!!pn, bare }); }
+      if(!hp.runIn && !pn){ const r=l.sz/body; const w=t.split(' ').length; const styled=l.f!==bodyF;
+        if(w<=14 && !/[.,;:(\[{=]$/.test(t) && !/https?:|www\.|@|[{}<>=]/.test(t) && /[A-Za-z]{3}|[가-힣\u4e00-\u9fff]{2}/.test(t) && (l.fill<0.75 || l.centered) && (l.atLeft || l.centered) && l.nextBody && (t.match(LET)||[]).length>=2 && (t.match(/,/g)||[]).length<2
+          && (r>=1.12 || (styled && r>=0.88 && l.gapR>=1.25) || (styled && r>=0.97 && l.fill<0.6 && l.gapR>=1.1))) SC.push({ l, title:t, key, s:r+(styled?0.05:0) }); }
     }
-    // 첫 쪽의 가장 큰 글자 = 논문 제목
-    const p1=lines.filter(l=>l.page===1 && l.text.trim().length>3); let title=null;
-    if(p1.length){ const mx=Math.max(...p1.map(l=>l.h)); if(mx>=body*1.3){ const tl=p1.filter(l=>l.h>=mx*0.94).slice(0,4); title={ page:1, y:tl[0].y, title:tl.map(l=>l.text.trim()).join(' ').replace(/\s+/g,' ').slice(0,160), lvl:0 }; } }
-    let out=cand.filter(c=>!(title && c.page===1 && Math.abs(c.y-title.y)<c.sz*4 && c.sz>=body*1.3));
-    // 연속 중복 · 너무 많은 경우 정리
-    out=out.filter((c,i)=>i===0 || c.title!==out[i-1].title);
-    if(out.length>140){ out=out.filter(c=>c.lvl<=2).slice(0,140); }
+    // 사슬: 문서 순서대로 1 → 2 → 3(하나 건너뛰기는 감점) — 점수 합이 가장 큰 것
+    const chain=(arr, val)=>{ const n=arr.length; if(!n) return []; const B=new Array(n), P=new Array(n).fill(-1);
+      for(let i=0;i<n;i++){ const v=val(arr[i]); B[i]=arr[i].s+(v<=1?0:v===2?-1.5:-4);
+        for(let j=0;j<i;j++){ const d=v-val(arr[j]); if(d!==1 && d!==2) continue; const c=B[j]+arr[i].s+(d===2?-1.5:0)+(arr[i].key===arr[j].key?1:0); if(c>B[i]){ B[i]=c; P[i]=j; } } }
+      let bi=0; for(let i=1;i<n;i++) if(B[i]>B[bi]) bi=i; if(B[bi]<=0) return [];
+      const out=[]; for(let i=bi;i>=0;i=P[i]) out.unshift(arr[i]);
+      return (out.length===1 && val(out[0])>1) ? [] : out; }; // 홀로 '2.'만 있는 건 번호 체계가 아니다
+    const byOrd=(a,b)=>a.l.ord-b.l.ord;
+    const used=new Set(); const acc=[];
+    const add=(c, lvl)=>{ if(used.has(c.l)) return false; used.add(c.l); acc.push({ l:c.l, title:c.title, lvl:Math.max(1, Math.min(3, lvl)) }); return true; };
+    const firstEnd=after=>{ const k=KC.filter(c=>c.l.ord>after && KW_END.test(c.bare)).sort(byOrd)[0]; return k ? k.l.ord : Infinity; };
+    const tops=['chap', 'rom', 'ar1'].map(kind=>{ const ch=chain(NC.filter(c=>c.kind===kind && c.s>=2).sort(byOrd), c=>c.v[0]); return { kind, ch }; }).filter(o=>o.ch.length>=2);
+    const CHILD={ chap:['ar2', 'ar1', 'alp', 'kor'], rom:['alp', 'ar1', 'kor'], ar1:['ar2', 'kor'], ar2:['ar3', 'kor'], ar3:['kor'], alp:['ar1', 'kor'], kor:[], app:[] };
+    const under=(par, kind, lvl, end)=>{ // par: 같은 단계 항목들(문서 순서), end: 마지막 항목의 끝
+      if(lvl>3) return;
+      par.forEach((p, i)=>{ const a=p.c.l.ord, b=i+1<par.length ? par[i+1].c.l.ord : end;
+        for(const k of (CHILD[kind]||[])){
+          const pref = (k==='ar2' || k==='ar3') && /^(ar|chap)/.test(kind) ? p.c.v : null;
+          const cs=NC.filter(c=>c.kind===k && c.s>=1.5 && c.l.ord>a && c.l.ord<b && !used.has(c.l) && (!pref || pref.every((v,j)=>c.v[j]===v))).sort(byOrd);
+          const ch=chain(cs, c=>c.v[c.v.length-1]); if(!ch.length) continue;
+          const kids=ch.map(c=>({ c })); ch.forEach(c=>add(c, lvl)); under(kids, k, lvl+1, b); break; } }); };
+    let how='';
+    if(tops.length){
+      const top=tops[0]; const end=firstEnd(top.ch[top.ch.length-1].l.ord);
+      top.ch.forEach(c=>add(c, 1)); under(top.ch.map(c=>({ c })), top.kind, 2, end); how='번호';
+      // 부록: References · Appendix 뒤의 A · B · C 절과 A.1
+      const ap=Math.min(end, Infinity); const lastTop=top.ch[top.ch.length-1].l.ord; const from=isFinite(ap) ? ap : lastTop;
+      const al=chain(NC.filter(c=>(c.kind==='alp' || c.kind==='alpN') && c.l.ord>from && !used.has(c.l) && c.s>=(c.kind==='alpN'?2.5:2)).sort(byOrd), c=>c.v[0]);
+      al.forEach(c=>add(c, 1));
+      const letters=new Map(al.map(c=>[c.v[0], c]));
+      KC.forEach(c=>{ const m=c.bare.match(/^appendix\s+([A-H])\b/i); if(m) letters.set(m[1].toUpperCase().charCodeAt(0)-64, c); });
+      letters.forEach((pc, L)=>{ const cs=NC.filter(c=>c.kind==='app' && c.v[0]===L && c.l.ord>pc.l.ord && !used.has(c.l) && c.s>=1.5).sort(byOrd); chain(cs, c=>c.v[c.v.length-1]).forEach(c=>add(c, 2)); });
+      // 번호 없는 핵심 낱말(초록 · 감사의 글 · 참고문헌 · 부록 …)
+      let kw=0; KC.filter(c=>!c.num && KW_FREE.test(c.bare)).forEach(c=>{ if(add(c, 1)) kw++; }); if(kw) how='번호 + 핵심 낱말';
+    } else {
+      // 1단계 번호가 없으면: 2.1 · 2.2 · 3.1 …만이라도 이어지면 2단계로
+      const d2=NC.filter(c=>c.kind==='ar2' && c.s>=2).sort(byOrd);
+      const B=d2.map(c=>c.s), P=d2.map(()=>-1);
+      for(let i=0;i<d2.length;i++) for(let j=0;j<i;j++){ const [a1,b1]=d2[j].v, [a2,b2]=d2[i].v; if(!((a2===a1 && b2===b1+1) || (a2===a1+1 && b2<=2))) continue; const c=B[j]+d2[i].s; if(c>B[i]){ B[i]=c; P[i]=j; } }
+      let bi=-1; B.forEach((v,i)=>{ if(bi<0 || v>B[bi]) bi=i; }); const ch2=[]; for(let i=bi;i>=0;i=P[i]) ch2.unshift(d2[i]);
+      if(ch2.length>=2){ ch2.forEach(c=>add(c, 2)); under(ch2.map(c=>({ c })), 'ar2', 3, Infinity); how='번호'; }
+      // 핵심 낱말 + 글자 모양(크기 · 굵기 · 위 여백)
+      const pool=SC.slice(); KC.forEach(c=>{ if(!pool.some(x=>x.l===c.l)) pool.push(Object.assign({}, c, { s:c.l.sz/body+(c.l.f!==bodyF?0.05:0) })); });
+      const kwL=new Set(KC.map(c=>c.l));
+      const abs=KC.filter(c=>c.l.page===1 && /^(abstract|초록|요약)/i.test(c.bare)).sort(byOrd)[0];
+      let P1=pool.filter(c=>!used.has(c.l) && !(c.l.page===1 && !kwL.has(c.l) && (abs ? c.l.ord<abs.l.ord : (c.l.y<c.l.ph*0.4 && /[,@\d]/.test(c.title)))));
+      // 한 쪽에 같은 모양이 너무 많으면 그림 · 표 속 글자
+      const pk=new Map(); P1.forEach(c=>{ const k=c.l.page+'#'+c.key; pk.set(k, (pk.get(k)||0)+1); }); P1=P1.filter(c=>kwL.has(c.l) || pk.get(c.l.page+'#'+c.key)<=6);
+      const sk=c=>kOf(c.l.sz)+(c.l.f!==bodyF?0.25:0);
+      let ranks=[...new Set(P1.map(sk))].sort((a,b)=>b-a);
+      if(KC.length){ const m=new Map(); KC.forEach(c=>{ const k=sk(c); m.set(k, (m.get(k)||0)+1); }); const kk=modeOf(m); ranks=ranks.filter(r=>r<=kk); }
+      P1.forEach(c=>{ const i=ranks.indexOf(sk(c)); if(i<0) return; add(c, (how ? 1 : 1)+Math.min(2, i)); });
+      if(acc.length) how = how ? how+' + 글자 모양' : (KC.length ? '핵심 낱말 + 글자 모양' : '글자 크기 · 굵기');
+    }
+    acc.sort((a,b)=>a.l.ord-b.l.ord);
+    let out=acc.filter((c,i)=>i===0 || c.title!==acc[i-1].title);
+    if(out.length>300) out=out.filter(c=>c.lvl<=2).slice(0, 300);
     if(title) out.unshift(title);
+    this.tocHow=how;
     if(!this.meta.titleSet && title && (this.title==='제목 없음' || /^[\w\-.]+$/.test(this.title))){ this.title=title.title; this.meta.title=title.title; this.el.querySelector('.rdr-ttl b').textContent=title.title; this.saveMeta(); }
-    return out.map(c=>({ id:'a:'+c.page+':'+Math.round(c.y)+':'+this.hashS(c.title), title:c.title, page:c.page, y:c.y, lvl:c.lvl }));
+    return out.map(c=>({ id:'a:'+c.l.page+':'+Math.round(c.l.y)+':'+this.hashS(c.title), title:c.title, page:c.l.page, y:c.l.y, x:c.l.x, lvl:c.lvl }));
   }
   mergeToc(){
-    const base=(this.tocBase||[]).slice(); const u=(this.meta && this.meta.utoc)||[];
-    this.toc=base.concat(u.map(x=>Object.assign({}, x, { mine:true }))).sort((a,b)=>a.page-b.page || a.y-b.y);
+    const base=(this.tocBase||[]).slice(); const u=((this.meta && this.meta.utoc)||[]).map(x=>Object.assign({}, x, { mine:true }));
+    // 목차는 받은 순서 그대로(자동 목차 = 쪽 → 단 → 위에서 아래, PDF 목차 = PDF 순서), 직접 넣은 항목만 제자리에 끼운다 — 2단 논문에서 오른쪽 단 제목이 왼쪽 단보다 앞에 서지 않게
+    const cx=this._colX; const col=it=>(cx!=null && it.x!=null && it.x>=cx)?1:0;
+    const le=(a,b)=>a.page<b.page || (a.page===b.page && (col(a)<col(b) || (col(a)===col(b) && a.y<=b.y)));
+    u.sort((a,b)=>le(a,b)?-1:1);
+    for(const it of u){ let k=base.length; while(k>0 && !le(base[k-1], it)) k--; base.splice(k, 0, it); }
+    this.toc=base;
   }
   tocById(id){ return this.toc.find(x=>x.id===id); }
   paintToc(){
@@ -32845,9 +33009,11 @@ class PaperReader {
     if(pinned.length) html+=`<div class="rdr-h">${RI.pinF.replace('<svg','<svg width="11" height="11"')}<b>고정한 목차</b></div>`+pinned.map(x=>row(x, true)).join('')+`<div class="rdr-tsep" style="margin:8px 6px"></div>`;
     if(!this.toc.length) html+=`<div class="rdr-note">이 PDF에서는 제목을 찾지 못했어요. 읽기 도구로 제목 글자를 고른 뒤 메뉴의 ${RI.toc.replace('<svg','<svg width="12" height="12"')} 로 직접 목차를 만들 수 있어요.</div>`;
     else { html+=`<div class="rdr-h"><b>${this.tocSrc==='outline'?'PDF 목차':'자동으로 찾은 목차'}</b><span style="margin-left:auto">${this.toc.length}</span></div>`;
-      if(this.tocSrc==='auto') html+=`<div class="rdr-note" style="padding-top:0">글자 크기 · 번호 · 낱말로 찾았어요 — 틀릴 수 있어요. 빠진 제목은 글자를 골라 직접 넣을 수 있어요.</div>`;
+      if(this.tocSrc==='auto') html+=`<div class="rdr-note" style="padding-top:0">${/^번호/.test(this.tocHow||'') ? '제목 번호(1 · 2.1 · 3.1.2 / I. · A. / 제1장)로 찾고, 1 → 2 → 3처럼 이어지는 번호만 남겼어요. 초록 · 참고문헌 · 부록 같은 낱말도 더했어요.' : '번호가 없어서 핵심 낱말(초록 · 결론 · 부록 …)과 글자 크기 · 굵기로 찾았어요 — 틀릴 수 있어요.'} 빠진 제목은 글자를 골라 직접 넣을 수 있어요.</div>`;
       html+=this.toc.map(x=>row(x)).join(''); }
+    if(this.tocOutline) html+=`<div class="rdr-toc-src"><button class="rdr-btn" data-src>${this.tocSrc==='outline'?'본문에서 제목 찾기(번호 기준)':'PDF에 든 목차로 보기'}</button></div>`;
     pane.innerHTML=html;
+    pane.querySelector('[data-src]')?.addEventListener('click', ()=>{ this.meta.tocMode = this.tocSrc==='outline' ? 'scan' : 'pdf'; this.saveMeta(); this.buildToc(this._seq); });
     pane.querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>{ const it=this.tocById(b.dataset.go); if(it){ this.goTo(it.page, it.y, { top:90, mark:true }); if(innerWidth<=820){ this.cfg.side=false; this.applyCfg(); } } });
     pane.querySelectorAll('[data-pin]').forEach(b=>b.onclick=()=>this.togglePin(b.dataset.pin));
     pane.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{ this.meta.utoc=(this.meta.utoc||[]).filter(x=>x.id!==b.dataset.del); this.meta.pins=(this.meta.pins||[]).filter(x=>x!==b.dataset.del); this.saveMeta(); this.mergeToc(); this.paintToc(); });
@@ -32858,7 +33024,7 @@ class PaperReader {
     this.$pins.innerHTML=its.map(x=>`<button class="rdr-pin-chip" data-id="${R_esc(x.id)}" title="${R_esc(x.title)} · ${x.page}쪽">${RI.pinF}<span>${R_esc(x.title)}</span></button>`).join(''); }
   curToc(s){
     if(!s || !this.toc.length) return; let cur=null;
-    for(const it of this.toc){ if(it.lvl===0) continue; if(it.page<s.page || (it.page===s.page && it.y<=s.y+40)) cur=it; else break; }
+    for(const it of this.toc){ if(it.lvl===0) continue; if(it.page<s.page || (it.page===s.page && it.y<=s.y+40)){ if(!cur || it.page>cur.page || (it.page===cur.page && it.y>=cur.y)) cur=it; } }
     const id=cur?cur.id:null; if(id===this._tocCur) return; this._tocCur=id;
     const pane=this.el.querySelector('[data-pane="toc"]');
     pane.querySelectorAll('.rdr-toc-row.cur').forEach(r=>r.classList.remove('cur'));
