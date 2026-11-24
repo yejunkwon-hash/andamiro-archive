@@ -15587,6 +15587,7 @@ async function renderSysSite(){
      리팩터링·테스트·내부 구조는 적지 않는다. 한두 줄로 끝낸다.
      새 항목은 맨 위에 넣는다. */
 const RELEASE_NOTES = [
+  { date:'2026-11-24', text:"[여러 영상 자동 추적] 자동 추적 전에 '③ 공 지정' 단계가 생겼어요. 영상마다 서로 다른 장면 3~4장과 찾은 공 후보를 보여 주니, 맞는 공을 고르고 크기 · 납작함 · 기울기 · 위치를 다듬어 [여기라고 지정]을 누르세요. 공의 크기 · 색 · 모양을 배워서 다음 영상부터 가장 닮은 후보에 ★추천을 붙여요. 추적은 지정한 공을 바로 앞 위치 둘레에서만 찾아 따라가서 엉뚱한 곳으로 튀지 않아요. 추적 중에는 영상 칸의 [멈추고 고치기], 끝난 뒤에는 [프레임 보며 고치기]로 언제든 멈추고 공 자리를 다시 지정해 '여기부터 다시' 따라가게 할 수 있어요." },
   { date:'2026-11-05', text:"[논문 열람기] 학위논문처럼 앞쪽에 목차(Contents) 쪽이 있는 PDF에서, 그 목차 쪽의 줄을 본문 제목으로 잘못 잡던 문제를 고쳤어요. 이제 목차 칸 위쪽에 '논문 속 목록 쪽'(Contents · List of Figures · List of Tables · 목차)을 따로 두고, 그 아래 '본문 목차'에 장 · 절 · 소절을 모두 다시 보여 줘요. 목차 쪽의 번호 · 쪽과 맞춰 봐서 빠진 제목은 채우고, 목차에 없는 번호는 빼요. 'Chapter 1' 다음 줄에 제목이 오는 형식과 두 줄로 넘어간 긴 제목도 이어 붙여요." },
   { date:'2026-11-05', text:"[논문 열람기] 자동 목차를 새로 짰어요. 이제 제목 번호(1 · 2.1 · 3.1.2 / I. · A. / 제1장)를 가장 먼저 보고, 3.1 같은 번호는 소제목으로, 3.1.2는 그 아래로 넣어요. 번호 글자의 크기 · 자리(단의 왼쪽 끝이나 가운데) · 굵기 · 위 여백을 보고 1 → 2 → 3처럼 이어지는 번호만 남겨서 그림 속 숫자 · 번호 목록 · 저자 이름은 빠져요. 초록 · 참고문헌 · 부록(A · A.1)은 낱말로 더하고, 번호가 없는 문서는 글자 크기 · 굵기로 찾아요. 2단 논문에서 오른쪽 단 제목이 앞에 서던 순서도 고쳤어요. PDF에 목차가 들어 있으면 목차 칸 아래 단추로 '본문에서 찾기'와 바꿔 볼 수 있어요." },
   { date:'2026-10-13', text:"[도구] 새 도구 '여러 영상 자동 추적' — 공이 레일을 굴러 내려가는 영상을 여러 개 한꺼번에 골라, 영상마다 화면에서 길이를 아는 구간을 끌고 실제 길이만 넣으면 공을 자동으로 찾아 시간 · 레일 방향 변위 · 속도 표를 만들어요. 끝까지 굴러간 구간(없으면 가운데서 멈춘 채 끝난 구간)을 알아서 고르고, 확인 그림에서 다른 궤적으로 바꿀 수도 있어요. 결과는 그래프 그리기로 보내거나(모든 영상을 한 그래프에도) CSV로 받아요. 영상은 올리지 않아요." },
@@ -30405,12 +30406,58 @@ input.bt-in[type=number]{ width:84px; }
 @media (max-width:720px){ .bt-slots.n2, .bt-slots.n3{ grid-template-columns:1fr; } .bt-tgts{ grid-template-columns:1fr; } }
 input.bt-in.bt-wide{ width:min(340px, 100%); }
 .bt-row input[type=checkbox]{ width:16px; height:16px; accent-color:var(--accent); }
+/* ★세션 DN: ③ 공 지정 · 타원 편집 · 추적 중 고치기 · 결과에서 프레임 보며 고치기 */
+.bt-svhold{ position:absolute; left:0; top:0; width:2px; height:2px; opacity:.02; overflow:hidden; pointer-events:none; }
+.bt-svhold video{ width:2px; height:2px; }
+.bt-te{ flex:1; min-height:0; display:flex; flex-direction:column; position:relative; }
+.bt-teb{ flex:1; min-height:0; overflow:auto; padding:8px 10px; display:flex; flex-direction:column; gap:8px; }
+.bt-teload{ margin:auto; display:flex; flex-direction:column; align-items:center; gap:10px; color:var(--text-dim); font-size:13px; text-align:center; padding:30px 10px; }
+.bt-teload small{ max-width:520px; line-height:1.5; }
+.bt-te [hidden], .bt-ed [hidden], .bt-fixov [hidden], .bt-rv [hidden]{ display:none !important; }
+.bt-tegrid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(380px, 1fr)); gap:10px; }
+.bt-tf{ border:1px solid var(--border-strong); border-radius:12px; background:var(--card); overflow:hidden; display:flex; flex-direction:column; }
+.bt-tf.on{ border-color:#1F7A4D; box-shadow:0 0 0 2px #1F7A4D inset; }
+.bt-tfh{ display:flex; align-items:baseline; gap:8px; padding:6px 9px; font-size:12.5px; } .bt-tfh span{ color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.bt-tfh em{ margin-left:auto; font-style:normal; font-size:11px; font-weight:700; color:#1F7A4D; }
+.bt-tfc{ display:block; width:100%; height:auto; background:#111; cursor:crosshair; }
+.bt-tfl{ display:flex; align-items:center; gap:5px; flex-wrap:wrap; padding:6px 8px; font-size:12px; } .bt-tfl small{ color:var(--text-dim); }
+.bt-cb{ height:26px; min-width:30px; padding:0 8px; border-radius:999px; border:1px solid var(--border-strong); background:var(--box-bg); color:var(--text); font:inherit; font-size:13px; font-weight:700; cursor:pointer; }
+.bt-cb:hover{ border-color:var(--accent); color:var(--accent); }
+.bt-cb.rec{ background:#FFF4C2; border-color:#D9A400; color:#6B5000; }
+.bt-tfz{ height:26px; font-size:12px; }
+.bt-tenote{ display:block; }
+.bt-tea{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; padding:6px 10px; border-top:1px solid var(--border); font-size:12.5px; }
+.bt-tea u{ text-decoration:none; color:var(--accent); } .bt-tal{ font-weight:600; color:var(--text-dim); margin-right:2px; }
+.bt-tac{ display:inline-flex; align-items:center; gap:5px; padding:2px 4px 2px 9px; border-radius:999px; background:var(--ok-bg, #E3F2EA); color:#1F7A4D; cursor:pointer; font-variant-numeric:tabular-nums; }
+.bt-tac small{ color:#1F7A4D; opacity:.75; } .bt-tac button{ border:0; background:transparent; color:inherit; font:inherit; font-size:14px; width:20px; height:20px; border-radius:50%; cursor:pointer; } .bt-tac button:hover{ background:rgba(0,0,0,.1); }
+/* 타원 편집 */
+.bt-ed{ flex:1; min-height:420px; display:flex; flex-direction:column; gap:6px; }
+.bt-edh{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; font-size:12.5px; } .bt-edh b{ font-variant-numeric:tabular-nums; } .bt-edh .gt-btn{ height:28px; padding:0 9px; }
+.bt-edst{ flex:1; min-height:260px; border-radius:10px; cursor:crosshair; }
+.bt-edcv{ display:block; width:100%; height:100%; }
+.bt-edc{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; font-size:12.5px; }
+.bt-edc[hidden]{ display:none; }
+.bt-sl{ display:inline-flex; align-items:center; gap:6px; font-weight:600; } .bt-sl input{ width:120px; accent-color:#1F7A4D; } .bt-sl output{ min-width:52px; font-weight:400; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.bt-xy{ display:inline-flex; align-items:center; gap:5px; font-weight:600; } .bt-xy input.bt-in[type=number]{ width:78px; }
+.bt-edb{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .bt-edn{ flex:1 1 320px; }
+/* 추적 중 고치기 */
+.bt-run{ position:relative; }
+.bt-fixov{ position:absolute; inset:0; z-index:12; background:var(--card); display:flex; flex-direction:column; padding:8px 10px; box-shadow:0 0 0 1px var(--border); }
+.bt-sh .bt-sfix{ margin-left:auto; height:24px; padding:0 8px; font-size:11.5px; flex:none; }
+.bt-sh .bt-sfix[hidden]{ display:none; }
+/* 결과에서 프레임 보며 고치기 */
+.bt-rv{ display:flex; flex-direction:column; gap:6px; }
+.bt-rvh{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; } .bt-rvh > b{ font-size:14px; } .bt-rvs{ font-size:12.5px; color:var(--text-dim); font-variant-numeric:tabular-nums; }
+.bt-rvb .bt-ed{ height:min(64vh, 700px); }
+.bt-rvbar{ padding:2px 0; } .bt-rvc{ display:block; cursor:pointer; touch-action:none; }
+.bt-rule.r0{ background:#EDE4FF; color:#5B2EA6; } .bt-rule.r0.w{ background:#FFF4D6; color:#8A5A00; }
+@media (max-width:720px){ .bt-tegrid{ grid-template-columns:1fr; } .bt-sl input{ width:90px; } .bt-ed{ min-height:360px; } }
 </style>
 <script id="anda-batch-js">
 /* ================================================================
    ★세션 DL: 여러 영상 자동 추적 — 레일을 굴러 내려가는 공(쇠구슬)을 영상 여러 개에서 한꺼번에
    흐름: ① 영상 여러 개 고르기 → ② 영상마다 축척(화면에서 길이를 아는 구간을 끌고 길이 입력)
-         → ③ 모두 자동 추적(배경 빼기로 공 찾기 → 궤적 잇기 → 규칙으로 한 구간 고르기) → ④ 결과(표 · 확인 그림 · 그래프 · CSV)
+         → ③ 공 지정(★DN — 서로 다른 장면 3~4장의 후보 중 골라 타원으로 다듬음 → 배움) → ④ 모두 자동 추적(배경 빼기로 공 찾기 → 궤적 잇기 → 규칙으로 한 구간 고르기) → ④ 결과(표 · 확인 그림 · 그래프 · CSV)
    궤적 고르기: 1) 오른쪽 아래 끝까지 굴러간 구간(여러 번이면 가장 길게 간 것) 2) 없으면 가운데서 멈춘 채(기준 5초) 끝난 구간
                 3) 둘 다 아니면 가장 많이 움직인 구간 + '확인 필요'. 결과 화면에서 회색 궤적을 눌러 직접 바꿀 수 있다.
    공이 오래 멈춰 배경(중앙값)에 섞이면, 공 자리를 빼고 배경을 다시 만들어 한 번 더 추적한다.
@@ -30484,8 +30531,13 @@ function btPlayPass(v, fps, ka, kb, onFrame, ctl, backlog){
     await btSeek(v, ka, fps); onFrame(ka, ka/fps); got[ka]=1;
     if(ka>=kb) return res(got);
     const maxR=clamp(58/fps, 0.125, 3);
-    let done=false, rate=Math.min(maxR, 2), lastCb=performance.now(), lastK=ka, calm=0; v.playbackRate=rate;
-    const fin=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} v.playbackRate=1; clearInterval(watch); document.removeEventListener('visibilitychange', vis); v.onended=null; res(got); };
+    let done=false, rate=Math.min(maxR, 2), lastCb=performance.now(), lastK=ka, calm=0, gen=0; v.playbackRate=rate;
+    const reg=()=>{ const my=gen; v.requestVideoFrameCallback((n,m)=>{ if(my===gen) cb(n,m); }); };
+    const fin=()=>{ if(done) return; done=true; try{ v.pause(); }catch(e){} v.playbackRate=1; clearInterval(watch); document.removeEventListener('visibilitychange', vis); v.onended=null; if(ctl) ctl.pausedK=null; res(got); };
+    /* ★DN: 잠깐 멈춤(고치기) — ctl.pause가 켜지면 지금 프레임까지 처리하고 멈춘다(ctl.pausedK). 풀리면 ctl.seekTo(있으면) 프레임부터 다시 */
+    const hold=async ()=>{ ctl.pausedK=lastK; while(ctl.pause && !ctl.stop && !done) await sleep(80); if(done) return; if(ctl.stop) return fin();
+      if(ctl.seekTo!=null){ const s=clamp(ctl.seekTo, ka, kb+1); ctl.seekTo=null; got.fill(0, Math.min(s, kb+1)); lastK=s-1; if(s>kb) return fin(); await btSeek(v, s, fps); onFrame(s, s/fps); got[s]=1; lastK=s; if(s>=kb) return fin(); }
+      ctl.pausedK=null; lastCb=performance.now(); v.playbackRate=rate; gen++; reg(); if(!document.hidden) v.play().catch(()=>{}); };
     const cb=(now, m)=>{ if(done) return; lastCb=performance.now(); if(ctl.stop) return fin();
       const k=Math.round(m.mediaTime*fps);
       if(k>=ka && k<=kb && !got[k]){ onFrame(k, m.mediaTime); got[k]=1;
@@ -30493,14 +30545,15 @@ function btPlayPass(v, fps, ka, kb, onFrame, ctl, backlog){
         else if(++calm>40 && rate<maxR){ calm=0; rate=Math.min(maxR, rate*1.15); v.playbackRate=rate; }
         lastK=Math.max(lastK,k); }
       if(k>=kb) return fin();
-      v.requestVideoFrameCallback(cb);
+      if(ctl.pause){ v.pause(); hold(); return; }
+      reg();
       // 워커가 밀리면 잠깐 멈췄다가 따라잡으면 다시
-      if(backlog && backlog()>16 && !v.paused){ v.pause(); const tick=()=>{ if(done) return; if(ctl.stop) return fin(); if(backlog()>4) return setTimeout(tick, 20); lastCb=performance.now(); if(!document.hidden) v.play().catch(()=>{}); }; setTimeout(tick, 20); } };
-    const vis=()=>{ if(done) return; if(document.hidden) v.pause(); else { lastCb=performance.now(); v.play().catch(()=>{}); } };
+      if(backlog && backlog()>16 && !v.paused){ v.pause(); const tick=()=>{ if(done) return; if(ctl.stop) return fin(); if(ctl.pause) return; if(backlog()>4) return setTimeout(tick, 20); lastCb=performance.now(); if(!document.hidden) v.play().catch(()=>{}); }; setTimeout(tick, 20); } };
+    const vis=()=>{ if(done || ctl.pause) return; if(document.hidden) v.pause(); else { lastCb=performance.now(); v.play().catch(()=>{}); } };
     document.addEventListener('visibilitychange', vis);
-    const watch=setInterval(()=>{ if(ctl.stop) return fin(); if(!document.hidden && !v.paused && performance.now()-lastCb>5000) fin(); }, 400);
-    v.onended=()=>setTimeout(fin, 300);
-    v.muted=true; v.requestVideoFrameCallback(cb);
+    const watch=setInterval(()=>{ if(ctl.stop) return fin(); if(ctl.pause){ lastCb=performance.now(); if(v.paused && ctl.pausedK==null) hold(); return; } if(!document.hidden && !v.paused && performance.now()-lastCb>5000) fin(); }, 400);
+    v.onended=()=>setTimeout(()=>{ if(!ctl.pause) fin(); }, 300);
+    v.muted=true; reg();
     const p=v.play(); if(p && p.catch) p.catch(()=>fin());
   });
 }
@@ -30569,8 +30622,8 @@ function btDetect(px, bg, Wk, P){
     let r2=0; for(let i=0;i<np;i++){ const p=pix[i], y=(p/W)|0, x=p-y*W, d=(x-cx)*(x-cx)+(y-cy)*(y-cy); if(d>r2) r2=d; }
     const r=Math.sqrt(r2)+0.5, fill=A/(Math.PI*r*r);
     if(r<rmin || r>2.5*rmax || fill<0.25) continue;
-    const rect=A/(bw*bh);
-    out.push({ x:cx, y:cy, r, fill, strict: r<=rmax && (P.shape==='box' ? rect>=0.55 : fill>=P.fillMin) });
+    const rect=A/(bw*bh); let cr=0, cg=0, cb=0; for(let i=0;i<np;i++){ const j=pix[i]*4; cr+=px[j]; cg+=px[j+1]; cb+=px[j+2]; }
+    out.push({ x:cx, y:cy, r, fill, strict: r<=rmax && (P.shape==='box' ? rect>=0.55 : fill>=P.fillMin), cr:cr/np, cg:cg/np, cb:cb/np });
   }
   return out;
 }
@@ -30702,7 +30755,7 @@ function btFix(t, x, y, rr, src, rmed){
     for(let i=0;i<n;i++){ if(bad[i]) continue; const sk=bad.slice(); sk[i]=1; const f=fitAt(i, sk); if(f) e[i]=Math.hypot(x[i]-f[0], y[i]-f[1]); }
     const ev=e.filter(isFinite).sort((a,b)=>a-b); if(ev.length<5) break;
     const madv=ev[ev.length>>1]*1.4826, thr=Math.max(3.5*madv, 0.08*rmed, 1); let added=0;
-    for(let i=0;i<n;i++){ if(!(e[i]>thr)) continue; let top=true; for(let j=Math.max(0,i-3); j<=Math.min(n-1,i+3); j++) if(j!==i && e[j]>e[i]) top=false; if(top){ bad[i]=1; added++; } }
+    for(let i=0;i<n;i++){ if(!(e[i]>thr) || src[i]==='u') continue; let top=true; for(let j=Math.max(0,i-3); j<=Math.min(n-1,i+3); j++) if(j!==i && e[j]>e[i]) top=false; if(top){ bad[i]=1; added++; } }
     if(!added) break; }
   let c=0; const fx=[];
   for(let i=0;i<n;i++) if(bad[i]){ const f=fitAt(i, bad); if(f){ fx.push([i,f]); } }
@@ -30716,6 +30769,274 @@ function btNameParts(name, P){
   const map={}; String(P.nmap||'').split(/[,，]/).forEach(kv=>{ const m=kv.split('='); if(m.length===2 && m[0].trim()) map[m[0].trim()]=m[1].trim(); });
   return { labels, vals:parts.map(v=>map[v]!=null ? map[v] : v) };
 }
+/* ───────────────── ★세션 DN: 공 지정 · 배우기 · 따라가기 ─────────────────
+   사용자가 지정한 공(타원: 중심 · 반지름 둘 · 기울기)에서 '본'(밝기 무늬 BT_TN×BT_TN, 타원 안쪽에 무게) · 색 · 크기를 배운다.
+   따라갈 때는 바로 앞 위치 + 속도로 다음 자리를 예측하고, 그 둘레(문 G)에서만 본을 맞춰 본다(가중 NCC) → 멀리 튈 수 없다.
+   못 찾으면 비워 두고(예측만 이어 감), 0.5초 넘게 못 찾으면 '놓침' — 그때만 문을 넓혀 화면 전체 후보(배경 빼기)에서
+   지나온 길과 이어지는 것만 다시 잡는다. 좌표는 모두 처리 해상도(px). */
+const BT_TN=16;
+function btBil(px, W, H, x, y, c){
+  if(x<0) x=0; else if(x>W-1.001) x=W-1.001; if(y<0) y=0; else if(y>H-1.001) y=H-1.001;
+  const x0=x|0, y0=y|0, fx=x-x0, fy=y-y0, i=(y0*W+x0)*4+c, j=i+W*4;
+  return (px[i]*(1-fx)+px[i+4]*fx)*(1-fy)+(px[j]*(1-fx)+px[j+4]*fx)*fy; }
+function btBilL(px, W, H, x, y){
+  if(x<0) x=0; else if(x>W-1.001) x=W-1.001; if(y<0) y=0; else if(y>H-1.001) y=H-1.001;
+  const x0=x|0, y0=y|0, fx=x-x0, fy=y-y0, i=(y0*W+x0)*4, j=i+W*4;
+  const L=k=>0.299*px[k]+0.587*px[k+1]+0.114*px[k+2];
+  return (L(i)*(1-fx)+L(i+4)*fx)*(1-fy)+(L(j)*(1-fx)+L(j+4)*fx)*fy; }
+/* 단위 원판 위 표본점(가운데 + 고리 셋) */
+const BT_DISK=(()=>{ const o=[[0,0]]; [[0.35,6],[0.65,12],[0.9,18]].forEach(([r,n],q)=>{ for(let i=0;i<n;i++){ const a=2*Math.PI*(i+0.5*(q%2))/n; o.push([r*Math.cos(a), r*Math.sin(a)]); } }); return o; })();
+function btEllPts(e, s){ const c=Math.cos(e.ang||0), sn=Math.sin(e.ang||0); return BT_DISK.map(([u,v])=>{ const a=u*e.rx*s, b=v*e.ry*s; return [e.x+a*c-b*sn, e.y+a*sn+b*c]; }); }
+function btColorAt(px, W, H, e){ const P=btEllPts(e, 0.8), L=[]; let r=0, g=0, b=0;
+  P.forEach(([x,y])=>{ const q=[btBil(px,W,H,x,y,0), btBil(px,W,H,x,y,1), btBil(px,W,H,x,y,2)]; r+=q[0]; g+=q[1]; b+=q[2]; L.push(q); });
+  const n=P.length; r/=n; g/=n; b/=n; let sd=0; L.forEach(q=>{ sd+=(q[0]-r)**2+(q[1]-g)**2+(q[2]-b)**2; }); return { col:[r,g,b], sd:Math.sqrt(sd/n/3) }; }
+/* 타원 안에서 배경과 다른 표본점의 비율(움직이는 물체가 있나) */
+function btFgAt(px, W, H, bg, e, thr){ if(!bg) return 0; const P=btEllPts(e, 0.75); let c=0, n=0;
+  P.forEach(([x,y])=>{ const xi=Math.round(x), yi=Math.round(y); if(xi<0||yi<0||xi>=W||yi>=H) return; n++; const i=yi*W+xi, a=i*4, b=i*3;
+    const d=Math.max(Math.abs(px[a]-bg[b]), Math.abs(px[a+1]-bg[b+1]), Math.abs(px[a+2]-bg[b+2])); if(d>thr) c++; }); return n ? c/n : 0; }
+function btNorm(t, w){ let sw=0, m=0; for(let i=0;i<t.length;i++){ sw+=w[i]; m+=w[i]*t[i]; } m/=sw; let v=0; for(let i=0;i<t.length;i++){ const d=t[i]-m; v+=w[i]*d*d; }
+  const sd=Math.sqrt(v/sw); if(!(sd>0.5)) return 0; for(let i=0;i<t.length;i++) t[i]=(t[i]-m)/sd; return sw; }
+/* 본 뜨기: 타원을 둘러싼 정사각형(한 변 2.6R)을 BT_TN×BT_TN 밝기로, 무게 = 타원 안 1 · 1.3배 안 0.45 · 밖 0.12 */
+function btTplAt(px, W, H, e){
+  const n=BT_TN, R=Math.max(e.rx, e.ry), side=2.6*R, q=n/side, t=new Float32Array(n*n), w=new Float32Array(n*n), c=Math.cos(e.ang||0), s=Math.sin(e.ang||0);
+  for(let j=0;j<n;j++) for(let i=0;i<n;i++){ const dx=(i-(n-1)/2)/q, dy=(j-(n-1)/2)/q; t[j*n+i]=btBilL(px, W, H, e.x+dx, e.y+dy);
+    const u=(dx*c+dy*s)/e.rx, v=(-dx*s+dy*c)/e.ry, rr=u*u+v*v; w[j*n+i]= rr<=1 ? 1 : rr<=1.69 ? 0.45 : 0.12; }
+  const sw=btNorm(t, w); return { t, w, sw, q, R, ok:sw>0 }; }
+function btModel(px, W, H, e, bg, thr){
+  const T=btTplAt(px, W, H, e), C=btColorAt(px, W, H, e), tw=new Float32Array(T.t.length); for(let i=0;i<tw.length;i++) tw[i]=T.w[i]*T.t[i];
+  return { t:T.t, w:T.w, tw, sw:T.sw, q:T.q, R:T.R, rx:e.rx, ry:e.ry, ang:e.ang||0, col:C.col, csd:C.sd, fd0:btFgAt(px, W, H, bg, e, thr||30), ok:T.ok }; }
+/* 본 두 개의 닮음(같은 크기 · 같은 무게일 때) */
+function btTplSim(a, b){ if(!a || !b || a.length!==b.length) return 0; let s=0, sw=0; const n=BT_TN; for(let j=0;j<n;j++) for(let i=0;i<n;i++){ const k=j*n+i, dx=(i-(n-1)/2)/(n/2.6), dy=(j-(n-1)/2)/(n/2.6), w=dx*dx+dy*dy<=1 ? 1 : 0.3; s+=w*a[k]*b[k]; sw+=w; } return s/sw; }
+function btColSim(M, col){ const d=Math.hypot(col[0]-M.col[0], col[1]-M.col[1], col[2]-M.col[2]); return Math.exp(-Math.pow(d/(25+0.6*Math.min(M.csd, 40)), 2)); }
+/* 본 맞추기: (cx, cy) 둘레 반경 G 안에서 가중 NCC 지도를 만들고 봉우리(최대 4개)를 돌려준다 — [{x, y, ncc}] */
+function btSearch(px, W, H, M, cx, cy, G){
+  const n=BT_TN, q=M.q, half=(n-1)/2/q; G=Math.max(G, 1/q);
+  const ox=cx-G-half, oy=cy-G-half, m=Math.max(n+1, Math.ceil((2*G+2*half)*q)+1), S=m-n+1;
+  const L=new Float32Array(m*m); for(let j=0;j<m;j++) for(let i=0;i<m;i++) L[j*m+i]=btBilL(px, W, H, ox+i/q, oy+j/q);
+  const nc=new Float32Array(S*S), tw=M.tw, w=M.w, sw=M.sw;
+  for(let v=0;v<S;v++) for(let u=0;u<S;u++){ let a=0, b=0, c=0;
+    for(let j=0;j<n;j++){ const o=(v+j)*m+u, tj=j*n; for(let i=0;i<n;i++){ const p=L[o+i], k=tj+i, wk=w[k]; a+=tw[k]*p; b+=wk*p; c+=wk*p*p; } }
+    const mu=b/sw, va=c/sw-mu*mu; nc[v*S+u]= va>0.25 ? a/(Math.sqrt(va)*sw) : 0; }
+  const pk=[];
+  for(let v=0;v<S;v++) for(let u=0;u<S;u++){ const z=nc[v*S+u]; if(z<0.15) continue; let top=true;
+    for(let dv=-1;dv<=1 && top;dv++) for(let du=-1;du<=1;du++){ if(!du && !dv) continue; const uu=u+du, vv=v+dv; if(uu<0||vv<0||uu>=S||vv>=S) continue; if(nc[vv*S+uu]>z){ top=false; break; } }
+    if(!top) continue;
+    // 포물선으로 1칸 아래까지
+    const at=(uu,vv)=>nc[clamp(vv,0,S-1)*S+clamp(uu,0,S-1)];
+    const l=at(u-1,v), r=at(u+1,v), t=at(u,v-1), d=at(u,v+1), du=(l-r)/(2*(l-2*z+r)||1), dv=(t-d)/(2*(t-2*z+d)||1);
+    const fu=u+(Math.abs(du)<=1?du:0), fv=v+(Math.abs(dv)<=1?dv:0);
+    const x=ox+(fu+(n-1)/2)/q, y=oy+(fv+(n-1)/2)/q; if(Math.hypot(x-cx, y-cy)>G*1.05) continue;
+    pk.push({ x, y, ncc:z }); }
+  pk.sort((a,b)=>b.ncc-a.ncc); return pk.slice(0, 4); }
+/* 한 자리의 '공다움' = 본 0.55 + 색 0.30 + 배경과 다름 0.15 */
+function btLook(px, W, H, M, bg, thr, x, y, ncc){ const e={ x, y, rx:M.rx, ry:M.ry, ang:M.ang };
+  const cs=btColSim(M, btColorAt(px, W, H, e).col), fd=btFgAt(px, W, H, bg, e, thr);
+  return { cs, fd, A:0.55*Math.max(0, ncc)+0.30*cs+0.15*Math.max(fd, M.fd0<0.3 ? 0.5 : 0) }; }
+/* 받아들이는 기준: 본이 꽤 맞고 색도 맞거나, 본은 조금 덜해도 색이 아주 맞고 배경과 다를 때 */
+function btOk(ncc, L){ return (ncc>=0.35 && L.cs>=0.3 && L.A>=0.45) || (ncc>=0.25 && L.cs>=0.6 && L.fd>=0.5); }
+/* ───── 따라가기 ─────
+   anchors = [{ k, x, y, rx, ry, ang }] (처리 해상도). frame()은 앞으로 차례대로(재생하며), back()은 첫 지정 앞을 후보(배경 빼기)로 거꾸로,
+   gaps() → fill()은 건너뛴 프레임을 앞뒤 점 사이(보간 위치 둘레)에서 메운다. */
+class BtGuide{
+  constructor(o){ Object.assign(this, o); this.pts=new Map(); this.seen=new Set(); this.anc=new Map(); this.M=null; this.st=null; this.miss=0; this.lost=false; this.log=[];
+    this.lostN=Math.max(4, Math.round(0.5*this.fps)); (o.anchors||[]).forEach(a=>this.anc.set(a.k, a)); delete this.anchors; }
+  get k0(){ return this.anc.size ? Math.min(...this.anc.keys()) : Infinity; }
+  learn(px, a, hard){ const m=btModel(px, this.W, this.H, a, this.bg, this.thr); if(!m.ok) return;
+    if(!this.M || hard){ this.M=m; this.M0=m; return; }
+    // 지정을 더 받으면 본 · 색을 섞는다(새 지정 쪽 0.5)
+    const M=this.M; for(let i=0;i<M.t.length;i++) M.t[i]=0.5*M.t[i]+0.5*m.t[i]; M.w=m.w; btNorm(M.t, M.w); for(let i=0;i<M.t.length;i++) M.tw[i]=M.w[i]*M.t[i]; M.sw=M.w.reduce((s,v)=>s+v,0);
+    M.q=m.q; M.R=m.R; M.rx=m.rx; M.ry=m.ry; M.ang=m.ang; M.col=M.col.map((c,i)=>0.5*c+0.5*m.col[i]); M.csd=0.5*M.csd+0.5*m.csd; }
+  adapt(px, x, y){ // 잘 맞았을 때만 본을 조금씩(8%) 새로 — 반사가 도는 쇠구슬
+    const M=this.M, T=btTplAt(px, this.W, this.H, { x, y, rx:M.rx, ry:M.ry, ang:M.ang }); if(!T.ok || btTplSim(T.t, this.M0.t)<0.45) return;
+    for(let i=0;i<M.t.length;i++) M.t[i]=0.92*M.t[i]+0.08*T.t[i]; btNorm(M.t, M.w); for(let i=0;i<M.t.length;i++) M.tw[i]=M.w[i]*M.t[i]; }
+  accept(k, t, x, y, src, A){ this.pts.set(k, { x, y, src, a:A, t }); const h=this.st && this.st.dir===1 ? this.st.h : [];
+    h.push([k, x, y]); while(h.length>6) h.shift(); this.st={ k, x, y, h, dir:1, n:(this.st && this.st.dir===1 ? this.st.n : 0)+1 }; this.miss=0; if(this.lost){ this.lost=false; this.log.push({ k, what:'found' }); } }
+  vel(h){ const n=h.length; if(n<2) return [0, 0]; let sk=0, sx=0, sy=0, skk=0, skx=0, sky=0; h.forEach(([k,x,y])=>{ sk+=k; sx+=x; sy+=y; skk+=k*k; skx+=k*x; sky+=k*y; });
+    const d=n*skk-sk*sk; if(Math.abs(d)<1e-9) return [0, 0]; return [(n*skx-sk*sx)/d, (n*sky-sk*sy)/d]; }
+  gate(dk, sp, fresh){ const R=this.M.R; let G=0.55*R+0.6*sp*dk+0.35*R*(dk-1); if(fresh) G=Math.max(G, 1.6*R+sp*dk); return Math.min(G, 7*R+1.2*sp*dk); }
+  /* 재생 전에 지정 프레임에서 본을 미리 배운다(빨리 감다 그 프레임을 건너뛰어도 출발할 수 있게) */
+  prime(a, px){ this.learn(px, a, !this.M); }
+  frame(k, t, px, dets){
+    // 재생 중 건너뛴 지정 프레임도 출발점으로(차례대로)
+    const skipped=[...this.anc.keys()].filter(q=>q<k && !this.pts.has(q) && (!this.st || q>this.st.k)).sort((p,q)=>p-q);
+    skipped.forEach(q=>{ const a=this.anc.get(q); this.st=null; this.accept(q, a.t!=null ? a.t : null, a.x, a.y, 'u', 1); this.seen.add(q); });
+    if(this.anc.has(k)){ const a=this.anc.get(k); if(px) this.learn(px, a, !this.M); this.st=null; this.accept(k, t, a.x, a.y, 'u', 1); this.seen.add(k); return this.pts.get(k); }
+    if(!this.st || !this.M || k<=this.st.k) return null;
+    this.seen.add(k);
+    const [vx, vy]=this.vel(this.st.h), dk=k-this.st.k, sp=Math.hypot(vx, vy), R=this.M.R;
+    const p={ x:this.st.x+vx*dk, y:this.st.y+vy*dk }; const G=this.gate(dk, sp, this.st.n<3);
+    let best=null;
+    const tryAt=(x, y, ncc, bonus)=>{ const L=btLook(px, this.W, this.H, this.M, this.bg, this.thr, x, y, ncc), d=Math.hypot(x-p.x, y-p.y), S=L.A-0.3*(d/G)*(d/G)+(bonus||0);
+      const ok= this.lost ? (ncc>=0.45 && L.cs>=0.45 && L.A>=0.55) : btOk(ncc, L);
+      if(ok && (!best || S>best.S)) best={ x, y, S, A:L.A, ncc, cs:L.cs, fd:L.fd }; };
+    if(px && G<=8*R) btSearch(px, this.W, this.H, this.M, p.x, p.y, G).forEach(q=>tryAt(q.x, q.y, q.ncc, 0));
+    // 놓친 뒤에는 화면 전체 후보 중 지나온 길과 이어지는 것만(문 밖 먼 곳은 보지 않는다)
+    if(px && this.lost && dets){ const Rre=Math.min(3*R+1.3*sp*dk+0.5*R*Math.sqrt(dk), 0.3*this.W);
+      dets.forEach(d=>{ if(Math.hypot(d.x-p.x, d.y-p.y)>Rre || d.r<0.55*R || d.r>1.8*R) return; btSearch(px, this.W, this.H, this.M, d.x, d.y, 0.6*R).forEach(q=>tryAt(q.x, q.y, q.ncc, -0.05)); }); }
+    if(best){ this.accept(k, t, best.x, best.y, this.lost ? 'r' : 'g', best.A); const q=this.pts.get(k); q.ncc=best.ncc; q.cs=best.cs; q.fd=best.fd; q.dk=dk; q.G=G; q.dp=Math.hypot(best.x-p.x, best.y-p.y); if(best.ncc>=0.75 && best.A>=0.7) this.adapt(px, best.x, best.y); return this.pts.get(k); }
+    if(++this.miss>this.lostN && !this.lost){ this.lost=true; this.log.push({ k, what:'lost' }); }
+    return null; }
+  /* 첫 지정 앞: 배경 빼기 후보(dets)만으로 거꾸로 — 색 · 크기가 맞고 예측 문 안인 것 */
+  back(dets, times, ka){
+    const k0=this.k0; if(!isFinite(k0) || !this.M) return 0; let st={ k:k0, h:[[k0, this.pts.get(k0).x, this.pts.get(k0).y]] }, miss=0, n=0; const R=this.M.R;
+    // 덩어리 무게중심은 그림자 · 반사 때문에 본 중심과 조금 어긋난다 → 둘 다 있는 프레임에서 차이(가운데값)를 재서 뺀다
+    const ox=[], oy=[]; this.pts.forEach((q,k)=>{ if(q.src!=='g' || !dets[k]) return; const q1=this.pts.get(k-1)||this.pts.get(k+1); if(!q1 || Math.hypot(q1.x-q.x, q1.y-q.y)<0.15*R) return; // 움직이는 프레임만(멈춘 공은 배경에 섞여 덩어리가 깎인다)
+      let b=null; dets[k].forEach(d=>{ const dd=Math.hypot(d.x-q.x, d.y-q.y); if(dd<0.6*R && d.strict && d.r>0.8*R && d.r<1.3*R && (!b || dd<b.dd)) b={ dd, dx:d.x-q.x, dy:d.y-q.y }; }); if(b){ ox.push(b.dx); oy.push(b.dy); } });
+    const mid=a=>{ const z=a.slice().sort((p,q)=>p-q); return z.length ? z[z.length>>1] : 0; }, offX=ox.length>=5 ? mid(ox) : 0, offY=oy.length>=5 ? mid(oy) : 0; this.detOff=[offX, offY];
+    for(let k=k0+1;k<k0+6;k++){ const q=this.pts.get(k); if(q) st.h.push([k, q.x, q.y]); }
+    for(let k=k0-1;k>=ka;k--){ const D=dets[k]; if(D===undefined) continue; if(this.pts.has(k)) { const q=this.pts.get(k); st={ k, h:[[k,q.x,q.y]].concat(st.h).slice(0,6) }; continue; }
+      const [vx, vy]=this.vel(st.h), dk=st.k-k, sp=Math.hypot(vx, vy), p={ x:st.h[0][1]-vx*(st.h[0][0]-k), y:st.h[0][2]-vy*(st.h[0][0]-k) }, G=this.gate(dk, sp, st.h.length<3);
+      let b=null; D.forEach(d0=>{ const d={ x:d0.x-offX, y:d0.y-offY, r:d0.r, cr:d0.cr, cg:d0.cg, cb:d0.cb }, dd=Math.hypot(d.x-p.x, d.y-p.y), q=d.r/R; if(dd>G || q<0.6 || q>1.7) return; const cs=d.cr!=null ? btColSim(this.M, [d.cr, d.cg, d.cb]) : 0.5; if(cs<0.3) return;
+        const S=cs-0.3*(dd/G)*(dd/G); if(!b || S>b.S) b={ x:d.x, y:d.y, S, A:0.4+0.4*cs }; });
+      if(b){ this.pts.set(k, { x:b.x, y:b.y, src:'d', a:b.A, t:times[k] }); st={ k, h:[[k, b.x, b.y]].concat(st.h).slice(0, 6) }; miss=0; n++; }
+      else if(++miss>this.lostN) break; }
+    return n; }
+  /* 메울 프레임: 점들 사이에서 처리하지 않은(건너뛴) 프레임 + 첫 점 바로 앞 조금 */
+  gaps(ka, kb, dets){ const ks=[...this.pts.keys()].sort((a,b)=>a-b); if(!ks.length) return [];
+    const a=ks[0], b=ks[ks.length-1], out=[];
+    for(let k=a+1;k<b;k++) if(!this.pts.has(k) && !this.seen.has(k)) out.push(k);
+    for(let k=a-1;k>=Math.max(ka, a-this.lostN);k--) if(!this.pts.has(k) && (dets[k]===undefined)) out.push(k);
+    // 가려졌다 다시 나온 구간: 다시 잡은 점에서 거꾸로(가까운 쪽부터) 한 번 더 — 짧은 구간(3초 안)만
+    this.holes().forEach(([h0,h1])=>{ if(h1-h0>3*this.fps) return; for(let k=h1;k>=h0;k--) if(!out.includes(k)) out.push(k); });
+    return out; }
+  near(k, dir){ for(let j=1;j<=60;j++){ const q=this.pts.get(k+dir*j); if(q) return [k+dir*j, q]; } return null; }
+  fill(k, t, px){ if(this.pts.has(k) || !this.M) return null; const A=this.near(k, -1), B=this.near(k, 1), R=this.M.R; let p, G;
+    if(A && B){ const f=(k-A[0])/(B[0]-A[0]), dm=Math.min(k-A[0], B[0]-k), sp=Math.hypot(B[1].x-A[1].x, B[1].y-A[1].y)/(B[0]-A[0]); p={ x:A[1].x+(B[1].x-A[1].x)*f, y:A[1].y+(B[1].y-A[1].y)*f }; G=0.6*R+0.4*sp*dm+0.25*R*Math.sqrt(dm); }
+    else { const S=A||B; if(!S) return null; const dm=Math.abs(k-S[0]), h=[]; for(let j=0;j<5;j++){ const q=this.pts.get(S[0]+(A?-j:j)); if(q) h.push([S[0]+(A?-j:j), q.x, q.y]); } const [vx,vy]=this.vel(h.sort((x,y)=>x[0]-y[0]));
+      p={ x:S[1].x+vx*(k-S[0]), y:S[1].y+vy*(k-S[0]) }; G=this.gate(dm, Math.hypot(vx,vy), false); }
+    let best=null; btSearch(px, this.W, this.H, this.M, p.x, p.y, G).forEach(q=>{ const L=btLook(px, this.W, this.H, this.M, this.bg, this.thr, q.x, q.y, q.ncc), d=Math.hypot(q.x-p.x, q.y-p.y);
+      if(!btOk(q.ncc, L)) return; const S=L.A-0.3*(d/G)*(d/G); if(!best || S>best.S) best={ x:q.x, y:q.y, S, A:L.A }; });
+    if(best){ this.pts.set(k, { x:best.x, y:best.y, src:'f', a:best.A, t }); return this.pts.get(k); } return null; }
+  /* 여기부터 다시: kc의 자리를 새로 지정 — kc 뒤의 점은 지우고, 그 프레임에서 본을 다시 배운다 */
+  reanchor(kc, t, a, px){ [...this.pts.keys()].forEach(k=>{ if(k>=kc) this.pts.delete(k); }); [...this.seen].forEach(k=>{ if(k>kc) this.seen.delete(k); }); [...this.anc.keys()].forEach(k=>{ if(k>kc) this.anc.delete(k); });
+    this.anc.set(kc, a); if(px) this.learn(px, a, !this.M); this.st=null; this.lost=false; this.miss=0; this.accept(kc, t, a.x, a.y, 'u', 1); this.seen.add(kc); this.log.push({ k:kc, what:'fix' }); }
+  track(times){ const ks=[...this.pts.keys()].sort((a,b)=>a-b), R=this.M ? this.M.R : 5;
+    const tr={ f:[], t:[], x:[], y:[], r:[], src:[], id:1 }; ks.forEach(k=>{ const q=this.pts.get(k), t=times[k]!=null ? times[k] : q.t; if(t==null) return; tr.f.push(k); tr.t.push(t); tr.x.push(q.x); tr.y.push(q.y); tr.r.push(R); tr.src.push(q.src); });
+    return tr; }
+  /* 따라간 구간 안에서 못 찾은 덩어리(연속 lostN 넘게 빈 곳) */
+  holes(){ const ks=[...this.pts.keys()].sort((a,b)=>a-b), out=[]; for(let i=1;i<ks.length;i++){ const g=ks[i]-ks[i-1]-1; if(g>this.lostN) out.push([ks[i-1]+1, ks[i]-1]); } return out; }
+}
+
+/* 배운 공(이 기기에 기억) — 영상마다 지정할수록 섞여서 다음 영상의 후보 순서를 정한다 */
+function btPriorGet(){ const m=btStore().model; return m && m.t && m.t.length===BT_TN*BT_TN ? m : null; }
+function btPriorLearn(M, Wp){ if(!M || !M.ok) return; btSave(s=>{ const o=s.model && s.model.t && s.model.t.length===M.t.length ? s.model : null, n=o ? Math.min(o.n||1, 9) : 0, a=1/(n+1), mix=(p,q)=>o ? (1-a)*p+a*q : q;
+  const t=Float32Array.from(M.t, (v,i)=>mix(o ? o.t[i] : 0, v)), w=new Float32Array(t.length).fill(1); btNorm(t, w);
+  s.model={ t:Array.from(t, v=>+v.toFixed(3)), rFrac:+mix(o?o.rFrac:0, M.R/Wp).toFixed(5), aspect:+mix(o?o.aspect:1, Math.min(M.rx,M.ry)/Math.max(M.rx,M.ry)).toFixed(3), ang:M.ang,
+    col:M.col.map((c,i)=>+mix(o?o.col[i]:0, c).toFixed(1)), csd:+mix(o?o.csd:0, M.csd).toFixed(1), n:(o?o.n||1:0)+1, at:Date.now() }; }); }
+/* 후보 하나가 배운 공과 얼마나 닮았나(0~1). 배운 공이 없으면 둥글고 꽉 찬 것 */
+function btCandScore(px, W, H, c, prior){
+  if(!prior) return (c.strict?0.55:0.25)+0.3*Math.min(1, c.fill)+0.15*(c.cr!=null ? Math.min(1, Math.max(Math.abs(c.cr-c.cg), Math.abs(c.cg-c.cb), Math.abs(c.cr-c.cb))/60+0.4) : 0.4);
+  const e={ x:c.x, y:c.y, rx:c.r, ry:c.r, ang:0 }, T=btTplAt(px, W, H, e), sim=T.ok ? btTplSim(T.t, prior.t) : 0, cs=btColSim({ col:prior.col, csd:prior.csd }, btColorAt(px, W, H, e).col);
+  const lr=Math.log((c.r/W)/prior.rFrac); return 0.35*Math.max(0, sim)+0.4*cs+0.25*Math.exp(-lr*lr/0.18); }
+/* 둘레에서 공 테두리 찾기(자동 맞춤): 배경과 다른 덩어리(없으면 가운데 색과 비슷한 덩어리) → 모멘트로 타원. e·결과는 처리 해상도 */
+function btFitEll(px, W, H, bg, e, thr){
+  const R=Math.max(e.rx, e.ry), x0=Math.max(0, Math.floor(e.x-2.2*R)), y0=Math.max(0, Math.floor(e.y-2.2*R)), x1=Math.min(W-1, Math.ceil(e.x+2.2*R)), y1=Math.min(H-1, Math.ceil(e.y+2.2*R));
+  const bw=x1-x0+1, bh=y1-y0+1; if(bw<3 || bh<3) return null;
+  const C=btColorAt(px, W, H, { x:e.x, y:e.y, rx:e.rx*0.6, ry:e.ry*0.6, ang:e.ang||0 }).col;
+  const mk=useBg=>{ const m=new Uint8Array(bw*bh); for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){ const i=y*W+x, a=i*4; let on;
+      if(useBg){ const b=i*3; on=Math.max(Math.abs(px[a]-bg[b]), Math.abs(px[a+1]-bg[b+1]), Math.abs(px[a+2]-bg[b+2]))>thr; }
+      else on=Math.hypot(px[a]-C[0], px[a+1]-C[1], px[a+2]-C[2])<42; m[(y-y0)*bw+(x-x0)]=on?1:0; } return m; };
+  const grow=m=>{ // 가운데에 가장 가까운 켜진 칸에서 4방향으로 퍼짐
+    let s=-1, sd=1e9; for(let y=0;y<bh;y++) for(let x=0;x<bw;x++) if(m[y*bw+x]){ const d=Math.hypot(x+x0-e.x, y+y0-e.y); if(d<sd){ sd=d; s=y*bw+x; } }
+    if(s<0 || sd>0.7*R) return null; const L=new Uint8Array(bw*bh), st=[s]; L[s]=1; let n=0, sx=0, sy=0, sxx=0, syy=0, sxy=0;
+    while(st.length){ const p=st.pop(), y=(p/bw)|0, x=p-y*bw; n++; sx+=x; sy+=y; sxx+=x*x; syy+=y*y; sxy+=x*y;
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy])=>{ const xx=x+dx, yy=y+dy; if(xx<0||yy<0||xx>=bw||yy>=bh) return; const q=yy*bw+xx; if(m[q] && !L[q]){ L[q]=1; st.push(q); } }); }
+    if(n<0.2*Math.PI*R*R || n>4.5*Math.PI*R*R) return null;
+    const mx=sx/n, my=sy/n, cxx=sxx/n-mx*mx, cyy=syy/n-my*my, cxy=sxy/n-mx*my, tr=cxx+cyy, dt=Math.sqrt(Math.max(0, (cxx-cyy)*(cxx-cyy)/4+cxy*cxy)), l1=tr/2+dt, l2=Math.max(0.01, tr/2-dt);
+    return { x:mx+x0, y:my+y0, rx:2*Math.sqrt(l1)+0.5, ry:2*Math.sqrt(l2)+0.5, ang:0.5*Math.atan2(2*cxy, cxx-cyy) }; };
+  return (bg ? grow(mk(true)) : null) || grow(mk(false)); }
+
+/* ───── 타원 편집 화면 — ③ 공 지정 · 추적 중 고치기 · 결과에서 고치기가 같이 쓴다(좌표는 원본 픽셀) ─────
+   o = { W, H, k, ell, editable, title(k), draw(k)→그릴 것(video/canvas) · step(k, dk)→새 k, extra(k)→SVG 덧그림, fit(ell, k)→ell, btns, note, under, defR, onKey } */
+class BtEd{
+  constructor(host, o){
+    this.o=o; this.W=o.W; this.H=o.H; this.k=o.k; this.ell=o.ell ? Object.assign({ ang:0 }, o.ell) : null; this.editable=o.editable!==false; this.z=1; this.tx=0; this.ty=0;
+    host.innerHTML=`<div class="bt-ed">
+      <div class="bt-edh"><b class="bt-edt"></b><span class="bt-eds"></span><span class="gt-sp"></span>
+        <button type="button" class="gt-btn ghost" data-fs="-10" title="10프레임 앞 (Shift + ,)">◀◀</button><button type="button" class="gt-btn ghost" data-fs="-1" title="1프레임 앞 ( , )">◀</button><button type="button" class="gt-btn ghost" data-fs="1" title="1프레임 뒤 ( . )">▶</button><button type="button" class="gt-btn ghost" data-fs="10" title="10프레임 뒤 (Shift + .)">▶▶</button>${o.headBtns||''}</div>
+      <div class="bt-stage bt-edst" tabindex="0"><div class="bt-wrap"><canvas class="bt-edcv"></canvas><svg class="bt-svg"></svg></div><canvas class="bt-loupe" width="140" height="140" hidden></canvas><div class="bt-sload" hidden><div class="tr-spin"></div><span>장면을 불러오는 중…</span></div></div>
+      ${o.under||''}
+      <div class="bt-edc"${this.editable?'':' hidden'}>
+        <label class="bt-sl" title="반지름(원본 px) — 납작함은 그대로">크기 <input type="range" data-e="R" min="1" step="0.1"><output></output></label>
+        <label class="bt-sl" title="0 = 동그라미 · 클수록 납작(번진 공)">납작함 <input type="range" data-e="ecc" min="0" max="0.92" step="0.01"><output></output></label>
+        <label class="bt-sl" title="긴 축의 기울기">기울기 <input type="range" data-e="ang" min="-90" max="90" step="1"><output></output></label>
+        <span class="bt-xy">x <input type="number" class="bt-in" data-e="x" step="0.5"> y <input type="number" class="bt-in" data-e="y" step="0.5"></span>
+        ${o.fit?'<button type="button" class="gt-btn ghost" data-fit title="둘레에서 공 테두리를 찾아 위치 · 크기 · 모양을 맞춰요">자동 맞춤</button>':''}
+      </div>
+      <div class="bt-edb"><small class="bt-note bt-edn">${o.note||''}</small><span class="gt-sp"></span>${o.btns||''}</div>
+    </div>`;
+    this.root=host.firstElementChild; this.st=this.root.querySelector('.bt-stage'); this.wrap=this.root.querySelector('.bt-wrap'); this.cv=this.root.querySelector('.bt-edcv'); this.svg=this.root.querySelector('.bt-svg');
+    this.cv.width=this.W; this.cv.height=this.H; this.wrap.style.width=this.W+'px'; this.wrap.style.height=this.H+'px';
+    this.svg.setAttribute('viewBox', `0 0 ${this.W} ${this.H}`); this.svg.setAttribute('width', this.W); this.svg.setAttribute('height', this.H);
+    this.root.querySelectorAll('[data-fs]').forEach(b=>b.onclick=()=>this.stepBy(+b.dataset.fs));
+    const fb=this.root.querySelector('[data-fit]'); if(fb) fb.onclick=async ()=>{ if(!this.ell) return; const e=await o.fit(Object.assign({}, this.ell), this.k); if(e){ this.ell=e; this.changed(); say('공 테두리에 맞췄어요.'); } else say('둘레에서 공 테두리를 찾지 못했어요 — 손으로 맞춰 주세요.'); };
+    this.root.querySelectorAll('.bt-edc [data-e]').forEach(inp=>inp.oninput=()=>this.fromInputs(inp));
+    this.bind(); this.ro=new ResizeObserver(()=>{ if(this._zoomed && this.ell) this.zoomTo(this.ell, this._zf||5); else this.fit(); }); this.ro.observe(this.st);
+  }
+  destroy(){ try{ this.ro.disconnect(); }catch(e){} }
+  setEditable(on){ this.editable=!!on; this.root.querySelector('.bt-edc').hidden=!on; this.paint(); }
+  async show(k){ const ld=this.root.querySelector('.bt-sload'), my=(this._q=(this._q||0)+1); const t=setTimeout(()=>{ if(my===this._q) ld.hidden=false; }, 150);
+    let src=null; try{ src=await this.o.draw(k); }catch(e){} clearTimeout(t); if(my!==this._q) return; ld.hidden=true;
+    if(src){ const g=this.cv.getContext('2d'); try{ g.drawImage(src, 0, 0, this.W, this.H); }catch(e){} }
+    this.k=k; this.root.querySelector('.bt-edt').textContent=this.o.title ? this.o.title(k) : ''; if(this.o.onShow) this.o.onShow(k, this); this.paint(); if(!this._fitted){ this._fitted=true; this.fit(); } }
+  async stepBy(dk){ if(this._busy) return; this._busy=true; try{ const k=this.o.step ? this.o.step(this.k, dk) : this.k+dk; if(k!=null && k!==this.k) await this.show(k); } finally{ this._busy=false; } }
+  fit(){ this._zoomed=false; const w=this.st.clientWidth, h=this.st.clientHeight; if(!w || !h) return; this.z=Math.min(w/this.W, h/this.H)*0.98; this.tx=(w-this.W*this.z)/2; this.ty=(h-this.H*this.z)/2; this.apply(); }
+  zoomTo(e, f){ if(!e) return; this._zoomed=true; this._zf=f; const w=this.st.clientWidth, h=this.st.clientHeight, z=clamp(Math.min(w, h)/(2*f*Math.max(e.rx, e.ry, 4)), 0.05, 16); this.z=z; this.tx=w/2-e.x*z; this.ty=h/2-e.y*z; this.apply(); }
+  apply(){ this.wrap.style.transform=`translate(${this.tx}px,${this.ty}px) scale(${this.z})`; this.paint(); }
+  toImg(ev){ const r=this.wrap.getBoundingClientRect(); return [ (ev.clientX-r.left)/r.width*this.W, (ev.clientY-r.top)/r.height*this.H ]; }
+  handles(){ const e=this.ell; if(!e) return null; const c=Math.cos(e.ang), s=Math.sin(e.ang); return { A:[e.x+e.rx*c, e.y+e.rx*s], B:[e.x-e.ry*s, e.y+e.ry*c] }; }
+  paint(){ const k=1/this.z, e=this.ell; let h=this.o.extra ? this.o.extra(this.k, k) : '';
+    if(e){ const deg=e.ang*180/Math.PI, col=this.o.color ? this.o.color(this.k) : '#00e05a', dash=this.o.dash && this.o.dash(this.k) ? ` stroke-dasharray="${5*k} ${4*k}"` : '';
+      h+=`<ellipse cx="${e.x}" cy="${e.y}" rx="${e.rx}" ry="${e.ry}" transform="rotate(${deg} ${e.x} ${e.y})" fill="none" stroke="#000" stroke-opacity=".55" stroke-width="${4*k}"/><ellipse cx="${e.x}" cy="${e.y}" rx="${e.rx}" ry="${e.ry}" transform="rotate(${deg} ${e.x} ${e.y})" fill="${col}" fill-opacity=".08" stroke="${col}" stroke-width="${2*k}"${dash}/>`+
+        `<path d="M${e.x-5*k} ${e.y}h${10*k}M${e.x} ${e.y-5*k}v${10*k}" stroke="${col}" stroke-width="${1.5*k}"/>`;
+      if(this.editable){ const H=this.handles(); h+=`<line x1="${e.x}" y1="${e.y}" x2="${H.A[0]}" y2="${H.A[1]}" stroke="${col}" stroke-width="${k}" stroke-dasharray="${3*k} ${3*k}"/><circle cx="${H.A[0]}" cy="${H.A[1]}" r="${6*k}" fill="${col}" stroke="#000" stroke-width="${1.2*k}"/><circle cx="${H.B[0]}" cy="${H.B[1]}" r="${5.5*k}" fill="#fff" stroke="${col}" stroke-width="${2*k}"/>`; } }
+    this.svg.innerHTML=h; this.syncInputs(); }
+  syncInputs(){ const e=this.ell, r=this.root; if(!e || !this.editable) return; const set=(n,v,txt)=>{ const i=r.querySelector(`[data-e="${n}"]`); if(!i || document.activeElement===i) return; i.value=v; const o=i.parentNode.querySelector('output'); if(o) o.textContent=txt; };
+    const R=Math.max(e.rx, e.ry), ecc=Math.sqrt(Math.max(0, 1-Math.pow(Math.min(e.rx,e.ry)/R, 2)));
+    const ri=r.querySelector('[data-e="R"]'); if(ri) ri.max=Math.max(40, Math.ceil(R*3), Math.ceil(0.08*this.W));
+    set('R', R.toFixed(1), R.toFixed(1)+' px'); set('ecc', ecc.toFixed(2), ecc.toFixed(2)); let a=(e.rx>=e.ry ? e.ang : e.ang+Math.PI/2)*180/Math.PI; a=((a+90)%180+180)%180-90; set('ang', Math.round(a), Math.round(a)+'°');
+    set('x', e.x.toFixed(1)); set('y', e.y.toFixed(1)); }
+  fromInputs(inp){ const e=this.ell; if(!e) return; const v=+inp.value, n=inp.dataset.e; if(!isFinite(v)) return;
+    const R=Math.max(e.rx, e.ry), r=Math.min(e.rx, e.ry), ecc=Math.sqrt(Math.max(0, 1-(r/R)*(r/R)));
+    let major=R, minor=r, a=e.rx>=e.ry ? e.ang : e.ang+Math.PI/2;
+    if(n==='R'){ const f=v/R; major=R*f; minor=r*f; } else if(n==='ecc'){ minor=major*Math.sqrt(1-v*v); } else if(n==='ang'){ a=v*Math.PI/180; } else if(n==='x'){ e.x=v; } else if(n==='y'){ e.y=v; }
+    if(n==='R' || n==='ecc' || n==='ang'){ e.rx=Math.max(0.8, major); e.ry=Math.max(0.8, minor); e.ang=a; }
+    const o=inp.parentNode.querySelector('output'); if(o) o.textContent= n==='R' ? (+v).toFixed(1)+' px' : n==='ecc' ? (+v).toFixed(2) : n==='ang' ? Math.round(v)+'°' : '';
+    this.changed(); }
+  changed(){ this.paint(); if(this.o.onChange) this.o.onChange(this.ell, this.k); }
+  loupe(p){ const c=this.root.querySelector('.bt-loupe'); const g=c.getContext('2d'), S=140, R=Math.max(14, this.ell ? 1.6*Math.max(this.ell.rx, this.ell.ry) : 20); c.hidden=false; g.imageSmoothingEnabled=false; g.fillStyle='#000'; g.fillRect(0,0,S,S);
+    try{ g.drawImage(this.cv, p[0]-R, p[1]-R, 2*R, 2*R, 0, 0, S, S); }catch(e){}
+    if(this.ell){ const e=this.ell, f=S/(2*R); g.save(); g.translate(S/2+(e.x-p[0])*f, S/2+(e.y-p[1])*f); g.rotate(e.ang); g.strokeStyle='#00e05a'; g.lineWidth=1.5; g.beginPath(); g.ellipse(0,0,e.rx*f,e.ry*f,0,0,7); g.stroke(); g.restore(); }
+    g.strokeStyle='rgba(255,45,45,.8)'; g.lineWidth=1; g.beginPath(); g.moveTo(S/2,0); g.lineTo(S/2,S); g.moveTo(0,S/2); g.lineTo(S,S/2); g.stroke();
+    const st=this.st.getBoundingClientRect(), r=this.wrap.getBoundingClientRect(), sx=r.left-st.left+p[0]/this.W*r.width, sy=r.top-st.top+p[1]/this.H*r.height;
+    c.style.left=(sx+24+S>st.width ? sx-24-S : sx+24)+'px'; c.style.top=clamp(sy-S/2, 4, st.height-S-4)+'px'; }
+  bind(){ const st=this.st; let drag=null;
+    st.addEventListener('wheel', e=>{ e.preventDefault(); const r=st.getBoundingClientRect(), mx=e.clientX-r.left, my=e.clientY-r.top, f=Math.exp(-e.deltaY*0.0015), z=clamp(this.z*f, 0.05, 24); this._zoomed=false; this.tx=mx-(mx-this.tx)*z/this.z; this.ty=my-(my-this.ty)*z/this.z; this.z=z; this.apply(); }, { passive:false });
+    st.addEventListener('pointerdown', ev=>{ st.focus();
+      if(ev.button===1 || ev.button===2 || this._space || !this.editable){ if(ev.button===0 && !this.editable && this.o.onPick){ this.o.onPick(this.toImg(ev), this.k); } ev.preventDefault(); drag={ pan:true, x:ev.clientX, y:ev.clientY, tx:this.tx, ty:this.ty }; st.setPointerCapture(ev.pointerId); return; }
+      if(ev.button!==0) return; ev.preventDefault(); const p=this.toImg(ev), hr=9/this.z;
+      if(!this.ell){ const R=this.o.defR||12; this.ell={ x:p[0], y:p[1], rx:R, ry:R, ang:0 }; drag={ h:'c', p0:p, e0:Object.assign({}, this.ell) }; }
+      else { const H=this.handles(), e=this.ell, c=Math.cos(e.ang), s=Math.sin(e.ang), u=((p[0]-e.x)*c+(p[1]-e.y)*s)/e.rx, v=(-(p[0]-e.x)*s+(p[1]-e.y)*c)/e.ry;
+        if(Math.hypot(p[0]-H.A[0], p[1]-H.A[1])<hr) drag={ h:'A' }; else if(Math.hypot(p[0]-H.B[0], p[1]-H.B[1])<hr) drag={ h:'B' };
+        else if(u*u+v*v<=1.15) drag={ h:'c', p0:p, e0:Object.assign({}, e) };
+        else { e.x=p[0]; e.y=p[1]; drag={ h:'c', p0:p, e0:Object.assign({}, e) }; } }
+      st.setPointerCapture(ev.pointerId); this.loupe(p); this.changed(); });
+    st.addEventListener('pointermove', ev=>{ if(!drag) return; if(drag.pan){ this.tx=drag.tx+ev.clientX-drag.x; this.ty=drag.ty+ev.clientY-drag.y; return this.apply(); }
+      const p=this.toImg(ev), e=this.ell;
+      if(drag.h==='c'){ e.x=clamp(drag.e0.x+p[0]-drag.p0[0], 0, this.W); e.y=clamp(drag.e0.y+p[1]-drag.p0[1], 0, this.H); }
+      else if(drag.h==='A'){ const dx=p[0]-e.x, dy=p[1]-e.y; if(ev.shiftKey){ e.rx=Math.max(0.8, Math.abs(dx*Math.cos(e.ang)+dy*Math.sin(e.ang))); } else { e.rx=Math.max(0.8, Math.hypot(dx, dy)); e.ang=Math.atan2(dy, dx); } }
+      else if(drag.h==='B'){ const dx=p[0]-e.x, dy=p[1]-e.y; e.ry=Math.max(0.8, Math.abs(-dx*Math.sin(e.ang)+dy*Math.cos(e.ang))); }
+      this.loupe(drag.h==='c' ? [e.x, e.y] : p); this.changed(); });
+    const up=()=>{ if(!drag) return; drag=null; this.root.querySelector('.bt-loupe').hidden=true; }; st.addEventListener('pointerup', up); st.addEventListener('pointercancel', up); st.addEventListener('contextmenu', e=>e.preventDefault());
+    st.addEventListener('keydown', ev=>{ if(ev.key===' '){ this._space=true; ev.preventDefault(); return; }
+      if(this.o.onKey && this.o.onKey(ev, this)) return;
+      if(ev.key===',' || ev.key==='<'){ ev.preventDefault(); return this.stepBy(ev.shiftKey||ev.key==='<' ? -10 : -1); } if(ev.key==='.' || ev.key==='>'){ ev.preventDefault(); return this.stepBy(ev.shiftKey||ev.key==='>' ? 10 : 1); }
+      if(!this.editable || !this.ell) return; const d=ev.shiftKey ? 5 : 0.5, e=this.ell;
+      if(ev.key==='ArrowLeft'){ e.x-=d; } else if(ev.key==='ArrowRight'){ e.x+=d; } else if(ev.key==='ArrowUp'){ e.y-=d; } else if(ev.key==='ArrowDown'){ e.y+=d; } else if(ev.key==='+' || ev.key==='='){ e.rx*=1.04; e.ry*=1.04; } else if(ev.key==='-'){ e.rx/=1.04; e.ry/=1.04; } else return;
+      ev.preventDefault(); this.changed(); });
+    st.addEventListener('keyup', ev=>{ if(ev.key===' ') this._space=false; }); }
+}
+
 const BT_P0={ rminF:0.006, rmaxF:0.035, fillMin:0.4, lostSec:0.35, minTrackSec:0.3, stopSpeed:0.06, keepAfterStop:0.5 };
 
 /* ───────────────── 창 ───────────────── */
@@ -30723,16 +31044,16 @@ class BatchTrack{
   constructor(body, win){
     this.body=body; this.win=win; this.items=[]; this.step='pick'; this.cur=0; this.running=false; this.z=1; this.tx=0; this.ty=0;
     this.build();
-    win.onResize=()=>{ if(this.step==='scale') this.fitView(); if(this.step==='result' && this.sel!=null) this.paintDetail(); };
+    win.onResize=()=>{ if(this.step==='scale') this.fitView(); if(this.step==='result' && this.sel!=null && !this.rv) this.paintDetail(); if(this.rv) this.rvBar(); };
     this.keyH=e=>this.onKey(e); document.addEventListener('keydown', this.keyH);
   }
-  destroy(){ this.stop=true; (this.slots||[]).forEach(x=>{ if(x.pool) x.pool.close(); btUnload(x.v); }); document.removeEventListener('keydown', this.keyH); btUnload(this.sv); this.releaseWake(); }
+  destroy(){ this.stop=true; try{ this.rv && this.rv.ed && this.rv.ed.destroy(); this.te && this.te.ed && this.te.ed.destroy(); }catch(e){} (this.slots||[]).forEach(x=>{ if(x.pool) x.pool.close(); btUnload(x.v); }); document.removeEventListener('keydown', this.keyH); btUnload(this.sv); this.releaseWake(); }
   $(s){ return this.body.querySelector(s); }
   build(){
     this.body.innerHTML=`<div class="bt">
       <div class="gt-tb bt-tb">
         <button type="button" class="gt-btn pri" data-a="pick">${gtI('folder')}영상 고르기</button>
-        <span class="bt-steps"><b data-s="pick">① 영상</b><i>›</i><b data-s="scale">② 축척</b><i>›</i><b data-s="run">③ 자동 추적</b><i>›</i><b data-s="result">④ 결과</b></span>
+        <span class="bt-steps"><b data-s="pick">① 영상</b><i>›</i><b data-s="scale">② 축척</b><i>›</i><b data-s="teach">③ 공 지정</b><i>›</i><b data-s="run">④ 자동 추적</b><i>›</i><b data-s="result">⑤ 결과</b></span>
         <span class="gt-sp"></span>
         <button type="button" class="gt-btn bt-tgt" data-a="target" title="추적 대상 — 모든 영상에 공통"></button>
         <button type="button" class="gt-btn ghost" data-a="pref" title="멈춤 기준 · 찾기 문턱 · 처리 해상도 · 속도 계산 창">설정</button>
@@ -30752,6 +31073,7 @@ class BatchTrack{
     main.addEventListener('drop', e=>{ e.preventDefault(); main.classList.remove('bt-dragon'); if(this.running) return; const fs=[...(e.dataTransfer.files||[])]; if(fs.length) this.addFiles(fs); });
     // 영상 둘 — 축척용 · 처리용 (rVFC가 돌도록 화면 안에 둔다)
     this.sv=document.createElement('video'); this.sv.className='bt-v'; this.sv.muted=true; this.sv.playsInline=true; this.sv.preload='auto';
+    this.svHold=document.createElement('div'); this.svHold.className='bt-svhold'; this.body.querySelector('.bt').appendChild(this.svHold);
     this.paint(); this.paintTgt();
   }
   action(a){
@@ -30775,20 +31097,23 @@ class BatchTrack{
       if(saved && saved.px) sc={ px:true, prefill:true };
       else if(saved && saved.a && saved.b && saved.len>0) sc={ a:saved.a, b:saved.b, len:saved.len, unit:saved.unit, frame:saved.frame, ppu:Math.hypot(saved.a[0]-saved.b[0], saved.a[1]-saved.b[1])/saved.len, prefill:true };
       const rng=saved && saved.rng && saved.rng.b>saved.rng.a ? { a:saved.rng.a, b:saved.rng.b } : null;
-      this.items.push({ file:f, sig, name:f.name.replace(/\.[^.]+$/,''), sc, rng, status:'wait', res:null }); add++; });
+      const teach=saved && saved.teach ? { anchors:(saved.teach.anchors||[]).map(a=>Object.assign({}, a)), skip:!!saved.teach.skip } : null;
+      this.items.push({ file:f, sig, name:f.name.replace(/\.[^.]+$/,''), sc, rng, teach, status:'wait', res:null }); add++; });
     if(!add) return say('이미 고른 영상이에요.');
     if(vids.length<fs.length) say(`영상이 아닌 파일 ${fs.length-vids.length}개는 뺐어요.`);
     if(this.step==='pick' || this.step==='result'){ const first=this.items.findIndex(it=>!it.res); this.go('scale', first<0?0:first); }
     else this.paint();
   }
-  go(step, i){ this.step=step; if(i!=null) this.cur=i; this.paint(); }
+  go(step, i){ if(this.rv){ if(this.rv.ed) this.rv.ed.destroy(); this.rv=null; } if(this.te && this.te.ed && (step!=='teach' || (i!=null && i!==this.cur))){ this.te.ed.destroy(); this.te.ed=null; this.te.mode='grid'; } this.step=step; if(i!=null) this.cur=i; this.paint(); }
   /* ───────── 그리기 ───────── */
   paint(){
-    this.body.querySelectorAll('.bt-steps [data-s]').forEach(b=>{ const order=['pick','scale','run','result']; b.classList.toggle('on', b.dataset.s===this.step); b.classList.toggle('done', order.indexOf(b.dataset.s)<order.indexOf(this.step)); });
+    if(this.sv && this.step!=='scale' && this.svHold && this.sv.parentNode!==this.svHold) this.svHold.appendChild(this.sv);
+    this.body.querySelectorAll('.bt-steps [data-s]').forEach(b=>{ const order=['pick','scale','teach','run','result']; b.classList.toggle('on', b.dataset.s===this.step); b.classList.toggle('done', order.indexOf(b.dataset.s)<order.indexOf(this.step)); });
     this.paintList();
     const M=this.$('.bt-main');
     if(this.step==='pick' || !this.items.length) return this.paintPick(M);
     if(this.step==='scale') return this.paintScale(M);
+    if(this.step==='teach') return this.paintTeach(M);
     if(this.step==='run') return this.paintRun(M);
     if(this.step==='result') return this.paintResult(M);
   }
@@ -30797,14 +31122,14 @@ class BatchTrack{
     const nsc=this.items.filter(it=>it.sc && (it.sc.px || it.sc.ppu)).length;
     L.innerHTML=`<div class="bt-lh">영상 ${this.items.length}개 <small>축척 ${nsc}/${this.items.length}</small></div>`+this.items.map((it,i)=>{
       const sc=it.sc && it.sc.ppu ? `${fmtN(it.sc.len,4)} ${it.sc.unit}` : it.sc && it.sc.px ? 'px' : '';
-      const rg=it.rng ? ` · ${it.rng.a.toFixed(1)}–${it.rng.b.toFixed(1)} s` : '';
+      const rg=it.rng ? ` · ${it.rng.a.toFixed(1)}–${it.rng.b.toFixed(1)} s` : '', na=(it.teach && it.teach.anchors||[]).length, tc= it.teach && it.teach.skip ? ' · 공 자동' : na ? ` · 공 ${na}곳` : ' · <u>공 아직</u>';
       const st={ wait:'', run:'<em class="bt-st run">추적 중</em>', ok:'<em class="bt-st ok">완료</em>', warn:'<em class="bt-st warn">확인</em>', fail:'<em class="bt-st fail">실패</em>', skip:'<em class="bt-st">건너뜀</em>' }[it.status]||'';
-      return `<button type="button" class="bt-it${i===this.cur && this.step!=='pick'?' on':''}" data-i="${i}"><span class="bt-n">${i+1}</span><span class="bt-nm" title="${esc(it.file.name)}">${esc(it.name)}<small>${sc ? '축척 '+esc(sc) : '<u>축척 아직</u>'}${rg}</small></span>${st}${this.running?'':`<span class="bt-x" data-x="${i}" title="목록에서 빼기">×</span>`}</button>`; }).join('');
+      return `<button type="button" class="bt-it${i===this.cur && this.step!=='pick'?' on':''}" data-i="${i}"><span class="bt-n">${i+1}</span><span class="bt-nm" title="${esc(it.file.name)}">${esc(it.name)}<small>${sc ? '축척 '+esc(sc) : '<u>축척 아직</u>'}${rg}${tc}</small></span>${st}${this.running?'':`<span class="bt-x" data-x="${i}" title="목록에서 빼기">×</span>`}</button>`; }).join('');
     L.querySelectorAll('.bt-it').forEach(b=>b.onclick=e=>{ const i=+b.dataset.i;
       if(e.target.closest('[data-x]')){ if(this.running) return; this.items.splice(i,1); if(this.cur>=this.items.length) this.cur=Math.max(0,this.items.length-1); if(!this.items.length) this.step='pick'; return this.paint(); }
       if(this.running) { this.cur=i; return this.paintList(); }
       if(this.step==='result' && this.items[i].res){ this.cur=i; this.sel=i; return this.paint(); }
-      this.go('scale', i); });
+      this.go(this.step==='teach' ? 'teach' : 'scale', i); });
   }
   paintPick(M){
     const P=btPref(), T=btTarget(P.target);
@@ -30817,7 +31142,8 @@ class BatchTrack{
       <button type="button" class="gt-btn pri bt-big" data-a="pick">${gtI('folder')}영상 여러 개 고르기</button>
       <ol class="bt-how">
         <li><b>영상마다 축척 · 범위</b> — 길이를 아는 구간(자 · 눈금)을 끌고 실제 길이를 넣고, 시간 막대의 손잡이로 추적할 구간만 남겨요(짧을수록 빨라요).</li>
-        <li><b>자동 추적</b> — 배경과 다른 ${T.shape==='box'?'각진':'둥근'} 물체를 프레임마다 찾아 이어요. 처음엔 안 보이거나, 나왔다 사라졌다 다시 나와도 돼요.</li>
+        <li><b>공 지정</b> — 영상마다 서로 다른 장면 3~4장과 찾은 공 후보를 보여 줘요. 맞는 공을 고르고 크기 · 모양 · 위치를 다듬어 지정하면 그 공을 배워요(다음 영상부터 ★추천).</li>
+        <li><b>자동 추적</b> — 지정한 공을 바로 앞 위치 둘레에서만 찾아 따라가요(멀리 튀지 않아요). 추적 중이든 끝난 뒤든 [고치기]로 멈추고 '여기부터 다시'를 시킬 수 있어요.</li>
         <li><b>궤적 고르기</b> — ${rule}.</li>
         <li><b>결과</b> — 영상마다 t · 위치 · 변위 s · 속도 v 표, 확인 그림, 그래프 그리기로 보내기, CSV.</li>
       </ol>
@@ -30869,8 +31195,8 @@ class BatchTrack{
         <button type="button" class="gt-btn ghost" data-b="samerg"${this.cur && this.items[this.cur-1].rng?'':' disabled'} title="앞 영상과 같은 시각 범위">앞 영상 범위 그대로</button>
         <button type="button" class="gt-btn ghost" data-b="px" title="축척 없이 픽셀 단위로">축척 없이(px)</button>
         <span class="gt-sp"></span>
-        ${this.cur<n-1?'<button type="button" class="gt-btn pri" data-b="next">이 축척으로 → 다음 영상</button>':''}
-        <button type="button" class="gt-btn${this.cur<n-1?'':' pri'} bt-gogo" data-b="run" title="모든 영상에 축척을 정해야 시작할 수 있어요 — 이 영상의 축척도 함께 저장해요">${this.cur<n-1?'':'이 축척으로 → '}▶ 모두 자동 추적</button>
+        <button type="button" class="gt-btn pri" data-b="next" title="이 축척으로 저장하고 이 영상에서 공을 지정해요">이 축척으로 → 공 지정</button>
+        <button type="button" class="gt-btn bt-gogo" data-b="run" title="모든 영상에 축척 · 공 지정(또는 '지정 없이 자동')이 있어야 시작해요 — 이 영상의 축척도 함께 저장해요">▶ 모두 자동 추적</button>
       </div>
     </div>`;
     const W=this.$('.bt-wrap'); W.appendChild(this.sv); this.svg=document.createElementNS('http://www.w3.org/2000/svg','svg'); this.svg.setAttribute('class','bt-svg'); W.appendChild(this.svg);
@@ -30884,7 +31210,7 @@ class BatchTrack{
   async openScaleVideo(it){
     const my=(this._sq=(this._sq||0)+1), v=this.sv, ld=this.$('.bt-sload');
     if(this._svSig!==it.sig){ btUnload(v); this._svSig=null;
-      try{ await btLoad(v, it.file); }catch(why){ if(my!==this._sq) return; ld.innerHTML=`<b>${esc(BT_ERR[why]||'영상을 열지 못했어요')}</b><small>${esc(BT_CODEC_HINT)}</small><button type="button" class="gt-btn" data-skip>이 영상 건너뛰기</button>`; ld.querySelector('[data-skip]').onclick=()=>{ it.status='skip'; it.sc={ px:true, skip:true }; this.scaleBtn('next', true); }; return; }
+      try{ await btLoad(v, it.file); }catch(why){ if(my!==this._sq) return; ld.innerHTML=`<b>${esc(BT_ERR[why]||'영상을 열지 못했어요')}</b><small>${esc(BT_CODEC_HINT)}</small><button type="button" class="gt-btn" data-skip>이 영상 건너뛰기</button>`; ld.querySelector('[data-skip]').onclick=()=>{ it.status='skip'; it.sc={ px:true, skip:true }; this.nextScale(); }; return; }
       if(my!==this._sq) return; this._svSig=it.sig; it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration; }
     ld.hidden=true;
     const W=this.$('.bt-wrap'); W.style.width=it.W+'px'; W.style.height=it.H+'px'; this.svg.setAttribute('viewBox', `0 0 ${it.W} ${it.H}`); this.svg.setAttribute('width', it.W); this.svg.setAttribute('height', it.H);
@@ -30949,19 +31275,19 @@ class BatchTrack{
     const g=this.$('.bt-gogo'); if(g){ const ok=this.allScaled(true); g.classList.toggle('bt-dim', !ok); } }
   curScale(){ const px=this.pxLen(), len=+this.$('.bt-lin').value, u=this.$('.bt-uin').value; if(!this.line || px<3 || !(len>0)) return null; return { a:this.line.a.map(v=>+v.toFixed(2)), b:this.line.b.map(v=>+v.toFixed(2)), len, unit:u, ppu:px/len, frame:(()=>{ const it=this.items[this.cur]; return it && it.dur && this.ph!=null ? +(this.ph/it.dur).toFixed(4) : 0.5; })() }; }
   allScaled(withCur){ return this.items.length>0 && this.items.every((it,i)=>(withCur && i===this.cur && this.step==='scale') ? (this.curScale() || (it.sc && it.sc.px)) : (it.sc && (it.sc.px || it.sc.ppu))); }
-  remember(it){ if(!it.sc || it.sc.skip) return; btSave(s=>{ s.sc[it.sig]=Object.assign(it.sc.px ? { px:true } : { a:it.sc.a, b:it.sc.b, len:it.sc.len, unit:it.sc.unit, frame:it.sc.frame }, { rng:it.rng||null, at:Date.now() }); }); }
+  remember(it){ if(!it.sc || it.sc.skip) return; btSave(s=>{ s.sc[it.sig]=Object.assign(it.sc.px ? { px:true } : { a:it.sc.a, b:it.sc.b, len:it.sc.len, unit:it.sc.unit, frame:it.sc.frame }, { rng:it.rng||null, teach:it.teach ? { anchors:it.teach.anchors||[], skip:!!it.teach.skip } : null, at:Date.now() }); }); }
   scaleBtn(b, force){
     const it=this.items[this.cur];
     if(b==='prev'){ this.keepCur(); return this.go('scale', this.cur-1); }
     if(b==='same'){ const p=this.items.slice(0,this.cur).reverse().find(x=>x.sc && x.sc.ppu); if(!p) return; this.line={ a:p.sc.a.slice(), b:p.sc.b.slice() }; this.$('.bt-lin').value=p.sc.len; this.$('.bt-uin').value=p.sc.unit; this.paintLine(); this.paintPx(); return say('앞 영상의 축척을 가져왔어요 — 선이 이 영상의 같은 곳에 놓였는지 확인하세요.', 3500); }
     if(b==='samerg'){ const p=this.items[this.cur-1]; if(!p || !p.rng || !it.dur) return; this.rng={ a:Math.min(p.rng.a, it.dur-0.2), b:Math.min(p.rng.b, it.dur) }; this.saveRange(); this.seekPh(this.rng.a); return say('앞 영상과 같은 시각 범위로 맞췄어요.'); }
-    if(b==='px'){ this.saveRange(); it.sc={ px:true }; this.remember(it); return this.nextScale(); }
+    if(b==='px'){ this.saveRange(); it.sc={ px:true }; this.remember(it); return this.go('teach', this.cur); }
     if(b==='next' || b==='run'){
       if(!force){ this.saveRange(); const s=this.curScale();
         if(!s){ if(it.sc && it.sc.px && !this.line) { /* 픽셀로 둔 영상 */ } else return say(!this.line ? '길이를 아는 구간을 화면에서 끌어 주세요.' : '실제 길이를 넣어 주세요.'); }
         else { it.sc=s; this.remember(it); } }
-      if(b==='run'){ const miss=this.items.findIndex(x=>!(x.sc && (x.sc.ppu || x.sc.px))); if(miss>=0){ say(`${miss+1}번 영상의 축척을 먼저 정해 주세요 (${this.items.filter(x=>!(x.sc && (x.sc.ppu || x.sc.px))).length}개 남음).`, 3500); return this.go('scale', miss); } return this.startRun(); }
-      return this.nextScale();
+      if(b==='run'){ const nr=this.notReady(); if(nr){ say(nr.msg, 3500); return this.go(nr.step, nr.i); } return this.startRun(); }
+      return this.go('teach', this.cur);
     }
   }
   keepCur(){ this.saveRange(); const it=this.items[this.cur], s=this.curScale(); if(it && s){ it.sc=s; } if(it && it.sc) this.remember(it); }
@@ -30976,9 +31302,135 @@ class BatchTrack{
       if(e.key==='ArrowRight'){ e.preventDefault(); this.seekPh(this.ph+st); } else if(e.key==='ArrowLeft'){ e.preventDefault(); this.seekPh(this.ph-st); }
       else if(e.key==='['){ e.preventDefault(); this.setRange('a'); } else if(e.key===']'){ e.preventDefault(); this.setRange('b'); } } }
 
-  /* ───────── ③ 자동 추적 — 영상 여러 개를 동시에(칸마다 video 하나), 칸마다 워커 풀 ───────── */
+  /* ───────── ③ 공 지정 (★DN) — 서로 다른 장면 3~4장 + 찾은 후보 → 고르고 다듬어 지정 → 배움 ───────── */
+  hasTeach(it){ return !!(it && it.teach && (it.teach.skip || (it.teach.anchors||[]).length)); }
+  kOfT(t, fps){ return Math.max(0, Math.round(t*fps-0.5)); }
+  grabProc(v, W, H){ if(!this._pg || this._pg.width!==W || this._pg.height!==H){ this._pg=document.createElement('canvas'); this._pg.width=W; this._pg.height=H; this._pgc=this._pg.getContext('2d', { willReadFrequently:true }); }
+    this._pgc.drawImage(v, 0, 0, W, H); return this._pgc.getImageData(0, 0, W, H).data; }
+  async procAt(k){ const te=this.te; await btSeek(this.sv, k, te.fps); return new Uint8ClampedArray(this.grabProc(this.sv, te.W, te.H)); }
+  paintTeach(M){
+    const it=this.items[this.cur]; if(!it) return; const n=this.items.length;
+    M.innerHTML=`<div class="bt-te">
+      <div class="bt-sch"><b>${this.cur+1} / ${n} · ${esc(it.file.name)}</b><small><b>공 지정</b> — 서로 다른 장면에서 찾은 공 후보예요. 맞는 공(번호)을 누르면 크게 열려요 → 크기 · 모양 · 위치를 다듬고 <b>[여기라고 지정]</b>. 여러 장면에서 지정할수록 더 잘 따라가요. 후보가 없으면 장면에서 공을 직접 누르세요.</small></div>
+      <div class="bt-teb"></div>
+      <div class="bt-tea"></div>
+      <div class="bt-scbtn">
+        <button type="button" class="gt-btn ghost" data-t="back">← 축척 · 범위</button>
+        <button type="button" class="gt-btn ghost" data-t="more" title="같은 범위에서 다른 장면을 골라 보여 줘요">↻ 다른 장면</button>
+        <button type="button" class="gt-btn ghost" data-t="rec" title="앞 영상들에서 배운 공과 가장 닮은 후보를 바로 지정해요(지정한 뒤에도 고칠 수 있어요)" hidden>★ 추천 후보로 지정</button>
+        <button type="button" class="gt-btn ghost" data-t="skip" title="이 영상은 공을 지정하지 않고 예전처럼 규칙으로 골라요">지정 없이 자동</button>
+        <span class="gt-sp"></span>
+        ${this.cur<n-1?'<button type="button" class="gt-btn pri" data-t="next">다음 영상 →</button>':''}
+        <button type="button" class="gt-btn${this.cur<n-1?'':' pri'} bt-gogo" data-t="run">▶ 모두 자동 추적</button>
+      </div></div>`;
+    M.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>this.teachBtn(b.dataset.t));
+    this.paintAnchors(); this.paintTeachBtns();
+    if(this.te && this.te.sig===it.sig && this.te.frames) this.teachGrid(); else this.prepTeach(it);
+  }
+  async prepTeach(it, more){
+    const my=(this._tq=(this._tq||0)+1), v=this.sv, P=btParams(); if(this.te && this.te.ed){ this.te.ed.destroy(); this.te.ed=null; }
+    const B=()=>this.$('.bt-teb'), live=()=>my===this._tq && this.step==='teach' && this.items[this.cur]===it;
+    const msg=t=>{ const b=B(); if(live() && b) b.innerHTML=`<div class="bt-teload"><div class="tr-spin"></div><span>${esc(t)}</span></div>`; };
+    msg('영상을 여는 중…');
+    if(this._svSig!==it.sig){ btUnload(v); this._svSig=null;
+      try{ await btLoad(v, it.file); }catch(why){ if(!live()) return; B().innerHTML=`<div class="bt-teload"><b>${esc(BT_ERR[why]||'영상을 열지 못했어요')}</b><small>${esc(BT_CODEC_HINT)}</small></div>`; return; }
+      if(!live()) return; this._svSig=it.sig; it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration; }
+    if(!it.fps){ msg('프레임 속도 재는 중…'); let fr={ fps:30, guessed:true }; try{ fr=await Tracker.prototype.measureFps.call({ video:v }); }catch(e){} if(!live()) return; it.fps=fr.fps; it.fpsGuess=fr.guessed; }
+    const fps=it.fps, N=Math.max(1, Math.floor(it.dur*fps+1e-6)), ka=it.rng ? clamp(Math.floor(it.rng.a*fps), 0, N-1) : 0, kb=it.rng ? clamp(Math.ceil(it.rng.b*fps), ka, N-1) : N-1;
+    const pw=Math.min(P.pw, it.W), sc=pw/it.W, W=Math.round(it.W*sc), H=Math.round(it.H*sc);
+    let bg=it._bg && it._bg.W===W && it._bg.H===H ? it._bg.bg : null;
+    if(!bg){ const K=Math.min(15, N), idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1, K-1))))], S=[];
+      for(let j=0;j<idx.length;j++){ msg(`배경 만드는 중 ${j+1}/${idx.length}`); await btSeek(v, idx[j], fps); if(!live()) return; const d=this.grabProc(v, W, H), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); }
+      bg=btMedian(S, W, H, null); it._bg={ W, H, bg }; }
+    const NS=Math.min(12, kb-ka+1), off=more ? ((this.te && this.te.sig===it.sig ? this.te.off||0 : 0)+0.37)%1 : 0;
+    const ks=[...new Set(Array.from({ length:NS }, (_,j)=>clamp(Math.round(ka+((j+0.5+off)%NS)/NS*(kb-ka)), ka, kb)))].sort((a,b)=>a-b);
+    const Wk=btWork(W, H), prior=btPriorGet(), samp=[], fw=48, fh=Math.max(8, Math.round(48*H/W));
+    for(let j=0;j<ks.length;j++){ msg(`서로 다른 장면 고르는 중 ${j+1}/${ks.length}`); await btSeek(v, ks[j], fps); if(!live()) return;
+      const px=new Uint8ClampedArray(this.grabProc(v, W, H)), dets=btDetect(px, bg, Wk, P);
+      dets.forEach(c=>{ c.sc=btCandScore(px, W, H, c, prior); }); dets.sort((a,b)=>b.sc-a.sc);
+      const f=new Float32Array(fw*fh); for(let y=0;y<fh;y++) for(let x=0;x<fw;x++){ const i=Math.floor((y+0.5)*H/fh)*W+Math.floor((x+0.5)*W/fw); f[y*fw+x]=Math.max(Math.abs(px[i*4]-bg[i*3]), Math.abs(px[i*4+1]-bg[i*3+1]), Math.abs(px[i*4+2]-bg[i*3+2])); }
+      samp.push({ k:ks[j], t:(ks[j]+0.5)/fps, px, cands:dets.slice(0, 6), best:dets.length ? dets[0].sc : 0, f }); }
+    // 가장 공다운 후보가 있는 장면부터 → 이미 고른 장면과 가장 다르게 보이는 장면을 차례로(시간도 범위의 1/10 넘게 떨어지게) → 3~4장
+    const dist=(a,b)=>{ let s=0; for(let i=0;i<a.f.length;i++) s+=Math.abs(a.f[i]-b.f[i]); return s/a.f.length; };
+    const gapK=Math.max(1, Math.round((kb-ka)/10)), rest=samp.slice().sort((a,b)=>b.best-a.best), pick=rest.length ? [rest.shift()] : [];
+    while(pick.length<4 && rest.length){ let bi=-1, bv=-1; rest.forEach((s,i)=>{ if(pick.some(p=>Math.abs(p.k-s.k)<gapK)) return; const d=Math.min(...pick.map(p=>dist(p, s)))+(s.cands.length?3:0); if(d>bv){ bv=d; bi=i; } }); if(bi<0) break; pick.push(rest.splice(bi, 1)[0]); }
+    while(pick.length<Math.min(3, samp.length) && rest.length) pick.push(rest.shift());
+    pick.sort((a,b)=>a.k-b.k);
+    this.te={ sig:it.sig, W, H, sc, fps, N, ka, kb, bg, off, thr:P.thr, frames:pick.map(s=>({ k:s.k, t:s.t, px:s.px, cands:s.cands })), mode:'grid' };
+    this.teRec(); this.teachGrid();
+  }
+  /* 배운 공과 가장 닮은 후보(0.55 넘을 때만) = 추천 */
+  teRec(){ const te=this.te, prior=btPriorGet(); te.prior=!!prior; te.rec=null; if(!prior) return;
+    te.frames.forEach((f,j)=>{ f.cands.forEach(c=>{ c.sc=btCandScore(f.px, te.W, te.H, c, prior); }); f.cands.sort((a,b)=>b.sc-a.sc); f.cands.forEach(c=>{ if(c.sc>=0.55 && (!te.rec || c.sc>te.rec.c.sc)) te.rec={ j, c }; }); }); }
+  teachGrid(){ const te=this.te, it=this.items[this.cur], B=this.$('.bt-teb'); if(!te || !B || !it || te.sig!==it.sig) return; te.mode='grid'; if(te.ed){ te.ed.destroy(); te.ed=null; }
+    const A=(it.teach && it.teach.anchors)||[], N='①②③④⑤⑥';
+    B.innerHTML=`<div class="bt-tegrid n${te.frames.length}">${te.frames.map((f,j)=>{ const has=A.some(a=>this.kOfT(a.t, te.fps)===f.k);
+      return `<div class="bt-tf${has?' on':''}" data-j="${j}"><div class="bt-tfh"><b>장면 ${j+1}</b><span>${trTime(f.t)}</span>${has?'<em>✓ 지정함</em>':''}</div><canvas class="bt-tfc" width="${te.W}" height="${te.H}" title="후보(번호)를 누르면 그 공으로 · 다른 곳을 누르면 그 자리에 직접"></canvas>
+        <div class="bt-tfl">${f.cands.length ? f.cands.map((c,i)=>`<button type="button" class="bt-cb${te.rec && te.rec.c===c ? ' rec' : ''}" data-c="${i}" title="이 후보를 공으로 — 크게 열어 다듬어요">${N[i]}${te.rec && te.rec.c===c ? ' 추천' : ''}</button>`).join('') : '<small>찾은 후보 없음 — 공을 직접 누르세요</small>'}<span class="gt-sp"></span><button type="button" class="gt-btn ghost bt-tfz" data-z title="이 장면을 크게 열어 직접 지정">크게 ⤢</button></div></div>`; }).join('')}</div>
+      <small class="bt-note bt-tenote">${te.prior ? '★ 추천 = 앞에서 배운 공(크기 · 색 · 모양)과 가장 닮은 후보예요.' : '처음이라 둥글고 꽉 찬 덩어리를 앞에 두었어요 — 한 번 지정하면 공의 크기 · 색 · 모양을 배워서 다음 영상부터 가장 닮은 후보에 ★추천을 붙여요.'}</small>`;
+    B.querySelectorAll('.bt-tf').forEach(card=>{ const j=+card.dataset.j, f=te.frames[j], cv=card.querySelector('canvas'); this.drawTeachFrame(cv, f);
+      cv.onclick=e=>{ const r=cv.getBoundingClientRect(), x=(e.clientX-r.left)/r.width*te.W, y=(e.clientY-r.top)/r.height*te.H; let bi=-1, bd=1e9;
+        f.cands.forEach((c,i)=>{ const d=Math.hypot(c.x-x, c.y-y); if(d<Math.max(c.r+6, 10) && d<bd){ bd=d; bi=i; } }); bi>=0 ? this.teachEdit(j, f.cands[bi]) : this.teachEdit(j, null, [x, y]); };
+      card.querySelectorAll('[data-c]').forEach(b=>b.onclick=()=>this.teachEdit(j, f.cands[+b.dataset.c]));
+      card.querySelector('[data-z]').onclick=()=>this.teachEdit(j, null, null); });
+    this.paintAnchors(); this.paintTeachBtns(); }
+  drawTeachFrame(cv, f){ const te=this.te, g=cv.getContext('2d'); g.putImageData(new ImageData(new Uint8ClampedArray(f.px), te.W, te.H), 0, 0);
+    const it=this.items[this.cur], A=(it.teach && it.teach.anchors)||[], sz=Math.max(14, te.W/26); g.lineWidth=Math.max(1.5, te.W/400); g.font=`700 ${sz}px sans-serif`; g.textBaseline='middle'; g.textAlign='center';
+    A.forEach(a=>{ if(this.kOfT(a.t, te.fps)!==f.k) return; g.save(); g.translate(a.x*te.sc, a.y*te.sc); g.rotate(a.ang||0); g.strokeStyle='#00e05a'; g.lineWidth=Math.max(2, te.W/300); g.beginPath(); g.ellipse(0, 0, a.rx*te.sc, a.ry*te.sc, 0, 0, 7); g.stroke(); g.restore(); });
+    f.cands.forEach((c,i)=>{ const rec=te.rec && te.rec.c===c, col=rec ? '#ffd400' : c.strict ? '#ff3b3b' : '#ff9a00'; g.strokeStyle=col; g.lineWidth=rec ? Math.max(3, te.W/200) : Math.max(2, te.W/300);
+      g.beginPath(); g.arc(c.x, c.y, c.r+3, 0, 7); g.stroke(); const lx=clamp(c.x+c.r+sz*0.7, sz, te.W-sz), ly=clamp(c.y-c.r-sz*0.45, sz, te.H-sz);
+      g.fillStyle='rgba(0,0,0,.65)'; g.beginPath(); g.arc(lx, ly, sz*0.72, 0, 7); g.fill(); g.fillStyle=col; g.fillText(String(i+1), lx, ly+1); }); }
+  teachEdit(j, cand, pt){ const te=this.te, it=this.items[this.cur], f=te.frames[j], sc=te.sc; let e=null;
+    if(cand){ const q0={ x:cand.x, y:cand.y, rx:cand.r, ry:cand.r, ang:0 }, fit=btFitEll(f.px, te.W, te.H, te.bg, q0, te.thr);
+      const q=fit && Math.hypot(fit.x-cand.x, fit.y-cand.y)<0.8*cand.r && Math.max(fit.rx, fit.ry)<1.8*cand.r ? fit : q0; e={ x:q.x/sc, y:q.y/sc, rx:q.rx/sc, ry:q.ry/sc, ang:q.ang||0 }; }
+    else if(pt){ const pr=btPriorGet(), R=(pr ? pr.rFrac*te.W : 0.012*te.W)/sc; e={ x:pt[0]/sc, y:pt[1]/sc, rx:R, ry:R, ang:0 }; }
+    else { const a=((it.teach && it.teach.anchors)||[]).find(a=>this.kOfT(a.t, te.fps)===f.k); if(a) e={ x:a.x, y:a.y, rx:a.rx, ry:a.ry, ang:a.ang||0 }; }
+    this.openTeachEd(f.k, e); }
+  openTeachEd(k, e){ const te=this.te, it=this.items[this.cur], B=this.$('.bt-teb'), sc=te.sc; te.mode='edit'; if(te.ed) te.ed.destroy();
+    const pr=btPriorGet();
+    te.ed=new BtEd(B, { W:it.W, H:it.H, k, ell:e, editable:true, defR:(pr ? pr.rFrac*it.W : 0.012*it.W),
+      title:k=>`${trTime((k+0.5)/te.fps)} · 프레임 ${k}`,
+      draw:async k=>{ await btSeek(this.sv, k, te.fps); return this.sv; }, step:(k,dk)=>clamp(k+dk, te.ka, te.kb),
+      fit:async (e,k)=>{ const px=await this.procAt(k), q=btFitEll(px, te.W, te.H, te.bg, { x:e.x*sc, y:e.y*sc, rx:e.rx*sc, ry:e.ry*sc, ang:e.ang||0 }, te.thr); return q ? { x:q.x/sc, y:q.y/sc, rx:q.rx/sc, ry:q.ry/sc, ang:q.ang } : null; },
+      extra:(k,z)=>((it.teach && it.teach.anchors)||[]).filter(a=>this.kOfT(a.t, te.fps)!==k).map(a=>`<ellipse cx="${a.x}" cy="${a.y}" rx="${a.rx}" ry="${a.ry}" transform="rotate(${(a.ang||0)*180/Math.PI} ${a.x} ${a.y})" fill="none" stroke="#00e05a" stroke-opacity=".35" stroke-width="${1.5*z}" stroke-dasharray="${4*z} ${4*z}"/>`).join(''),
+      note:'공 가운데를 끌어 옮기기 · <b>●</b> 손잡이 = 크기 · 기울기 · <b>○</b> 손잡이 = 납작함 · 공이 아닌 곳을 누르면 그리로 옮김 · 휠 = 확대 · 화살표 = 0.5px(Shift 5px) · <b>, .</b> = 프레임',
+      btns:'<button type="button" class="gt-btn ghost" data-ec>← 장면 고르기로</button><button type="button" class="gt-btn pri" data-eok>여기라고 지정 ✓</button>' });
+    B.querySelector('[data-ec]').onclick=()=>this.teachGrid(); B.querySelector('[data-eok]').onclick=()=>this.teachSave(te.ed.k, te.ed.ell);
+    te.ed.show(k).then(()=>{ if(te.ed && te.ed.ell) te.ed.zoomTo(te.ed.ell, 5); try{ B.querySelector('.bt-stage').focus(); }catch(err){} }); this.paintTeachBtns(); }
+  async teachSave(k, e){ const te=this.te, it=this.items[this.cur]; if(!e) return say('장면에서 공을 먼저 눌러 주세요.'); if(!te) return;
+    const a={ t:+((k+0.5)/te.fps).toFixed(5), x:+e.x.toFixed(2), y:+e.y.toFixed(2), rx:+e.rx.toFixed(2), ry:+e.ry.toFixed(2), ang:+(e.ang||0).toFixed(4) };
+    it.teach=it.teach && !it.teach.skip ? it.teach : { anchors:[] }; it.teach.skip=false; it.teach.anchors=it.teach.anchors.filter(x=>this.kOfT(x.t, te.fps)!==k).concat([a]).sort((p,q)=>p.t-q.t);
+    try{ const px=await this.procAt(k), sc=te.sc; btPriorLearn(btModel(px, te.W, te.H, { x:a.x*sc, y:a.y*sc, rx:a.rx*sc, ry:a.ry*sc, ang:a.ang }, te.bg, te.thr), te.W); }catch(err){}
+    this.remember(it); this.teRec(); this.paintList();
+    if(!te.frames.some(f=>f.k===k)){ const px=await this.procAt(k); te.frames.push({ k, t:(k+0.5)/te.fps, px, cands:[] }); te.frames.sort((p,q)=>p.k-q.k); }
+    say(`지정했어요 (${trTime(a.t)}) — 공의 크기 · 색 · 모양을 배웠어요. 다른 장면에서도 지정하면 더 잘 따라가요.`, 3500); this.teachGrid(); }
+  paintAnchors(){ const it=this.items[this.cur], E=this.$('.bt-tea'); if(!E || !it) return; const A=(it.teach && it.teach.anchors)||[];
+    if(it.teach && it.teach.skip){ E.innerHTML=`<span class="bt-tal">이 영상은 <b>지정 없이 자동</b>(예전 방식 — 규칙으로 궤적 고르기)으로 해요.</span><button type="button" class="gt-btn ghost" data-unskip>되돌리기</button>`; E.querySelector('[data-unskip]').onclick=()=>{ it.teach=null; this.remember(it); this.paintAnchors(); this.paintList(); this.paintTeachBtns(); }; return; }
+    E.innerHTML=`<span class="bt-tal">지정한 곳</span>`+(A.length ? A.map((a,i)=>`<span class="bt-tac" data-a="${i}" title="눌러서 다시 다듬기"><b>✓</b> ${trTime(a.t)} <small>r ${Math.max(a.rx,a.ry).toFixed(1)}px</small><button type="button" data-ax="${i}" title="이 지정 지우기">×</button></span>`).join('') : '<u>아직 없어요 — 위 장면에서 공을 골라 지정하세요</u>');
+    E.querySelectorAll('[data-a]').forEach(c=>c.onclick=ev=>{ const i=+c.dataset.a; if(ev.target.closest('[data-ax]')){ A.splice(i, 1); this.remember(it); this.paintList(); if(this.te && this.te.mode==='grid') this.teachGrid(); else this.paintAnchors(); this.paintTeachBtns(); return; }
+      if(!this.te) return; const a=A[i]; this.openTeachEd(this.kOfT(a.t, this.te.fps), { x:a.x, y:a.y, rx:a.rx, ry:a.ry, ang:a.ang||0 }); }); }
+  paintTeachBtns(){ const M=this.$('.bt-te'); if(!M) return; const it=this.items[this.cur], te=this.te, r=M.querySelector('[data-t="rec"]');
+    if(r) r.hidden=!(te && te.sig===it.sig && te.rec && te.mode==='grid' && !((it.teach && it.teach.anchors)||[]).length);
+    const g=M.querySelector('.bt-gogo'); if(g) g.classList.toggle('bt-dim', !!this.notReady()); }
+  async teachBtn(b){ const it=this.items[this.cur], n=this.items.length;
+    if(b==='back') return this.go('scale', this.cur);
+    if(b==='more') return this.prepTeach(it, true);
+    if(b==='rec'){ const te=this.te; if(!te || !te.rec) return; const f=te.frames[te.rec.j], c=te.rec.c, fit=btFitEll(f.px, te.W, te.H, te.bg, { x:c.x, y:c.y, rx:c.r, ry:c.r, ang:0 }, te.thr), q=fit && Math.hypot(fit.x-c.x, fit.y-c.y)<0.8*c.r && Math.max(fit.rx, fit.ry)<1.8*c.r ? fit : { x:c.x, y:c.y, rx:c.r, ry:c.r, ang:0 };
+      await btSeek(this.sv, f.k, te.fps); return this.teachSave(f.k, { x:q.x/te.sc, y:q.y/te.sc, rx:q.rx/te.sc, ry:q.ry/te.sc, ang:q.ang||0 }); }
+    if(b==='skip'){ it.teach={ anchors:[], skip:true }; this.remember(it); this.paintList(); say('이 영상은 지정 없이 자동(예전 방식)으로 해요.'); return this.cur<n-1 ? this.go('scale', this.cur+1) : (this.paintAnchors(), this.paintTeachBtns()); }
+    if(b==='next'){ if(!this.hasTeach(it)) return say('공을 한 곳 이상 지정하거나 [지정 없이 자동]을 눌러 주세요.'); return this.go('scale', this.cur+1); }
+    if(b==='run'){ const nr=this.notReady(); if(nr){ say(nr.msg, 3500); return this.go(nr.step, nr.i); } return this.startRun(); } }
+  /* 시작할 수 있나 — 안 되면 { step, i, msg } */
+  notReady(){ const s=this.items.findIndex(x=>x.status!=='skip' && !(x.sc && (x.sc.ppu || x.sc.px))); if(s>=0) return { step:'scale', i:s, msg:`${s+1}번 영상의 축척을 먼저 정해 주세요.` };
+    const t=this.items.findIndex(x=>x.status!=='skip' && !this.hasTeach(x)); if(t>=0) return { step:'teach', i:t, msg:`${t+1}번 영상에서 공을 지정하거나 [지정 없이 자동]을 골라 주세요 (${this.items.filter(x=>x.status!=='skip' && !this.hasTeach(x)).length}개 남음).` }; return null; }
+  /* 지정 → 처리 해상도 · 프레임 번호 (범위 안만) */
+  anchorsFor(it, fps, sc, ka, kb){ const A=(it.teach && !it.teach.skip && it.teach.anchors)||[]; return A.map(a=>({ k:this.kOfT(a.t, fps), x:a.x*sc, y:a.y*sc, rx:Math.max(1, a.rx*sc), ry:Math.max(1, a.ry*sc), ang:a.ang||0 })).filter(a=>a.k>=ka && a.k<=kb); }
+  addAnchor(it, k, fps, e){ const a={ t:+((k+0.5)/fps).toFixed(5), x:+e.x.toFixed(2), y:+e.y.toFixed(2), rx:+e.rx.toFixed(2), ry:+e.ry.toFixed(2), ang:+(e.ang||0).toFixed(4) };
+    it.teach=it.teach && !it.teach.skip ? it.teach : { anchors:[] }; it.teach.skip=false; it.teach.anchors=(it.teach.anchors||[]).filter(x=>this.kOfT(x.t, fps)<k).concat([a]); this.remember(it); }
+
+  /* ───────── ④ 자동 추적 — 영상 여러 개를 동시에(칸마다 video 하나), 칸마다 워커 풀 ───────── */
   async startRun(){
-    if(this.running) return; if(!this.allScaled()) return say('모든 영상의 축척을 먼저 정해 주세요.');
+    if(this.running) return; if(!this.allScaled()) return say('모든 영상의 축척을 먼저 정해 주세요.'); const nr0=this.notReady(); if(nr0){ say(nr0.msg, 3500); return this.go(nr0.step, nr0.i); }
     btUnload(this.sv); this._svSig=null;
     const P=btParams(), queue=this.items.map((it,i)=>i).filter(i=>this.items[i].status!=='skip');
     if(!queue.length) return say('추적할 영상이 없어요.');
@@ -31005,26 +31457,40 @@ class BatchTrack{
     M.innerHTML=`<div class="bt-run">
       <div class="bt-rh"><b class="bt-rt"></b><span class="bt-eta"></span><span class="gt-sp"></span><button type="button" class="gt-btn" data-stop>멈추기 (Esc)</button></div>
       <div class="bt-rbar"><i></i></div>
-      <div class="bt-slots n${sl.length}">${sl.map(x=>`<div class="bt-slot" data-s="${x.s}"><div class="bt-sh"><b></b><span></span></div><div class="bt-sbar"><i></i></div><div class="bt-pvw"><div class="bt-pvi"></div><canvas class="bt-pvc"></canvas></div></div>`).join('')}</div>
+      <div class="bt-slots n${sl.length}">${sl.map(x=>`<div class="bt-slot" data-s="${x.s}"><div class="bt-sh"><b></b><span></span><button type="button" class="gt-btn ghost bt-sfix" data-fix="${x.s}" title="이 영상만 잠깐 멈추고 지금 장면에서 공 자리를 고친 뒤 여기부터 다시 따라가요">멈추고 고치기</button></div><div class="bt-sbar"><i></i></div><div class="bt-pvw"><div class="bt-pvi"></div><canvas class="bt-pvc"></canvas></div></div>`).join('')}</div>
       <small class="bt-note">이 창을 화면에 띄워 두세요 — 브라우저 탭을 다른 곳으로 옮기면 영상 읽기가 멈춰서 기다려요. 범위를 좁힐수록, 처리 해상도를 낮출수록 빨라요([설정]).</small>
     </div>`;
     sl.forEach(x=>{ const el=M.querySelector(`.bt-slot[data-s="${x.s}"]`); x.el=el; el.querySelector('.bt-pvi').appendChild(x.v); x.pc=el.querySelector('.bt-pvc'); });
     M.querySelector('[data-stop]').onclick=()=>{ this.stop=true; say('지금 영상까지만 하고 멈춰요…'); };
+    M.querySelectorAll('[data-fix]').forEach(b=>b.onclick=()=>this.slotFix((this.slots||[])[+b.dataset.fix]));
     this.paintOverall();
   }
   slotHead(slot, phase, part){ if(part!=null) slot.frac=clamp(part,0,1); const el=slot.el; if(!el) return; const it=slot.i!=null ? this.items[slot.i] : null;
-    el.querySelector('.bt-sh b').textContent=it ? `${slot.i+1}. ${it.file.name}` : '—'; el.querySelector('.bt-sh span').textContent=phase||'';
+    el.querySelector('.bt-sh b').textContent=it ? `${slot.i+1}. ${it.file.name}` : '—'; el.querySelector('.bt-sh span').textContent=phase||''; const fx=el.querySelector('.bt-sfix'); if(fx) fx.hidden=!(it && this.hasTeach(it) && !(it.teach && it.teach.skip));
     el.querySelector('.bt-sbar i').style.width=(slot.frac*100).toFixed(1)+'%'; this.paintOverall(); }
   paintOverall(){ const t=this.$('.bt-rt'); if(!t || !this.totalN) return; const run=(this.slots||[]).reduce((a,x)=>a+(x.i!=null?x.frac:0),0), f=(this.doneN+run)/this.totalN;
     t.textContent=`${this.doneN} / ${this.totalN}개 끝`; this.$('.bt-rbar i').style.width=clamp(f*100,1,100)+'%';
     const el=(performance.now()-this.runT0)/1000, e=this.$('.bt-eta'); if(e) e.textContent= f>0.03 ? `· 지난 ${btDur(el)} · 남은 시간 약 ${btDur(el*(1-f)/f)}` : `· 지난 ${btDur(el)}`; }
   async waitVisible(){ while(document.hidden && !this.stop) await sleep(300); }
+  /* 지정한 공을 따라간 결과 → 고른 궤적(ch) */
+  guideChoice(G, info, P, times){ const tr=G.track(times); if(tr.f.length<2) return null; info.tracks=[tr];
+    const d=btDescribe(tr, info, P); if(P.rule!=='rail' && d.still>=1 && d.endsAtEnd) d.stopped=true;
+    const holes=G.holes(), lost=holes.reduce((s,[a,b])=>s+(b-a+1), 0)/info.fps, nA=G.anc.size, nr=tr.src.filter(s=>s==='r').length;
+    return { c:{ tr, d }, rule:0, tag:'지정한 공', warn:holes.length>0, n:1,
+      why:`지정한 공을 따라감 — 지정 ${nA}곳`+(holes.length ? ` · 못 찾은 구간 ${holes.length}곳(${lost.toFixed(1)} s) — [프레임 보며 고치기]로 확인하세요` : '')+(nr ? ` · 놓쳤다가 지나온 길에서 다시 잡은 점 ${nr}개` : '') }; }
+  /* 놓쳤을 때만 이 자리에서 바로 배경 빼기 후보(워커 결과를 기다리지 않음) */
+  detNow(slot, px, bg, W, H, P){ if(!slot.wk || slot.wk.W!==W || slot.wk.H!==H) slot.wk=btWork(W, H); return btDetect(px, bg, slot.wk, P); }
+  drawGuide(g, G, k, gp){ if(!G || !G.M) return; const M=G.M; g.save(); g.lineWidth=2.5;
+    if(gp){ g.strokeStyle=gp.src==='u' ? '#b06bff' : '#00e05a'; g.translate(gp.x, gp.y); g.rotate(M.ang); g.beginPath(); g.ellipse(0, 0, M.rx+1.5, M.ry+1.5, 0, 0, 7); g.stroke(); }
+    else if(G.st){ g.strokeStyle='#ff9a00'; g.setLineDash([5, 4]); g.beginPath(); g.arc(G.st.x, G.st.y, M.R*2, 0, 7); g.stroke(); g.setLineDash([]); g.fillStyle='#ff9a00'; g.font='700 13px sans-serif'; g.fillText(G.lost ? '놓침 — 지나온 길에서 찾는 중' : '못 찾음', G.st.x+M.R*2+4, G.st.y); }
+    g.restore(); }
   async trackOne(it, P, slot){
     const v=slot.v; btUnload(v);
     try{ await btLoad(v, it.file); }catch(why){ return { fail:true, why:(BT_ERR[why]||'영상을 열지 못했어요')+' — '+BT_CODEC_HINT }; }
     it.W=v.videoWidth; it.H=v.videoHeight; it.dur=v.duration;
-    this.slotHead(slot, '프레임 속도 재는 중…', 0.01);
-    let fr={ fps:30, guessed:true }; try{ fr=await Tracker.prototype.measureFps.call({ video:v }); }catch(e){}
+    let fr={ fps:30, guessed:true };
+    if(it.fps) fr={ fps:it.fps, guessed:!!it.fpsGuess };
+    else { this.slotHead(slot, '프레임 속도 재는 중…', 0.01); try{ fr=await Tracker.prototype.measureFps.call({ video:v }); }catch(e){} it.fps=fr.fps; it.fpsGuess=fr.guessed; }
     if(this.stop) throw new Error('stop');
     const fps=fr.fps, N=Math.max(1, Math.floor(v.duration*fps+1e-6));
     const ka=it.rng ? clamp(Math.floor(it.rng.a*fps), 0, N-1) : 0, kb=it.rng ? clamp(Math.ceil(it.rng.b*fps), ka, N-1) : N-1, NR=kb-ka+1;
@@ -31033,64 +31499,175 @@ class BatchTrack{
     const cv=document.createElement('canvas'); cv.width=W; cv.height=H; const g=cv.getContext('2d', { willReadFrequently:true });
     const pc=slot.pc; if(pc){ pc.width=W; pc.height=H; }
     const grab=()=>{ g.drawImage(v, 0, 0, W, H); return g.getImageData(0,0,W,H).data; };
-    // 배경 표본 — 영상 전체에서 고르게(범위 밖도 — 공이 범위 안에서 오래 멈춰도 깨끗한 바닥이 나오게)
-    const K=Math.min(21, N), idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1,K-1))))], S=[];
-    for(let j=0;j<idx.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); await btSeek(v, idx[j], fps); const d=grab(), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); if(pc) pc.getContext('2d').drawImage(cv,0,0); this.slotHead(slot, `배경 만드는 중 ${j+1}/${idx.length}`, 0.02+0.12*(j+1)/idx.length); }
-    let bg=btMedian(S, W, H, null);
+    const GA=this.anchorsFor(it, fps, scale, ka, kb);
+    // 배경 표본 — 영상 전체에서 고르게(범위 밖도). 공을 지정했고 ③에서 만든 배경이 있으면 그대로
+    let K=0, idx=[], S=null, bg;
+    if(GA.length && it._bg && it._bg.W===W && it._bg.H===H){ bg=it._bg.bg; this.slotHead(slot, '배경 — 공 지정 때 만든 것', 0.14); }
+    else { K=Math.min(21, N); idx=[...new Set(Array.from({ length:K }, (_,j)=>Math.round(j*(N-1)/Math.max(1,K-1))))]; S=[];
+      for(let j=0;j<idx.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); await btSeek(v, idx[j], fps); const d=grab(), rgb=new Uint8Array(W*H*3); for(let i=0,o=0;i<d.length;i+=4,o+=3){ rgb[o]=d[i]; rgb[o+1]=d[i+1]; rgb[o+2]=d[i+2]; } S.push(rgb); if(pc) pc.getContext('2d').drawImage(cv,0,0); this.slotHead(slot, `배경 만드는 중 ${j+1}/${idx.length}`, 0.02+0.12*(j+1)/idx.length); }
+      bg=btMedian(S, W, H, null); if(!(it._bg && it._bg.W===W && it._bg.H===H)) it._bg={ W, H, bg }; }
     const pool=btPool(W, H, P, slot.nW); slot.pool=pool;
     const dets=new Array(N), times=new Array(N);
+    const G=GA.length ? new BtGuide({ W, H, fps, bg, thr:P.thr, anchors:GA }) : null;
+    if(G) for(const a of GA.slice().sort((p,q)=>p.k-q.k)){ if(this.stop) throw new Error('stop'); const t=await btSeek(v, a.k, fps); times[a.k]=t; a.t=t; G.prime(a, grab()); }
+    Object.assign(slot, { G, times, fps, ka, kb, scale, W, H, it });
     let shown=0, cnt=0, total=NR, base=0.14, span=0.76, label='';
     const one=(k, t)=>{ g.drawImage(v, 0, 0, W, H); const id=g.getImageData(0,0,W,H); times[k]=t;
-      const now=performance.now(), show=pc && now-shown>160; if(show){ shown=now; pc.getContext('2d').putImageData(id,0,0); }
+      const gp=G ? G.frame(k, t, id.data, G.lost && k%3===0 ? this.detNow(slot, id.data, bg, W, H, P) : null) : null;
+      const now=performance.now(), show=pc && now-shown>160; if(show){ shown=now; const pg=pc.getContext('2d'); pg.putImageData(id,0,0); if(G) this.drawGuide(pg, G, k, gp); }
       pool.send(k, id.data, d=>{ dets[k]=d; cnt++;
-        if(show){ const pg=pc.getContext('2d'); pg.lineWidth=2; d.forEach(q=>{ pg.strokeStyle=q.strict?'#ff2d2d':'#ffb000'; pg.beginPath(); pg.arc(q.x,q.y,q.r,0,7); pg.stroke(); }); }
-        if(cnt%8===0) this.slotHead(slot, `${label} ${Math.min(cnt,total)}/${total}`, base+span*Math.min(1,cnt/total)); }); };
+        if(show && !G){ const pg=pc.getContext('2d'); pg.lineWidth=2; d.forEach(q=>{ pg.strokeStyle=q.strict?'#ff2d2d':'#ffb000'; pg.beginPath(); pg.arc(q.x,q.y,q.r,0,7); pg.stroke(); }); }
+        if(cnt%8===0) this.slotHead(slot, `${label} ${Math.min(cnt,total)}/${total}${G && G.lost ? ' · 놓침' : ''}`, base+span*Math.min(1,cnt/total)); }); };
+    slot.ctl={ pause:false, seekTo:null, pausedK:null, active:false, get stop(){ return slot.owner.stop; } }; slot.owner=this;
     const play=async (a, b, lab, bs, sp)=>{ cnt=0; total=b-a+1; base=bs; span=sp; label=lab; await this.waitVisible();
-      const got=await btPlayPass(v, fps, a, b, one, this, ()=>pool.inflight); await pool.drain(); if(this.stop) throw new Error('stop');
+      slot.ctl.active=true; const got=await btPlayPass(v, fps, a, b, one, slot.ctl, ()=>pool.inflight); slot.ctl.active=false; await pool.drain(); if(this.stop) throw new Error('stop');
       let miss=0; for(let k=a;k<=b;k++) if(!got[k]) miss++; return miss; };
     const tm={}; let t1=performance.now();
-    pool.setBg(bg); const miss1=await play(ka, kb, '공 찾는 중', 0.14, 0.76); tm.p1=performance.now()-t1; tm.miss1=miss1;
+    pool.setBg(bg); const miss1=await play(ka, kb, G ? '지정한 공 따라가는 중' : '공 찾는 중', 0.14, 0.76); tm.p1=performance.now()-t1; tm.miss1=miss1;
     const info={ W, H, scale, fps, fpsGuess:fr.guessed, N, ka, kb, endT:times[kb]!=null ? times[kb] : kb/fps, tracks:[] };
-    const relink=()=>{ info.tracks=btLink(dets, times, fps, P); return btChoose(info, P); };
-    let ch=relink(), refined=false, filled=0;
-    // 공이 오래 멈춰 배경에 섞였으면 → 공 자리를 빼고 배경을 다시 만들어, 궤적이 끊긴 곳부터만 한 번 더
-    if(ch && (P.rule!=='rail' || ch.rule!==1)){ const tr=ch.c.tr, rm=med(tr.r), n=tr.t.length, d=ch.c.d;
-      const absorbed=!d.endsAtEnd && !d.edge && d.speedEnd<0.3*rm, inflated=P.rule==='rail' && Math.max(...tr.r)>1.3*rm;
-      if(absorbed || inflated){
-        // 끝 무렵 지나간 곳(+ 공이 더 굴러가 멈췄을 수 있는 둘레 4r)은, 공이 그곳에 들어온 뒤의 표본을 빼고 중앙값을 낸다
-        let j0=n-1; while(j0>0 && Math.hypot(tr.x[j0-1]-tr.x[n-1], tr.y[j0-1]-tr.y[n-1])<8*rm) j0--;
-        const xs=tr.x.slice(j0), ys=tr.y.slice(j0), pad=4*rm+2;
-        const box=absorbed ? btMaskRect(W, H, Math.min(...xs)-pad, Math.min(...ys)-pad, Math.max(...xs)+pad, Math.max(...ys)+pad) : null, fEnter=tr.f[j0];
-        const masks=idx.map(fk=>{ let best=-1, bd=1e9; for(let q=0;q<n;q++){ const dd=Math.abs(tr.f[q]-fk); if(dd<bd){ bd=dd; best=q; } }
-          let m=bd<=3 ? btMaskCircle(W, H, tr.x[best], tr.y[best], 1.7*rm+2) : null;
-          if(box && fk>=fEnter-3) m=btMergeMask(m, box); return m; });
-        const bg2=btMedian(S, W, H, masks, bg), k2=inflated ? Math.max(ka, tr.f[0]) : Math.max(ka, Math.min(fEnter, tr.f[n-1]-Math.round(0.5*fps)));
-        const keepD=dets.slice(), keepT=times.slice(), keepCh=ch;
-        for(let k=k2;k<=kb;k++){ dets[k]=undefined; }
-        pool.setBg(bg2); t1=performance.now(); await play(k2, kb, '멈춘 공 다시 찾는 중', 0.9, 0.06); tm.p2=performance.now()-t1;
-        info.endT=times[kb]!=null ? times[kb] : kb/fps;
-        const rank=c=>c.rule*2+(c.warn?1:0), ch2=relink();
-        if(ch2 && (rank(ch2)<rank(keepCh) || (rank(ch2)===rank(keepCh) && ch2.c.d.dur>=keepCh.c.d.dur))){ ch=ch2; bg=bg2; refined=true; }
-        else { for(let k=0;k<N;k++){ dets[k]=keepD[k]; times[k]=keepT[k]; } pool.setBg(bg); ch=relink(); } }
+    let ch=null, refined=false, filled=0;
+    if(G){
+      // 첫 지정 앞은 배경 빼기 후보로 거꾸로 → 건너뛴 프레임은 앞뒤 점 사이에서 seek로 메움
+      G.back(dets, times, ka);
+      const gaps=G.gaps(ka, kb, dets).slice(0, 900);
+      for(let j=0;j<gaps.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); const k=gaps[j], t=await btSeek(v, k, fps); if(times[k]==null) times[k]=t; G.fill(k, times[k], grab()); if(j%4===0) this.slotHead(slot, `빠진 프레임 메우는 중 ${j+1}/${gaps.length}`, 0.9+0.1*j/gaps.length); }
+      filled=gaps.length; ch=this.guideChoice(G, info, P, times);
+    } else {
+      const relink=()=>{ info.tracks=btLink(dets, times, fps, P); return btChoose(info, P); };
+      ch=relink();
+      // 공이 오래 멈춰 배경에 섞였으면 → 공 자리를 빼고 배경을 다시 만들어, 궤적이 끊긴 곳부터만 한 번 더
+      if(ch && S && (P.rule!=='rail' || ch.rule!==1)){ const tr=ch.c.tr, rm=med(tr.r), n=tr.t.length, d=ch.c.d;
+        const absorbed=!d.endsAtEnd && !d.edge && d.speedEnd<0.3*rm, inflated=P.rule==='rail' && Math.max(...tr.r)>1.3*rm;
+        if(absorbed || inflated){
+          let j0=n-1; while(j0>0 && Math.hypot(tr.x[j0-1]-tr.x[n-1], tr.y[j0-1]-tr.y[n-1])<8*rm) j0--;
+          const xs=tr.x.slice(j0), ys=tr.y.slice(j0), pad=4*rm+2;
+          const box=absorbed ? btMaskRect(W, H, Math.min(...xs)-pad, Math.min(...ys)-pad, Math.max(...xs)+pad, Math.max(...ys)+pad) : null, fEnter=tr.f[j0];
+          const masks=idx.map(fk=>{ let best=-1, bd=1e9; for(let q=0;q<n;q++){ const dd=Math.abs(tr.f[q]-fk); if(dd<bd){ bd=dd; best=q; } }
+            let m=bd<=3 ? btMaskCircle(W, H, tr.x[best], tr.y[best], 1.7*rm+2) : null;
+            if(box && fk>=fEnter-3) m=btMergeMask(m, box); return m; });
+          const bg2=btMedian(S, W, H, masks, bg), k2=inflated ? Math.max(ka, tr.f[0]) : Math.max(ka, Math.min(fEnter, tr.f[n-1]-Math.round(0.5*fps)));
+          const keepD=dets.slice(), keepT=times.slice(), keepCh=ch;
+          for(let k=k2;k<=kb;k++){ dets[k]=undefined; }
+          pool.setBg(bg2); t1=performance.now(); await play(k2, kb, '멈춘 공 다시 찾는 중', 0.9, 0.06); tm.p2=performance.now()-t1;
+          info.endT=times[kb]!=null ? times[kb] : kb/fps;
+          const rank=c=>c.rule*2+(c.warn?1:0), ch2=relink();
+          if(ch2 && (rank(ch2)<rank(keepCh) || (rank(ch2)===rank(keepCh) && ch2.c.d.dur>=keepCh.c.d.dur))){ ch=ch2; bg=bg2; refined=true; }
+          else { for(let k=0;k<N;k++){ dets[k]=keepD[k]; times[k]=keepT[k]; } pool.setBg(bg); ch=relink(); } }
+      }
+      // 고른 궤적 안에서 건너뛴 프레임만 seek로 메움(전체를 메우면 느리다)
+      if(ch){ const tr=ch.c.tr, a=tr.f[0], b=tr.f[tr.f.length-1], miss=[]; for(let k=a;k<=b;k++) if(dets[k]===undefined) miss.push(k);
+        if(miss.length && miss.length<=600){ for(let j=0;j<miss.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); one(miss[j], await btSeek(v, miss[j], fps)); if(j%4===0) this.slotHead(slot, `빠진 프레임 메우는 중 ${j+1}/${miss.length}`, 0.96+0.04*j/miss.length); }
+          await pool.drain(); filled=miss.length; const c2=relink(); if(c2) ch=c2; } }
     }
-    // 고른 궤적 안에서 건너뛴 프레임만 seek로 메움(전체를 메우면 느리다)
-    if(ch){ const tr=ch.c.tr, a=tr.f[0], b=tr.f[tr.f.length-1], miss=[]; for(let k=a;k<=b;k++) if(dets[k]===undefined) miss.push(k);
-      if(miss.length && miss.length<=600){ for(let j=0;j<miss.length;j++){ if(this.stop) throw new Error('stop'); await this.waitVisible(); one(miss[j], await btSeek(v, miss[j], fps)); if(j%4===0) this.slotHead(slot, `빠진 프레임 메우는 중 ${j+1}/${miss.length}`, 0.96+0.04*j/miss.length); }
-        await pool.drain(); filled=miss.length; const c2=relink(); if(c2) ch=c2; } }
     // 확인 그림 바탕 = 배경(깨끗한 화면)
     const bc=document.createElement('canvas'); bc.width=W; bc.height=H; const bgc=bc.getContext('2d'), im=bgc.createImageData(W,H); for(let i=0,o=0;o<bg.length;i+=4,o+=3){ im.data[i]=bg[o]; im.data[i+1]=bg[o+1]; im.data[i+2]=bg[o+2]; im.data[i+3]=255; } bgc.putImageData(im,0,0);
     tm.all=performance.now()-T0; tm.filled=filled;
     this.slotHead(slot, '끝', 1);
-    const res={ info, P, fps, fpsGuess:fr.guessed, refined, missed:miss1, filled, tm, bgURL:bc.toDataURL('image/jpeg', 0.85), sc:it.sc, rng:it.rng?{ a:it.rng.a, b:it.rng.b }:null, tname:P.tname };
-    if(!ch){ return Object.assign(res, { fail:true, why:'움직이는 물체를 찾지 못했어요 — [추적 대상]이 맞는지, 범위에 물체가 움직이는 장면이 있는지 보거나, [설정]에서 찾기 문턱을 낮춰 보세요.' }); }
+    const res={ info, P, fps, fpsGuess:fr.guessed, refined, missed:miss1, filled, tm, bgURL:bc.toDataURL('image/jpeg', 0.85), sc:it.sc, rng:it.rng?{ a:it.rng.a, b:it.rng.b }:null, tname:P.tname,
+      gt:{ G, dets, times, bg, W, H, scale, fps, ka, kb, N, guided:!!G } };
+    if(!ch){ return Object.assign(res, { fail:true, why: G ? '지정한 공을 따라가지 못했어요 — 결과에서 [프레임 보며 고치기]로 다시 지정해 보세요.' : '움직이는 물체를 찾지 못했어요 — [추적 대상]이 맞는지, 범위에 물체가 움직이는 장면이 있는지 보거나, [설정]에서 찾기 문턱을 낮춰 보세요.' }); }
     return this.applyChoice(res, ch);
   }
+  /* ───────── 추적 중 고치기 — 그 영상만 잠깐 멈추고, 지금 장면에서 공을 다시 지정 → 여기부터 다시 ───────── */
+  async slotFix(slot){
+    if(!slot || slot.fixing) return; if(!slot.G){ return say('이 영상은 공을 지정하지 않아(예전 방식) 추적 중에는 고칠 수 없어요 — 끝난 뒤 결과에서 [프레임 보며 고치기]를 쓰세요.', 4500); }
+    if(!slot.ctl || !slot.ctl.active) return say('이 영상은 지금 따라가는 단계가 아니에요(배경 · 마무리 중) — 끝난 뒤 결과에서 고칠 수 있어요.', 4000);
+    slot.fixing=true; slot.ctl.pause=true;
+    for(let i=0;i<60 && slot.ctl.pausedK==null && slot.ctl.active;i++) await sleep(50);
+    if(slot.ctl.pausedK==null){ slot.fixing=false; slot.ctl.pause=false; return say('이 영상은 막 끝나는 중이라 지금은 못 멈췄어요 — 결과에서 [프레임 보며 고치기]를 쓰세요.', 4000); }
+    const K=slot.ctl.pausedK, G=slot.G, it=slot.it, sc=slot.scale, fps=slot.fps, run=this.$('.bt-run'); if(!run){ slot.fixing=false; slot.ctl.pause=false; return; }
+    const ov=document.createElement('div'); ov.className='bt-fixov'; run.appendChild(ov);
+    const cur=k=>{ const q=G.pts.get(k); if(q) return { x:q.x/sc, y:q.y/sc, rx:G.M.rx/sc, ry:G.M.ry/sc, ang:G.M.ang }; if(G.st) return { x:G.st.x/sc, y:G.st.y/sc, rx:G.M.rx/sc, ry:G.M.ry/sc, ang:G.M.ang }; return null; };
+    let ed=null; const close=resumeAt=>{ if(ed) ed.destroy(); ov.remove(); slot.ctl.seekTo=resumeAt; slot.ctl.pause=false; slot.fixing=false; };
+    ed=new BtEd(ov, { W:it.W, H:it.H, k:K, ell:cur(K), editable:false,
+      title:k=>`${slot.i+1}. ${it.file.name} — ${trTime((k+0.5)/fps)} · 프레임 ${k} ${G.pts.has(k) ? '' : '(못 찾음)'}`,
+      draw:async k=>{ await btSeek(slot.v, k, fps); return slot.v; }, step:(k,dk)=>clamp(k+dk, slot.ka, K),
+      onShow:(k, e)=>{ if(!e.editable) e.ell=cur(k); },
+      fit:async (e,k)=>{ await btSeek(slot.v, k, fps); const px=new Uint8ClampedArray(this.grabProc(slot.v, slot.W, slot.H)), q=btFitEll(px, slot.W, slot.H, G.bg, { x:e.x*sc, y:e.y*sc, rx:e.rx*sc, ry:e.ry*sc, ang:e.ang||0 }, G.thr); return q ? { x:q.x/sc, y:q.y/sc, rx:q.rx/sc, ry:q.ry/sc, ang:q.ang } : null; },
+      extra:(k,z)=>this.pathSvg(G, sc, k, z),
+      note:'이 영상만 잠깐 멈췄어요(다른 영상은 계속). <b>◀ ▶</b>로 앞 장면을 보며 공이 틀어진 곳을 찾고 → <b>[여기서 고치기]</b> → 공 자리를 맞추고 <b>[여기부터 다시 추적]</b>.',
+      btns:'<button type="button" class="gt-btn ghost" data-fx="go">그대로 계속</button><button type="button" class="gt-btn" data-fx="edit">여기서 고치기</button><button type="button" class="gt-btn pri" data-fx="ok" hidden>여기부터 다시 추적</button>' });
+    ov.querySelector('[data-fx="go"]').onclick=()=>close(K+1);
+    ov.querySelector('[data-fx="edit"]').onclick=()=>{ if(!ed.ell){ const R=G.M.R/sc; ed.ell={ x:it.W/2, y:it.H/2, rx:R, ry:R, ang:0 }; } ed.setEditable(true); ov.querySelector('[data-fx="edit"]').hidden=true; ov.querySelector('[data-fx="ok"]').hidden=false; ed.zoomTo(ed.ell, 5); };
+    ov.querySelector('[data-fx="ok"]').onclick=async ()=>{ const k=ed.k, e=ed.ell; if(!e) return; await btSeek(slot.v, k, fps); const px=new Uint8ClampedArray(this.grabProc(slot.v, slot.W, slot.H));
+      G.reanchor(k, slot.times[k]!=null ? slot.times[k] : (k+0.5)/fps, { k, x:e.x*sc, y:e.y*sc, rx:e.rx*sc, ry:e.ry*sc, ang:e.ang||0 }, px); try{ btPriorLearn(G.M, slot.W); }catch(err){}
+      this.addAnchor(it, k, fps, e); close(k+1); say(`${slot.i+1}번 영상 — ${trTime((k+0.5)/fps)}부터 다시 따라가요.`); };
+    await ed.show(K); if(ed.ell) ed.zoomTo(ed.ell, 6);
+  }
+  /* 따라간 길(지금 프레임 앞뒤 1.5초)을 옅게 */
+  pathSvg(G, sc, k, z){ const ks=[...G.pts.keys()].filter(q=>Math.abs(q-k)<=1.5*G.fps).sort((a,b)=>a-b); if(ks.length<2) return '';
+    let d='', prev=null; ks.forEach(q=>{ const p=G.pts.get(q); d+=(prev!=null && q-prev<=G.lostN ? 'L' : 'M')+(p.x/sc).toFixed(1)+' '+(p.y/sc).toFixed(1); prev=q; });
+    return `<path d="${d}" fill="none" stroke="#ffd400" stroke-opacity=".7" stroke-width="${1.6*z}"/>`; }
   applyChoice(res, ch){
     const sc=res.sc && res.sc.ppu ? { ppu:res.sc.ppu, unit:res.sc.unit } : null;
     const tab=btTable(ch.c.tr, ch.c.d, res.info, res.P, sc);
     return Object.assign(res, { fail:false, ch, tab, why:ch.why, warn:!!ch.warn, rule:ch.rule, trackId:ch.c.tr.id });
   }
-  /* ───────── ④ 결과 ───────── */
+  /* ───────── 결과에서 프레임 보며 고치기 — 따라간 자리를 프레임마다 보고, 틀어진 곳에서 다시 지정 → 그 뒤를 다시 따라감 ───────── */
+  async openReview(it){
+    const r=it.res, g=r && r.gt; if(!g) return say('이 결과는 다시 볼 자료가 없어요 — [다시 추적]을 눌러 주세요.');
+    const box=this.$('.bt-det'); if(!box) return; const sc=g.scale, fps=g.fps, v=this.sv;
+    box.innerHTML=`<div class="bt-rv"><div class="bt-rvh"><b>${esc(it.file.name)}</b><span class="bt-why">프레임 보며 고치기</span><span class="bt-rvs"></span><span class="gt-sp"></span><button type="button" class="gt-btn ghost" data-rv="close">결과로 돌아가기</button></div><div class="bt-rvb"><div class="bt-teload"><div class="tr-spin"></div><span>영상을 여는 중…</span></div></div></div>`;
+    box.querySelector('[data-rv="close"]').onclick=()=>{ if(this.rv && this.rv.busy) return say('다시 따라가는 중이에요 — 끝난 뒤에 닫을 수 있어요.'); this.closeReview(); };
+    if(this._svSig!==it.sig){ btUnload(v); this._svSig=null; try{ await btLoad(v, it.file); this._svSig=it.sig; }catch(why){ const b=box.querySelector('.bt-rvb'); if(b) b.innerHTML=`<p class="bt-bad">${esc(BT_ERR[why]||'영상을 열지 못했어요')}</p>`; return; } }
+    const rv=this.rv={ it, g, busy:false, map:new Map() }; this.rvMap();
+    const first=rv.map.size ? Math.min(...rv.map.keys()) : g.ka, B=box.querySelector('.bt-rvb');
+    const ellAt=k=>{ const q=rv.map.get(k); if(!q) return null; const M=g.G && g.G.M; return M ? { x:q.x/sc, y:q.y/sc, rx:M.rx/sc, ry:M.ry/sc, ang:M.ang } : { x:q.x/sc, y:q.y/sc, rx:q.r/sc, ry:q.r/sc, ang:0 }; };
+    rv.ellAt=ellAt;
+    const ed=rv.ed=new BtEd(B, { W:it.W, H:it.H, k:first, ell:null, editable:false,
+      title:k=>`${trTime((k+0.5)/fps)} · 프레임 ${k}`,
+      draw:async k=>{ await btSeek(v, k, fps); return v; }, step:(k,dk)=>clamp(k+dk, g.ka, g.kb),
+      onShow:(k,e)=>{ if(!e.editable) e.ell=ellAt(k); this.rvStatus(k); this.rvBar(); },
+      color:k=>{ const q=rv.map.get(k); return !q ? '#ff9a00' : q.src==='u' ? '#b06bff' : /[rfc]/.test(q.src) ? '#00c8ff' : '#00e05a'; },
+      extra:(k,z)=>this.rvPath(k, z),
+      fit:async (e,k)=>{ await btSeek(v, k, fps); const px=new Uint8ClampedArray(this.grabProc(v, g.W, g.H)), q=btFitEll(px, g.W, g.H, g.bg, { x:e.x*sc, y:e.y*sc, rx:e.rx*sc, ry:e.ry*sc, ang:e.ang||0 }, r.P.thr); return q ? { x:q.x/sc, y:q.y/sc, rx:q.rx/sc, ry:q.ry/sc, ang:q.ang } : null; },
+      under:'<div class="bt-rvbar" title="초록 = 따라감 · 하늘 = 메우거나 다시 잡음 · 보라 = 지정 · 빨강 = 못 찾음 — 누르거나 끌어서 장면 옮기기"><canvas class="bt-rvc"></canvas></div>',
+      headBtns:'<button type="button" class="gt-btn ghost" data-rv="hole" title="다음 못 찾은 곳으로">다음 빈 곳 ▶|</button>',
+      note:'초록 = 따라간 자리 · 보라 = 지정한 곳 · 하늘 = 메우거나 다시 잡은 점 · 주황 점선 = 못 찾음. 틀어진 곳에서 <b>[여기서 고치기]</b> → 공 자리를 맞추고 <b>[여기부터 다시 추적]</b> (그 앞은 그대로 둬요).',
+      btns:'<button type="button" class="gt-btn" data-rv="edit">여기서 고치기</button><button type="button" class="gt-btn ghost" data-rv="cancel" hidden>취소</button><button type="button" class="gt-btn pri" data-rv="ok" hidden>여기부터 다시 추적</button>' });
+    const q=s=>B.querySelector(`[data-rv="${s}"]`), mode=on=>{ ed.setEditable(on); q('edit').hidden=on; q('cancel').hidden=!on; q('ok').hidden=!on; };
+    q('hole').onclick=()=>{ const ks=[...rv.map.keys()]; if(!ks.length) return; const a=Math.min(...ks), b=Math.max(...ks); for(let k=Math.max(ed.k+1, a);k<=b;k++) if(!rv.map.has(k)){ return ed.show(k); } say('뒤쪽에는 빈 곳이 없어요.'); };
+    q('edit').onclick=()=>{ if(rv.busy) return; if(!ed.ell){ const near=[...rv.map.keys()].sort((a,b)=>Math.abs(a-ed.k)-Math.abs(b-ed.k))[0], e0=near!=null ? ellAt(near) : null, R=e0 ? Math.max(e0.rx, e0.ry) : 0.012*it.W; ed.ell=e0 ? Object.assign({}, e0) : { x:it.W/2, y:it.H/2, rx:R, ry:R, ang:0 }; } mode(true); ed.zoomTo(ed.ell, 5); try{ B.querySelector('.bt-stage').focus(); }catch(e){} };
+    q('cancel').onclick=()=>{ mode(false); ed.ell=ellAt(ed.k); ed.paint(); };
+    q('ok').onclick=async ()=>{ if(rv.busy || !ed.ell) return; mode(false); q('edit').hidden=true; await this.retrack(it, ed.k, Object.assign({}, ed.ell)); q('edit').hidden=false; };
+    const bar=B.querySelector('.bt-rvc'); let drag=false; const seekBar=e=>{ const rc=bar.getBoundingClientRect(), k=Math.round(g.ka+clamp((e.clientX-rc.left)/rc.width, 0, 1)*(g.kb-g.ka)); if(k!==ed.k) ed.show(k); };
+    bar.onpointerdown=e=>{ drag=true; bar.setPointerCapture(e.pointerId); seekBar(e); }; bar.onpointermove=e=>{ if(drag) seekBar(e); }; bar.onpointerup=bar.onpointercancel=()=>{ drag=false; };
+    try{ box.scrollIntoView({ block:'start' }); }catch(e){}
+    await ed.show(first); if(ed.ell) ed.zoomTo(ed.ell, 8);
+  }
+  rvMap(){ const rv=this.rv; rv.map=new Map(); const tr=rv.it.res && rv.it.res.ch && rv.it.res.ch.c && rv.it.res.ch.c.tr; if(tr) tr.f.forEach((f,i)=>rv.map.set(f, { x:tr.x[i], y:tr.y[i], r:tr.r[i], src:tr.src[i] })); }
+  rvPath(k, z){ const rv=this.rv; if(!rv) return ''; const sc=rv.g.scale, ks=[...rv.map.keys()].filter(q=>Math.abs(q-k)<=1.5*rv.g.fps).sort((a,b)=>a-b); if(ks.length<2) return '';
+    let d='', prev=null; ks.forEach(q=>{ const p=rv.map.get(q); d+=(prev!=null && q-prev<=3 ? 'L' : 'M')+(p.x/sc).toFixed(1)+' '+(p.y/sc).toFixed(1); prev=q; });
+    return `<path d="${d}" fill="none" stroke="#ffd400" stroke-opacity=".7" stroke-width="${1.6*z}"/>`; }
+  rvStatus(k){ const rv=this.rv, s=this.$('.bt-rvs'); if(!rv || !s || rv.busy) return; const q=rv.map.get(k);
+    s.textContent= q ? ({ u:'지정한 곳', g:'따라감', d:'따라감(후보)', r:'다시 잡음', f:'메움', c:'자동 교정', b:'따라감(번짐)' }[q.src]||'따라감') : '못 찾음 — 여기서 고치기로 지정할 수 있어요'; }
+  rvBar(){ const rv=this.rv; if(!rv) return; const cv=this.$('.bt-rvc'); if(!cv) return; const g=rv.g, w=Math.max(200, cv.parentNode.clientWidth|0), h=18, dpr=window.devicePixelRatio||1;
+    cv.width=w*dpr; cv.height=h*dpr; cv.style.width=w+'px'; cv.style.height=h+'px'; const c=cv.getContext('2d'); c.scale(dpr, dpr); c.clearRect(0,0,w,h);
+    const n=g.kb-g.ka+1, ks=[...rv.map.keys()], a=ks.length ? Math.min(...ks) : -1, b=ks.length ? Math.max(...ks) : -1, X=k=>(k-g.ka)/n*w;
+    c.fillStyle='rgba(128,128,128,.25)'; c.fillRect(0, 5, w, 8);
+    for(let k=g.ka;k<=g.kb;k++){ const q=rv.map.get(k); let col=null; if(q) col= q.src==='u' ? '#b06bff' : /[rfc]/.test(q.src) ? '#00b4e6' : '#1fb35a'; else if(k>a && k<b) col='#e5484d'; if(col){ c.fillStyle=col; c.fillRect(X(k), 5, Math.max(1, w/n+0.5), 8); } }
+    const G=g.G; if(G) [...G.anc.keys()].forEach(k=>{ c.fillStyle='#b06bff'; c.fillRect(X(k)-1, 1, 3, 16); });
+    const k=rv.ed ? rv.ed.k : g.ka; c.fillStyle=getComputedStyle(this.body).getPropertyValue('--text').trim()||'#222'; c.fillRect(X(k)-1, 0, 2, h); }
+  async retrack(it, k, e){ const rv=this.rv, g=rv.g, v=this.sv, sc=g.scale, fps=g.fps, P=it.res.P; rv.busy=true;
+    const st=this.$('.bt-rvs'), prog=t=>{ if(st) st.textContent=t; };
+    try{
+      prog('다시 배우는 중…'); await btSeek(v, k, fps); const px=new Uint8ClampedArray(this.grabProc(v, g.W, g.H)), a={ k, x:e.x*sc, y:e.y*sc, rx:Math.max(1, e.rx*sc), ry:Math.max(1, e.ry*sc), ang:e.ang||0 };
+      let G=g.G; if(!G){ G=g.G=new BtGuide({ W:g.W, H:g.H, fps, bg:g.bg, thr:P.thr, anchors:[] }); g.guided=true; }
+      const first0=G.k0; G.reanchor(k, g.times[k]!=null ? g.times[k] : (k+0.5)/fps, a, px); try{ btPriorLearn(G.M, g.W); }catch(err){} this.addAnchor(it, k, fps, e);
+      if(k<g.kb){ const ctl={ stop:false }; rv.ctl=ctl; let n=0; const tot=g.kb-k;
+        await btPlayPass(v, fps, k+1, g.kb, (kk,t)=>{ const d=this.grabProc(v, g.W, g.H); g.times[kk]=t; G.frame(kk, t, d, G.lost && kk%3===0 ? this.detNow(rv, d, g.bg, g.W, g.H, P) : null); if(++n%10===0) prog(`다시 따라가는 중 ${n}/${tot}`); }, ctl, null); }
+      if(!(k>=first0)) G.back(g.dets, g.times, g.ka);
+      const gaps=G.gaps(g.ka, g.kb, g.dets).slice(0, 900);
+      for(let j=0;j<gaps.length;j++){ const kk=gaps[j], t=await btSeek(v, kk, fps); if(g.times[kk]==null) g.times[kk]=t; G.fill(kk, g.times[kk], this.grabProc(v, g.W, g.H)); if(j%5===0) prog(`빠진 프레임 메우는 중 ${j+1}/${gaps.length}`); }
+      const ch=this.guideChoice(G, it.res.info, P, g.times);
+      if(ch){ it.res=this.applyChoice(it.res, ch); it.res.manual=false; it.status=it.res.warn ? 'warn' : 'ok'; say(`${trTime((k+0.5)/fps)}부터 다시 따라갔어요${ch.warn ? ' — 아직 못 찾은 구간이 있어요(막대의 빨강)' : ''}.`, 3500); }
+      else say('지정한 뒤로 공을 따라가지 못했어요 — 다른 장면에서 한 번 더 지정해 보세요.', 4000);
+      rv.dirty=true; this.rvMap(); this.paintList();
+    } finally { rv.busy=false; }
+    await rv.ed.show(k); }
+  closeReview(){ const rv=this.rv; if(rv && rv.ed) rv.ed.destroy(); this.rv=null; this.paint(); }
+
+  /* ───────── ⑤ 결과 ───────── */
   paintResult(M){
     const R=this.items.filter(it=>it.res);
     if(!R.length){ M.innerHTML='<div class="bt-pick"><b>아직 결과가 없어요</b></div>'; return; }
@@ -31100,7 +31677,7 @@ class BatchTrack{
     const condTd=it=>{ if(!labs.length) return ''; const q=btNameParts(it.name, PP); return labs.map((_,j)=>`<td>${q && q.vals ? esc(q.vals[j]) : (j? '' : '<small class="bt-bad">이름 조각 수가 달라요</small>')}</td>`).join(''); };
     const row=(it,i)=>{ const r=it.res; if(r.fail) return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td>${condTd(it)}<td colspan="8" class="bt-bad">${esc(r.why)}</td></tr>`;
       const T=r.tab, L=T.rows[T.rows.length-1], vmax=Math.max(...T.rows.map(q=>isFinite(q.v)?q.v:-Infinity));
-      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td>${condTd(it)}<td><span class="bt-rule r${r.rule}${r.warn?' w':''}">${r.manual?'직접':esc(r.ch.tag||('규칙 '+r.rule))}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${T.vfit?`${fmtN(T.vfit.v,4)} ± ${fmtN(T.vfit.se,2)}`:''} ${T.unit}/s</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${T.fixed||''}</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
+      return `<tr data-i="${i}" class="${i===this.sel?'on':''}"><td>${i+1}</td><td class="bt-tn">${esc(it.name)}</td>${condTd(it)}<td><span class="bt-rule r${r.rule}${r.warn?' w':''}" title="${esc(r.why||'')}">${r.manual?'직접':esc(r.ch.tag||('규칙 '+r.rule))}</span></td><td>${fmtN(T.rows[0].vt,4)}–${fmtN(L.vt,4)} s</td><td>${T.rows.length}</td><td>${fmtN(L.s,4)} ${T.unit}</td><td>${T.vfit?`${fmtN(T.vfit.v,4)} ± ${fmtN(T.vfit.se,2)}`:''} ${T.unit}/s</td><td>${fmtN(vmax,4)} ${T.unit}/s</td><td>${T.fixed||''}</td><td>${r.ch.c.d.stopped ? r.ch.c.d.still.toFixed(1)+' s' : ''}</td></tr>`; };
     M.innerHTML=`<div class="bt-res">
       <div class="bt-rtb"><b>결과 ${R.filter(it=>!it.res.fail).length} / ${this.items.length}</b><small>줄을 누르면 아래에 확인 그림 · 그래프 · 표</small><span class="gt-sp"></span>
         <button type="button" class="gt-btn" data-r="all" title="모든 영상을 한 그래프에 — 영상마다 t · s(또는 v) 한 쌍">${ATW_ICON.graph}모두 한 그래프로</button>
@@ -31116,18 +31693,19 @@ class BatchTrack{
   paintDetail(){
     const box=this.$('.bt-det'); if(!box) return; const it=this.items[this.sel]; if(!it || !it.res){ box.innerHTML=''; return; }
     const r=it.res;
-    if(r.fail){ box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b></div><p class="bt-bad">${esc(r.why)}</p>`; return; }
+    if(r.fail){ box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b>${r.gt?'<span class="gt-sp"></span><button type="button" class="gt-btn pri" data-d="review">프레임 보며 고치기 — 공을 직접 지정</button>':''}</div><p class="bt-bad">${esc(r.why)}</p>`; const rb=box.querySelector('[data-d="review"]'); if(rb) rb.onclick=()=>this.openReview(it); return; }
     const T=r.tab, info=r.info, c=r.ch.c;
     box.innerHTML=`<div class="bt-dh"><b>${esc(it.file.name)}</b><span class="bt-why${r.warn?' w':''}">${esc(r.manual?'직접 고른 궤적':r.why)}</span><span class="gt-sp"></span>
-        <button type="button" class="gt-btn pri" data-d="graph">${ATW_ICON.graph}그래프로 보내기</button><button type="button" class="gt-btn" data-d="csv">CSV</button><button type="button" class="gt-btn ghost" data-d="png" title="확인 그림을 PNG로">그림 저장</button></div>
+        <button type="button" class="gt-btn" data-d="review" title="프레임마다 공 자리를 보고, 틀어진 곳에서 다시 지정해 그 뒤를 다시 따라가요">프레임 보며 고치기</button><button type="button" class="gt-btn pri" data-d="graph">${ATW_ICON.graph}그래프로 보내기</button><button type="button" class="gt-btn" data-d="csv">CSV</button><button type="button" class="gt-btn ghost" data-d="png" title="확인 그림을 PNG로">그림 저장</button></div>
       <div class="bt-dinfo">${esc(r.tname||'')} · ${r.rng?`범위 ${r.rng.a.toFixed(2)}–${r.rng.b.toFixed(2)} s · `:''}${info.W/info.scale|0}×${info.H/info.scale|0} · ${r.fps}fps${r.fpsGuess?' (짐작)':''} · ${r.sc && r.sc.ppu ? `축척 1 ${r.sc.unit} = ${r.sc.ppu.toPrecision(5)} px` : '축척 없음(px)'} · 공 반지름 ≈ ${T.r.toFixed(1)} px · 레일 기울기(화면) ${T.angle.toFixed(2)}° · 후보 궤적 ${info.tracks.length}개${r.refined?' · 멈춘 공 때문에 배경을 다시 만들어 한 번 더 추적함':''}${T.vfit?` · 직선 맞춤 속도(가운데 20~80%) ${fmtN(T.vfit.v,4)} ± ${fmtN(T.vfit.se,2)} ${T.unit}/s (R² ${T.vfit.r2.toFixed(3)})`:''}${T.fixed?` · 자동 교정 ${T.fixed}점`:''}${r.missed?` · 빨리 감는 중 건너뛴 ${r.missed}프레임 중 궤적 안 ${r.filled||0}개를 다시 읽어 메움`:''}</div>
-      <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = 고른 궤적(초록 원 = 시작, 보라 원 = 끝)${T.fixed?` · 하늘색 점 = 자동 교정한 ${T.fixed}점`:''} · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b></small></div>
+      <div class="bt-dg"><div class="bt-chk"><canvas class="bt-cc"></canvas><small>빨강 = ${r.gt && r.gt.guided ? '지정한 공을 따라간 길' : '고른 궤적'}(초록 원 = 시작, 보라 원 = 끝)${T.fixed?` · 하늘색 점 = 자동 교정한 ${T.fixed}점`:''}${r.gt && r.gt.guided ? ' · 틀어진 곳은 <b>[프레임 보며 고치기]</b>' : ' · 회색 = 버린 후보 — <b>회색 궤적을 누르면 그것으로 바꿔요</b>'}</small></div>
         <div class="bt-plots"><canvas class="bt-p1"></canvas><canvas class="bt-p2"></canvas></div></div>
       <details class="bt-tbl"><summary>표 보기 (${T.rows.length}줄)</summary><div class="bt-tw"><table><thead><tr><th>t (s)</th><th>영상 시각</th><th>x (${T.unit})</th><th>y (${T.unit})</th><th>s (${T.unit})</th><th>v (${T.unit}/s)</th></tr></thead><tbody>${T.rows.map(q=>`<tr><td>${fmtN(q.t,5)}</td><td>${fmtN(q.vt,5)}</td><td>${fmtN(q.X,5)}</td><td>${fmtN(q.Y,5)}</td><td>${fmtN(q.s,5)}</td><td>${fmtN(q.v,4)}</td></tr>`).join('')}</tbody></table></div></details>`;
     box.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>this.detBtn(b.dataset.d));
     const cc=box.querySelector('.bt-cc'); this.drawCheck(cc, it).then(()=>{});
     cc.onclick=e=>{ const rc=cc.getBoundingClientRect(), x=(e.clientX-rc.left)/rc.width*info.W, y=(e.clientY-rc.top)/rc.height*info.H; let best=null, bd=1e9;
       info.tracks.forEach(tr=>{ for(let q=0;q<tr.x.length;q++){ const d=Math.hypot(tr.x[q]-x, tr.y[q]-y); if(d<bd){ bd=d; best=tr; } } });
+      if(r.gt && r.gt.guided) return say('지정한 공을 따라간 결과예요 — 바꾸려면 [프레임 보며 고치기]에서 다시 지정하세요.');
       if(!best || bd>Math.max(12, 0.03*info.W) || best.id===r.trackId) return;
       const d=btDescribe(best, info, r.P); it.res=this.applyChoice(r, { c:{ tr:best, d }, rule:3, why:'직접 고른 궤적' }); it.res.manual=true; it.res.warn=false; it.status='ok'; say(`궤적 #${best.id}로 바꿨어요.`); this.paint(); };
     const pw=Math.max(240, (box.querySelector('.bt-plots').clientWidth||300));
@@ -31162,12 +31740,12 @@ class BatchTrack{
     const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([s], { type:'text/csv;charset=utf-8' })); a.download=name; document.body.appendChild(a); a.click(); setTimeout(()=>{ URL.revokeObjectURL(a.href); a.remove(); }, 1500); }
   sendGraph(mat, roles, nm, src, note){ if(typeof openGraphTool!=='function') return say('그래프 그리기 도구를 찾지 못했어요.'); const gw=openGraphTool({ newTab:true, name:nm }); const T=gw && gw.tool; if(!T) return;
     if(note && T.noteFile) T.noteFile(note); T.importDialog(mat, { source:src, roles, hdr:1 }); say(`그래프 그리기의 '${nm}' 탭으로 보냈어요 — X · Y로 쓸 열을 고르고 [넣기]를 누르세요.`, 4500); }
-  detBtn(a){ const it=this.items[this.sel]; if(!it || !it.res || it.res.fail) return;
+  detBtn(a){ const it=this.items[this.sel]; if(!it || !it.res) return; if(a==='review') return this.openReview(it); if(it.res.fail) return;
     if(a==='csv') return this.csvOut(it.name+'_추적.csv', this.tableMat(it));
     if(a==='graph'){ const M=this.tableMat(it); return this.sendGraph(M, ['x','skip','skip','skip','skip','skip','y','y','skip','skip','skip'], it.name+' 추적', `여러 영상 자동 추적 — ${it.file.name} · ${it.res.tab.rows.length}점`, it.file.name+' (여러 영상 자동 추적)'); }
     if(a==='png'){ const c=this.$('.bt-cc'); if(!c) return; c.toBlob(b=>{ const x=document.createElement('a'); x.href=URL.createObjectURL(b); x.download=it.name+'_확인.png'; document.body.appendChild(x); x.click(); setTimeout(()=>{ URL.revokeObjectURL(x.href); x.remove(); }, 1500); }); } }
   resBtn(a, btn){ const R=this.items.filter(it=>it.res && !it.res.fail);
-    if(a==='again'){ this.items.forEach(it=>{ if(it.status!=='skip'){ it.res=null; it.status='wait'; } }); return this.go('scale', 0); }
+    if(a==='again'){ this.items.forEach(it=>{ if(it.status!=='skip'){ it.res=null; it.status='wait'; } }); return this.go('teach', 0); }
     if(a==='sum' || a==='grp'){ const PP=btPref(), labs=(btNameParts('', PP)||{ labels:[] }).labels;
       const rowsAll=this.items.filter(it=>it.res).map(it=>{ const r=it.res, q=btNameParts(it.name, PP), cond=labs.map((_,j)=>q && q.vals ? q.vals[j] : '');
         if(r.fail) return { it, cond, fail:true, line:[it.file.name].concat(cond, [r.tname||'', '', r.why]) };
@@ -31211,7 +31789,7 @@ function openBatchTrack(){
 window.openBatchTrack=openBatchTrack;
 window.addEventListener('keyup', e=>{ if(e.key===' '){ const w=ATW.wins && ATW.wins.batchtrack; if(w && w.inst) w.inst._space=false; } });
 /* 시험용으로 계산 함수를 밖에 둔다 */
-window.__BT={ btFix, btNameParts, btDetect, btLink, btChoose, btTable, btMedian, btDescribe, BT_P0, btPref };
+window.__BT={ btFix, btNameParts, btDetect, btLink, btChoose, btTable, btMedian, btDescribe, BT_P0, btPref, BtGuide, btModel, btSearch, btFitEll, btCandScore, btPriorGet, BtEd };
 })();
 </script>
 <style id="anda-media-css">
