@@ -1,0 +1,10 @@
+/*
+Copyright (c) 2021 Kil Hyung-jin, with Reserved Font Name Pretendard.
+https://github.com/orioncactus/pretendard
+
+This Font Software is licensed under the SIL Open Font License, Version 1.1.
+This license is copied below, and is also available with a FAQ at:
+http://scripts.sil.org/OFL
+*/
+/* [0] */
+전문: https://openfontlicense.org/open-font-license-official-text/ (SIL OFL 1.1) — 글꼴 파일과 함께 배포 가능, 판매 금지, 예약 글꼴 이름 Pretendard
